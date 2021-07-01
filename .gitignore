@@ -1,0 +1,18 @@
+.vscode/
+__pycache__/
+temp/
+voice_file
+config.json
+chatRecord.db
+tempWordCloud.png
+test.py
+config copy.py
+
+/测试文件夹
+/saya/Ark/
+/saya/ArkrecWIKI/
+/saya/ArkTools/
+/saya/ChineseDict/chrome/
+/saya/Pixiv/
+
+/pixiv/
