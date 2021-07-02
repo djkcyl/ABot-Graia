@@ -1,3 +1,2 @@
-# SHIT
+# ABot for Graia
 
-我也不知道要写些什么
