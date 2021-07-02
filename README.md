@@ -14,7 +14,7 @@
 > - 词云生成 `我的月内总结` and `我的年内总结` and `本群月内总结` and `本群年内总结`
 > - 我的世界服务器 Motd Ping `/mcping <host:port>`
 > - 摸头 gif 生成 `摸头<@xxx>` and `[戳一戳]某人`
-> - ~~涩图~~
+> - ~~\ 涩图 ~~
 > - Pornhub 风格的 logo 生成 `ph <msg> <msg>`
 > - 亿些杂七杂八没整理的小功能
 >   > - @bot 后的反馈 `@ABot`
