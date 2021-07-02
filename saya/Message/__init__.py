@@ -202,7 +202,7 @@ async def unmute(app: GraiaMiraiApplication, message: MessageChain, group: Group
 
 
 # 草(
-@channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("草", allow_quote=True)]))
+@channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("草", allow_quote=True, skip_one_at_in_quote=True)]))
 async def a_plant(app: GraiaMiraiApplication, group: Group):
     await app.sendGroupMessage(group, MessageChain.create([
         Plain(f"一种植物（")
@@ -367,8 +367,9 @@ async def main(app: GraiaMiraiApplication, events: MemberCardChangeEvent):
                 Plain(f"\n以为你修改回：{Config.Basic.BotName}")
             ]))
             await app.modifyMemberInfo(member=Config.Basic.MAH.BotQQ,
-                                    info=MemberInfo(name=Config.Basic.BotName),
-                                    group=events.member.group.id)
+                                       info=MemberInfo(
+                                           name=Config.Basic.BotName),
+                                       group=events.member.group.id)
             await app.sendGroupMessage(events.member.group.id,
-                                    MessageChain.create([Plain(f"请不要修改我的群名片")]))
+                                       MessageChain.create([Plain(f"请不要修改我的群名片")]))
             await asyncio.sleep(2)
