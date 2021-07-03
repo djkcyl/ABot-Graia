@@ -184,7 +184,7 @@
 > ~~Windows 系统也需要问吗？~~
 
 ### **Linux**
-
+> **Centos**
 > ```shell
 > yum install screen
 > screen -R ABot
