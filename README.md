@@ -186,6 +186,7 @@
 ### **Linux**
 
 > ```shell
+> **Centos**
 > yum install screen
 > screen -R ABot
 > ...
