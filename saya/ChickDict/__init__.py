@@ -30,11 +30,11 @@ async def fun_dict(app: GraiaMiraiApplication, group: Group, message: MessageCha
         ]))
         return
     else:
-        say_name = saying[1].upper()
-    if say_name == Config.Basic.Permission.MasterName.upper() or say_name == Config.Basic.BotName.upper():
+        say_name = saying[1]
+    if Config.Basic.Permission.MasterName.replace(" ", "").upper() in say_name.replace(" ", "").upper() or  Config.Basic.BotName.replace(" ", "").upper() in say_name.replace(" ", "").upper():
         await app.sendGroupMessage(group, MessageChain.create([
             At(member.id),
-            Plain(f"爬")
+            Plain(f" 爬")
         ]))
         return
 

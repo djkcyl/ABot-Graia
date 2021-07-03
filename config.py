@@ -1,6 +1,14 @@
+import yaml
+
 from graia.application import GraiaMiraiApplication
 from graia.application.event.messages import Group
 from graia.application.message.elements.internal import MessageChain, Plain
+
+
+file = open('config.yaml', 'r', encoding="utf-8")
+file_data = file.read()
+yaml_data = yaml.load(file_data)
+file.close()
 
 
 async def sendmsg(app: GraiaMiraiApplication, group: Group):
@@ -8,117 +16,95 @@ async def sendmsg(app: GraiaMiraiApplication, group: Group):
 
 
 class Config:
-    class Basic:  # 基础配置
-        BotName = str("")  # 机器人在群里的名字
+    class Basic:
+        BotName = str(yaml_data['Basic']['BotName'])
 
-        class MAH:  # Mirai HTTP API配置
-            BotQQ = int()  # 机器人QQ号
-            MiraiHost = str("")  # Mirai HTTP API地址
-            MiraiAuthKey = str("")  # Mirai HTTP API AuthKey
+        class MAH:
+            BotQQ = int(yaml_data['Basic']['MAH']['BotQQ'])
+            MiraiHost = str(yaml_data['Basic']['MAH']['MiraiHost'])
 
-        class Permission:  # 权限管理
-            Master = int()  # 机器人主人QQ号
-            MasterName = str("")  # 机器人主人昵称
-            Admin = list([  # 机器人管理员
-                Master,
-            ])
+            MiraiAuthKey = str(yaml_data['Basic']['MAH']['MiraiAuthKey'])
 
-    class Saya:  # saya 插件配置
-        class AliTTS:  # 阿里云文字转语音
-            Disabled = bool(False)  # 是否禁用
-            Blacklist = list([  # 禁用的群
-                
-            ])
-            # API申请地址：https://nls-portal.console.aliyun.com
-            Appkey = str("")
+        class Permission:
+            Master = int(yaml_data['Basic']['Permission']['Master'])
+            MasterName = str(yaml_data['Basic']['Permission']['MasterName'])
+            Admin = list(yaml_data['Basic']['Permission']['Admin'])
+            Admin.append(Master)
 
-            class AccessKey:  # AccessKey 获取地址：https://help.aliyun.com/document_detail/69835.htm
-                Id = str("")
-                Secret = str("")
+    class Saya:
+        class AliTTS:
+            Disabled = bool(yaml_data['Saya']['AliTTS']['Disabled'])
+            Blacklist = list(yaml_data['Saya']['AliTTS']['Blacklist'])
 
-        class ChickDict:  # 小鸡词典
-            Disabled = bool(False)  # 是否禁用
-            Blacklist = list([  # 禁用的群
+            Appkey = str(yaml_data['Saya']['AliTTS']['Appkey'])
 
-            ])
+            class AccessKey:
+                Id = str(yaml_data['Saya']['AliTTS']['AccessKey']['Id'])
+                Secret = str(yaml_data['Saya']['AliTTS']
+                             ['AccessKey']['Secret'])
 
-        class ChickEmoji:  # 小鸡词典emoji翻译
-            Disabled = bool(False)  # 是否禁用
-            Blacklist = list([  # 禁用的群
+        class ChickDict:
+            Disabled = bool(yaml_data['Saya']['ChickDict']['Disabled'])
+            Blacklist = list(yaml_data['Saya']['ChickDict']['Blacklist'])
 
-            ])
+        class ChickEmoji:
+            Disabled = bool(yaml_data['Saya']['ChickEmoji']['Disabled'])
+            Blacklist = list(yaml_data['Saya']['ChickEmoji']['Blacklist'])
 
-        class ChineseDict:  # 汉典
-            Disabled = bool(False)  # 是否禁用
-            Blacklist = list([  # 禁用的群
+        class ChineseDict:
+            Disabled = bool(yaml_data['Saya']['ChineseDict']['Disabled'])
+            Blacklist = list(yaml_data['Saya']['ChineseDict']['Blacklist'])
 
-            ])
+        class CloudMusic:
+            Disabled = bool(yaml_data['Saya']['CloudMusic']['Disabled'])
+            Blacklist = list(yaml_data['Saya']['CloudMusic']['Blacklist'])
+            MusicInfo = bool(yaml_data['Saya']['CloudMusic']['MusicInfo'])
 
-        class CloudMusic:  # 网易云音乐点歌
-            Disabled = bool(False)  # 是否禁用
-            Blacklist = list([  # 禁用的群
+            class ApiConfig:
+                PhoneNumber = str(
+                    yaml_data['Saya']['CloudMusic']['ApiConfig']['PhoneNumber'])
+                Password = str(
+                    yaml_data['Saya']['CloudMusic']['ApiConfig']['Password'])
 
-            ])
-            MusicInfo = bool(True)  # 是否发送音乐信息
+        class WordCloud:
+            Disabled = bool(yaml_data['Saya']['WordCloud']['Disabled'])
+            Blacklist = list(yaml_data['Saya']['WordCloud']['Blacklist'])
 
-        class CloudMusic:  # 网易云音乐点歌
-            Disabled = bool(False)  # 是否禁用
-            Blacklist = list([  # 禁用的群
+        class MutePack:
+            Disabled = bool(yaml_data['Saya']['MutePack']['Disabled'])
+            Blacklist = list(yaml_data['Saya']['MutePack']['Blacklist'])
+            MaxTime = int(yaml_data['Saya']['MutePack']['MaxTime'])
+            MaxMultiple = int(yaml_data['Saya']['MutePack']['MaxMultiple'])
+            MaxJackpotProbability = int(
+                yaml_data['Saya']['MutePack']['MaxJackpotProbability'])
+            SuperDouble = bool(yaml_data['Saya']['MutePack']['SuperDouble'])
+            MaxSuperDoubleProbability = int(
+                yaml_data['Saya']['MutePack']['MaxSuperDoubleProbability'])
+            MaxSuperDoubleMultiple = int(
+                yaml_data['Saya']['MutePack']['MaxSuperDoubleMultiple'])
 
-            ])
+        class Beast:
+            Disabled = bool(yaml_data['Saya']['Beast']['Disabled'])
+            Blacklist = list(yaml_data['Saya']['Beast']['Blacklist'])
+            BeastPhrase = list(yaml_data['Saya']['Beast']['BeastPhrase'])
 
-            class ApiConfig:  # Api搭建：https://github.com/Binaryify/NeteaseCloudMusicApi
-                PhoneNumber = str()  # 登录手机号码
-                Password = str("")  # 登录密码
+        class MinecraftPing:
+            Disabled = bool(yaml_data['Saya']['MinecraftPing']['Disabled'])
+            Blacklist = list(yaml_data['Saya']['MinecraftPing']['Blacklist'])
 
-        class WordCloud:  # 词云生成
-            Disabled = bool(False)  # 是否禁用
-            Blacklist = list([  # 禁用的群
+        class PetPet:
+            Disabled = bool(yaml_data['Saya']['PetPet']['Disabled'])
+            Blacklist = list(yaml_data['Saya']['PetPet']['Blacklist'])
+            CanAt = bool(yaml_data['Saya']['PetPet']['CanAt'])
+            CanNudge = bool(yaml_data['Saya']['PetPet']['CanNudge'])
 
-            ])
+        class PornhubLogo:
+            Disabled = bool(yaml_data['Saya']['PornhubLogo']['Disabled'])
+            Blacklist = list(yaml_data['Saya']['PornhubLogo']['Blacklist'])
 
-        class MutePack:  # 禁言套餐
-            Disabled = bool(False)  # 是否禁用
-            Blacklist = list([  # 禁用的群
-                
-            ])
-            MaxTime = int(3000)  # 单倍最大时长
-            MaxMultiple = int(8)  # 最大基础倍数
-            MaxJackpotProbability = int(10000)  # 头奖概率 x分之一
-            SuperDouble = bool(True)  # 是否开启超级加倍
-            MaxSuperDoubleProbability = int(25)  # 超级加倍概率 x分之一
-            MaxSuperDoubleMultiple = int(12)  # 超级加倍最大倍数
-
-        class Beast:  # 兽语转换
-            Disabled = bool(False)  # 是否禁用
-            Blacklist = list([  # 禁用的群
-
-            ])
-            BeastPhrase = list(['嗷', '呜', '啊', '~'])  # 兽语字符组，需要填写四个字符
-
-        class MinecraftPing:  # Minecraft Server PING
-            Disabled = bool(False)  # 是否禁用
-            Blacklist = list([  # 禁用的群
-
-            ])
-
-        class PetPet:  # 摸头 GIF 生成
-            Disabled = bool(False)  # 是否禁用
-            Blacklist = list([  # 禁用的群
-
-            ])
-            CanAt = bool(True)  # 是否可通过消息 at 触发
-            CanNudge = bool(True)  # 是否可通过戳一戳触发
-
-        class PornhubLogo:  # Pornhub Logo 生成
-            Disabled = bool(False)  # 是否禁用
-            Blacklist = list([  # 禁用的群
-
-            ])
-
-    Final = bool(False)  # 配置完成后请调整为 True
+    Final = bool(yaml_data['Final'])
 
 
 if not Config.Final:
-    print("配置文件未修改完成，请手动编辑 config.py 进行修改")
+    print("配置文件未修改完成，请手动编辑 config.exp.ymal 进行修改并重命名为 config.yaml")
     exit()

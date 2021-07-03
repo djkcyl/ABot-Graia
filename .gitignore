@@ -6,7 +6,7 @@ config.json
 chatRecord.db
 tempWordCloud.png
 test.py
-config copy.py
+config.yaml
 
 /测试文件夹
 /saya/Ark/
