@@ -185,11 +185,12 @@
 
 ### **Linux**
 > **Centos**
-> ```shell
-> yum install screen
-> screen -R ABot
-> ...
-> ```
+> > ```shell
+> > yum install screen
+> > screen -R ABot
+> > ...
+> > ```
+> 其他发行版怎么用就不多说了，自己查吧
 > [Screen 基础用法](https://www.runoob.com/linux/linux-comm-screen.html)
 
 
