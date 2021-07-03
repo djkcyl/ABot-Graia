@@ -35,12 +35,14 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: 
                                 headers=api_headers)
     ta = translation.text
     tb = json.loads(ta)
-    print(len(tb[0]))
-    try:
+    if "trans" in tb[0]:
         tc = tb[0]["trans"]
-        td = f" {saying[1]} 可能是：\n" + "\n".join(tc)
-    except:
-        td = f" 未收录该条目"
+        td = f"{saying[1]} 可能是：\n" + "\n".join(tc)
+    elif "inputting" in tb[0]:
+        tc = tb[0]["inputting"]
+        td = f"{saying[1]} 可能是：\n" + "\n".join(tc)
+    else:
+        td = f"未收录该条目"
 
     await app.sendGroupMessage(group, MessageChain.create([
         At(member.id),
