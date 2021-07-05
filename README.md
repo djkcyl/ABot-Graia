@@ -80,6 +80,7 @@
 > [Screen 基础用法](https://www.runoob.com/linux/linux-comm-screen.html)
 
 
-
+ABot 的 saya 插件应该都可以抠出来放在别的 graia bot 里使用
 
 ~~代码太烂了，呜呜呜别骂了别骂了~~
+
