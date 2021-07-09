@@ -220,13 +220,12 @@ async def get_BotJoinGroup(app: GraiaMiraiApplication, joingroup: BotJoinGroupEv
 
 
 @channel.use(ListenerSchema(listening_events=[BotLeaveEventKick]))
-async def get_BotJoinGroup(app: GraiaMiraiApplication, member: Member, kickgroup: BotLeaveEventKick):
+async def get_BotJoinGroup(app: GraiaMiraiApplication, kickgroup: BotLeaveEventKick):
     for qq in Config.Basic.Permission.Admin:
         await app.sendFriendMessage(qq, MessageChain.create([
             Plain("收到被踢出群聊事件"),
             Plain(f"\n群号：{kickgroup.group.id}"),
-            Plain(f"\n群名：{kickgroup.group.name}"),
-            Plain(f"\n操作人：{member.name} | {member.id}")
+            Plain(f"\n群名：{kickgroup.group.name}")
         ]))
 
 

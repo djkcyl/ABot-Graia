@@ -22,20 +22,17 @@ class Config:
         class MAH:
             BotQQ = int(yaml_data['Basic']['MAH']['BotQQ'])
             MiraiHost = str(yaml_data['Basic']['MAH']['MiraiHost'])
-
             MiraiAuthKey = str(yaml_data['Basic']['MAH']['MiraiAuthKey'])
 
         class Permission:
             Master = int(yaml_data['Basic']['Permission']['Master'])
             MasterName = str(yaml_data['Basic']['Permission']['MasterName'])
             Admin = list(yaml_data['Basic']['Permission']['Admin'])
-            Admin.append(Master)
 
     class Saya:
         class AliTTS:
             Disabled = bool(yaml_data['Saya']['AliTTS']['Disabled'])
             Blacklist = list(yaml_data['Saya']['AliTTS']['Blacklist'])
-
             Appkey = str(yaml_data['Saya']['AliTTS']['Appkey'])
 
             class AccessKey:
