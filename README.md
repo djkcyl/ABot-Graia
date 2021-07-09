@@ -16,6 +16,7 @@
 > - 摸头 gif 生成 `摸头<@xxx>` and `[戳一戳]某人`
 > - ~~涩图~~
 > - Pornhub 风格的 logo 生成 `ph <msg> <msg>`
+> - 复读姬
 > - 亿些杂七杂八没整理的小功能
 >   > - @bot 后的反馈 `@ABot`
 >   > - 禁言群员 `/mute <@xxx>` and `/unmute <@xxx>`

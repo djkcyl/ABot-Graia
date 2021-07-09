@@ -98,6 +98,14 @@ class Config:
         class PornhubLogo:
             Disabled = bool(yaml_data['Saya']['PornhubLogo']['Disabled'])
             Blacklist = list(yaml_data['Saya']['PornhubLogo']['Blacklist'])
+            
+        class Repeater:
+            Disabled = bool(yaml_data['Saya']['Repeater']['Disabled'])
+            Blacklist = list(yaml_data['Saya']['Repeater']['Blacklist'])
+            RepeatTimes = int(yaml_data['Saya']['Repeater']['RepeatTimes'])
+            class Random:
+                Disabled = bool(yaml_data['Saya']['Repeater']['Random']['Disabled'])
+                Probability = int(yaml_data['Saya']['Repeater']['Random']['Probability'])
 
     Final = bool(yaml_data['Final'])
 
