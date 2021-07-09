@@ -25,7 +25,7 @@ channel = Channel.current()
 seg = pkuseg.pkuseg()
 
 BASE_PATH = "./saya/GroupWordCloudGenerator/"
-
+GWCGRAINING = False
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
 async def group_wordcloud_generator(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
@@ -47,21 +47,43 @@ async def group_wordcloud_generator(app: GraiaMiraiApplication, message: Message
     group_id = group.id
     if1 = "[图片]" not in message_text
     if2 = "[表情]" not in message_text
-    if if1 & if2:
+    ifat = not message.has(At)
+    if if1 & if2 & ifat:
         await write_chat_record(seg, group_id, member_id, message_text)
     try:
+        global GWCGRAINING
         if message_text == "我的月内总结":
+            if GWCGRAINING:
+                await app.sendGroupMessage(group, MessageChain.create([Plain("总结正在运行中，请稍后再试")]))
+                return
+            GWCGRAINING = True
             await app.sendGroupMessage(group, MessageChain.create([Plain("正在生成，请稍后")]))
             await app.sendGroupMessage(group, await get_review(group_id, member_id, "month", "member"))
+            GWCGRAINING = False
         elif message_text == "我的年内总结":
+            if GWCGRAINING:
+                await app.sendGroupMessage(group, MessageChain.create([Plain("总结正在运行中，请稍后再试")]))
+                return
+            GWCGRAINING = True
             await app.sendGroupMessage(group, MessageChain.create([Plain("正在生成，请稍后")]))
             await app.sendGroupMessage(group, await get_review(group_id, member_id, "year", "member"))
+            GWCGRAINING = False
         elif message_text == "本群月内总结":
+            if GWCGRAINING:
+                await app.sendGroupMessage(group, MessageChain.create([Plain("总结正在运行中，请稍后再试")]))
+                return
+            GWCGRAINING = True
             await app.sendGroupMessage(group, MessageChain.create([Plain("正在生成，请稍后")]))
             await app.sendGroupMessage(group, await get_review(group_id, member_id, "month", "group"))
+            GWCGRAINING = False
         elif message_text == "本群年内总结":
+            if GWCGRAINING:
+                await app.sendGroupMessage(group, MessageChain.create([Plain("总结正在运行中，请稍后再试")]))
+                return
+            GWCGRAINING = True
             await app.sendGroupMessage(group, MessageChain.create([Plain("正在生成，请稍后")]))
             await app.sendGroupMessage(group, await get_review(group_id, member_id, "year", "group"))
+            GWCGRAINING = False
     except AccountMuted:
         pass
 
