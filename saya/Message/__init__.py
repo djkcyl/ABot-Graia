@@ -83,7 +83,7 @@ async def atrep(app: GraiaMiraiApplication, group: Group, message: MessageChain,
                 else:
                     await app.sendGroupMessage(group, MessageChain.create([
                         Plain(
-                            f"我是{Config.Basic.Permission.MasterName}的机器人{Config.Basic.BotName}，如果有需要可以联系主人QQ”{str(Config.Basic.Permission.Master)}master“，添加{Config.Basic.BotName}好友后可以被拉到其他群（她会自动同意的），{Config.Basic.BotName}被群禁言后会自动退出该群。")
+                            f"我是{Config.Basic.Permission.MasterName}的机器人{Config.Basic.BotName}，如果有需要可以联系主人QQ”{str(Config.Basic.Permission.Master)}“，添加{Config.Basic.BotName}好友后可以被拉到其他群（她会自动同意的），{Config.Basic.BotName}被群禁言后会自动退出该群。")
                     ]))
 
 
@@ -312,15 +312,15 @@ async def kickall(app: GraiaMiraiApplication, member: Member, group: Group):
 #         ))]))
 
 
-# @channel.use(ListenerSchema(listening_events=[BotInvitedJoinGroupRequestEvent]))
-# async def accept(app: GraiaMiraiApplication, invite: BotInvitedJoinGroupRequestEvent):
-#     await app.sendFriendMessage(Config.Basic.Permission.Master, MessageChain.create([
-#         Plain(f"收到邀请入群事件"),
-#         Plain(f"\n邀请者：{invite.supplicant} | {invite.nickname}"),
-#         Plain(f"\n群号：{invite.groupId}"),
-#         Plain(f"\n群名：{invite.groupName}")
-#     ]))
-#     await invite.accept()
+@channel.use(ListenerSchema(listening_events=[BotInvitedJoinGroupRequestEvent]))
+async def accept(app: GraiaMiraiApplication, invite: BotInvitedJoinGroupRequestEvent):
+    await app.sendFriendMessage(Config.Basic.Permission.Master, MessageChain.create([
+        Plain(f"收到邀请入群事件"),
+        Plain(f"\n邀请者：{invite.supplicant} | {invite.nickname}"),
+        Plain(f"\n群号：{invite.groupId}"),
+        Plain(f"\n群名：{invite.groupName}")
+    ]))
+    await invite.accept()
 
 
 # @channel.use(SchedulerSchema(crontabify("* * * * * *")))
