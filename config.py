@@ -106,6 +106,10 @@ class Config:
             class Random:
                 Disabled = bool(yaml_data['Saya']['Repeater']['Random']['Disabled'])
                 Probability = int(yaml_data['Saya']['Repeater']['Random']['Probability'])
+                
+        class Pixiv:
+            Disabled = bool(yaml_data['Saya']['Pixiv']['Disabled'])
+            Blacklist = list(yaml_data['Saya']['Pixiv']['Blacklist'])
 
     Final = bool(yaml_data['Final'])
 

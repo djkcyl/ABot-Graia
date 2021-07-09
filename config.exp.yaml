@@ -100,6 +100,11 @@ Saya: # saya 插件配置
       Disabled: false
       Probability: 20 # 默认复读概率 x分之一
 
+    Pixiv: # 色图
+      Disabled: false
+      Blacklist:
+        - 123456
+        
 Final: false
 # 配置完成后请调整为 True
 # 配置完成后请调整为 True
