@@ -336,10 +336,6 @@ async def accept(app: GraiaMiraiApplication, invite: BotInvitedJoinGroupRequestE
 #         print(grouplist)
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("色图")]))
-async def main(app: GraiaMiraiApplication, group: Group):
-    await app.sendGroupMessage(group, MessageChain.create([Image_LocalFile("./saya/Message/setu_qr.png")]))
-
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("流汗黄豆.jpg")]))
 async def main(app: GraiaMiraiApplication, group: Group, member: Member):
