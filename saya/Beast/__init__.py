@@ -28,13 +28,11 @@ async def main(app: GraiaMiraiApplication, group: Group, message: MessageChain, 
         msg = encode(saying[1])
         print(len(msg))
         if (len(msg)) < 2000:
-            await app.sendGroupMessage(group, MessageChain.create([Plain(msg)]),
-                                       quote=source.id)
+            await app.sendGroupMessage(group, MessageChain.create([Plain(msg)]), quote=source.id)
         else:
             await app.sendGroupMessage(group, MessageChain.create([Plain(f"文字太长")]))
     except:
-        await app.sendGroupMessage(group, MessageChain.create([Plain("明文错误``")]),
-                                   quote=source.id)
+        await app.sendGroupMessage(group, MessageChain.create([Plain("明文错误``")]), quote=source.id)
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("呜")]))
@@ -48,8 +46,6 @@ async def main(app: GraiaMiraiApplication, group: Group, message: MessageChain, 
     try:
         saying = message.asDisplay().split()
         msg = decode(saying[1])
-        await app.sendGroupMessage(group, MessageChain.create([Plain(msg)]),
-                                   quote=source.id)
+        await app.sendGroupMessage(group, MessageChain.create([Plain(msg)]), quote=source.id)
     except:
-        await app.sendGroupMessage(group, MessageChain.create([Plain("密文错误``")]),
-                                   quote=source.id)
+        await app.sendGroupMessage(group, MessageChain.create([Plain("密文错误``")]), quote=source.id)
