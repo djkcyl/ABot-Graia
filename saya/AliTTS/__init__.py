@@ -25,15 +25,17 @@ if not os.path.exists("voice_file"):
     print("正在创建语音缓存文件夹")
     os.mkdir("voice_file")
 
+TTSRUNING = False
+
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("/tts")]))
 async def ali_tts(app: GraiaMiraiApplication, group: Group, message: MessageChain, source: Source):
-    
+
     if Config.Saya.AliTTS.Disabled:
         return await sendmsg(app=app, group=group)
     elif group.id in Config.Saya.AliTTS.Blacklist:
         return await sendmsg(app=app, group=group)
-    
+
     if len(message.asDisplay()) > 180:
         await app.sendGroupMessage(group, MessageChain.create([
             Plain(f"超过字符限制 " + str(len(message.asDisplay())) + "/180")
@@ -41,7 +43,7 @@ async def ali_tts(app: GraiaMiraiApplication, group: Group, message: MessageChai
         return
     saying = message.asDisplay().split()
     tts_con = saying[1]
-    model = ["男","女","童","日","美"]
+    model = ["男", "女", "童", "日", "美"]
     strmodel = "、".join(model)
     if tts_con not in model:
         await app.sendGroupMessage(group, MessageChain.create([Plain(f"请输入可用的语音模型\n{strmodel}")]))
@@ -77,6 +79,13 @@ async def ali_tts(app: GraiaMiraiApplication, group: Group, message: MessageChai
         ]))
     else:
         # print("语音文件不存在，正在创建，请耐心等待")
+        global TTSRUNING
+        if TTSRUNING:
+            await app.sendGroupMessage(group, MessageChain.create([
+                Plain(f"当前有一个tts请求正在运行中，请稍后……")
+            ]))
+            return
+        TTSRUNING = True
         loop_wait = await app.sendGroupMessage(group, MessageChain.create([
             Plain(f"正在创建语音文件，请耐心等待")
         ]))
@@ -96,3 +105,4 @@ async def ali_tts(app: GraiaMiraiApplication, group: Group, message: MessageChai
             Plain(f"语音创建完成！耗时 {times} 秒\n{tts_md5} .silk")
         ]), quote=source)
         await app.revokeMessage(loop_wait)
+        TTSRUNING = False
