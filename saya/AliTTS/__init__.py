@@ -1,4 +1,3 @@
-import re
 import os
 import time
 import requests
@@ -61,7 +60,7 @@ async def ali_tts(app: GraiaMiraiApplication, group: Group, message: MessageChai
     # elif tts_con == "A":
     #     vm_type = "pt_zbwn4r07awdszw0b_a60voice"
     # print(tts_con)
-    tts_md5 = md5(saying[1] + " " + saying[2].encode('utf8')).hexdigest()
+    tts_md5 = md5(str(saying[1] + saying[2]).encode(encoding="UTF-8")).hexdigest()
     tts_shot_md5 = tts_md5[0:2]
     # print(tts_shot_md5)
     voice_file = "voice_file/" + tts_shot_md5 + "/" + tts_md5  # 完整 md5 文件名
