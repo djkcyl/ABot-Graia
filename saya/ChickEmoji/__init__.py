@@ -34,7 +34,7 @@ async def fun_dict(app: GraiaMiraiApplication, group: Group, message: MessageCha
         "Origin": "https://jikipedia.com"
     }
     emoji = json.loads(requests.post(api_url,
-                                     jsno=api_data,
+                                     json=api_data,
                                      headers=api_headers).text)
     # print(emoji)
     await app.sendGroupMessage(str(group.id), MessageChain.create([
