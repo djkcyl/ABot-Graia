@@ -9,7 +9,7 @@ from graia.application.event.mirai import *
 from graia.application.message.elements.internal import *
 from graia.application.message.parser.literature import Literature
 
-from config import Config, sendmsg
+from config import yaml_data, sendmsg
 
 saya = Saya.current()
 channel = Channel.current()
@@ -18,9 +18,9 @@ channel = Channel.current()
 @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("查梗")]))
 async def fun_dict(app: GraiaMiraiApplication, group: Group, message: MessageChain, member: Member):
 
-    if Config.Saya.ChickDict.Disabled:
+    if yaml_data['Saya']['ChickDict']['Disabled']:
         return await sendmsg(app=app, group=group)
-    elif group.id in Config.Saya.ChickDict.Blacklist:
+    elif group.id in yaml_data['Saya']['ChickDict']['Blacklist']:
         return await sendmsg(app=app, group=group)
 
     saying = message.asDisplay().split()
@@ -31,7 +31,7 @@ async def fun_dict(app: GraiaMiraiApplication, group: Group, message: MessageCha
         return
     else:
         say_name = saying[1]
-    if Config.Basic.Permission.MasterName.replace(" ", "").upper() in say_name.replace(" ", "").upper() or  Config.Basic.BotName.replace(" ", "").upper() in say_name.replace(" ", "").upper():
+    if yaml_data['Basic']['Permission']['MasterName'].replace(" ", "").upper() in say_name.replace(" ", "").upper() or  yaml_data['Basic']['BotName'].replace(" ", "").upper() in say_name.replace(" ", "").upper():
         await app.sendGroupMessage(group, MessageChain.create([
             At(member.id),
             Plain(f" 爬")

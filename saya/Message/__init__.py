@@ -18,7 +18,7 @@ from graia.application.interrupts import FriendMessageInterrupt
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.parser.literature import Literature
 
-from config import Config, sendmsg
+from config import yaml_data, sendmsg
 
 
 saya = Saya.current()
@@ -70,11 +70,11 @@ inc = InterruptControl(bcc)
 async def atrep(app: GraiaMiraiApplication, group: Group, message: MessageChain, member: Member, source: Source):
     ifat = message.has(At)
     if ifat:
-        ifa = message.get(At)[0].target == Config.Basic.MAH.BotQQ
-        ifas = message.asDisplay().strip() == f"@{str(Config.Basic.MAH.BotQQ)}"
+        ifa = message.get(At)[0].target == yaml_data['Basic']['MAH']['BotQQ']
+        ifas = message.asDisplay().strip() == f"@{str(yaml_data['Basic']['MAH']['BotQQ'])}"
         if ifas:
             if ifa:
-                if member.id == Config.Basic.Permission.Master:
+                if member.id == yaml_data['Basic']['Permission']['Master']:
                     await app.sendGroupMessage(group,
                                                MessageChain.create([
                                                    Plain(f"爹！")
@@ -83,13 +83,13 @@ async def atrep(app: GraiaMiraiApplication, group: Group, message: MessageChain,
                 else:
                     await app.sendGroupMessage(group, MessageChain.create([
                         Plain(
-                            f"我是{Config.Basic.Permission.MasterName}的机器人{Config.Basic.BotName}，如果有需要可以联系主人QQ”{str(Config.Basic.Permission.Master)}“，添加{Config.Basic.BotName}好友后可以被拉到其他群（她会自动同意的），{Config.Basic.BotName}被群禁言后会自动退出该群。")
+                            f"我是{yaml_data['Basic']['Permission']['MasterName']}的机器人{yaml_data['Basic']['BotName']}，如果有需要可以联系主人QQ”{str(yaml_data['Basic']['Permission']['Master'])}“，添加{yaml_data['Basic']['BotName']}好友后可以被拉到其他群（她会自动同意的），{yaml_data['Basic']['BotName']}被群禁言后会自动退出该群。")
                     ]))
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("/mute")]))
 async def message_revoke(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
-    if member.id in Config.Basic.Permission.Admin:
+    if member.id in yaml_data['Basic']['Permission']['Admin']:
         mute_list = message.asDisplay().split()
         print(mute_list)
         qq = message.get(At)[0].target
@@ -101,7 +101,7 @@ async def message_revoke(app: GraiaMiraiApplication, message: MessageChain, grou
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("/unmute")]))
 async def unmute(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
-    if member.id in Config.Basic.Permission.Admin:
+    if member.id in yaml_data['Basic']['Permission']['Admin']:
         unmute_list = message.asDisplay().split()
         print(unmute_list)
         qq = message.get(At)[0].target
@@ -112,7 +112,7 @@ async def unmute(app: GraiaMiraiApplication, message: MessageChain, group: Group
 
 @channel.use(ListenerSchema(listening_events=[FriendMessage], inline_dispatchers=[Literature("/unmute")]))
 async def livegroup(app: GraiaMiraiApplication, friend: Friend, message: MessageChain):
-    if friend.id in Config.Basic.Permission.Admin:
+    if friend.id in yaml_data['Basic']['Permission']['Admin']:
         say = message.asDisplay().split()
         groupid = say[1]
         try:
@@ -121,7 +121,7 @@ async def livegroup(app: GraiaMiraiApplication, friend: Friend, message: Message
             await app.sendFriendMessage(friend, MessageChain.create([Plain(f"权限不足，无法取消禁言")]))
 
 
-if Config.Saya.MutePack.MaxTime * Config.Saya.MutePack.MaxMultiple * Config.Saya.MutePack.MaxSuperDoubleMultiple > 2592000:
+if yaml_data['Saya']['MutePack']['MaxTime'] * yaml_data['Saya']['MutePack']['MaxMultiple'] * yaml_data['Saya']['MutePack']['MaxSuperDoubleMultiple'] > 2592000:
     print("禁言套餐最大基础时长设定超过30天，请检查配置文件")
     exit()
 
@@ -129,40 +129,40 @@ if Config.Saya.MutePack.MaxTime * Config.Saya.MutePack.MaxMultiple * Config.Saya
 @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("我要禁言套餐")]))
 async def random_mute(app: GraiaMiraiApplication, group: Group, member: Member):
 
-    if Config.Saya.MutePack.Disabled:
+    if yaml_data['Saya']['MutePack']['Disabled']:
         return await sendmsg(app=app, group=group)
-    elif group.id in Config.Saya.MutePack.Blacklist:
+    elif group.id in yaml_data['Saya']['MutePack']['Blacklist']:
         return await sendmsg(app=app, group=group)
 
-    if member.id in Config.Basic.Permission.Admin:
+    if member.id in yaml_data['Basic']['Permission']['Admin']:
         time = random.randint(60, 180)
     else:
-        time = random.randint(60, Config.Saya.MutePack.MaxTime)
-    multiple = random.randint(1, Config.Saya.MutePack.MaxMultiple)
+        time = random.randint(60, yaml_data['Saya']['MutePack']['MaxTime'])
+    multiple = random.randint(1, yaml_data['Saya']['MutePack']['MaxMultiple'])
     ftime = time * multiple
     srtftime = strftime("%H:%M:%S", gmtime(ftime))
-    if random.randint(1, Config.Saya.MutePack.MaxJackpotProbability) == Config.Saya.MutePack.MaxJackpotProbability:
+    if random.randint(1, yaml_data['Saya']['MutePack']['MaxJackpotProbability']) == yaml_data['Saya']['MutePack']['MaxJackpotProbability']:
         try:
             await app.mute(group, member, 2592000)
             await app.sendGroupMessage(group, MessageChain.create([AtAll(), Plain(f"恭喜{member.name}中了头奖！获得30天禁言！")]))
-            await app.sendFriendMessage(Config.Basic.Permission.Master, MessageChain.create(Plain(f"恭喜 {group.name} 群里的 {member.name} 中了禁言头奖")))
+            await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create(Plain(f"恭喜 {group.name} 群里的 {member.name} 中了禁言头奖")))
             quit()
         except PermissionError:
-            await app.sendGroupMessage(group, MessageChain.create([Plain(f"权限不足，无法使用！\n使用该功能{Config.Basic.BotName}需要为管理")]))
-    elif Config.Saya.MutePack.SuperDouble and random.randint(1, Config.Saya.MutePack.MaxSuperDoubleProbability) == Config.Saya.MutePack.MaxSuperDoubleProbability:
+            await app.sendGroupMessage(group, MessageChain.create([Plain(f"权限不足，无法使用！\n使用该功能{yaml_data['Basic']['BotName']}需要为管理")]))
+    elif yaml_data['Saya']['MutePack']['SuperDouble'] and random.randint(1, yaml_data['Saya']['MutePack']['MaxSuperDoubleProbability']) == yaml_data['Saya']['MutePack']['MaxSuperDoubleProbability']:
         try:
-            ftime = ftime * Config.Saya.MutePack.MaxSuperDoubleMultiple
+            ftime = ftime * yaml_data['Saya']['MutePack']['MaxSuperDoubleMultiple']
             srtftime = strftime("%d:%H:%M:%S", gmtime(ftime))
             await app.mute(group, member, ftime)
             await app.sendGroupMessage(group, MessageChain.create([Plain(f"恭喜你抽中了 {time} 秒禁言套餐！倍率为 {multiple}！\n超级加倍！\n最终时长为 {srtftime}")]))
         except PermissionError:
-            await app.sendGroupMessage(group, MessageChain.create([Plain(f"权限不足，无法使用！\n使用该功能{Config.Basic.BotName}需要为管理员权限或更高")]))
+            await app.sendGroupMessage(group, MessageChain.create([Plain(f"权限不足，无法使用！\n使用该功能{yaml_data['Basic']['BotName']}需要为管理员权限或更高")]))
     else:
         try:
             await app.mute(group, member, ftime)
             await app.sendGroupMessage(group, MessageChain.create([Plain(f"恭喜你抽中了 {time} 秒禁言套餐！倍率为 {multiple}\n最终时长为 {srtftime}")]))
         except PermissionError:
-            await app.sendGroupMessage(group, MessageChain.create([Plain(f"权限不足，无法使用！\n使用该功能{Config.Basic.BotName}需要为管理员权限或更高")]))
+            await app.sendGroupMessage(group, MessageChain.create([Plain(f"权限不足，无法使用！\n使用该功能{yaml_data['Basic']['BotName']}需要为管理员权限或更高")]))
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("/ping943")]))
@@ -193,7 +193,7 @@ async def ping943(app: GraiaMiraiApplication, group: Group, message: MessageChai
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("/setnick")]))
 async def unmute(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
-    if member.id in Config.Basic.Permission.Admin:
+    if member.id in yaml_data['Basic']['Permission']['Admin']:
         saylist = message.asDisplay().split()
         qq = message.get(At)[0].target
         await app.modifyMemberInfo(qq, MemberInfo(name=(saylist[2])), group)
@@ -211,7 +211,7 @@ async def a_plant(app: GraiaMiraiApplication, group: Group):
 
 @channel.use(ListenerSchema(listening_events=[BotJoinGroupEvent]))
 async def get_BotJoinGroup(app: GraiaMiraiApplication, joingroup: BotJoinGroupEvent):
-    for qq in Config.Basic.Permission.Admin:
+    for qq in yaml_data['Basic']['Permission']['Admin']:
         await app.sendFriendMessage(qq, MessageChain.create([
             Plain("收到加入群聊事件"),
             Plain(f"\n群号：{joingroup.group.id}"),
@@ -221,7 +221,7 @@ async def get_BotJoinGroup(app: GraiaMiraiApplication, joingroup: BotJoinGroupEv
 
 @channel.use(ListenerSchema(listening_events=[BotLeaveEventKick]))
 async def get_BotJoinGroup(app: GraiaMiraiApplication, kickgroup: BotLeaveEventKick):
-    for qq in Config.Basic.Permission.Admin:
+    for qq in yaml_data['Basic']['Permission']['Admin']:
         await app.sendFriendMessage(qq, MessageChain.create([
             Plain("收到被踢出群聊事件"),
             Plain(f"\n群号：{kickgroup.group.id}"),
@@ -231,7 +231,7 @@ async def get_BotJoinGroup(app: GraiaMiraiApplication, kickgroup: BotLeaveEventK
 
 @channel.use(ListenerSchema(listening_events=[BotGroupPermissionChangeEvent]))
 async def get_BotJoinGroup(app: GraiaMiraiApplication, permissionchange: BotGroupPermissionChangeEvent):
-    for qq in Config.Basic.Permission.Admin:
+    for qq in yaml_data['Basic']['Permission']['Admin']:
         await app.sendFriendMessage(qq, MessageChain.create([
             Plain("收到权限变动事件"),
             Plain(f"\n群号：{permissionchange.group.id}"),
@@ -242,7 +242,7 @@ async def get_BotJoinGroup(app: GraiaMiraiApplication, permissionchange: BotGrou
 
 @channel.use(ListenerSchema(listening_events=[BotMuteEvent]))
 async def get_BotJoinGroup(app: GraiaMiraiApplication, group: Group, mute: BotMuteEvent):
-    for qq in Config.Basic.Permission.Admin:
+    for qq in yaml_data['Basic']['Permission']['Admin']:
         await app.sendFriendMessage(qq, MessageChain.create([
             Plain("收到禁言事件"),
             Plain(f"\n群号：{group.id}"),
@@ -253,7 +253,7 @@ async def get_BotJoinGroup(app: GraiaMiraiApplication, group: Group, mute: BotMu
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("1", allow_quote=True, skip_one_at_in_quote=True)]))
 async def get_botQueue(app: GraiaMiraiApplication, member: Member, message: MessageChain, source: Source):
-    if member.id in Config.Basic.Permission.Admin:
+    if member.id in yaml_data['Basic']['Permission']['Admin']:
         messageid = message.get(Quote)[0].origin.get(Source)[0].id
         try:
             await app.revokeMessage(messageid)
@@ -265,7 +265,7 @@ async def get_botQueue(app: GraiaMiraiApplication, member: Member, message: Mess
 @channel.use(ListenerSchema(listening_events=[FriendMessage]))
 async def friendTrans(app: GraiaMiraiApplication, friend: Friend, message: MessageChain):
     say = message.asDisplay()
-    await app.sendFriendMessage(Config.Basic.Permission.Master, MessageChain.create([
+    await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
         Plain(f"收到私信消息"),
         Plain(f"\n来源：{friend.id} | {friend.nickname}"),
         Plain(f"\n消息内容：{say}")
@@ -274,15 +274,15 @@ async def friendTrans(app: GraiaMiraiApplication, friend: Friend, message: Messa
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("/viveall")]))
 async def viveall(app: GraiaMiraiApplication, member: Member, group: Group):
-    if member.id == Config.Basic.Permission.Master:
+    if member.id == yaml_data['Basic']['Permission']['Master']:
         userlist = await app.memberList(group)
         usernum = len(userlist)
-        await app.sendGroupMessage(group, MessageChain.create([Plain(f"当前群人数共有 {usernum} 人\n{Config.Basic.BotName}如为管理发送/kickall即可将全部管理权限以下群员踢出群聊")]))
+        await app.sendGroupMessage(group, MessageChain.create([Plain(f"当前群人数共有 {usernum} 人\n{yaml_data['Basic']['BotName']}如为管理发送/kickall即可将全部管理权限以下群员踢出群聊")]))
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("/kickall")]))
 async def kickall(app: GraiaMiraiApplication, member: Member, group: Group):
-    if member.id == Config.Basic.Permission.Master:
+    if member.id == yaml_data['Basic']['Permission']['Master']:
         memberlist = await app.memberList()
         for member in memberlist:
             try:
@@ -313,7 +313,7 @@ async def kickall(app: GraiaMiraiApplication, member: Member, group: Group):
 
 @channel.use(ListenerSchema(listening_events=[BotInvitedJoinGroupRequestEvent]))
 async def accept(app: GraiaMiraiApplication, invite: BotInvitedJoinGroupRequestEvent):
-    await app.sendFriendMessage(Config.Basic.Permission.Master, MessageChain.create([
+    await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
         Plain(f"收到邀请入群事件"),
         Plain(f"\n邀请者：{invite.supplicant} | {invite.nickname}"),
         Plain(f"\n群号：{invite.groupId}"),
@@ -324,12 +324,12 @@ async def accept(app: GraiaMiraiApplication, invite: BotInvitedJoinGroupRequestE
 
 # @channel.use(SchedulerSchema(crontabify("* * * * * *")))
 # async def something_scheduled(app: GraiaMiraiApplication):
-#     await app.sendFriendMessage(Config.Basic.Permission.Master, MessageChain.create([Plain("消息发送测试")]))
+#     await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([Plain("消息发送测试")]))
 
 
 # @channel.use(ListenerSchema(listening_events=[FriendMessage], inline_dispatchers=[Literature("/grouplist")]))
 # async def main(app: GraiaMiraiApplication, friend: Friend):
-#     if friend.id == Config.Basic.Permission.Master:
+#     if friend.id == yaml_data['Basic']['Permission']['Master']:
 #         grouplist = await app.groupList()
 #         grouplist = list(set(grouplist))
 #         # grouplist = grouplist.sort()
@@ -339,7 +339,7 @@ async def accept(app: GraiaMiraiApplication, invite: BotInvitedJoinGroupRequestE
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("流汗黄豆.jpg")]))
 async def main(app: GraiaMiraiApplication, group: Group, member: Member):
-    if member.id == Config.Basic.Permission.Master:
+    if member.id == yaml_data['Basic']['Permission']['Master']:
         await app.sendGroupMessage(group, MessageChain.create([Image_LocalFile("./saya/Message/huangdou.jpg")]))
     else:
         await app.sendGroupMessage(group, MessageChain.create([At(member.id), Image_LocalFile("./saya/Message/huangdou.jpg")]))
@@ -352,18 +352,18 @@ async def main(app: GraiaMiraiApplication, group: Group):
 
 @channel.use(ListenerSchema(listening_events=[MemberCardChangeEvent]))
 async def main(app: GraiaMiraiApplication, events: MemberCardChangeEvent):
-    if events.member.id == Config.Basic.MAH.BotQQ:
-        if events.current != Config.Basic.BotName:
+    if events.member.id == yaml_data['Basic']['MAH']['BotQQ']:
+        if events.current != yaml_data['Basic']['BotName']:
             await app.sendFriendMessage(2948531755, MessageChain.create([
-                Plain(f"检测到 {Config.Basic.BotName} 群名片变动"),
+                Plain(f"检测到 {yaml_data['Basic']['BotName']} 群名片变动"),
                 Plain(f"\n群号：{str(events.member.group.id)}"),
                 Plain(f"\n群名：{events.member.group.name}"),
                 Plain(f"\n被修改为：{events.current}"),
-                Plain(f"\n以为你修改回：{Config.Basic.BotName}")
+                Plain(f"\n以为你修改回：{yaml_data['Basic']['BotName']}")
             ]))
-            await app.modifyMemberInfo(member=Config.Basic.MAH.BotQQ,
+            await app.modifyMemberInfo(member=yaml_data['Basic']['MAH']['BotQQ'],
                                        info=MemberInfo(
-                                           name=Config.Basic.BotName),
+                                           name=yaml_data['Basic']['BotName']),
                                        group=events.member.group.id)
             await app.sendGroupMessage(events.member.group.id,
                                        MessageChain.create([Plain(f"请不要修改我的群名片")]))

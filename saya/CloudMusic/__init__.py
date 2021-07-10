@@ -12,7 +12,7 @@ from graia.application.message.elements.internal import *
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.parser.literature import Literature
 
-from config import Config, sendmsg
+from config import yaml_data, sendmsg
 
 
 saya = Saya.current()
@@ -24,15 +24,15 @@ if not os.path.exists("./saya/CloudMusic/temp/"):
 
 HOST = "http://127.0.0.1:3000"
 login = requests.get(
-    url=f"{HOST}/login/cellphone?phone={Config.Saya.CloudMusic.ApiConfig.PhoneNumber}&password={Config.Saya.CloudMusic.ApiConfig.Password}").cookies
+    url=f"{HOST}/login/cellphone?phone={yaml_data['Saya']['CloudMusic']['ApiConfig']['PhoneNumber']}&password={yaml_data['Saya']['CloudMusic']['ApiConfig']['Password']}").cookies
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("点歌")]))
 async def what_are_you_saying(app: GraiaMiraiApplication, group: Group):
 
-    if Config.Saya.CloudMusic.Disabled:
+    if yaml_data['Saya']['CloudMusic']['Disabled']:
         return await sendmsg(app=app, group=group)
-    elif group.id in Config.Saya.CloudMusic.Blacklist:
+    elif group.id in yaml_data['Saya']['CloudMusic']['Blacklist']:
         return await sendmsg(app=app, group=group)
 
     await app.sendGroupMessage(group, MessageChain.create([Plain(f"发送<搜歌 歌曲名等>即可搜歌")]))
@@ -41,9 +41,9 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group):
 @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("搜歌")]))
 async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, saying: MessageChain):
 
-    if Config.Saya.CloudMusic.Disabled:
+    if yaml_data['Saya']['CloudMusic']['Disabled']:
         return await sendmsg(app=app, group=group)
-    elif group.id in Config.Saya.CloudMusic.Blacklist:
+    elif group.id in yaml_data['Saya']['CloudMusic']['Blacklist']:
         return await sendmsg(app=app, group=group)
 
     message = saying.asDisplay().split(" ", 1)
@@ -71,9 +71,9 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, saying: 
 @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("唱歌")]))
 async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, saying: MessageChain):
 
-    if Config.Saya.CloudMusic.Disabled:
+    if yaml_data['Saya']['CloudMusic']['Disabled']:
         return await sendmsg(app=app, group=group)
-    elif group.id in Config.Saya.CloudMusic.Blacklist:
+    elif group.id in yaml_data['Saya']['CloudMusic']['Blacklist']:
         return await sendmsg(app=app, group=group)
 
     musicid = saying.asDisplay().split()[1]
@@ -88,7 +88,7 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, saying: 
     musicinfo = json.loads(musicinfo)
     musicurl = json.loads(requests.get(
         url=f"{HOST}/song/url?id={musicid}&br=128000&timestamp={times}", cookies=login).text)
-    if Config.Saya.CloudMusic.MusicInfo:
+    if yaml_data['Saya']['CloudMusic']['MusicInfo']:
         music_name = musicinfo['songs'][0]['name']
         music_ar = []
         for ar in musicinfo['songs'][0]['ar']:

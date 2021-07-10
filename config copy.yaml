@@ -1,0 +1,116 @@
+Basic: # 基础配置
+  BotName: "ABot" # 机器人在群里的名字
+
+  MAH: # Mirai HTTP API配置
+    BotQQ: 2353538071 # 机器人QQ号
+    MiraiHost: "http://localhost:8066" # Mirai HTTP API地址
+    MiraiAuthKey: "tdtogkf123" # Mirai HTTP API AuthKey
+
+  Permission: # 权限管理
+    Master: 2948531755 # 机器人主人QQ号
+    MasterName: "A60" # 机器人主人昵称
+    Admin: # 机器人管理员
+      - 2948531755
+
+Saya: # saya 插件配置
+  AliTTS: # 阿里云文字转语音
+    Disabled: false # 是否禁用
+    Blacklist: # 禁用的群
+      - 123456789
+    Appkey: "zBwn4R07aWDsZw0b" # API申请地址：https://nls-portal.console.aliyun.com
+
+    AccessKey: # AccessKey 获取地址：https://help.aliyun.com/document_detail/69835.htm
+      Id: "LTAIIlIJHB58WjAm"
+      Secret: "Xn9gzJiYPn7PAqgqE8QCtSBb5cyxrn"
+
+  ChickDict: # 小鸡词典
+    Disabled: false
+    Blacklist:
+      - 123456
+
+  ChickEmoji: # 小鸡词典emoji翻译
+    Disabled: false
+    Blacklist:
+      - 123456
+
+  ChineseDict: # 汉典查询
+    Disabled: false
+    Blacklist:
+      - 123456
+
+  CloudMusic: # 网易云音乐点歌
+    Disabled: false
+    Blacklist:
+      - 123456
+    MusicInfo: true # 是否发送音乐信息
+
+    ApiConfig: # 网易云Api搭建：https://github.com/Binaryify/NeteaseCloudMusicApi
+      PhoneNumber: 17386520112 # 登录手机号码
+      Password: "tdtogkf" # 登录密码
+
+  CyberBlacktalk: # 网络黑话翻译
+    Disabled: false
+    Blacklist:
+      - 123456
+
+  WordCloud: # 词云生成
+    Disabled: false
+    Blacklist:
+      - 123456
+
+  MutePack: # 禁言套餐
+    Disabled: false
+    Blacklist:
+      - 961639314
+    MaxTime: 3000 # 单倍最大时长
+    MaxMultiple: 8 # 最大基础倍数
+    MaxJackpotProbability: 10000 # 头奖概率 x分之一
+    SuperDouble: true # 是否开启超级加倍
+    MaxSuperDoubleProbability: 25 # 超级加倍概率 x分之一
+    MaxSuperDoubleMultiple: 12 # 超级加倍最大倍数
+
+  Beast: # 兽语转换
+    Disabled: false
+    Blacklist:
+      - 123456
+    BeastPhrase: # 兽语字符组，需要填写四个字符
+      - "嗷"
+      - "呜"
+      - "啊"
+      - "~"
+
+  MinecraftPing: # Minecraft Server PING
+    Disabled: false
+    Blacklist:
+      - 123456
+
+  PetPet: # 摸头 GIF 生成
+    Disabled: false
+    Blacklist:
+      - 123456
+    CanAt: true # 是否可通过消息 at 触发
+    CanNudge: true # 是否可通过戳一戳触发
+
+  PornhubLogo: # Pornhub Logo 生成
+    Disabled: false
+    Blacklist:
+      - 123456
+
+  Repeater: # 复读机
+    Disabled: true
+    Blacklist:
+      - 123456
+    RepeatTimes: 3
+    Random:
+      Disabled: false
+      Probability: 100 # 默认复读概率 x分之一
+
+  Pixiv: # 色图
+    Disabled: true
+    Blacklist:
+      - 123456
+
+Final: true
+# 配置完成后请调整为 True
+# 配置完成后请调整为 True
+# 配置完成后请调整为 True

@@ -11,7 +11,7 @@ from graia.application.event.mirai import *
 from graia.application.message.elements.internal import *
 from graia.application.message.parser.literature import Literature
 
-from config import Config, sendmsg
+from config import yaml_data, sendmsg
 
 from .page_screenshot import get_hans_screenshot
 
@@ -32,9 +32,9 @@ channel = Channel.current()
 @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("词典")]))
 async def fun_dict(app: GraiaMiraiApplication, group: Group, message: MessageChain):
 
-    if Config.Saya.ChineseDict.Disabled:
+    if yaml_data['Saya']['ChineseDict']['Disabled']:
         return await sendmsg(app=app, group=group)
-    elif group.id in Config.Saya.ChineseDict.Blacklist:
+    elif group.id in yaml_data['Saya']['ChineseDict']['Blacklist']:
         return await sendmsg(app=app, group=group)
 
     saying = message.asDisplay().split()

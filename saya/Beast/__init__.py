@@ -6,7 +6,7 @@ from graia.application.message.elements.internal import *
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.parser.literature import Literature
 
-from config import Config, sendmsg
+from config import yaml_data, sendmsg
 
 from .beast import encode, decode
 
@@ -18,9 +18,9 @@ channel = Channel.current()
 @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("嗷")]))
 async def main(app: GraiaMiraiApplication, group: Group, message: MessageChain, source: Source):
 
-    if Config.Saya.Beast.Disabled:
+    if yaml_data['Saya']['Beast']['Disabled']:
         return await sendmsg(app=app, group=group)
-    elif group.id in Config.Saya.Beast.Blacklist:
+    elif group.id in yaml_data['Saya']['Beast']['Blacklist']:
         return await sendmsg(app=app, group=group)
 
     try:
@@ -38,9 +38,9 @@ async def main(app: GraiaMiraiApplication, group: Group, message: MessageChain, 
 @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("呜")]))
 async def main(app: GraiaMiraiApplication, group: Group, message: MessageChain, source: Source):
 
-    if Config.Saya.Beast.Disabled:
+    if yaml_data['Saya']['Beast']['Disabled']:
         return await sendmsg(app=app, group=group)
-    elif group.id in Config.Saya.Beast.Blacklist:
+    elif group.id in yaml_data['Saya']['Beast']['Blacklist']:
         return await sendmsg(app=app, group=group)
 
     try:

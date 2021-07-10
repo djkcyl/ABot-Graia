@@ -7,7 +7,7 @@ import requests
 
 from urllib import parse
 
-from config import Config
+from config import yaml_data
 
 
 class AccessToken:
@@ -58,5 +58,5 @@ class AccessToken:
 
 def get_token():
     token = AccessToken.create_token(
-        Config.Saya.AliTTS.AccessKey.Id, Config.Saya.AliTTS.AccessKey.Secret)
+        yaml_data['Saya']['AliTTS']['AccessKey']['Id'], yaml_data['Saya']['AliTTS']['AccessKey']['Secret'])
     return token

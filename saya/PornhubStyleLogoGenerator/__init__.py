@@ -11,7 +11,7 @@ from graia.application.event.mirai import *
 from graia.application.message.elements.internal import *
 from graia.application.message.parser.literature import Literature
 
-from config import Config, sendmsg
+from config import yaml_data, sendmsg
 
 
 saya = Saya.current()
@@ -21,9 +21,9 @@ channel = Channel.current()
 @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature('ph')]))
 async def pornhub_style_logo_generator(app: GraiaMiraiApplication, message: MessageChain, group: Group):
     
-    if Config.Saya.PornhubLogo.Disabled:
+    if yaml_data['Saya']['PornhubLogo']['Disabled']:
         return await sendmsg(app=app, group=group)
-    elif group.id in Config.Saya.PornhubLogo.Blacklist:
+    elif group.id in yaml_data['Saya']['PornhubLogo']['Blacklist']:
         return await sendmsg(app=app, group=group)
 
     try:

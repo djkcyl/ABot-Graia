@@ -7,7 +7,7 @@ from graia.application import GraiaMiraiApplication
 from graia.application.message.elements.internal import *
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 
-from config import Config
+from config import yaml_data
 
 
 saya = Saya.current()
@@ -19,9 +19,9 @@ repdict = {}
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
 async def repeater(app: GraiaMiraiApplication, group: Group, message: MessageChain):
     
-    if Config.Saya.Repeater.Disabled:
+    if yaml_data['Saya']['Repeater']['Disabled']:
         return
-    elif group.id in Config.Saya.Repeater.Blacklist:
+    elif group.id in yaml_data['Saya']['Repeater']['Blacklist']:
         return
     
     global repdict
@@ -34,7 +34,7 @@ async def repeater(app: GraiaMiraiApplication, group: Group, message: MessageCha
             repdict[group.id] = {'msg': saying, 'num': 1, 'last': ""}
         elif saying == repdict[group.id]['msg']:
             repdict[group.id]['num'] = repdict[group.id]['num'] + 1
-            if repdict[group.id]['num'] == Config.Saya.Repeater.RepeatTimes and saying != repdict[group.id]['last']:
+            if repdict[group.id]['num'] == yaml_data['Saya']['Repeater']['RepeatTimes'] and saying != repdict[group.id]['last']:
                 await app.sendGroupMessage(group, MessageChain.create([Plain(saying)]))
                 repdict[group.id] = {'msg': saying, 'num': 1, 'last': saying}
         else:
@@ -43,16 +43,16 @@ async def repeater(app: GraiaMiraiApplication, group: Group, message: MessageCha
             
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
 async def repeateron(app: GraiaMiraiApplication, group: Group, message: MessageChain):
-    if Config.Saya.Repeater.Disabled:
+    if yaml_data['Saya']['Repeater']['Disabled']:
         return
-    elif group.id in Config.Saya.Repeater.Blacklist:
+    elif group.id in yaml_data['Saya']['Repeater']['Blacklist']:
         return
-    elif Config.Saya.Repeater.Random.Disabled:
+    elif yaml_data['Saya']['Repeater']['Random']['Disabled']:
         return
     
     saying = message.asDisplay()
-    randint = random.randint(1, Config.Saya.Repeater.Random.Probability)
-    if randint == Config.Saya.Repeater.Random.Probability:
+    randint = random.randint(1, yaml_data['Saya']['Repeater']['Random']['Probability'])
+    if randint == yaml_data['Saya']['Repeater']['Random']['Probability']:
         ifpic = "[图片]" not in saying
         ifface = "[表情]" not in saying
         ifat = not message.has(At)

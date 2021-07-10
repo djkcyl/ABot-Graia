@@ -17,7 +17,7 @@ from graia.application.message.elements.internal import Image
 from graia.application.event.messages import Group
 from graia.application.exceptions import AccountMuted
 
-from config import Config, sendmsg
+from config import yaml_data, sendmsg
 
 
 saya = Saya.current()
@@ -27,9 +27,9 @@ channel = Channel.current()
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
 async def petpet_generator(app: GraiaMiraiApplication, message: MessageChain, group: Group):
         
-    if Config.Saya.PetPet.Disabled and not Config.Saya.PetPet.CanAt:
+    if yaml_data['Saya']['PetPet']['Disabled'] and not yaml_data['Saya']['PetPet']['CanAt']:
         return await sendmsg(app=app, group=group)
-    elif group.id in Config.Saya.PetPet.Blacklist:
+    elif group.id in yaml_data['Saya']['PetPet']['Blacklist']:
         return await sendmsg(app=app, group=group)
 
     message_text = message.asDisplay()
@@ -52,9 +52,9 @@ async def petpet_generator(app: GraiaMiraiApplication, message: MessageChain, gr
 @channel.use(ListenerSchema(listening_events=[NudgeEvent]))
 async def get_nudge(app: GraiaMiraiApplication, nudge: NudgeEvent):
         
-    if Config.Saya.PornhubLogo.Disabled and not Config.Saya.PetPet.CanNudge:
+    if yaml_data['Saya']['PornhubLogo']['Disabled'] and not yaml_data['Saya']['PetPet']['CanNudge']:
         return await sendmsg(app=app, group=nudge.group_id)
-    elif nudge.group_id in Config.Saya.PornhubLogo.Blacklist:
+    elif nudge.group_id in yaml_data['Saya']['PornhubLogo']['Blacklist']:
         return await sendmsg(app=app, group=nudge.group_id)
 
     app.logger.info(f"[{nudge.group_id}] 收到戳一戳事件 -> [{nudge.target}]")
