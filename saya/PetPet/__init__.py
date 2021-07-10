@@ -27,7 +27,7 @@ channel = Channel.current()
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
 async def petpet_generator(app: GraiaMiraiApplication, message: MessageChain, group: Group):
         
-    if Config.Saya.PetPet.Disabled & Config.Saya.PetPet.CanAt:
+    if Config.Saya.PetPet.Disabled and not Config.Saya.PetPet.CanAt:
         return await sendmsg(app=app, group=group)
     elif group.id in Config.Saya.PetPet.Blacklist:
         return await sendmsg(app=app, group=group)
@@ -52,7 +52,7 @@ async def petpet_generator(app: GraiaMiraiApplication, message: MessageChain, gr
 @channel.use(ListenerSchema(listening_events=[NudgeEvent]))
 async def get_nudge(app: GraiaMiraiApplication, nudge: NudgeEvent):
         
-    if Config.Saya.PornhubLogo.Disabled & Config.Saya.PetPet.CanNudge:
+    if Config.Saya.PornhubLogo.Disabled and not Config.Saya.PetPet.CanNudge:
         return await sendmsg(app=app, group=nudge.group_id)
     elif nudge.group_id in Config.Saya.PornhubLogo.Blacklist:
         return await sendmsg(app=app, group=nudge.group_id)
