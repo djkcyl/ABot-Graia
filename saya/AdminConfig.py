@@ -35,8 +35,9 @@ funclist = [
 async def adminmain(app: GraiaMiraiApplication, group: Group, message: MessageChain):
     if message.asDisplay() in ["/help", "帮助", "菜单"]:
         await app.sendGroupMessage(group, MessageChain.create([Plain(f"{yaml_data['Basic']['BotName']} 使用指南"),
-                                                            Plain(f"\n（使用指南还没写，别急"),
-                                                            Plain(f"\n发送 <管理员菜单> 即可调整群内功能是否开启")]))
+                                                               Plain(
+                                                                   f"\n（使用指南还没写，别急"),
+                                                               Plain(f"\n发送 <管理员菜单> 即可调整群内功能是否开启")]))
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("管理员菜单")]))
@@ -108,3 +109,16 @@ async def onAoff(app: GraiaMiraiApplication, group: Group, member: Member, messa
             await app.sendGroupMessage(group, MessageChain.create([Plain(f"{funcname}已处于关闭状态")]))
     else:
         await app.sendGroupMessage(group, MessageChain.create([Plain(f"你没有使用该功能的权限")]))
+
+
+@channel.use(ListenerSchema(listening_events=[GroupMessage]))
+async def tran(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain):
+    if message.has(At) and message.getOne(At, 0).target == yaml_data['Basic']['MAH']['BotQQ']:
+        saying = message.asDisplay()
+        await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
+            Plain(f"收到传送消息："),
+            Plain(f"\n群号：{group.id}"),
+            Plain(f"\n群名：{group.name}"),
+            Plain(f"\nQQ：{member.id}"),
+            Plain(f"\n昵称：{member.name}"),
+            Plain(f"\n消息内容：{saying}")]))
