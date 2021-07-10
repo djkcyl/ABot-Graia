@@ -9,7 +9,7 @@ from graia.scheduler import GraiaScheduler
 from graia.scheduler.saya import GraiaSchedulerBehaviour
 from graia.broadcast.interrupt import InterruptControl
 
-from config import Config
+from config import yaml_data
 
 ignore = ["__init__.py", "__pycache__"]
 
@@ -27,9 +27,9 @@ saya.install_behaviours(InterruptControl(bcc))
 app = GraiaMiraiApplication(
     broadcast=bcc,
     connect_info=Session(
-        host=Config.Basic.MAH.MiraiHost,
-        authKey=Config.Basic.MAH.MiraiAuthKey,
-        account=Config.Basic.MAH.BotQQ,
+        host=yaml_data['Basic']['MAH']['MiraiHost'],
+        authKey=yaml_data['Basic']['MAH']['MiraiAuthKey'],
+        account=yaml_data['Basic']['MAH']['BotQQ'],
         websocket=True
     )
 )

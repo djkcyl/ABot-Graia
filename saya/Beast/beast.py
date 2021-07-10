@@ -1,6 +1,6 @@
-from config import Config
+from config import yaml_data
 
-beast = Config.Saya.Beast.BeastPhrase
+beast = yaml_data['Saya']['Beast']['BeastPhrase']
 if len(beast) != 4:
     print("兽语转换词组有误，请检查配置文件")
     exit()

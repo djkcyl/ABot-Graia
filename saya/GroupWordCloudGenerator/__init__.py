@@ -15,7 +15,7 @@ from graia.application.event.messages import GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.elements.internal import At, MessageChain, Plain, Image
 
-from config import Config, sendmsg
+from config import yaml_data, sendmsg
 
 from .Sqlite3Manager import execute_sql
 
@@ -30,9 +30,9 @@ GWCGRAINING = False
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
 async def group_wordcloud_generator(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
     
-    if Config.Saya.WordCloud.Disabled:
+    if yaml_data['Saya']['WordCloud']['Disabled']:
         return await sendmsg(app=app, group=group)
-    elif group.id in Config.Saya.WordCloud.Blacklist:
+    elif group.id in yaml_data['Saya']['WordCloud']['Blacklist']:
         return await sendmsg(app=app, group=group)
 
     """

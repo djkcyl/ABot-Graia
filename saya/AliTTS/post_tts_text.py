@@ -2,7 +2,7 @@ import json
 import httpx
 import asyncio
 
-from config import Config
+from config import yaml_data
 
 from .get_token import get_token
 
@@ -22,10 +22,10 @@ async def post_text(text, type):
             "enable_notify": False
         },
         "context": {
-            "device_id": Config.Basic.BotName
+            "device_id": yaml_data['Basic']['BotName']
         },
         "header": {
-            "appkey": Config.Saya.AliTTS.Appkey,
+            "appkey": yaml_data['Saya']['AliTTS']['Appkey'],
             "token": token
         }
     }
@@ -39,7 +39,7 @@ async def post_text(text, type):
 
 async def waitloop_url(token, task_id):
     s = 1
-    url = f"https://nls-gateway.cn-shanghai.aliyuncs.com/rest/v1/tts/async?appkey={Config.Saya.AliTTS.Appkey}&token={token}&task_id={task_id}"
+    url = f"https://nls-gateway.cn-shanghai.aliyuncs.com/rest/v1/tts/async?appkey={yaml_data['Saya']['AliTTS']['Appkey']}&token={token}&task_id={task_id}"
     while s < 100:
         tts_url_get = json.loads(httpx.get(url).text)
         if (tts_url_get["error_code"] == 20000000) and (tts_url_get["error_message"] == "SUCCESS"):
