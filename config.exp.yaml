@@ -48,6 +48,11 @@ Saya: # saya 插件配置
       PhoneNumber: 123456 # 登录手机号码
       Password: "xxxx" # 登录密码
 
+  CyberBlacktalk: # 网络黑话翻译
+    Blacklist:
+    - 123456
+    Disabled: false
+
   WordCloud: # 词云生成
     Disabled: false
     Blacklist:

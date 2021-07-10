@@ -31,6 +31,14 @@ funclist = [
 ]
 
 
+@channel.use(ListenerSchema(listening_events=[GroupMessage]))
+async def adminmain(app: GraiaMiraiApplication, group: Group, message: MessageChain):
+    if message.asDisplay() in ["/help", "帮助", "菜单"]:
+        await app.sendGroupMessage(group, MessageChain.create([Plain(f"{yaml_data['Basic']['BotName']} 使用指南"),
+                                                            Plain(f"\n（使用指南还没写，别急"),
+                                                            Plain(f"\n发送 <管理员菜单> 即可调整群内功能是否开启")]))
+
+
 @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("管理员菜单")]))
 async def adminmain(app: GraiaMiraiApplication, group: Group, member: Member):
     if member.permission in ["Administrator", "Owner"] or member.id in yaml_data['Basic']['Permission']['Admin']:
