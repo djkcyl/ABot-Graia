@@ -7,7 +7,6 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.event.messages import *
 from graia.application.event.mirai import *
 from graia.application.message.elements.internal import *
-from graia.application.message.parser.literature import Literature
 
 from config import Config, sendmsg
 
