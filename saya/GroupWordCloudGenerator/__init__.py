@@ -15,7 +15,7 @@ from graia.application.event.messages import GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.elements.internal import At, MessageChain, Plain, Image
 
-from config import yaml_data, sendmsg
+from config import yaml_data
 
 from .Sqlite3Manager import execute_sql
 
@@ -31,9 +31,9 @@ GWCGRAINING = False
 async def group_wordcloud_generator(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
     
     if yaml_data['Saya']['WordCloud']['Disabled']:
-        return await sendmsg(app=app, group=group)
+        return
     elif group.id in yaml_data['Saya']['WordCloud']['Blacklist']:
-        return await sendmsg(app=app, group=group)
+        return
 
     """
     群/个人词云生成器
