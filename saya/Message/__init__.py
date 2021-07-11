@@ -249,6 +249,7 @@ async def get_BotJoinGroup(app: GraiaMiraiApplication, group: Group, mute: BotMu
             Plain(f"\n群名：{group.name}"),
             Plain(f"\n操作者：{mute.operator.name} | {mute.operator.id}")
         ]))
+        await app.quit(group)
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("1", allow_quote=True, skip_one_at_in_quote=True)]))

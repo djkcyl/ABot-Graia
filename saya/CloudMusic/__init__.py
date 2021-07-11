@@ -46,6 +46,8 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, saying: 
     elif group.id in yaml_data['Saya']['CloudMusic']['Blacklist']:
         return await sendmsg(app=app, group=group)
 
+    if len(saying.asDisplay().split()) == 1:
+        return await app.sendGroupMessage(group, MessageChain.create([Plain(f"发送<搜歌 歌曲名等>即可搜歌")]))
     message = saying.asDisplay().split(" ", 1)
     times = str(int(time.time()))
     search = requests.get(
@@ -75,7 +77,10 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, saying: 
         return await sendmsg(app=app, group=group)
     elif group.id in yaml_data['Saya']['CloudMusic']['Blacklist']:
         return await sendmsg(app=app, group=group)
-
+    
+    if len(saying.asDisplay().split()) == 1:
+        return await app.sendGroupMessage(group, MessageChain.create([Plain(f"请发送 <唱歌 歌曲id>")]))
+    
     musicid = saying.asDisplay().split()[1]
     times = str(int(time.time()))
     musiccheck = json.loads(requests.get(

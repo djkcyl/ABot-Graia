@@ -1,5 +1,5 @@
 import json
-import requests
+import httpx
 
 from graia.application import GraiaMiraiApplication
 from graia.saya import Saya, Channel
@@ -25,20 +25,24 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: 
         return await sendmsg(app=app, group=group)
 
     saying = message.asDisplay().split()
+    if len(saying) != 2:
+        return await app.sendGroupMessage(group, MessageChain.create([Plain(f"你在说什么 <需要翻译的简写>")]))
     api_url = "https://lab.magiconch.com/api/nbnhhsh/guess"
     api_data = {"text": saying[1]}
     api_headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) "
                       "Chrome/51.0.2704.103 Safari/537.36"}
-    translation = requests.post(api_url,
+    translation = httpx.post(api_url,
                                 json=api_data,
                                 headers=api_headers)
     ta = translation.text
     tb = json.loads(ta)
-    if "trans" in tb[0]:
+    if len(tb) == 0:
+        return await app.sendGroupMessage(group, MessageChain.create([Plain(f"你在说什么 <需要翻译的简写>")]))
+    if "trans" in tb[0] and len(tb[0]["trans"]) != 0:
         tc = tb[0]["trans"]
         td = f"{saying[1]} 可能是：\n" + "\n".join(tc)
-    elif "inputting" in tb[0]:
+    elif "inputting" in tb[0] and len(tb[0]["inputting"]) != 0:
         tc = tb[0]["inputting"]
         td = f"{saying[1]} 可能是：\n" + "\n".join(tc)
     else:
