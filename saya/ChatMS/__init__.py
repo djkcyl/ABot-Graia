@@ -66,7 +66,8 @@ async def main(app: GraiaMiraiApplication, friend: Friend, message: MessageChain
             return await app.sendFriendMessage(friend, MessageChain.create([
                 Plain(random.choice(root[key])),
                 Plain(f"\n\n聊天处于测试阶段，谨慎使用。触发关键词：{key}"),
-                Plain(f"\nhttps://github.com/Kyomotoi/AnimeThesaurus/blob/main/data.json")
+                Plain(
+                    f"\nhttps://github.com/Kyomotoi/AnimeThesaurus/blob/main/data.json")
             ]))
 
 updateDict()
