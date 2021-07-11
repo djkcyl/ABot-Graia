@@ -71,7 +71,8 @@ async def atrep(app: GraiaMiraiApplication, group: Group, message: MessageChain,
     ifat = message.has(At)
     if ifat:
         ifa = message.get(At)[0].target == yaml_data['Basic']['MAH']['BotQQ']
-        ifas = message.asDisplay().strip() == f"@{str(yaml_data['Basic']['MAH']['BotQQ'])}"
+        ifas = message.asDisplay().strip(
+        ) == f"@{str(yaml_data['Basic']['MAH']['BotQQ'])}"
         if ifas:
             if ifa:
                 if member.id == yaml_data['Basic']['Permission']['Master']:
@@ -151,7 +152,8 @@ async def random_mute(app: GraiaMiraiApplication, group: Group, member: Member):
             await app.sendGroupMessage(group, MessageChain.create([Plain(f"权限不足，无法使用！\n使用该功能{yaml_data['Basic']['BotName']}需要为管理")]))
     elif yaml_data['Saya']['MutePack']['SuperDouble'] and random.randint(1, yaml_data['Saya']['MutePack']['MaxSuperDoubleProbability']) == yaml_data['Saya']['MutePack']['MaxSuperDoubleProbability']:
         try:
-            ftime = ftime * yaml_data['Saya']['MutePack']['MaxSuperDoubleMultiple']
+            ftime = ftime * \
+                yaml_data['Saya']['MutePack']['MaxSuperDoubleMultiple']
             srtftime = strftime("%d:%H:%M:%S", gmtime(ftime))
             await app.mute(group, member, ftime)
             await app.sendGroupMessage(group, MessageChain.create([Plain(f"恭喜你抽中了 {time} 秒禁言套餐！倍率为 {multiple}！\n超级加倍！\n最终时长为 {srtftime}")]))
@@ -201,7 +203,6 @@ async def unmute(app: GraiaMiraiApplication, message: MessageChain, group: Group
         await app.sendGroupMessage(group, MessageChain.create([Plain("爬")]))
 
 
-# 草(
 @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("草", allow_quote=True, skip_one_at_in_quote=True)]))
 async def a_plant(app: GraiaMiraiApplication, group: Group):
     await app.sendGroupMessage(group, MessageChain.create([
@@ -211,11 +212,13 @@ async def a_plant(app: GraiaMiraiApplication, group: Group):
 
 @channel.use(ListenerSchema(listening_events=[BotJoinGroupEvent]))
 async def get_BotJoinGroup(app: GraiaMiraiApplication, joingroup: BotJoinGroupEvent):
+    membernum = len(await app.memberList(joingroup.group.id))
     for qq in yaml_data['Basic']['Permission']['Admin']:
         await app.sendFriendMessage(qq, MessageChain.create([
             Plain("收到加入群聊事件"),
             Plain(f"\n群号：{joingroup.group.id}"),
-            Plain(f"\n群名：{joingroup.group.name}")
+            Plain(f"\n群名：{joingroup.group.name}"),
+            Plain(f"\n群人数：{membernum}")
         ]))
 
 
@@ -335,7 +338,6 @@ async def accept(app: GraiaMiraiApplication, invite: BotInvitedJoinGroupRequestE
 #         grouplist = list(set(grouplist))
 #         # grouplist = grouplist.sort()
 #         print(grouplist)
-
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("流汗黄豆.jpg")]))
