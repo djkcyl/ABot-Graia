@@ -101,7 +101,7 @@ async def ali_tts(app: GraiaMiraiApplication, group: Group, message: MessageChai
             Voice_LocalFile(voice_file + ".silk")
         ]))
         await app.sendGroupMessage(group, MessageChain.create([
-            Plain(f"语音创建完成！耗时 {times} 秒\n{tts_md5} .silk")
+            Plain(f"语音创建完成！耗时 {times} 秒\n{tts_md5}.silk")
         ]), quote=source)
         await app.revokeMessage(loop_wait)
         TTSRUNING = False

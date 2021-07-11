@@ -56,13 +56,6 @@ async def main(app: GraiaMiraiApplication, group: Group, message: MessageChain):
                         Plain(
                             f"\nhttps://github.com/Kyomotoi/AnimeThesaurus/blob/main/data.json")
                     ]))
-                elif saying in key:
-                    return await app.sendGroupMessage(group, MessageChain.create([
-                        Plain(random.choice(root[key])),
-                        Plain(f"\n\n聊天处于测试阶段，谨慎使用。触发关键词：{key}"),
-                        Plain(
-                            f"\nhttps://github.com/Kyomotoi/AnimeThesaurus/blob/main/data.json")
-                    ]))
 
 
 @channel.use(ListenerSchema(listening_events=[FriendMessage]))
@@ -70,12 +63,6 @@ async def main(app: GraiaMiraiApplication, friend: Friend, message: MessageChain
     saying = message.getFirst(Plain).text
     for key in root:
         if key in saying:
-            return await app.sendFriendMessage(friend, MessageChain.create([
-                Plain(random.choice(root[key])),
-                Plain(f"\n\n聊天处于测试阶段，谨慎使用。触发关键词：{key}"),
-                Plain(f"\nhttps://github.com/Kyomotoi/AnimeThesaurus/blob/main/data.json")
-            ]))
-        elif saying in key:
             return await app.sendFriendMessage(friend, MessageChain.create([
                 Plain(random.choice(root[key])),
                 Plain(f"\n\n聊天处于测试阶段，谨慎使用。触发关键词：{key}"),

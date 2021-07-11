@@ -70,7 +70,7 @@ async def adminmain(app: GraiaMiraiApplication, group: Group, member: Member):
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("开启")]))
 async def onAoff(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain):
-    if member.permission in ["Administrator", "Owner"] or member.id in yaml_data['Basic']['Permission']['Admin']:
+    if member.permission in [MemberPerm.Administrator, MemberPerm.Owner] or member.id in yaml_data['Basic']['Permission']['Admin']:
         saying = message.asDisplay().split()
         sayfunc = int(saying[1]) - 1
         func = funclist[sayfunc]
@@ -94,7 +94,7 @@ async def onAoff(app: GraiaMiraiApplication, group: Group, member: Member, messa
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("关闭")]))
 async def onAoff(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain):
-    if member.permission in ["Administrator", "Owner"] or member.id in yaml_data['Basic']['Permission']['Admin']:
+    if member.permission in [MemberPerm.Administrator, MemberPerm.Owner] or member.id in yaml_data['Basic']['Permission']['Admin']:
         saying = message.asDisplay().split()
         sayfunc = int(saying[1]) - 1
         func = funclist[sayfunc]
