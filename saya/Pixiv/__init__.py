@@ -31,6 +31,7 @@ async def main(app: GraiaMiraiApplication, group: Group, message: MessageChain):
                 picid = json.loads(requests.get(
                     'http://a60.one:404').text)['pic']
                 await app.sendGroupMessage(group, MessageChain.create([Image_NetworkAddress(f"http://pic.a60.one:88/{picid}.jpg")]))
+                await app.sendGroupMessage(group, MessageChain.create([Plain(f"ID：{picid}")]))
             except:
                 await app.sendGroupMessage(group, MessageChain.create([Plain(f"慢一点慢一点，再冲就冲死啦")]))
         if len(saying) == 2:
@@ -41,3 +42,4 @@ async def main(app: GraiaMiraiApplication, group: Group, message: MessageChain):
                 await app.sendGroupMessage(group, MessageChain.create([Image_NetworkAddress(f"http://pic.a60.one:88/{picid}.jpg")]))
             except:
                 await app.sendGroupMessage(group, MessageChain.create([Plain(f"慢一点慢一点，再冲就冲死啦")]))
+                await app.sendGroupMessage(group, MessageChain.create([Plain(f"ID：{picid}")]))
