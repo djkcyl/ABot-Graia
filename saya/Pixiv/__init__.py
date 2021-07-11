@@ -23,5 +23,8 @@ async def main(app: GraiaMiraiApplication, group: Group, message: MessageChain):
             return await sendmsg(app=app, group=group)
         elif group.id in yaml_data['Saya']['Pixiv']['Blacklist']:
             return await sendmsg(app=app, group=group)
-        picid = json.loads(requests.get('http://a60.one:404').text)['pic']
-        await app.sendGroupMessage(group, MessageChain.create([Image_NetworkAddress(f"http://pic.a60.one:88/{picid}.jpg")]))
+        try:
+            picid = json.loads(requests.get('http://a60.one:404').text)['pic']
+            await app.sendGroupMessage(group, MessageChain.create([Image_NetworkAddress(f"http://pic.a60.one:88/{picid}.jpg")]))
+        except:
+            await app.sendGroupMessage(group, MessageChain.create([Plain(f"慢一点慢一点，再冲就冲死啦")]))
