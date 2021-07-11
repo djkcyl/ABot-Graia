@@ -52,9 +52,9 @@ async def petpet_generator(app: GraiaMiraiApplication, message: MessageChain, gr
 @channel.use(ListenerSchema(listening_events=[NudgeEvent]))
 async def get_nudge(app: GraiaMiraiApplication, nudge: NudgeEvent):
         
-    if yaml_data['Saya']['PornhubLogo']['Disabled'] and not yaml_data['Saya']['PetPet']['CanNudge']:
+    if yaml_data['Saya']['PetPet']['Disabled'] and not yaml_data['Saya']['PetPet']['CanNudge']:
         return await sendmsg(app=app, group=nudge.group_id)
-    elif nudge.group_id in yaml_data['Saya']['PornhubLogo']['Blacklist']:
+    elif nudge.group_id in yaml_data['Saya']['PetPet']['Blacklist']:
         return await sendmsg(app=app, group=nudge.group_id)
 
     app.logger.info(f"[{nudge.group_id}] 收到戳一戳事件 -> [{nudge.target}]")
