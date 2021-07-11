@@ -17,7 +17,7 @@ from graia.application.message.elements.internal import Image
 from graia.application.event.messages import Group
 from graia.application.exceptions import AccountMuted
 
-from config import yaml_data, sendmsg
+from config import yaml_data
 
 
 saya = Saya.current()
@@ -28,9 +28,9 @@ channel = Channel.current()
 async def petpet_generator(app: GraiaMiraiApplication, message: MessageChain, group: Group):
         
     if yaml_data['Saya']['PetPet']['Disabled'] and not yaml_data['Saya']['PetPet']['CanAt']:
-        return await sendmsg(app=app, group=group)
+        return
     elif group.id in yaml_data['Saya']['PetPet']['Blacklist']:
-        return await sendmsg(app=app, group=group)
+        return
 
     message_text = message.asDisplay()
     if message.has(At) and message_text.startswith("摸") or message_text.startswith("摸头 "):
@@ -53,9 +53,9 @@ async def petpet_generator(app: GraiaMiraiApplication, message: MessageChain, gr
 async def get_nudge(app: GraiaMiraiApplication, nudge: NudgeEvent):
         
     if yaml_data['Saya']['PetPet']['Disabled'] and not yaml_data['Saya']['PetPet']['CanNudge']:
-        return await sendmsg(app=app, group=nudge.group_id)
+        return
     elif nudge.group_id in yaml_data['Saya']['PetPet']['Blacklist']:
-        return await sendmsg(app=app, group=nudge.group_id)
+        return
 
     app.logger.info(f"[{nudge.group_id}] 收到戳一戳事件 -> [{nudge.target}]")
     if not os.path.exists("./saya/PetPet/temp"):
