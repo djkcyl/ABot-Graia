@@ -244,7 +244,7 @@ async def get_BotJoinGroup(app: GraiaMiraiApplication, permissionchange: BotGrou
 async def get_BotJoinGroup(app: GraiaMiraiApplication, group: Group, mute: BotMuteEvent):
     for qq in yaml_data['Basic']['Permission']['Admin']:
         await app.sendFriendMessage(qq, MessageChain.create([
-            Plain("收到禁言事件"),
+            Plain("收到禁言事件，已退出该群"),
             Plain(f"\n群号：{group.id}"),
             Plain(f"\n群名：{group.name}"),
             Plain(f"\n操作者：{mute.operator.name} | {mute.operator.id}")

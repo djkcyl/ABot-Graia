@@ -28,6 +28,7 @@ funclist = [
     {"name": "Pornhub风格logo生成", "key": "PornhubLogo"},
     {"name": "复读姬", "key": "Repeater"},
     {"name": "涩图", "key": "Pixiv"},
+    {"name": "人工智障聊天", "key": "Chat"},
 ]
 
 
@@ -61,7 +62,7 @@ async def adminmain(app: GraiaMiraiApplication, group: Group, member: Member):
                 Plain(f"\n{str(i)}.{funcname}：{statu}"))
             i += 1
         msg.append(Plain(
-            f"\n===================\n开启/关闭 <功能id>\n如有功能在开启后仍为禁用状态，则为全局禁用\n更多功能待开发，如有特殊需求可以@{yaml_data['Basic']['BotName']}后向{yaml_data['Basic']['Permission']['MasterName']}询问"))
+            f"\n===================\n开启/关闭 <功能id>\n更多功能待开发，如有特殊需求可以向 {yaml_data['Basic']['Permission']['Master']} 询问"))
         await app.sendGroupMessage(group, MessageChain.create(msg))
     else:
         await app.sendGroupMessage(group, MessageChain.create([Plain(f"你没有使用该功能的权限")]))
@@ -115,15 +116,15 @@ async def onAoff(app: GraiaMiraiApplication, group: Group, member: Member, messa
 
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def tran(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain):
-    if message.has(At) and message.getOne(At, 0).target == yaml_data['Basic']['MAH']['BotQQ']:
-        saying = message.asDisplay()
-        await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
-            Plain(f"收到传送消息："),
-            Plain(f"\n群号：{group.id}"),
-            Plain(f"\n群名：{group.name}"),
-            Plain(f"\nQQ：{member.id}"),
-            Plain(f"\n昵称：{member.name}"),
-            Plain(f"\n=================="),
-            Plain(f"\n消息内容：{saying}")]))
+# @channel.use(ListenerSchema(listening_events=[GroupMessage]))
+# async def tran(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain):
+#     if message.has(At) and message.getOne(At, 0).target == yaml_data['Basic']['MAH']['BotQQ']:
+#         saying = message.asDisplay()
+#         await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
+#             Plain(f"收到传送消息："),
+#             Plain(f"\n群号：{group.id}"),
+#             Plain(f"\n群名：{group.name}"),
+#             Plain(f"\nQQ：{member.id}"),
+#             Plain(f"\n昵称：{member.name}"),
+#             Plain(f"\n=================="),
+#             Plain(f"\n消息内容：{saying}")]))
