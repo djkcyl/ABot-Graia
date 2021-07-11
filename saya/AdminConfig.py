@@ -42,7 +42,7 @@ async def adminmain(app: GraiaMiraiApplication, group: Group, message: MessageCh
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("管理员菜单")]))
 async def adminmain(app: GraiaMiraiApplication, group: Group, member: Member):
-    if member.permission in ["Administrator", "Owner"] or member.id in yaml_data['Basic']['Permission']['Admin']:
+    if member.permission in [MemberPerm.Administrator, MemberPerm.Owner] or member.id in yaml_data['Basic']['Permission']['Admin']:
         msg = []
         msg.append(Plain(f"机器人群管理菜单\n===================\n当前有以下功能可以调整："))
         i = 1
@@ -112,6 +112,7 @@ async def onAoff(app: GraiaMiraiApplication, group: Group, member: Member, messa
             await app.sendGroupMessage(group, MessageChain.create([Plain(f"{funcname}已处于关闭状态")]))
     else:
         await app.sendGroupMessage(group, MessageChain.create([Plain(f"你没有使用该功能的权限")]))
+
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
