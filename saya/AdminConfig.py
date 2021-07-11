@@ -35,8 +35,8 @@ funclist = [
 async def adminmain(app: GraiaMiraiApplication, group: Group, message: MessageChain):
     if message.asDisplay() in ["/help", "帮助", "菜单"]:
         await app.sendGroupMessage(group, MessageChain.create([Plain(f"{yaml_data['Basic']['BotName']} 使用指南"),
-                                                               Plain(
-                                                                   f"\n（使用指南还没写，别急"),
+                                                               Plain(f"\n（使用指南还没写，别急。急着需要可以去GitHub"),
+                                                               Plain(f"\nhttps://github.com/djkcyl/ABot-Graia"),
                                                                Plain(f"\n发送 <管理员菜单> 即可调整群内功能是否开启")]))
 
 
@@ -75,8 +75,11 @@ async def onAoff(app: GraiaMiraiApplication, group: Group, member: Member, messa
         func = funclist[sayfunc]
         funcname = func["name"]
         funckey = func["key"]
+        funcdisabled = yaml_data["Saya"][funckey]["Disabled"]
         funcblacklist = yaml_data["Saya"][funckey]["Blacklist"]
-        if group.id in funcblacklist:
+        if funcdisabled:
+            await app.sendGroupMessage(group, MessageChain.create([Plain(f"{funcname}当前处于全局禁用状态")]))
+        elif group.id in funcblacklist:
             funcblacklist.remove(group.id)
             yaml_data["Saya"][funckey]["Blacklist"] = funcblacklist
             with open("config.yaml", 'w', encoding="utf-8") as f:
@@ -121,4 +124,5 @@ async def tran(app: GraiaMiraiApplication, group: Group, member: Member, message
             Plain(f"\n群名：{group.name}"),
             Plain(f"\nQQ：{member.id}"),
             Plain(f"\n昵称：{member.name}"),
+            Plain(f"\n=================="),
             Plain(f"\n消息内容：{saying}")]))
