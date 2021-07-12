@@ -57,7 +57,7 @@
    ```
 3. 进入虚拟容器`每次运行前都需要进行`
    ```shell
-   poerty shell
+   poetry shell
    ```
 4. 修改 ABot 配置文件`config.yaml`
 5. 启动 ABot
