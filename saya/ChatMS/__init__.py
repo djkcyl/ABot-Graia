@@ -25,13 +25,8 @@ root = {}
 @channel.use(SchedulerSchema(crontabify("* * 0 * * *")))
 def updateDict():
     global root
-    api_proxies = {
-        "http": "http://localhost:10809",
-        "https": "http://localhost:10809"
-    }
     root = json.loads(requests.get(
-        "https://raw.githubusercontent.com/Kyomotoi/AnimeThesaurus/main/data.json",
-        proxies=api_proxies
+        "https://raw.fastgit.org/Kyomotoi/AnimeThesaurus/main/data.json"
     ).text)
     print(f"已更新完成聊天词库")
     print(f"共计：{len(root)}条")

@@ -1,3 +1,4 @@
+import os
 import yaml
 
 from graia.application import GraiaMiraiApplication
@@ -8,7 +9,12 @@ from graia.application.message.elements.internal import MessageChain, Plain
 async def sendmsg(app: GraiaMiraiApplication, group: Group):
     await app.sendGroupMessage(group, MessageChain.create([Plain("该功能暂不开启")]))
 
-
+if not os.path.exists('config.yaml') and os.path.exists('config.exp.yaml'):
+    print('请将 config.exp.yaml 重命名为 config.yaml ！')
+    print('请将 config.exp.yaml 重命名为 config.yaml ！')
+    print('请将 config.exp.yaml 重命名为 config.yaml ！')
+    exit()
+    
 with open('config.yaml', 'r', encoding="utf-8") as f:
     file_data = f.read()
 yaml_data = yaml.load(file_data)
