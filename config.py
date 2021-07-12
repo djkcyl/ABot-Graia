@@ -16,3 +16,9 @@ yaml_data = yaml.load(file_data)
 if not bool(yaml_data['Final']):
     print("配置文件未修改完成，请手动编辑 config.exp.ymal 进行修改并重命名为 config.yaml")
     exit()
+
+if yaml_data['Basic']['Permission']['Master'] not in yaml_data['Basic']['Permission']['Admin']:
+    yaml_data['Basic']['Permission']['Admin'].append(yaml_data['Basic']['Permission']['Master'])
+    with open("config.yaml", 'w', encoding="utf-8") as f:
+        yaml.dump(yaml_data, f, allow_unicode=True)
+    print("管理员内未包含主人，已自动添加")

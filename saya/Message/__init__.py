@@ -76,15 +76,16 @@ async def atrep(app: GraiaMiraiApplication, group: Group, message: MessageChain,
         if ifas:
             if ifa:
                 if member.id == yaml_data['Basic']['Permission']['Master']:
-                    await app.sendGroupMessage(group,
-                                               MessageChain.create([
-                                                   Plain(f"爹！")
-                                               ]),
-                                               quote=source.id)
+                    await app.sendGroupMessage(group, MessageChain.create([
+                        Plain(f"爹！")
+                    ]), quote=source.id)
                 else:
                     await app.sendGroupMessage(group, MessageChain.create([
-                        Plain(
-                            f"我是{yaml_data['Basic']['Permission']['MasterName']}的机器人{yaml_data['Basic']['BotName']}，如果有需要可以联系主人QQ”{str(yaml_data['Basic']['Permission']['Master'])}“，添加{yaml_data['Basic']['BotName']}好友后可以被拉到其他群（她会自动同意的），{yaml_data['Basic']['BotName']}被群禁言后会自动退出该群。")
+                        Plain(f"我是{yaml_data['Basic']['Permission']['MasterName']}"),
+                        Plain(f"的机器人{yaml_data['Basic']['BotName']}，"),
+                        Plain(f"如果有需要可以联系主人QQ”{str(yaml_data['Basic']['Permission']['Master'])}“，"),
+                        Plain(f"添加{yaml_data['Basic']['BotName']}好友后可以被拉到其他群（她会自动同意的），"),
+                        Plain(f"{yaml_data['Basic']['BotName']}被群禁言后会自动退出该群。")
                     ]))
 
 
