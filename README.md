@@ -50,7 +50,7 @@
 
 1. 克隆 ABot 到本地
    ```shell
-   git clone [git@github.com:djkcyl/ABot-Graia.git](https://github.com/djkcyl/ABot-Graia)
+   git clone https://github.com/djkcyl/ABot-Graia
    ```
 2. 安装依赖
    ```shell
