@@ -60,7 +60,7 @@
    ```shell
    poetry shell
    ```
-4. 修改 ABot 配置文件 `config.exp.yaml` 后**并重命名**为 `config.exp.yaml`
+4. 修改 ABot 配置文件 `config.exp.yaml` 后**并重命名**为 `config.yaml`
 5. 启动 ABot
    ```shell
    python main.py
