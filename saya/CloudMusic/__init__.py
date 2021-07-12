@@ -23,8 +23,10 @@ if not os.path.exists("./saya/CloudMusic/temp/"):
     os.mkdir("./saya/CloudMusic/temp/")
 
 HOST = "http://127.0.0.1:3000"
-login = requests.get(
-    url=f"{HOST}/login/cellphone?phone={yaml_data['Saya']['CloudMusic']['ApiConfig']['PhoneNumber']}&password={yaml_data['Saya']['CloudMusic']['ApiConfig']['Password']}").cookies
+if not yaml_data['Saya']['CloudMusic']['Disabled']:
+    phone = yaml_data['Saya']['CloudMusic']['ApiConfig']['PhoneNumber']
+    password = yaml_data['Saya']['CloudMusic']['ApiConfig']['Password']
+    login = requests.get(f"{HOST}/login/cellphone?phone={phone}&password={password}").cookies
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("点歌")]))
@@ -77,10 +79,10 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, saying: 
         return await sendmsg(app=app, group=group)
     elif group.id in yaml_data['Saya']['CloudMusic']['Blacklist']:
         return await sendmsg(app=app, group=group)
-    
+
     if len(saying.asDisplay().split()) == 1:
         return await app.sendGroupMessage(group, MessageChain.create([Plain(f"请发送 <唱歌 歌曲id>")]))
-    
+
     musicid = saying.asDisplay().split()[1]
     times = str(int(time.time()))
     musiccheck = json.loads(requests.get(
