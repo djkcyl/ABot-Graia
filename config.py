@@ -14,10 +14,13 @@ if not os.path.exists('config.yaml') and os.path.exists('config.exp.yaml'):
     print('请将 config.exp.yaml 重命名为 config.yaml ！')
     print('请将 config.exp.yaml 重命名为 config.yaml ！')
     exit()
+elif not os.path.exists('config.yaml') and not os.path.exists('config.exp.yaml'):
+    print('在？宁的配置文件呢?¿?¿')
+    exit()
     
 with open('config.yaml', 'r', encoding="utf-8") as f:
     file_data = f.read()
-yaml_data = yaml.load(file_data)
+yaml_data = yaml.load(file_data, Loader=yaml.FullLoader)
 
 if not bool(yaml_data['Final']):
     print("配置文件未修改完成，请手动编辑 config.exp.ymal 进行修改并重命名为 config.yaml")
