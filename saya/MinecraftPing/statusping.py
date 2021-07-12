@@ -3,7 +3,6 @@ import socket
 import struct
 import json
 import time
-import dns.resolver
 
 
 class StatusPing:

@@ -19,7 +19,7 @@ channel = Channel.current()
 async def main(app: GraiaMiraiApplication, group: Group, message: MessageChain):
 
     saying = message.asDisplay().split(" ", 1)
-    if saying[0] in ['色图', '涩图', 'setu']:
+    if saying[0] in ['色图', '涩图', '瑟图', 'setu']:
         
         if yaml_data['Saya']['Pixiv']['Disabled']:
             return await sendmsg(app=app, group=group)
@@ -34,12 +34,12 @@ async def main(app: GraiaMiraiApplication, group: Group, message: MessageChain):
                 await app.sendGroupMessage(group, MessageChain.create([Plain(f"ID：{picid}")]))
             except:
                 await app.sendGroupMessage(group, MessageChain.create([Plain(f"慢一点慢一点，再冲就冲死啦")]))
-        if len(saying) == 2:
-            try:
-                picid = random.choice(json.loads(
-                    requests.get(
-                        f'http://a60.one:404/get/tags/{saying[1]}').text)['data']['pic_list'])['pic']
-                await app.sendGroupMessage(group, MessageChain.create([Image_NetworkAddress(f"http://pic.a60.one:88/{picid}.jpg")]))
-            except:
-                await app.sendGroupMessage(group, MessageChain.create([Plain(f"慢一点慢一点，再冲就冲死啦")]))
-                await app.sendGroupMessage(group, MessageChain.create([Plain(f"ID：{picid}")]))
+        # if len(saying) == 2:
+        #     try:
+        #         picid = random.choice(json.loads(
+        #             requests.get(
+        #                 f'http://a60.one:404/get/tags/{saying[1]}').text)['data']['pic_list'])['pic']
+        #         await app.sendGroupMessage(group, MessageChain.create([Image_NetworkAddress(f"http://pic.a60.one:88/{picid}.jpg")]))
+        #     except:
+        #         await app.sendGroupMessage(group, MessageChain.create([Plain(f"慢一点慢一点，再冲就冲死啦")]))
+        #         await app.sendGroupMessage(group, MessageChain.create([Plain(f"ID：{picid}")]))
