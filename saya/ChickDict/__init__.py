@@ -23,7 +23,7 @@ async def fun_dict(app: GraiaMiraiApplication, group: Group, message: MessageCha
     elif group.id in yaml_data['Saya']['ChickDict']['Blacklist']:
         return await sendmsg(app=app, group=group)
 
-    saying = message.asDisplay().split()
+    saying = message.asDisplay().split(" ", 1)
     if len(saying) != 2:
         await app.sendGroupMessage(group, MessageChain.create([
             Plain(f"用法：查梗 xxxxx")
