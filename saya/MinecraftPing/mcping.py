@@ -58,14 +58,17 @@ def mcping(say):
     if "text" in get_status["description"]:
         sMotd = get_status["description"]["text"]
         msg_send.append(Plain(f"描述：" + sMotd + "\n"))
+        print(sMotd)
     elif "extra" in get_status["description"]:
         sMotd = ""
         for extra in get_status["description"]["extra"]:
             sMotd = sMotd + extra["text"]
         msg_send.append(Plain(f"描述：" + sMotd + "\n"))
+        print(sMotd)
     elif "translate" in get_status["description"]:
         sMotd = get_status["description"]["translate"]
         msg_send.append(Plain(f"描述：" + sMotd + "\n"))
+        print(sMotd)
 
     # 服务端版本判断
     if "Requires" in get_status["version"]["name"]:
