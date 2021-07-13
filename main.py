@@ -3,11 +3,12 @@ import os
 
 from graia.application import GraiaMiraiApplication, Session
 from graia.broadcast import Broadcast
+from graia.broadcast.interrupt import InterruptControl
 from graia.saya import Saya
 from graia.saya.builtins.broadcast import BroadcastBehaviour
 from graia.scheduler import GraiaScheduler
 from graia.scheduler.saya import GraiaSchedulerBehaviour
-from graia.broadcast.interrupt import InterruptControl
+
 
 from config import yaml_data
 
