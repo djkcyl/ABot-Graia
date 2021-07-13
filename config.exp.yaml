@@ -100,10 +100,10 @@ Saya: # saya 插件配置
     Disabled: false
     Blacklist:
       - 123456
-    RepeatTimes: 3
+    RepeatTimes: 3 # 复读所需次数
     Random:
       Disabled: false
-      Probability: 20 # 默认复读概率 x分之一
+      Probability: 260 # 默认复读概率 x分之一
 
   Pixiv: # 色图
     Disabled: false
