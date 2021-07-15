@@ -3,7 +3,7 @@ import httpx
 import base64
 
 from lxml import etree
-from graia.application import GraiaMiraiApplication, exceptions
+from graia.application import GraiaMiraiApplication
 from graia.saya import Saya, Channel
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.event.messages import *

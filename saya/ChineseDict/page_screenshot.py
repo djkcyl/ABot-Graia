@@ -6,9 +6,10 @@ from playwright.async_api import Browser, async_playwright
 
 _browser: Optional[Browser] = None
 
+
 async def init(**kwargs) -> Browser:
     args = []
-    
+
     global _browser
     browser = await async_playwright().start()
     _browser = await browser.chromium.launch(args=args, **kwargs)
@@ -36,3 +37,14 @@ async def get_hans_screenshot(url):
         if page:
             await page.close()
         raise
+
+
+def install():
+    print("正在检查 Chromium 更新")
+    import sys
+    from playwright.__main__ import main
+    sys.argv = ['', 'install', 'chromium']
+    main()
+
+
+install()
