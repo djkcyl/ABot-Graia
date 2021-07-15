@@ -3,7 +3,7 @@ __pycache__/
 temp/
 voice_file
 config.json
-chatRecord.db
+*.db
 tempWordCloud.png
 test.py
 config.yaml

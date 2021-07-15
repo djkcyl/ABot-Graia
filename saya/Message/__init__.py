@@ -57,29 +57,6 @@ inc = InterruptControl(bcc)
 #         # print(message_id)
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def atrep(app: GraiaMiraiApplication, group: Group, message: MessageChain, member: Member, source: Source):
-    ifat = message.has(At)
-    if ifat:
-        ifa = message.get(At)[0].target == yaml_data['Basic']['MAH']['BotQQ']
-        ifas = message.asDisplay().strip(
-        ) == f"@{str(yaml_data['Basic']['MAH']['BotQQ'])}"
-        if ifas:
-            if ifa:
-                if member.id == yaml_data['Basic']['Permission']['Master']:
-                    await app.sendGroupMessage(group, MessageChain.create([
-                        Plain(f"爹！")
-                    ]), quote=source.id)
-                else:
-                    await app.sendGroupMessage(group, MessageChain.create([
-                        Plain(f"我是{yaml_data['Basic']['Permission']['MasterName']}"),
-                        Plain(f"的机器人{yaml_data['Basic']['BotName']}，"),
-                        Plain(f"如果有需要可以联系主人QQ”{str(yaml_data['Basic']['Permission']['Master'])}“，"),
-                        Plain(f"添加{yaml_data['Basic']['BotName']}好友后可以被拉到其他群（她会自动同意的），"),
-                        Plain(f"{yaml_data['Basic']['BotName']}被群禁言后会自动退出该群。")
-                    ]))
-
-
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("/ping943")]))
 async def ping943(app: GraiaMiraiApplication, group: Group, message: MessageChain):
