@@ -10,7 +10,7 @@ from graia.saya.builtins.broadcast import BroadcastBehaviour
 from graia.scheduler import GraiaScheduler
 from graia.scheduler.saya import GraiaSchedulerBehaviour
 
-from config import yaml_data, group_data, save_config
+from config import yaml_data, save_config
 
 ignore = ["__init__.py", "__pycache__"]
 

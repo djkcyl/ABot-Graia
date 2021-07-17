@@ -31,7 +31,7 @@ funcList = [
     {"name": "风格logo生成", "key": "StyleLogoGenerator"},
     {"name": "复读姬", "key": "Repeater"},
     {"name": "涩图", "key": "Pixiv"},
-    # {"name": "人工智障聊天", "key": "ChatMS"},
+    {"name": "有点涩的聊天", "key": "ChatMS"},
     {"name": "没啥用的回复", "key": "Message"},
     {"name": "每日早报", "key": "DailyNewspaper"},
 ]
@@ -49,19 +49,26 @@ groupInitData = {
 }
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("初始化")]))
-async def groupDataInit(app: GraiaMiraiApplication, member: Member):
-    if member.id == yaml_data['Basic']['Permission']['Master']:
-        print("正在进行群配置初始化")
+@channel.use(ListenerSchema(listening_events=[FriendMessage], inline_dispatchers=[Literature("初始化")]))
+async def groupDataInit(app: GraiaMiraiApplication, friend: Friend):
+    if friend.id == yaml_data['Basic']['Permission']['Master']:
         groupList = await app.groupList()
         groupNum = len(groupList)
-        print(f"当前 {yaml_data['Basic']['BotName']} 共加入了 {groupNum} 个群")
+        await app.sendFriendMessage(friend, MessageChain.create([
+            Plain(f"正在初始化，请稍后"),
+            Plain(f"当前 {yaml_data['Basic']['BotName']} 共加入了 {groupNum} 个群")
+        ]))
         for group in groupList:
             if group.id not in group_data:
                 group_data[group.id] = groupInitData
                 print(group_data[group.id])
                 print(f"已为 {group.id} 进行初始化配置")
         save_config()
+        await app.sendFriendMessage(friend, MessageChain.create([
+            Plain("初始化已结束，请重启bot以避免奇奇怪怪的bug")
+        ]))
+        print("初始化已结束，请重启bot以避免奇奇怪怪的bug")
+        exit()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
@@ -92,11 +99,11 @@ async def atrep(app: GraiaMiraiApplication, group: Group, message: MessageChain,
 async def adminmain(app: GraiaMiraiApplication, group: Group, message: MessageChain):
     if message.asDisplay() in ["/help", "help", "帮助", "菜单", "功能"]:
         help = str(f"{yaml_data['Basic']['BotName']} 使用指南" +
-                f"\n（使用指南还没写，别急。急着需要可以去GitHub看" +
-                f"\n方舟玩家可以加个好友，嘿嘿，[官服 A60#6660]" +
-                f"\n可以先试试新制作的 <废物证申请> 一起来成为废物吧~（" +
-                f"\ngithub.com/djkcyl/ABot-Graia" +
-                f"\n发送 <管理员功能菜单> 即可调整群内功能是否开启")
+                   f"\n（使用指南还没写，别急。急着需要可以去GitHub看" +
+                   f"\n方舟玩家可以加个好友，嘿嘿，[官服 A60#6660]" +
+                   f"\n可以先试试新制作的 <废物证申请> 一起来成为废物吧~（" +
+                   f"\ngithub.com/djkcyl/ABot-Graia" +
+                   f"\n发送 <管理员功能菜单> 即可调整群内功能是否开启")
         image = await create_image(help)
         await app.sendGroupMessage(group, MessageChain.create([Image_UnsafeBytes(image.getvalue())]))
 
@@ -189,6 +196,7 @@ async def Announcement(app: GraiaMiraiApplication, friend: Friend, message: Mess
             tt = time.time()
             times = str(tt - ft)
             await app.sendFriendMessage(friend, MessageChain.create(f"群发已完成，耗时 {times} 秒"))
+
 
 @channel.use(ListenerSchema(listening_events=[FriendMessage], inline_dispatchers=[Literature("拉黑群聊")]))
 async def Announcement(app: GraiaMiraiApplication, friend: Friend, message: MessageChain):
