@@ -12,7 +12,7 @@ from graia.application.message.elements.internal import *
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.parser.literature import Literature
 
-from config import yaml_data, sendmsg
+from config import yaml_data, group_data, sendmsg
 
 from .post_tts_text import post_text
 
@@ -32,7 +32,7 @@ async def ali_tts(app: GraiaMiraiApplication, group: Group, message: MessageChai
 
     if yaml_data['Saya']['AliTTS']['Disabled']:
         return await sendmsg(app=app, group=group)
-    elif group.id in yaml_data['Saya']['AliTTS']['Blacklist']:
+    elif 'AliTTS' in group_data[group.id]['DisabledFunc']:
         return await sendmsg(app=app, group=group)
 
     if len(message.asDisplay()) > 180:

@@ -15,7 +15,7 @@ from graia.application.event.messages import GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.elements.internal import At, MessageChain, Plain, Image
 
-from config import yaml_data
+from config import yaml_data, group_data
 
 from .Sqlite3Manager import execute_sql
 
@@ -32,7 +32,7 @@ async def group_wordcloud_generator(app: GraiaMiraiApplication, message: Message
     
     if yaml_data['Saya']['WordCloud']['Disabled']:
         return
-    elif group.id in yaml_data['Saya']['WordCloud']['Blacklist']:
+    elif 'WordCloud' in group_data[group.id]['DisabledFunc']:
         return
 
     """

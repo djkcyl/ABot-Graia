@@ -6,7 +6,7 @@ from graia.application.message.elements.internal import *
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.parser.literature import Literature
 
-from config import yaml_data, sendmsg
+from config import yaml_data, group_data, sendmsg
 
 from .beast import encode, decode
 
@@ -20,7 +20,7 @@ async def main(app: GraiaMiraiApplication, group: Group, message: MessageChain, 
 
     if yaml_data['Saya']['Beast']['Disabled']:
         return await sendmsg(app=app, group=group)
-    elif group.id in yaml_data['Saya']['Beast']['Blacklist']:
+    elif 'Beast' in group_data[group.id]['DisabledFunc']:
         return await sendmsg(app=app, group=group)
 
     try:
@@ -40,7 +40,7 @@ async def main(app: GraiaMiraiApplication, group: Group, message: MessageChain, 
 
     if yaml_data['Saya']['Beast']['Disabled']:
         return await sendmsg(app=app, group=group)
-    elif group.id in yaml_data['Saya']['Beast']['Blacklist']:
+    elif 'Beast' in group_data[group.id]['DisabledFunc']:
         return await sendmsg(app=app, group=group)
 
     try:

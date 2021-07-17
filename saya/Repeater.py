@@ -7,7 +7,7 @@ from graia.application import GraiaMiraiApplication
 from graia.application.message.elements.internal import *
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 
-from config import yaml_data
+from config import yaml_data, group_data
 
 
 saya = Saya.current()
@@ -22,7 +22,7 @@ async def repeater(app: GraiaMiraiApplication, group: Group, message: MessageCha
 
     if yaml_data['Saya']['Repeater']['Disabled']:
         return
-    elif group.id in yaml_data['Saya']['Repeater']['Blacklist']:
+    elif 'Repeater' in group_data[group.id]['DisabledFunc']:
         return
 
     global repdict
@@ -47,7 +47,7 @@ async def repeater(app: GraiaMiraiApplication, group: Group, message: MessageCha
 async def repeateron(app: GraiaMiraiApplication, group: Group, message: MessageChain):
     if yaml_data['Saya']['Repeater']['Disabled']:
         return
-    elif group.id in yaml_data['Saya']['Repeater']['Blacklist']:
+    elif 'Repeater' in group_data[group.id]['DisabledFunc']:
         return
     elif yaml_data['Saya']['Repeater']['Random']['Disabled']:
         return
