@@ -48,4 +48,5 @@ try:
 except KeyboardInterrupt:
     save_config()
 except AccountNotFound:
+    save_config()
     print("未能使用所配置的账号激活 sessionKey, 请检查 config.yaml 配置是否正确或检查 Mirai 是否正常登录该账号")

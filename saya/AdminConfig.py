@@ -9,7 +9,7 @@ from graia.application.event.mirai import *
 from graia.application.message.elements.internal import *
 from graia.application.message.parser.literature import Literature
 
-from config import save_config, yaml_data, group_data
+from config import save_config, yaml_data, group_data, black_list
 from text2image import create_image
 
 saya = Saya.current()
@@ -31,7 +31,7 @@ funcList = [
     {"name": "风格logo生成", "key": "StyleLogoGenerator"},
     {"name": "复读姬", "key": "Repeater"},
     {"name": "涩图", "key": "Pixiv"},
-    {"name": "人工智障聊天", "key": "ChatMS"},
+    # {"name": "人工智障聊天", "key": "ChatMS"},
     {"name": "没啥用的回复", "key": "Message"},
     {"name": "每日早报", "key": "DailyNewspaper"},
 ]
@@ -189,3 +189,18 @@ async def Announcement(app: GraiaMiraiApplication, friend: Friend, message: Mess
             tt = time.time()
             times = str(tt - ft)
             await app.sendFriendMessage(friend, MessageChain.create(f"群发已完成，耗时 {times} 秒"))
+
+@channel.use(ListenerSchema(listening_events=[FriendMessage], inline_dispatchers=[Literature("拉黑群聊")]))
+async def Announcement(app: GraiaMiraiApplication, friend: Friend, message: MessageChain):
+    if friend.id == yaml_data['Basic']['Permission']['Master']:
+        saying = message.asDisplay().split()
+        if len(saying) == 2:
+            groupBlackList = black_list['group']
+            if int(saying[1]) in groupBlackList:
+                await app.sendFriendMessage(friend, MessageChain.create(f"该群已被拉黑"))
+            else:
+                groupBlackList.append(int(saying[1]))
+                black_list['group'] = groupBlackList
+                save_config()
+                await app.quit(int(saying[1]))
+                await app.sendFriendMessage(friend, MessageChain.create(f"成功拉黑该群"))
