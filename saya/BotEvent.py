@@ -6,7 +6,7 @@ from graia.application.event.mirai import *
 from graia.application.group import MemberInfo
 from graia.application.message.elements.internal import *
 
-from config import save_config, yaml_data, group_data
+from config import save_config, yaml_data, group_data, black_list
 from .AdminConfig import groupInitData
 
 saya = Saya.current()
@@ -19,16 +19,26 @@ async def get_BotJoinGroup(app: GraiaMiraiApplication, events: NewFriendRequestE
     收到好友申请
     '''
     sourceGroup: Optional[int] = events.sourceGroup
-    msg = "已通过申请"
-    for qq in yaml_data['Basic']['Permission']['Admin']:
-        await app.sendFriendMessage(qq, MessageChain.create([
-            Plain("收到添加好友事件"),
-            Plain(f"\nQQ：{events.supplicant}"),
-            Plain(f"\n昵称：{events.nickname}"),
-            Plain(f"\n来自群：{sourceGroup}"),
-            Plain(f"\n状态：{msg}\n\n{events.message.upper()}")
-        ]))
-    await events.accept()
+    if events.supplicant in black_list['member']:
+        await events.reject("你已被拉黑")
+        for qq in yaml_data['Basic']['Permission']['Admin']:
+            await app.sendFriendMessage(qq, MessageChain.create([
+                Plain("收到添加好友事件"),
+                Plain(f"\nQQ：{events.supplicant}"),
+                Plain(f"\n昵称：{events.nickname}"),
+                Plain(f"\n来自群：{sourceGroup}"),
+                Plain(f"\n状态：已拉黑，未通过申请\n\n{events.message.upper()}")
+            ]))
+    else:
+        for qq in yaml_data['Basic']['Permission']['Admin']:
+            await app.sendFriendMessage(qq, MessageChain.create([
+                Plain("收到添加好友事件"),
+                Plain(f"\nQQ：{events.supplicant}"),
+                Plain(f"\n昵称：{events.nickname}"),
+                Plain(f"\n来自群：{sourceGroup}"),
+                Plain(f"\n状态：已通过申请\n\n{events.message.upper()}")
+            ]))
+        await events.accept()
 
 
 @channel.use(ListenerSchema(listening_events=[BotInvitedJoinGroupRequestEvent]))
@@ -36,13 +46,23 @@ async def accept(app: GraiaMiraiApplication, invite: BotInvitedJoinGroupRequestE
     '''
     被邀请入群
     '''
-    await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
-        Plain(f"收到邀请入群事件"),
-        Plain(f"\n邀请者：{invite.supplicant} | {invite.nickname}"),
-        Plain(f"\n群号：{invite.groupId}"),
-        Plain(f"\n群名：{invite.groupName}")
-    ]))
-    await invite.accept()
+    if invite.groupId in black_list['group']:
+        await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
+            Plain(f"收到邀请入群事件"),
+            Plain(f"\n邀请者：{invite.supplicant} | {invite.nickname}"),
+            Plain(f"\n群号：{invite.groupId}"),
+            Plain(f"\n群名：{invite.groupName}"),
+            Plain(f"\n该群已被拉入黑名单群，已拒绝加入")
+        ]))
+        await invite.reject("该群已被拉入黑名单群，拒绝加入")
+    else:
+        await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
+            Plain(f"收到邀请入群事件"),
+            Plain(f"\n邀请者：{invite.supplicant} | {invite.nickname}"),
+            Plain(f"\n群号：{invite.groupId}"),
+            Plain(f"\n群名：{invite.groupName}")
+        ]))
+        await invite.accept()
 
 
 @channel.use(ListenerSchema(listening_events=[BotJoinGroupEvent]))
