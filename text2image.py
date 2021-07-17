@@ -1,6 +1,5 @@
 from PIL import Image,ImageFont,ImageDraw
 import re
-import os
 from io import BytesIO
 
 font_file = 'FZDBSJW.TTF'
@@ -13,7 +12,6 @@ async def create_image(text: str):
     draw = ImageDraw.Draw(image)
     font = ImageFont.truetype(font_file, 16)
     draw.text((10, 5), text, font=font, fill='#000000')
-
     image.save(imageio, format="JPEG", quality=85)
     return imageio
 
