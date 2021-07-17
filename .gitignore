@@ -8,6 +8,7 @@ tempWordCloud.png
 test.py
 config.yaml
 groupdata.yaml
+blacklist.yaml
 
 /测试文件夹
 /saya/Ark/
