@@ -15,14 +15,15 @@
 > - 我的世界服务器 Motd Ping `/mcping <host:port>`
 > - 摸头 gif 生成 `摸头<@xxx>` and `[戳一戳]某人`
 > - 涩图
-> - Pornhub 风格的 logo 生成 `ph <msg> <msg>`
+> - 风格 logo 生成 `ph <msg> <msg>` and `5000兆 <msg> <msg>` and `yt <msg> <msg>`
 > - 复读姬
 > - 有点涩的词库？（
+> - 废物证申请 `废物证申请`
+> - 禁言套餐（如果 ABot 是管理员的情况下）`我要禁言套餐`
 > - 亿些杂七杂八没整理的小功能
 >   > - @bot 后的反馈 `@ABot`
 >   > - 禁言群员 `/mute <@xxx>` and `/unmute <@xxx>`
 >   > - 私聊接触群禁言（如果 ABot 是管理员但你不是且你被禁言的情况下）`/unmute <group> <qq>`
->   > - 禁言套餐（如果 ABot 是管理员的情况下）`我要禁言套餐`
 >   > - 设置群员昵称（如果 ABot 是管理员的情况下）`/setnick <@xxx> <msg>`
 >   > - 草 `草`
 >   > - ABot 入群提醒
@@ -35,7 +36,7 @@
 >   > - 群名片修正
 > - （待开发中）
 
-群管理或 bot admin 输入 `管理员菜单` 即可打开管理员控制
+群管理或 bot admin 输入 `管理员功能菜单` 即可打开管理员控制
 
 ## 部署 ABot
 
