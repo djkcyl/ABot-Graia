@@ -87,6 +87,9 @@ Saya: # saya 插件配置
 
   Message: # 杂七杂八的回复
     Disabled: false
+  
+  DailyNewspaper: # 每日早报
+    Disabled: false
 
 Final: false
 # 配置完成后请调整为 True

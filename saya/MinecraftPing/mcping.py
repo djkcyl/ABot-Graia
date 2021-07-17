@@ -29,7 +29,7 @@ def mcping(say):
     get_status = json.dumps(get_status)
     get_status = re.sub(r'\\u00a7.', "", get_status)
     get_status = json.loads(get_status)
-    print(get_status)
+    # print(get_status)
 
     # 服务器信息解析
     favicon_path = f"mcstatus_temp.jpg"
@@ -49,7 +49,7 @@ def mcping(say):
         img.save(favicon_path, quality=90)
         # msg_send.append("[图标]")
         msg_send.append(Image_LocalFile(favicon_path))
-        print("图标已生成")
+        # print("图标已生成")
 
     # 延迟
     msg_send.append(Plain(f"延迟：" + str(get_status["ping"]) + "ms\n"))
@@ -58,17 +58,17 @@ def mcping(say):
     if "text" in get_status["description"]:
         sMotd = get_status["description"]["text"]
         msg_send.append(Plain(f"描述：" + sMotd + "\n"))
-        print(sMotd)
+        # print(sMotd)
     elif "extra" in get_status["description"]:
         sMotd = ""
         for extra in get_status["description"]["extra"]:
             sMotd = sMotd + extra["text"]
         msg_send.append(Plain(f"描述：" + sMotd + "\n"))
-        print(sMotd)
+        # print(sMotd)
     elif "translate" in get_status["description"]:
         sMotd = get_status["description"]["translate"]
         msg_send.append(Plain(f"描述：" + sMotd + "\n"))
-        print(sMotd)
+        # print(sMotd)
 
     # 服务端版本判断
     if "Requires" in get_status["version"]["name"]:
@@ -79,9 +79,9 @@ def mcping(say):
             serType = get_status["version"]["name"].rsplit(" ",1)
             sType = serType[0]
             sVer = serType[1]
-            print(serType)
-            print(sType)
-            print(sVer)
+            # print(serType)
+            # print(sType)
+            # print(sVer)
         else:
             sType = "Vanilla"
             sVer = get_status["version"]["name"]
