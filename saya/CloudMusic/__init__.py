@@ -12,7 +12,7 @@ from graia.application.message.elements.internal import *
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.parser.literature import Literature
 
-from config import yaml_data, sendmsg
+from config import yaml_data, group_data, sendmsg
 
 
 saya = Saya.current()
@@ -34,7 +34,7 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group):
 
     if yaml_data['Saya']['CloudMusic']['Disabled']:
         return await sendmsg(app=app, group=group)
-    elif group.id in yaml_data['Saya']['CloudMusic']['Blacklist']:
+    elif 'CloudMusic' in group_data[group.id]['DisabledFunc']:
         return await sendmsg(app=app, group=group)
 
     await app.sendGroupMessage(group, MessageChain.create([Plain(f"发送<搜歌 歌曲名等>即可搜歌")]))
@@ -45,7 +45,7 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, saying: 
 
     if yaml_data['Saya']['CloudMusic']['Disabled']:
         return await sendmsg(app=app, group=group)
-    elif group.id in yaml_data['Saya']['CloudMusic']['Blacklist']:
+    elif 'CloudMusic' in group_data[group.id]['DisabledFunc']:
         return await sendmsg(app=app, group=group)
 
     if len(saying.asDisplay().split()) == 1:
@@ -77,7 +77,7 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, saying: 
 
     if yaml_data['Saya']['CloudMusic']['Disabled']:
         return await sendmsg(app=app, group=group)
-    elif group.id in yaml_data['Saya']['CloudMusic']['Blacklist']:
+    elif 'CloudMusic' in group_data[group.id]['DisabledFunc']:
         return await sendmsg(app=app, group=group)
 
     if len(saying.asDisplay().split()) == 1:

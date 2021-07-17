@@ -7,6 +7,7 @@ config.json
 tempWordCloud.png
 test.py
 config.yaml
+groupdata.yaml
 
 /测试文件夹
 /saya/Ark/
@@ -14,5 +15,6 @@ config.yaml
 /saya/ArkTools/
 /saya/ChineseDict/chrome/
 /saya/2048/
+/saya/TrashCard.py
 
 /pixiv/

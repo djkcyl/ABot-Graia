@@ -9,7 +9,7 @@ from graia.application.event.mirai import *
 from graia.application.message.elements.internal import *
 from graia.application.message.parser.literature import Literature
 
-from config import yaml_data, sendmsg
+from config import yaml_data, group_data, sendmsg
 
 from .mcping import mcping
 
@@ -22,7 +22,7 @@ async def minecraft_ping(app: GraiaMiraiApplication, group: Group, saying: Messa
     
     if yaml_data['Saya']['MinecraftPing']['Disabled']:
         return await sendmsg(app=app, group=group)
-    elif group.id in yaml_data['Saya']['MinecraftPing']['Blacklist']:
+    elif 'MinecraftPing' in group_data[group.id]['DisabledFunc']:
         return await sendmsg(app=app, group=group)
     
     pattern = re.compile('/mcping (.*)', re.M)

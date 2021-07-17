@@ -12,7 +12,7 @@ from graia.application.message.elements.internal import *
 from graia.scheduler.saya.schema import SchedulerSchema
 from graia.scheduler.timers import crontabify
 
-from config import yaml_data, sendmsg
+from config import yaml_data, group_data
 
 
 saya = Saya.current()
@@ -35,9 +35,9 @@ def updateDict():
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
 async def main(app: GraiaMiraiApplication, group: Group, message: MessageChain):
 
-    if yaml_data['Saya']['Chat']['Disabled']:
+    if yaml_data['Saya']['ChatMS']['Disabled']:
         return
-    elif group.id in yaml_data['Saya']['Chat']['Blacklist']:
+    elif 'ChatMS' in group_data[group.id]['DisabledFunc']:
         return
 
     if message.has(At):
@@ -48,8 +48,7 @@ async def main(app: GraiaMiraiApplication, group: Group, message: MessageChain):
                     return await app.sendGroupMessage(group, MessageChain.create([
                         Plain(random.choice(root[key])),
                         Plain(f"\n\n聊天处于测试阶段，谨慎使用。触发关键词：{key}"),
-                        Plain(
-                            f"\nhttps://github.com/Kyomotoi/AnimeThesaurus/blob/main/data.json")
+                        # Plain(f"\nhttps://github.com/Kyomotoi/AnimeThesaurus/blob/main/data.json")
                     ]))
 
 
@@ -60,9 +59,8 @@ async def main(app: GraiaMiraiApplication, friend: Friend, message: MessageChain
         if key in saying:
             return await app.sendFriendMessage(friend, MessageChain.create([
                 Plain(random.choice(root[key])),
-                Plain(f"\n\n聊天处于测试阶段，谨慎使用。触发关键词：{key}"),
-                Plain(
-                    f"\nhttps://github.com/Kyomotoi/AnimeThesaurus/blob/main/data.json")
+                # Plain(f"\n\n聊天处于测试阶段，谨慎使用。触发关键词：{key}"),
+                # Plain(f"\nhttps://github.com/Kyomotoi/AnimeThesaurus/blob/main/data.json")
             ]))
 
 updateDict()

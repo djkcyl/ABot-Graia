@@ -17,7 +17,7 @@ from graia.application.message.elements.internal import Image
 from graia.application.event.messages import Group
 from graia.application.exceptions import AccountMuted
 
-from config import yaml_data
+from config import yaml_data, group_data
 
 
 saya = Saya.current()
@@ -29,7 +29,7 @@ async def petpet_generator(app: GraiaMiraiApplication, message: MessageChain, gr
         
     if yaml_data['Saya']['PetPet']['Disabled'] and not yaml_data['Saya']['PetPet']['CanAt']:
         return
-    elif group.id in yaml_data['Saya']['PetPet']['Blacklist']:
+    elif 'PetPet' in group_data[group.id]['DisabledFunc']:
         return
 
     message_text = message.asDisplay()
@@ -54,7 +54,7 @@ async def get_nudge(app: GraiaMiraiApplication, nudge: NudgeEvent):
         
     if yaml_data['Saya']['PetPet']['Disabled'] and not yaml_data['Saya']['PetPet']['CanNudge']:
         return
-    elif nudge.group_id in yaml_data['Saya']['PetPet']['Blacklist']:
+    elif 'PetPet' in group_data[nudge.group_id]['DisabledFunc']:
         return
 
     app.logger.info(f"[{nudge.group_id}] 收到戳一戳事件 -> [{nudge.target}]")

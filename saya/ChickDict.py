@@ -9,7 +9,7 @@ from graia.application.event.mirai import *
 from graia.application.message.elements.internal import *
 from graia.application.message.parser.literature import Literature
 
-from config import yaml_data, sendmsg
+from config import yaml_data, group_data, sendmsg
 
 saya = Saya.current()
 channel = Channel.current()
@@ -20,7 +20,7 @@ async def fun_dict(app: GraiaMiraiApplication, group: Group, message: MessageCha
 
     if yaml_data['Saya']['ChickDict']['Disabled']:
         return await sendmsg(app=app, group=group)
-    elif group.id in yaml_data['Saya']['ChickDict']['Blacklist']:
+    elif 'ChickDict' in group_data[group.id]['DisabledFunc']:
         return await sendmsg(app=app, group=group)
 
     saying = message.asDisplay().split(" ", 1)

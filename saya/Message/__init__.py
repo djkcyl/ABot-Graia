@@ -1,5 +1,3 @@
-import asyncio
-
 from graia.saya import Saya, Channel
 from graia.application.event.mirai import *
 from graia.application.event.messages import *
@@ -9,7 +7,7 @@ from graia.application.message.elements.internal import *
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.parser.literature import Literature
 
-from config import yaml_data, sendmsg
+from config import yaml_data, group_data
 
 
 saya = Saya.current()
@@ -57,7 +55,6 @@ inc = InterruptControl(bcc)
 #         # print(message_id)
 
 
-
 @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("/ping943")]))
 async def ping943(app: GraiaMiraiApplication, group: Group, message: MessageChain):
     saylist = message.asDisplay().split()
@@ -84,13 +81,27 @@ async def ping943(app: GraiaMiraiApplication, group: Group, message: MessageChai
         await app.sendGroupMessage(group, MessageChain.create([At(568248266)]))
 
 
-
-@channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("草", allow_quote=True, skip_one_at_in_quote=True)]))
-async def a_plant(app: GraiaMiraiApplication, group: Group):
-    await app.sendGroupMessage(group, MessageChain.create([
-        Plain(f"一种植物（")
-    ]))
-
+@channel.use(ListenerSchema(listening_events=[GroupMessage]))
+async def a_plant(app: GraiaMiraiApplication, group: Group, message: MessageChain):
+    
+    if yaml_data['Saya']['Message']['Disabled']:
+        return
+    elif 'Message' in group_data[group.id]['DisabledFunc']:
+        return
+    
+    saying = message.asDisplay()
+    if saying == "草":
+        await app.sendGroupMessage(group, MessageChain.create([
+            Plain(f"一种植物（")
+        ]))
+    if saying == "好耶":
+        await app.sendGroupMessage(group, MessageChain.create([
+            Image_LocalFile("./saya/Message/haoye.png")
+        ]))
+    if saying == "流汗黄豆.jpg":
+        await app.sendGroupMessage(group, MessageChain.create([
+            Image_LocalFile("./saya/Message/huangdou.jpg")
+        ]))
 
 
 # @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("/bantime")]))
@@ -114,26 +125,4 @@ async def a_plant(app: GraiaMiraiApplication, group: Group):
 
 # @channel.use(SchedulerSchema(crontabify("* * * * * *")))
 # async def something_scheduled(app: GraiaMiraiApplication):
-#     await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([Plain("消息发送测试")]))
-
-
-# @channel.use(ListenerSchema(listening_events=[FriendMessage], inline_dispatchers=[Literature("/grouplist")]))
-# async def main(app: GraiaMiraiApplication, friend: Friend):
-#     if friend.id == yaml_data['Basic']['Permission']['Master']:
-#         grouplist = await app.groupList()
-#         grouplist = list(set(grouplist))
-#         # grouplist = grouplist.sort()
-#         print(grouplist)
-
-
-@channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("流汗黄豆.jpg")]))
-async def main(app: GraiaMiraiApplication, group: Group, member: Member):
-    if member.id == yaml_data['Basic']['Permission']['Master']:
-        await app.sendGroupMessage(group, MessageChain.create([Image_LocalFile("./saya/Message/huangdou.jpg")]))
-    else:
-        await app.sendGroupMessage(group, MessageChain.create([At(member.id), Image_LocalFile("./saya/Message/huangdou.jpg")]))
-
-
-@channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("好耶")]))
-async def main(app: GraiaMiraiApplication, group: Group):
-    await app.sendGroupMessage(group, MessageChain.create([Image_LocalFile("./saya/Message/haoye.png")]))
+#     await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([Plain("定时消息发送测试")]))

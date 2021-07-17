@@ -6,31 +6,36 @@ from graia.application.event.mirai import *
 from graia.application.group import MemberInfo
 from graia.application.message.elements.internal import *
 
-from config import yaml_data
+from config import save_config, yaml_data, group_data
+from .AdminConfig import groupInitData
 
 saya = Saya.current()
 channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[NewFriendRequestEvent]))
-async def get_BotJoinGroup(app: GraiaMiraiApplication, event: NewFriendRequestEvent):
-    sourceGroup: Optional[int] = event.sourceGroup
-    msg = "未通过申请"
-    if event.message.upper() == yaml_data['Basic']['Permission']['MasterName']:
-        await event.accept()
-        msg = "已通过申请"
+async def get_BotJoinGroup(app: GraiaMiraiApplication, events: NewFriendRequestEvent):
+    '''
+    收到好友申请
+    '''
+    sourceGroup: Optional[int] = events.sourceGroup
+    msg = "已通过申请"
     for qq in yaml_data['Basic']['Permission']['Admin']:
         await app.sendFriendMessage(qq, MessageChain.create([
             Plain("收到添加好友事件"),
-            Plain(f"\nQQ：{event.supplicant}"),
-            Plain(f"\n昵称：{event.nickname}"),
+            Plain(f"\nQQ：{events.supplicant}"),
+            Plain(f"\n昵称：{events.nickname}"),
             Plain(f"\n来自群：{sourceGroup}"),
-            Plain(f"\n状态：{msg}")
+            Plain(f"\n状态：{msg}\n\n{events.message.upper()}")
         ]))
+    await events.accept()
 
 
 @channel.use(ListenerSchema(listening_events=[BotInvitedJoinGroupRequestEvent]))
 async def accept(app: GraiaMiraiApplication, invite: BotInvitedJoinGroupRequestEvent):
+    '''
+    被邀请入群
+    '''
     await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
         Plain(f"收到邀请入群事件"),
         Plain(f"\n邀请者：{invite.supplicant} | {invite.nickname}"),
@@ -42,6 +47,14 @@ async def accept(app: GraiaMiraiApplication, invite: BotInvitedJoinGroupRequestE
 
 @channel.use(ListenerSchema(listening_events=[BotJoinGroupEvent]))
 async def get_BotJoinGroup(app: GraiaMiraiApplication, joingroup: BotJoinGroupEvent):
+    '''
+    收到入群事件
+    '''
+    if joingroup.group.id not in group_data:
+        group_data[joingroup.group.id] = groupInitData
+        print("已为该群初始化配置文件")
+        save_config()
+
     membernum = len(await app.memberList(joingroup.group.id))
     for qq in yaml_data['Basic']['Permission']['Admin']:
         await app.sendFriendMessage(qq, MessageChain.create([
@@ -54,6 +67,9 @@ async def get_BotJoinGroup(app: GraiaMiraiApplication, joingroup: BotJoinGroupEv
 
 @channel.use(ListenerSchema(listening_events=[BotLeaveEventKick]))
 async def get_BotJoinGroup(app: GraiaMiraiApplication, kickgroup: BotLeaveEventKick):
+    '''
+    被踢出群
+    '''
     for qq in yaml_data['Basic']['Permission']['Admin']:
         await app.sendFriendMessage(qq, MessageChain.create([
             Plain("收到被踢出群聊事件"),
@@ -64,6 +80,9 @@ async def get_BotJoinGroup(app: GraiaMiraiApplication, kickgroup: BotLeaveEventK
 
 @channel.use(ListenerSchema(listening_events=[BotGroupPermissionChangeEvent]))
 async def get_BotJoinGroup(app: GraiaMiraiApplication, permissionchange: BotGroupPermissionChangeEvent):
+    '''
+    群内权限变动
+    '''
     for qq in yaml_data['Basic']['Permission']['Admin']:
         await app.sendFriendMessage(qq, MessageChain.create([
             Plain("收到权限变动事件"),
@@ -75,6 +94,9 @@ async def get_BotJoinGroup(app: GraiaMiraiApplication, permissionchange: BotGrou
 
 @channel.use(ListenerSchema(listening_events=[BotMuteEvent]))
 async def get_BotJoinGroup(app: GraiaMiraiApplication, group: Group, mute: BotMuteEvent):
+    '''
+    被禁言
+    '''
     for qq in yaml_data['Basic']['Permission']['Admin']:
         await app.sendFriendMessage(qq, MessageChain.create([
             Plain("收到禁言事件，已退出该群"),
@@ -87,6 +109,9 @@ async def get_BotJoinGroup(app: GraiaMiraiApplication, group: Group, mute: BotMu
 
 @channel.use(ListenerSchema(listening_events=[FriendMessage]))
 async def friendTrans(app: GraiaMiraiApplication, friend: Friend, message: MessageChain):
+    '''
+    收到私信
+    '''
     say = message.asDisplay()
     await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
         Plain(f"收到私信消息"),
@@ -95,19 +120,11 @@ async def friendTrans(app: GraiaMiraiApplication, friend: Friend, message: Messa
     ]))
 
 
-@channel.use(ListenerSchema(listening_events=[BotInvitedJoinGroupRequestEvent]))
-async def accept(app: GraiaMiraiApplication, invite: BotInvitedJoinGroupRequestEvent):
-    await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
-        Plain(f"收到邀请入群事件"),
-        Plain(f"\n邀请者：{invite.supplicant} | {invite.nickname}"),
-        Plain(f"\n群号：{invite.groupId}"),
-        Plain(f"\n群名：{invite.groupName}")
-    ]))
-    await invite.accept()
-
-
 @channel.use(ListenerSchema(listening_events=[MemberCardChangeEvent]))
 async def main(app: GraiaMiraiApplication, events: MemberCardChangeEvent):
+    '''
+    群名片被修改
+    '''
     if events.member.id == yaml_data['Basic']['MAH']['BotQQ']:
         if events.current != yaml_data['Basic']['BotName']:
             await app.sendFriendMessage(2948531755, MessageChain.create([
@@ -124,3 +141,17 @@ async def main(app: GraiaMiraiApplication, events: MemberCardChangeEvent):
             await app.sendGroupMessage(events.member.group.id,
                                        MessageChain.create([Plain(f"请不要修改我的群名片")]))
             await asyncio.sleep(2)
+
+
+@channel.use(ListenerSchema(listening_events=[MemberJoinEvent]))
+async def getMemberJoinEvent(app: GraiaMiraiApplication, events: MemberJoinEvent):
+    a = 1
+    if a == 2:
+        msg = [
+            Image_NetworkAddress(f"http://q1.qlogo.cn/g?b=qq&nk={str(events.member.id)}&s=4"),
+            Plain(f"\n欢迎 {events.member.name} 加入本群\n")
+        ]
+        if group_data[events.member.group.id]["WelcomeMSG"]["Enabled"]:
+            welcomeMsg = group_data[events.member.group.id]["WelcomeMSG"]['Message']
+            msg.append(Plain(f"\n{welcomeMsg}"))
+        await app.sendGroupMessage(events.member.group, MessageChain.create(msg))

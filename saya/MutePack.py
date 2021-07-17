@@ -9,7 +9,7 @@ from graia.application.event.mirai import *
 from graia.application.message.elements.internal import *
 from graia.application.message.parser.literature import Literature
 
-from config import sendmsg, yaml_data
+from config import sendmsg, group_data, yaml_data
 
 
 saya = Saya.current()
@@ -25,7 +25,7 @@ async def random_mute(app: GraiaMiraiApplication, group: Group, member: Member):
 
     if yaml_data['Saya']['MutePack']['Disabled']:
         return await sendmsg(app=app, group=group)
-    elif group.id in yaml_data['Saya']['MutePack']['Blacklist']:
+    elif 'MutePack' in group_data[group.id]['DisabledFunc']:
         return await sendmsg(app=app, group=group)
 
     if member.id in yaml_data['Basic']['Permission']['Admin']:
