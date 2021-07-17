@@ -1,4 +1,3 @@
-import pkuseg
 import requests
 import json
 import random
@@ -17,7 +16,6 @@ from config import yaml_data, group_data
 
 saya = Saya.current()
 channel = Channel.current()
-seg = pkuseg.pkuseg()
 
 root = {}
 

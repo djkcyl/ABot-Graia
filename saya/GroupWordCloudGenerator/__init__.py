@@ -150,7 +150,7 @@ async def draw_word_cloud(read_name):
         font_path=f'{BASE_PATH}STKAITI.TTF',
         background_color='white',
         # max_words=500,
-        max_font_size=150,
+        max_font_size=180,
         width=1890,
         height=1417,
         mask=mask
