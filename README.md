@@ -53,7 +53,7 @@
    ```shell
    git clone https://github.com/djkcyl/ABot-Graia
    ```
-2. 安装依赖
+2. 使用虚拟容器安装依赖
    ```shell
    poetry install
    ```
