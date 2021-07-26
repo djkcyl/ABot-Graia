@@ -40,7 +40,7 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: 
     elif 'CloudMusic' in group_data[group.id]['DisabledFunc']:
         return await sendmsg(app=app, group=group)
 
-    waite_musicmessageId = await app.sendGroupMessage(group, MessageChain.create([Plain(f"请发送歌曲名")]))
+    waite_musicmessageId = await app.sendGroupMessage(group, MessageChain.create([Plain(f"请发送歌曲名，发送取消即可终止点歌")]))
     @Waiter.create_using_function([GroupMessage])
     async def waiter1(waiter1_group: Group, waiter1_member: Member, waiter1_message: MessageChain):
         if all([waiter1_group.id == group.id,
@@ -59,7 +59,7 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: 
             musiclist = json.loads(search.text)["result"]["songs"]
             msg = []
             musicIdList = []
-            msg.append(Plain(f"为你在网易云音乐找到以下歌曲！\n发送歌曲id即可完成点歌"))
+            msg.append(Plain(f"为你在网易云音乐找到以下歌曲！"))
             num = 1
             for music in musiclist:
                 if num > 10:
@@ -73,7 +73,7 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: 
                 msg.append(Plain(f"\n{num} ---> {music_name} - {music_ar}"))
                 musicIdList.append(music_id)
                 num += 1
-            msg.append(Plain(f"\n发送取消即可重新点歌"))
+            msg.append(Plain(f"\n发送歌曲id可完成点歌\n发送取消可终止当前点歌"))
             await app.sendGroupMessage(group, MessageChain.create(msg))
 
             @Waiter.create_using_function([GroupMessage])
@@ -102,7 +102,7 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: 
                         for ar in musicinfo['songs'][0]['ar']:
                             music_ar.append(ar['name'])
                         music_ar = "/".join(music_ar)
-                        music_al = musicinfo['songs'][0]['al']['picUrl']+"?param=100x100"
+                        music_al = musicinfo['songs'][0]['al']['picUrl']+"?param=200x200"
                         await app.sendGroupMessage(group, MessageChain.create([
                             Image_NetworkAddress(music_al),
                             Plain(f"\n曲名：{music_name}\n作者：{music_ar}")]))
