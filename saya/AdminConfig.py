@@ -1,12 +1,14 @@
 import asyncio
+import random
 import time
 
 from graia.application import GraiaMiraiApplication
 from graia.saya import Saya, Channel
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.event.messages import *
-from graia.application.event.mirai import *
-from graia.application.message.elements.internal import *
+from graia.application.event.messages import GroupMessage, FriendMessage
+from graia.application.group import Group, Member, MemberPerm
+from graia.application.friend import Friend
+from graia.application.message.elements.internal import MessageChain, Source, At, Plain, Image_UnsafeBytes
 from graia.application.message.parser.literature import Literature
 
 from config import save_config, yaml_data, group_data, black_list
@@ -278,7 +280,7 @@ async def Announcement(app: GraiaMiraiApplication, friend: Friend, message: Mess
                         Plain(f"公告：{str(group.id)}\n"),
                         Image_UnsafeBytes(image.getvalue())
                     ]))
-                    await asyncio.sleep(0.8)
+                    await asyncio.sleep(random.randint(2, 4))
             tt = time.time()
             times = str(tt - ft)
             await app.sendFriendMessage(friend, MessageChain.create(f"群发已完成，耗时 {times} 秒"))
