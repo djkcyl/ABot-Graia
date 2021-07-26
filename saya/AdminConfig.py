@@ -184,7 +184,7 @@ async def adminmain(app: GraiaMiraiApplication, group: Group, message: MessageCh
                                  funcHelp[usage]["usage"] + "\n         >>> 注意事项 >>>\n" +
                                  funcHelp[usage]["options"]))
         help = str(f"{yaml_data['Basic']['BotName']} 使用指南\n\n============================\n")
-        help = help + "\n----------------------------\n".join(funcusage)
+        help = help + "\n\n----------------------------\n\n".join(funcusage)
         help = help + str(f"\n============================\n" +
                           f"\n所有功能均无需@，<x>为可替内容" +
                           f"\n如果用不明白菜单功能可以不用，建议去医院多看看" +
