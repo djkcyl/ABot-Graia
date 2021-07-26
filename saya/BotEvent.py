@@ -1,16 +1,50 @@
 from graia.application import GraiaMiraiApplication
+from graia.application.event.lifecycle import ApplicationLaunched, ApplicationShutdowned
 from graia.saya import Saya, Channel
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.event.messages import *
 from graia.application.event.mirai import *
 from graia.application.group import MemberInfo
 from graia.application.message.elements.internal import *
+from graia.broadcast.interrupt import InterruptControl
+from graia.broadcast.interrupt.waiter import Waiter
 
 from config import save_config, yaml_data, group_data, black_list
 from .AdminConfig import groupInitData
 
 saya = Saya.current()
 channel = Channel.current()
+bcc = saya.broadcast
+inc = InterruptControl(bcc)
+
+
+@channel.use(ListenerSchema(listening_events=[ApplicationLaunched]))
+async def groupDataInit(app: GraiaMiraiApplication):
+    groupList = await app.groupList()
+    groupNum = len(groupList)
+    await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
+        Plain(f"ABot-Graia成功启动，正在初始化，请稍后。"),
+        Plain(f"\n当前 {yaml_data['Basic']['BotName']} 共加入了 {groupNum} 个群")
+    ]))
+    i = 0
+    for group in groupList:
+        if group.id not in group_data:
+            group_data[group.id] = groupInitData
+            print(group_data[group.id])
+            print(f"已为 {group.id} 进行初始化配置")
+            i += 1
+    save_config()
+    msg = [Plain(f"初始化结束")]
+    if i > 0:
+        msg.append(Plain(f"\n以为 {str(1)} 个群进行了初始化配置"))
+    await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create(msg))
+
+
+@channel.use(ListenerSchema(listening_events=[ApplicationShutdowned]))
+async def groupDataInit(app: GraiaMiraiApplication):
+    await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
+        Plain(f"正在关闭")
+    ]))
 
 
 @channel.use(ListenerSchema(listening_events=[NewFriendRequestEvent]))
@@ -60,9 +94,37 @@ async def accept(app: GraiaMiraiApplication, invite: BotInvitedJoinGroupRequestE
             Plain(f"收到邀请入群事件"),
             Plain(f"\n邀请者：{invite.supplicant} | {invite.nickname}"),
             Plain(f"\n群号：{invite.groupId}"),
-            Plain(f"\n群名：{invite.groupName}")
+            Plain(f"\n群名：{invite.groupName}"),
+            Plain(f"\n\n请发送“同意”或“拒绝”")
         ]))
-        await invite.accept()
+
+        @Waiter.create_using_function([FriendMessage])
+        async def waiter(waiter_friend: Friend, waiter_message: MessageChain):
+            if waiter_friend.id == yaml_data['Basic']['Permission']['Master']:
+                saying = waiter_message.asDisplay()
+                if saying == "同意":
+                    return True
+                elif saying == "拒绝":
+                    return False
+                else:
+                    await app.sendFriendMessage(2948531755, MessageChain.create([Plain("请发送同意或拒绝")]))
+        try:
+            if await asyncio.wait_for(inc.wait(waiter), timeout=300):
+                invite.accept()
+                await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
+                    Plain("已同意申请")
+                ]))
+            else:
+                invite.reject("主人拒绝加入该群")
+                await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
+                    Plain("已拒绝申请")
+                ]))
+
+        except asyncio.TimeoutError:
+            invite.reject("由于主人长时间未审核，已自动拒绝")
+            await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
+                Plain("申请超时已自动拒绝")
+            ]))
 
 
 @channel.use(ListenerSchema(listening_events=[BotJoinGroupEvent]))
@@ -132,12 +194,13 @@ async def friendTrans(app: GraiaMiraiApplication, friend: Friend, message: Messa
     '''
     收到私信
     '''
-    say = message.asDisplay()
-    await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
-        Plain(f"收到私信消息"),
-        Plain(f"\n来源：{friend.id} | {friend.nickname}"),
-        Plain(f"\n消息内容：{say}")
-    ]))
+    if not friend.id == yaml_data['Basic']['Permission']['Master']:
+        say = MessageChain.join(MessageChain.create([
+            Plain(f"收到私信消息"),
+            Plain(f"\n来源：{friend.id} | {friend.nickname}"),
+            Plain(f"\n消息内容：\n\n")
+        ]), message)
+        await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], say.asSendable())
 
 
 @channel.use(ListenerSchema(listening_events=[MemberCardChangeEvent]))

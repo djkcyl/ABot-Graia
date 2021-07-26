@@ -1,5 +1,4 @@
 import re
-import os
 
 from graia.application import GraiaMiraiApplication
 from graia.saya import Saya, Channel
@@ -31,9 +30,5 @@ async def minecraft_ping(app: GraiaMiraiApplication, group: Group, saying: Messa
         send_msg = mcping(say)
         # print(send_msg)
         await app.sendGroupMessage(str(group.id), MessageChain.create(send_msg))
-        try:
-            os.remove("mcstatus_temp.jpg")
-        except:
-            return
     except:
         await app.sendGroupMessage(str(group.id), MessageChain.create([Plain("请输入服务器地址")]))

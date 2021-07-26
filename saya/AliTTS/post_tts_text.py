@@ -1,5 +1,5 @@
 import json
-import httpx
+import requests
 import asyncio
 
 from config import yaml_data
@@ -29,7 +29,7 @@ async def post_text(text, type):
             "token": token
         }
     }
-    tts_body = json.loads(httpx.post(post_url, json=body_json).text)
+    tts_body = json.loads(requests.post(post_url, json=body_json).text)
     print(tts_body)
     error_message = tts_body['error_message']
     task_id = tts_body['data']['task_id']
@@ -41,7 +41,7 @@ async def waitloop_url(token, task_id):
     s = 1
     url = f"https://nls-gateway.cn-shanghai.aliyuncs.com/rest/v1/tts/async?appkey={yaml_data['Saya']['AliTTS']['Appkey']}&token={token}&task_id={task_id}"
     while s < 100:
-        tts_url_get = json.loads(httpx.get(url).text)
+        tts_url_get = json.loads(requests.get(url).text)
         if (tts_url_get["error_code"] == 20000000) and (tts_url_get["error_message"] == "SUCCESS"):
             return tts_url_get["data"]["audio_address"]
         else:

@@ -16,12 +16,13 @@ channel = Channel.current()
 @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("1", allow_quote=True, skip_one_at_in_quote=True)]))
 async def get_botQueue(app: GraiaMiraiApplication, member: Member, message: MessageChain, source: Source):
     if member.id in yaml_data['Basic']['Permission']['Admin']:
-        messageid = message.get(Quote)[0].origin.get(Source)[0].id
-        try:
-            await app.revokeMessage(messageid)
-            await app.revokeMessage(source)
-        except:
-            pass
+        if message.has(Quote):
+            messageid = message.get(Quote)[0].origin.get(Source)[0].id
+            try:
+                await app.revokeMessage(messageid)
+                await app.revokeMessage(source)
+            except:
+                pass
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("/setnick")]))
