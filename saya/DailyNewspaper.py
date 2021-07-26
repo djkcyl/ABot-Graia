@@ -19,15 +19,18 @@ channel = Channel.current()
 
 @channel.use(SchedulerSchema(crontabify("* * 8 * * *")))
 async def something_scheduled(app: GraiaMiraiApplication):
+
+    if yaml_data['Saya']['DailyNewspaper']['Disabled']:
+        return
+
     groupList = await app.groupList()
     paperurl = requests.get("http://api.2xb.cn/zaob").json()['imageUrl']
     paperimg = BytesIO()
     paperimg.write(requests.get(paperurl).content)
-    
+
     for group in groupList:
-        if yaml_data['Saya']['DailyNewspaper']['Disabled']:
-            return
-        elif 'DailyNewspaper' in group_data[group.id]['DisabledFunc']:
+
+        if 'DailyNewspaper' in group_data[group.id]['DisabledFunc']:
             return
 
         await app.sendGroupMessage(group.id, MessageChain.create([
@@ -35,4 +38,3 @@ async def something_scheduled(app: GraiaMiraiApplication):
             Image_UnsafeBytes(paperimg.getvalue())
         ]))
         await asyncio.sleep(1)
-

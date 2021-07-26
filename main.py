@@ -3,6 +3,8 @@ import os
 
 from graia.application import GraiaMiraiApplication, Session
 from graia.application.exceptions import AccountNotFound
+from graia.application.message.chain import MessageChain
+from graia.application.message.elements.internal import Plain
 from graia.broadcast import Broadcast
 from graia.broadcast.interrupt import InterruptControl
 from graia.saya import Saya

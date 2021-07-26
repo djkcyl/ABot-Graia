@@ -1,12 +1,13 @@
 from PIL import Image
 from io import BytesIO
+
 from .statusping import StatusPing
 import base64
 import dns.resolver
 import json
 import re
 
-from graia.application.message.elements.internal import Image_LocalFile, Plain
+from graia.application.message.elements.internal import Image_UnsafeBytes, Plain
 
 
 def mcping(say):
@@ -31,10 +32,8 @@ def mcping(say):
     get_status = json.loads(get_status)
     # print(get_status)
 
-    # 服务器信息解析
-    favicon_path = f"mcstatus_temp.jpg"
     msg_send = []
-
+    # 服务器信息解析
     # 判断是否报错
     if get_status == "error":
         msg_send = [Plain(f"服务器信息获取失败")]
@@ -46,9 +45,9 @@ def mcping(say):
         byte_data = base64.b64decode(favicon)
         image_data = BytesIO(byte_data)
         img = Image.open(image_data).convert('RGB')
-        img.save(favicon_path, quality=90)
+        img.save(image_data, format="JPEG" , quality=90)
         # msg_send.append("[图标]")
-        msg_send.append(Image_LocalFile(favicon_path))
+        msg_send.append(Image_UnsafeBytes(image_data.getvalue))
         # print("图标已生成")
 
     # 延迟

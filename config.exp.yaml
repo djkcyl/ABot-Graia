@@ -91,6 +91,11 @@ Saya: # saya 插件配置
   DailyNewspaper: # 每日早报
     Disabled: false
 
+  Setu: #色图
+    Disabled: false
+
+  AnitRecall: #防撤回
+    Disabled: false
 Final: false
 # 配置完成后请调整为 True
 # 配置完成后请调整为 True

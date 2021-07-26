@@ -6,8 +6,7 @@ from lxml import etree
 from graia.application import GraiaMiraiApplication
 from graia.saya import Saya, Channel
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.event.messages import *
-from graia.application.event.mirai import *
+from graia.application.event.messages import GroupMessage, Group
 from graia.application.message.elements.internal import *
 from graia.application.message.parser.literature import Literature
 

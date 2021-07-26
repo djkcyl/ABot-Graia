@@ -5,12 +5,11 @@ import requests
 from hashlib import md5
 from graiax import silkcoder
 from graia.saya import Saya, Channel
-from graia.application.event.mirai import *
-from graia.application.event.messages import *
 from graia.application import GraiaMiraiApplication
-from graia.application.message.elements.internal import *
 from graia.saya.builtins.broadcast.schema import ListenerSchema
+from graia.application.event.messages import Forward, ForwardContentMessage, Group, GroupMessage
 from graia.application.message.parser.literature import Literature
+from graia.application.message.elements.internal import FlashImage, Source, Plain, MessageChain, Voice_LocalFile
 
 from config import yaml_data, group_data, sendmsg
 
@@ -40,7 +39,7 @@ async def ali_tts(app: GraiaMiraiApplication, group: Group, message: MessageChai
             Plain(f"超过字符限制 " + str(len(message.asDisplay())) + "/180")
         ]))
         return
-    saying = message.asDisplay().split()
+    saying = message.asDisplay().split(" ", 2)
     tts_con = saying[1]
     model = ["男", "女", "童", "日", "美"]
     strmodel = "、".join(model)
