@@ -186,11 +186,11 @@ async def adminmain(app: GraiaMiraiApplication, group: Group, message: MessageCh
         help = str(f"{yaml_data['Basic']['BotName']} 使用指南\n\n============================\n")
         help = help + "\n\n----------------------------\n\n".join(funcusage)
         help = help + str(f"\n============================\n" +
-                          f"\n所有功能均无需@，<x>为可替内容" +
+                          f"\n所有功能均无需@机器人本身，<x>为可替内容" +
                           f"\n如果用不明白菜单功能可以不用，建议去医院多看看" +
                           f"\n方舟玩家可以加个好友，[官服 A60#6660]" +
                           f"\n可以先试试新制作的 <废物证申请> 一起来成为废物吧~（" +
-                          f"\ngithub.com/djkcyl/ABot-Graia" +
+                          f"\n源码：github.com/djkcyl/ABot-Graia" +
                           f"\n发送 <管理员功能菜单> 即可调整群内功能是否开启")
         image = await create_image(help)
         await app.sendGroupMessage(group, MessageChain.create([Image_UnsafeBytes(image.getvalue())]))
