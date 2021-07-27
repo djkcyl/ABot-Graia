@@ -45,12 +45,12 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: 
         if "trans" in dict and len(dict["trans"]) != 0:
             name = dict["name"]
             tc = dict["trans"]
-            msg.append(Plain(f"\n===================\n{name} 可能是：\n" + "\n".join(tc)))
+            msg.append(Plain(f"\n===================\n{name} 可能是：\n  > " + "\n  > ".join(tc)))
         elif "inputting" in dict and len(dict["inputting"]) != 0:
             name = dict["name"]
             tc = dict["inputting"]
-            msg.append(Plain(f"\n===================\n{name} 可能是：\n" + "\n".join(tc)))
+            msg.append(Plain(f"\n===================\n{name} 可能是：\n  > " + "\n  > ".join(tc)))
         else:
-            td = f"未收录该条目"
+            msg.append(Plain(f"未收录该条目"))
 
     await app.sendGroupMessage(group, MessageChain.create(msg))
