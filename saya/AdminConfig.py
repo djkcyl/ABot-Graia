@@ -157,7 +157,7 @@ async def atrep(app: GraiaMiraiApplication, group: Group, message: MessageChain,
     ifat = message.has(At)
     if ifat:
         ifa = message.get(At)[0].target == yaml_data['Basic']['MAH']['BotQQ']
-        if ifa and message.asDisplay().replace(" ","") == f"@{str(yaml_data['Basic']['Permission']['Master'])}":
+        if ifa:
             if member.id == yaml_data['Basic']['Permission']['Master']:
                 await app.sendGroupMessage(group, MessageChain.create([
                     Plain(f"爹！")
@@ -169,8 +169,9 @@ async def atrep(app: GraiaMiraiApplication, group: Group, message: MessageChain,
                     Plain(f"如果有需要可以联系主人QQ”{str(yaml_data['Basic']['Permission']['Master'])}“，"),
                     Plain(f"添加{yaml_data['Basic']['BotName']}好友后可以被拉到其他群（她会自动同意的），"),
                     Plain(f"{yaml_data['Basic']['BotName']}被群禁言后会自动退出该群。"),
-                    Plain(f"\n发送 菜单 可以查看功能列表"),
-                    Plain(f"\n拥有管理员以上权限可以使用 管理员功能菜单 开关功能")
+                    Plain(f"\n发送 <菜单> 可以查看功能列表"),
+                    Plain(f"\n拥有管理员以上权限可以使用 <管理员功能菜单> 来开关功能"),
+                    Plain(f"\n\n@不会触发任何功能")
                 ]))
 
 
