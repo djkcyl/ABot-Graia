@@ -7,9 +7,10 @@ from graiax import silkcoder
 from graia.saya import Saya, Channel
 from graia.application import GraiaMiraiApplication
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.event.messages import Forward, ForwardContentMessage, Group, GroupMessage
+from graia.application.event.messages import Group, GroupMessage
 from graia.application.message.parser.literature import Literature
-from graia.application.message.elements.internal import FlashImage, Source, Plain, MessageChain, Voice_LocalFile
+from graia.application.message.elements.internal import Source, Plain, MessageChain, Voice_LocalFile
+# from google_trans_new import google_translator
 
 from config import yaml_data, group_data, sendmsg
 
@@ -24,6 +25,8 @@ if not os.path.exists("voice_file"):
     os.mkdir("voice_file")
 
 TTSRUNING = False
+
+# trans = google_translator()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("/tts")]))
@@ -43,6 +46,7 @@ async def ali_tts(app: GraiaMiraiApplication, group: Group, message: MessageChai
     tts_con = saying[1]
     model = ["男", "女", "童", "日", "美"]
     strmodel = "、".join(model)
+    ttstext = saying[2]
     if tts_con not in model:
         await app.sendGroupMessage(group, MessageChain.create([Plain(f"请输入可用的语音模型\n{strmodel}")]))
         return
@@ -53,13 +57,17 @@ async def ali_tts(app: GraiaMiraiApplication, group: Group, message: MessageChai
     elif tts_con == "童":
         vm_type = "aibao"
     elif tts_con == "日":
+        # ttstext = trans.translate(ttstext, lang_tgt='ja')
+        # await app.sendGroupMessage(group, MessageChain.create([Plain(f"已将文本使用谷歌翻译转换为日语：\n{ttstext}")]))
         vm_type = "tomoka"
     elif tts_con == "美":
+        # ttstext = trans.translate(ttstext, lang_tgt='en')
+        # await app.sendGroupMessage(group, MessageChain.create([Plain(f"已将文本使用谷歌翻译转换为英语：\n{ttstext}")]))
         vm_type = "abby"
     # elif tts_con == "A":
     #     vm_type = "pt_zbwn4r07awdszw0b_a60voice"
     # print(tts_con)
-    tts_md5 = md5(str(saying[1] + saying[2]).encode(encoding="UTF-8")).hexdigest()
+    tts_md5 = md5(str(saying[1] + ttstext).encode(encoding="UTF-8")).hexdigest()
     tts_shot_md5 = tts_md5[0:2]
     # print(tts_shot_md5)
     voice_file = "voice_file/" + tts_shot_md5 + "/" + tts_md5  # 完整 md5 文件名
@@ -88,7 +96,7 @@ async def ali_tts(app: GraiaMiraiApplication, group: Group, message: MessageChai
             Plain(f"正在创建语音文件，请耐心等待")
         ]))
         time1 = time.time()
-        tts_file_url = await post_text(saying[2], vm_type)
+        tts_file_url = await post_text(ttstext, vm_type)
         r = requests.get(tts_file_url)
         with open(voice_file + '.wav', 'wb') as f:
             f.write(r.content)
