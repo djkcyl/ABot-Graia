@@ -245,8 +245,13 @@ async def main(app: GraiaMiraiApplication, events: MemberCardChangeEvent):
             await asyncio.sleep(2)
 
 
+
+# 群内事件
 @channel.use(ListenerSchema(listening_events=[MemberJoinEvent]))
 async def getMemberJoinEvent(app: GraiaMiraiApplication, events: MemberJoinEvent):
+    '''
+    有人加入群聊
+    '''
     a = 1
     if a == 2:
         msg = [

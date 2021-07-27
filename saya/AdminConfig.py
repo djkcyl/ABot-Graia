@@ -171,6 +171,7 @@ async def atrep(app: GraiaMiraiApplication, group: Group, message: MessageChain,
                     Plain(f"\n{yaml_data['Basic']['BotName']}被群禁言后会自动退出该群。"),
                     Plain(f"\n发送 <菜单> 可以查看功能列表"),
                     Plain(f"\n拥有管理员以上权限可以使用 <管理员功能菜单> 来开关功能"),
+                    Plain(f"\n如果用不明白菜单功能可以不用，建议去医院多看看"),
                     Plain(f"\n\n@不会触发任何功能"),
                     Plain(f"\n@不会触发任何功能"),
                     Plain(f"\n@不会触发任何功能")
@@ -217,7 +218,9 @@ async def adminmain(app: GraiaMiraiApplication, group: Group, member: Member):
                 statu = "本群开启"
             msg += f"\n{str(i)}.{funcname}：{statu}"
             i += 1
-        msg += f"\n===================\n开启功能/关闭功能 <功能id>\n更多功能待开发，如有特殊需求可以向 {yaml_data['Basic']['Permission']['Master']} 询问"
+        msg += str(f"\n===================\n开启功能/关闭功能 <功能id> " +
+                   f"\n如果用不明白菜单功能可以不用，建议去医院多看看" +
+                   f"\n更多功能待开发，如有特殊需求可以向 {yaml_data['Basic']['Permission']['Master']} 询问")
         image = await create_image(msg)
         await app.sendGroupMessage(group, MessageChain.create([Image_UnsafeBytes(image.getvalue())]))
     else:

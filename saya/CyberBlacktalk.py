@@ -39,16 +39,18 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: 
     tb = json.loads(ta)
     if len(tb) == 0:
         return await app.sendGroupMessage(group, MessageChain.create([Plain(f"你在说什么 <需要翻译的简写>")]))
-    if "trans" in tb[0] and len(tb[0]["trans"]) != 0:
-        tc = tb[0]["trans"]
-        td = f"{saying[1]} 可能是：\n" + "\n".join(tc)
-    elif "inputting" in tb[0] and len(tb[0]["inputting"]) != 0:
-        tc = tb[0]["inputting"]
-        td = f"{saying[1]} 可能是：\n" + "\n".join(tc)
-    else:
-        td = f"未收录该条目"
 
-    await app.sendGroupMessage(group, MessageChain.create([
-        At(member.id),
-        Plain(f"\n{td}")
-    ]))
+    msg = [At(member.id)]
+    for dict in tb:
+        if "trans" in dict and len(dict["trans"]) != 0:
+            name = dict["name"]
+            tc = dict["trans"]
+            msg.append(Plain(f"\n===================\n{name} 可能是：\n" + "\n".join(tc)))
+        elif "inputting" in dict and len(dict["inputting"]) != 0:
+            name = dict["name"]
+            tc = dict["inputting"]
+            msg.append(Plain(f"\n===================\n{name} 可能是：\n" + "\n".join(tc)))
+        else:
+            td = f"未收录该条目"
+
+    await app.sendGroupMessage(group, MessageChain.create(msg))
