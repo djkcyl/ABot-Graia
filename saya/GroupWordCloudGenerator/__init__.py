@@ -54,7 +54,7 @@ async def group_wordcloud_generator(app: GraiaMiraiApplication, message: Message
         global GWCGRAINING
         if message_text == "我的月内总结":
             if GWCGRAINING:
-                await app.sendGroupMessage(group, MessageChain.create([Plain("总结正在运行中，请稍后再试")]))
+                await app.sendGroupMessage(group, MessageChain.create([Plain("有一个其他的总结正在运行中，请稍后再试")]))
                 return
             GWCGRAINING = True
             await app.sendGroupMessage(group, MessageChain.create([Plain("正在生成，请稍后")]))
@@ -62,7 +62,7 @@ async def group_wordcloud_generator(app: GraiaMiraiApplication, message: Message
             GWCGRAINING = False
         elif message_text == "我的年内总结":
             if GWCGRAINING:
-                await app.sendGroupMessage(group, MessageChain.create([Plain("总结正在运行中，请稍后再试")]))
+                await app.sendGroupMessage(group, MessageChain.create([Plain("有一个其他的总结正在运行中，请稍后再试")]))
                 return
             GWCGRAINING = True
             await app.sendGroupMessage(group, MessageChain.create([Plain("正在生成，请稍后")]))
@@ -70,7 +70,7 @@ async def group_wordcloud_generator(app: GraiaMiraiApplication, message: Message
             GWCGRAINING = False
         elif message_text == "本群月内总结":
             if GWCGRAINING:
-                await app.sendGroupMessage(group, MessageChain.create([Plain("总结正在运行中，请稍后再试")]))
+                await app.sendGroupMessage(group, MessageChain.create([Plain("有一个其他的总结正在运行中，请稍后再试")]))
                 return
             GWCGRAINING = True
             await app.sendGroupMessage(group, MessageChain.create([Plain("正在生成，请稍后")]))
@@ -78,7 +78,7 @@ async def group_wordcloud_generator(app: GraiaMiraiApplication, message: Message
             GWCGRAINING = False
         elif message_text == "本群年内总结":
             if GWCGRAINING:
-                await app.sendGroupMessage(group, MessageChain.create([Plain("总结正在运行中，请稍后再试")]))
+                await app.sendGroupMessage(group, MessageChain.create([Plain("有一个其他的总结正在运行中，请稍后再试")]))
                 return
             GWCGRAINING = True
             await app.sendGroupMessage(group, MessageChain.create([Plain("正在生成，请稍后")]))

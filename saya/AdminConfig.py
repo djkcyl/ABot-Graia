@@ -167,11 +167,13 @@ async def atrep(app: GraiaMiraiApplication, group: Group, message: MessageChain,
                     Plain(f"我是{yaml_data['Basic']['Permission']['MasterName']}"),
                     Plain(f"的机器人{yaml_data['Basic']['BotName']}，"),
                     Plain(f"如果有需要可以联系主人QQ”{str(yaml_data['Basic']['Permission']['Master'])}“，"),
-                    Plain(f"添加{yaml_data['Basic']['BotName']}好友后可以被拉到其他群（她会自动同意的），"),
-                    Plain(f"{yaml_data['Basic']['BotName']}被群禁言后会自动退出该群。"),
+                    Plain(f"添加{yaml_data['Basic']['BotName']}好友后请私聊说明用途后即可拉进其他群，主人看到后会选择是否同意入群"),
+                    Plain(f"\n{yaml_data['Basic']['BotName']}被群禁言后会自动退出该群。"),
                     Plain(f"\n发送 <菜单> 可以查看功能列表"),
                     Plain(f"\n拥有管理员以上权限可以使用 <管理员功能菜单> 来开关功能"),
-                    Plain(f"\n\n@不会触发任何功能")
+                    Plain(f"\n\n@不会触发任何功能"),
+                    Plain(f"\n@不会触发任何功能"),
+                    Plain(f"\n@不会触发任何功能")
                 ]))
 
 
