@@ -40,6 +40,13 @@ async def groupDataInit(app: GraiaMiraiApplication):
     await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create(msg))
 
 
+@channel.use(ListenerSchema(listening_events=[]))
+async def groupDataInit(app: GraiaMiraiApplication):
+    await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
+        Plain(f"正在关闭")
+    ]))
+
+
 @channel.use(ListenerSchema(listening_events=[ApplicationShutdowned]))
 async def groupDataInit(app: GraiaMiraiApplication):
     await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
@@ -110,18 +117,18 @@ async def accept(app: GraiaMiraiApplication, invite: BotInvitedJoinGroupRequestE
                     await app.sendFriendMessage(2948531755, MessageChain.create([Plain("请发送同意或拒绝")]))
         try:
             if await asyncio.wait_for(inc.wait(waiter), timeout=300):
-                invite.accept()
+                await invite.accept()
                 await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
                     Plain("已同意申请")
                 ]))
             else:
-                invite.reject("主人拒绝加入该群")
+                await invite.reject("主人拒绝加入该群")
                 await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
                     Plain("已拒绝申请")
                 ]))
 
         except asyncio.TimeoutError:
-            invite.reject("由于主人长时间未审核，已自动拒绝")
+            await invite.reject("由于主人长时间未审核，已自动拒绝")
             await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
                 Plain("申请超时已自动拒绝")
             ]))
@@ -136,6 +143,16 @@ async def get_BotJoinGroup(app: GraiaMiraiApplication, joingroup: BotJoinGroupEv
         group_data[joingroup.group.id] = groupInitData
         print("已为该群初始化配置文件")
         save_config()
+        await app.sendGroupMessage(joingroup.group.id, MessageChain.create([
+            Plain(f"我是{yaml_data['Basic']['Permission']['MasterName']}"),
+            Plain(f"的机器人{yaml_data['Basic']['BotName']}，"),
+            Plain(f"如果有需要可以联系主人QQ”{str(yaml_data['Basic']['Permission']['Master'])}“，"),
+            Plain(f"添加{yaml_data['Basic']['BotName']}好友后可以被拉到其他群（她会自动同意的），"),
+            Plain(f"{yaml_data['Basic']['BotName']}被群禁言后会自动退出该群。"),
+            Plain(f"\n发送 <菜单> 可以查看功能列表"),
+            Plain(f"\n拥有管理员以上权限可以使用 <管理员功能菜单> 来开关功能"),
+            Plain(f"\n\n@不会触发任何功能")
+        ]))
 
     membernum = len(await app.memberList(joingroup.group.id))
     for qq in yaml_data['Basic']['Permission']['Admin']:
