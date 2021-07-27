@@ -24,7 +24,7 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: 
     elif 'CyberBlacktalk' in group_data[group.id]['DisabledFunc']:
         return await sendmsg(app=app, group=group)
 
-    saying = message.asDisplay().split()
+    saying = message.asDisplay().split(" ", 1)
     if len(saying) != 2:
         return await app.sendGroupMessage(group, MessageChain.create([Plain(f"你在说什么 <需要翻译的简写>")]))
     api_url = "https://lab.magiconch.com/api/nbnhhsh/guess"
