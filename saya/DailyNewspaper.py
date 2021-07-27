@@ -38,7 +38,7 @@ async def something_scheduled(app: GraiaMiraiApplication):
     for group in groupList:
 
         if 'DailyNewspaper' in group_data[group.id]['DisabledFunc']:
-            return
+            continue
 
         await app.sendGroupMessage(group.id, MessageChain.create([
             Plain(group.name),
