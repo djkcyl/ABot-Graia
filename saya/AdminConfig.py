@@ -180,7 +180,7 @@ async def atrep(app: GraiaMiraiApplication, group: Group, message: MessageChain,
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
 async def adminmain(app: GraiaMiraiApplication, group: Group, message: MessageChain):
-    if message.asDisplay() in ["/help", "help", "帮助", "菜单", "功能"]:
+    if message.asDisplay() in [".help", "/help", "help", "帮助", "菜单", "功能"]:
         funcusage = []
         for usage in funcHelp:
             funcusage.append(str(f"{usage}：\n" +
@@ -286,7 +286,7 @@ async def Announcement(app: GraiaMiraiApplication, friend: Friend, message: Mess
                         Plain(f"公告：{str(group.id)}\n"),
                         Image_UnsafeBytes(image.getvalue())
                     ]))
-                    await asyncio.sleep(random.randint(2, 4))
+                    await asyncio.sleep(random.randint(3, 5))
             tt = time.time()
             times = str(tt - ft)
             await app.sendFriendMessage(friend, MessageChain.create(f"群发已完成，耗时 {times} 秒"))

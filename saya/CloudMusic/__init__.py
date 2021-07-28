@@ -108,7 +108,7 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: 
                             for ar in musicinfo['songs'][0]['ar']:
                                 music_ar.append(ar['name'])
                             music_ar = "/".join(music_ar)
-                            music_al = musicinfo['songs'][0]['al']['picUrl']+"?param=200x200"
+                            music_al = musicinfo['songs'][0]['al']['picUrl']+"?param=300x300"
                             await app.sendGroupMessage(group, MessageChain.create([
                                 Image_NetworkAddress(music_al),
                                 Plain(f"\n曲名：{music_name}\n作者：{music_ar}")]))

@@ -59,6 +59,10 @@ async def fun_dict(app: GraiaMiraiApplication, group: Group, message: MessageCha
         await app.sendGroupMessage(group, MessageChain.create([
             Plain(f"未找到相应词条：{say_name}"),
         ]))
+    elif "size" not in r_fun:
+        await app.sendGroupMessage(group, MessageChain.create([
+            Plain(f"API 访问错误"),
+        ]))
     else:
         # 循环 “data” 内所有项目
         for r_fun_data in r_fun["data"]:
