@@ -315,6 +315,14 @@ optional = false
 python-versions = ">=3.4"
 
 [[package]]
+name = "interval"
+version = "1.0.0"
+description = "Python interval and interval set implementation"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "iterwrapper"
 version = "0.1.4"
 description = "A wrapper for FP style iterator manipulation"
@@ -718,7 +726,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "7d4aeeb1214be3776df9d481113aa3b30aad4442fb918e24a40f20028612c80b"
+content-hash = "807825c386a44952f5edfbf6f26c747520ed7d82d200cfa4e1deab8534ca4969"
 
 [metadata.files]
 aiohttp = [
@@ -946,6 +954,10 @@ imageio-ffmpeg = [
     {file = "imageio_ffmpeg-0.4.4-py3-none-manylinux2014_aarch64.whl", hash = "sha256:e9be7d28a72ebd5968dd69199482237f931fb045b1a3fcb7f1ef7d0bc58e3389"},
     {file = "imageio_ffmpeg-0.4.4-py3-none-win32.whl", hash = "sha256:4aa1edf6e7ff83c904e1fa2887e8ba32b560da66b0852e2292378827d72db542"},
     {file = "imageio_ffmpeg-0.4.4-py3-none-win_amd64.whl", hash = "sha256:fd2d9f0c8b1939709a70cfe46e79811e4e1b4a897672482b74ce3d1aea9ef7e1"},
+]
+interval = [
+    {file = "interval-1.0.0.tar.bz2", hash = "sha256:6619937f3fcb5cf85bb3a60b4e4391664e8d7b30ae3dc4d04c3fc1d063ff1c3b"},
+    {file = "interval-1.0.0.zip", hash = "sha256:912c1175179ef8f7d22d204da00345c3af0e4625918a8e6020e7e629604e8c8e"},
 ]
 iterwrapper = [
     {file = "iterwrapper-0.1.4-py3-none-any.whl", hash = "sha256:a3296d81fa2e558734f572617487fb6be3e2af12af2776899dd29d2154ffdba5"},

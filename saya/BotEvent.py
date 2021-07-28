@@ -20,6 +20,9 @@ inc = InterruptControl(bcc)
 
 @channel.use(ListenerSchema(listening_events=[ApplicationLaunched]))
 async def groupDataInit(app: GraiaMiraiApplication):
+    '''
+    Graia 成功启动
+    '''
     groupList = await app.groupList()
     groupNum = len(groupList)
     await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
@@ -38,13 +41,6 @@ async def groupDataInit(app: GraiaMiraiApplication):
     if i > 0:
         msg.append(Plain(f"\n以为 {str(1)} 个群进行了初始化配置"))
     await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create(msg))
-
-
-@channel.use(ListenerSchema(listening_events=[]))
-async def groupDataInit(app: GraiaMiraiApplication):
-    await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
-        Plain(f"正在关闭")
-    ]))
 
 
 @channel.use(ListenerSchema(listening_events=[ApplicationShutdowned]))
@@ -87,6 +83,7 @@ async def accept(app: GraiaMiraiApplication, invite: BotInvitedJoinGroupRequestE
     '''
     被邀请入群
     '''
+    
     if invite.groupId in black_list['group']:
         await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
             Plain(f"收到邀请入群事件"),
@@ -171,6 +168,11 @@ async def get_BotJoinGroup(app: GraiaMiraiApplication, kickgroup: BotLeaveEventK
     '''
     被踢出群
     '''
+    groupBlackList = black_list['group']
+    groupBlackList.append(kickgroup.group.id)
+    black_list['group'] = groupBlackList
+    save_config()
+    
     for qq in yaml_data['Basic']['Permission']['Admin']:
         await app.sendFriendMessage(qq, MessageChain.create([
             Plain("收到被踢出群聊事件"),
@@ -198,6 +200,11 @@ async def get_BotJoinGroup(app: GraiaMiraiApplication, group: Group, mute: BotMu
     '''
     被禁言
     '''
+    groupBlackList = black_list['group']
+    groupBlackList.append(group.id)
+    black_list['group'] = groupBlackList
+    save_config()
+    
     for qq in yaml_data['Basic']['Permission']['Admin']:
         await app.sendFriendMessage(qq, MessageChain.create([
             Plain("收到禁言事件，已退出该群"),
