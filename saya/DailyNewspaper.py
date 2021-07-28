@@ -44,7 +44,7 @@ async def something_scheduled(app: GraiaMiraiApplication):
             Plain(group.name),
             Image_UnsafeBytes(paperimg.getvalue())
         ]))
-        await asyncio.sleep(random.random(1, 4))
+        await asyncio.sleep(random.randint(1, 4))
     allTime = time.time() - ts
     await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
         Plain(f"每日日报已发送完毕，共用时 {str(allTime)} 秒")

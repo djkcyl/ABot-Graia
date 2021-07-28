@@ -42,7 +42,7 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: 
     elif 'CloudMusic' in group_data[group.id]['DisabledFunc']:
         return await sendmsg(app=app, group=group)
 
-    if member.id in WAITING:
+    if member.id not in WAITING:
         waite_musicmessageId = await app.sendGroupMessage(group, MessageChain.create([Plain(f"请发送歌曲名，发送取消即可终止点歌")]))
         WAITING.append(member.id)
         @Waiter.create_using_function([GroupMessage])
