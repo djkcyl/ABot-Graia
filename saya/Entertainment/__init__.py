@@ -25,9 +25,9 @@ async def main(app: GraiaMiraiApplication, group: Group, member: Member):
     if await sign(str(member.id)):
         i = random.randint(1, 10)
         if i == 1:
-            gold_add = random.randint(4, 16)
+            gold_add = random.randint(9, 21)
         else:
-            gold_add = random.randint(2, 8)
+            gold_add = random.randint(5, 12)
         await add_gold(str(member.id), gold_add)
         sign_text = f"今日签到成功！\n本次签到获得游戏币 {str(gold_add)} 个"
     else:
@@ -81,7 +81,6 @@ async def reset(app: GraiaMiraiApplication):
 async def main(app: GraiaMiraiApplication, friend: Friend):
     if friend.id == yaml_data['Basic']['Permission']['Master']:
         sign_info = await all_sign_num()
-        print(sign_info)
         await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
             Plain(f"共有 {str(sign_info[0])} / {str(sign_info[1])} 人完成了签到，"),
             Plain(f"签到率为 {'{:.2%}'.format(sign_info[0]/sign_info[1])}")
