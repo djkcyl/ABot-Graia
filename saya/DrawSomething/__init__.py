@@ -96,10 +96,10 @@ async def main(app: GraiaMiraiApplication, group: Group, member: Member, source:
                     del GROUP_GAME_PROCESS[group.id]
                     await app.sendGroupMessage(group, MessageChain.create([At(member.id), Plain(" 你的游戏币不足，无法开始游戏")]))
                 else:
-                    question_len = (question)
+                    question_len = len(question)
                     await app.sendGroupMessage(group, MessageChain.create([At(member.id), Plain(f" 已确认，你成功在本群开启你画我猜，正在发送题目。。。本次题目为 {question_len} 个字，请等待发起者在群中绘图，本次游戏将在120后结束")]))
                     try:
-                        await app.sendTempMessage(group, member, MessageChain.create([Plain(f"本次的题目为：{question_len}，请在一分钟内在群中 在群中 在群中发送涂鸦等来表示该主题")]))
+                        await app.sendTempMessage(group, member, MessageChain.create([Plain(f"本次的题目为：{question}，请在一分钟内在群中 在群中 在群中发送涂鸦等来表示该主题")]))
                     except:
                         GROUP_RUNING_LIST.remove(group.id)
                         del GROUP_GAME_PROCESS[group.id]
