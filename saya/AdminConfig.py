@@ -152,8 +152,8 @@ funcHelp = {
     },
     "娱乐功能": {
         "instruction": "提供一些群内互动娱乐功能",
-        "usage": "发送指令：\n签到",
-        "options": "签到：每日凌晨四点重置签到，每次签到可获得 2-16 个游戏币"
+        "usage": "发送指令：\n签到\n你画我猜",
+        "options": f"签到：每日凌晨四点重置签到，每次签到可获得 2-16 个游戏币\n你画我猜：每次消耗4个游戏币，当前处于测试阶段，题库较少，如有题库可添加 {str(yaml_data['Basic']['Permission']['Master'])} 好友提供"
     }
 }
 
@@ -180,6 +180,9 @@ async def atrep(app: GraiaMiraiApplication, group: Group, message: MessageChain,
                     Plain(f"\n如果用不明白菜单功能可以不用，建议去医院多看看"),
                     Plain(f"\n\n@不会触发任何功能"),
                     Plain(f"\n@不会触发任何功能"),
+                    Plain(f"\n@不会触发任何功能"),
+                    Plain(f"\n@不会触发任何功能"),
+                    Plain(f"\n@不会触发任何功能"),
                     Plain(f"\n@不会触发任何功能")
                 ]))
 
@@ -199,7 +202,7 @@ async def adminmain(app: GraiaMiraiApplication, group: Group, message: MessageCh
                           f"\n所有功能均无需@机器人本身，<x>为可替内容" +
                           f"\n如果用不明白菜单功能可以不用，建议去医院多看看" +
                           f"\n方舟玩家可以加个好友，[官服 A60#6660]" +
-                          f"\n可以先试试新制作的 <废物证申请> 一起来成为废物吧~（" +
+                          f"\n可以先试试新制作的 <你画我猜> ~（" +
                           f"\n源码：github.com/djkcyl/ABot-Graia" +
                           f"\n发送 <管理员功能菜单> 即可调整群内功能是否开启")
         image = await create_image(help)
@@ -314,3 +317,18 @@ async def Announcement(app: GraiaMiraiApplication, friend: Friend, message: Mess
                 await asyncio.sleep(3)
                 await app.quit(int(saying[1]))
                 await app.sendFriendMessage(friend, MessageChain.create([Plain(f"成功拉黑该群")]))
+
+
+@channel.use(ListenerSchema(listening_events=[FriendMessage], inline_dispatchers=[Literature("取消拉黑群聊")]))
+async def Announcement(app: GraiaMiraiApplication, friend: Friend, message: MessageChain):
+    if friend.id == yaml_data['Basic']['Permission']['Master']:
+        saying = message.asDisplay().split()
+        if len(saying) == 2:
+            groupBlackList = black_list['group']
+            if int(saying[1]) not in groupBlackList:
+                await app.sendFriendMessage(friend, MessageChain.create([Plain(f"该群未被拉黑")]))
+            else:
+                groupBlackList.remove(int(saying[1]))
+                black_list['group'] = groupBlackList
+                save_config()
+                await app.sendFriendMessage(friend, MessageChain.create([Plain(f"已取消拉黑该群")]))

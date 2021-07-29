@@ -35,13 +35,6 @@ async def group_wordcloud_generator(app: GraiaMiraiApplication, message: Message
     elif 'WordCloud' in group_data[group.id]['DisabledFunc']:
         return
 
-    """
-    群/个人词云生成器
-    使用方法：
-        群内发送 我的月内总结/我的年内总结/本群月内总结/本群年内总结 即可
-    插件来源：
-        SAGIRI-kawaii
-    """
     message_text = message.asDisplay()
     member_id = member.id
     group_id = group.id
@@ -145,7 +138,7 @@ async def write_chat_record(seg, group_id: int, member_id: int, content: str) ->
 
 async def draw_word_cloud(read_name):
     mask = np.array(IMG.open(f'{BASE_PATH}bgg.jpg'))
-    print(mask.shape)
+    # print(mask.shape)
     wc = WordCloud(
         font_path=f'{BASE_PATH}STKAITI.TTF',
         background_color='white',
@@ -168,7 +161,7 @@ async def draw_word_cloud(read_name):
     # print(len(dic.keys()))
     wc.generate_from_frequencies(dic)
     image_colors = ImageColorGenerator(mask, default_color=(255, 255, 255))
-    print(image_colors.image.shape)
+    # print(image_colors.image.shape)
     wc.recolor(color_func=image_colors)
     plt.imshow(wc.recolor(color_func=image_colors), interpolation="bilinear")
     # plt.imshow(wc)
@@ -204,7 +197,7 @@ async def get_review(group_id: int, member_id: int, review_type: str, target: st
             texts += i[4].split(",")
         else:
             texts.append(i[3])
-    print(texts)
+    # print(texts)
     top_n = await count_words(texts, 20000)
     await draw_word_cloud(top_n)
     sql = f"""SELECT count(*) FROM chatRecord 

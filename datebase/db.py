@@ -60,6 +60,19 @@ async def add_gold(qq: str, num: int):
     return True
 
 
+async def reduce_gold(qq: str, num: int):
+    init_user(qq)
+    
+    gold_num = User.get(qq=qq).gold
+    if gold_num < num:
+        return False
+    else:
+        gold_num -= num
+        p = User.update(gold=gold_num).where(User.qq == qq)
+        p.execute()
+        return True
+
+
 async def add_talk(qq: str):
     init_user(qq)
 
