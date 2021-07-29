@@ -71,7 +71,15 @@ async def add_talk(qq: str):
     return
 
 async def reset_sign():
-    p = User.update(is_sign=0).where()
+    p = User.update(is_sign=0).where(User.is_sign == 1)
     p.execute()
     
     return
+
+async def all_sign_num():
+    all_num = User.select()
+    all_num = len(all_num)
+    sign_num = User.select().where(User.is_sign == 1)
+    sign_num = len(sign_num)
+    
+    return [sign_num, all_num]
