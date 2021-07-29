@@ -140,9 +140,12 @@ async def main(app: GraiaMiraiApplication, friend: Friend, message: MessageChain
     if friend.id == yaml_data['Basic']['Permission']['Master']:
         global WORD
         saying = message.asDisplay().split()
-        word_list = WORD["word"]
-        word_list.append(saying[1])
-        WORD["word"] = word_list
-        with open("./saya/DrawSomething/word.json", "w") as f:
-            json.dump(WORD, f, indent=2, ensure_ascii=False)
-        await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([Plain(f"成功添加你画我猜词库：{saying[1]}")]))
+        if saying[1] not in WORD["word"]:
+            word_list = WORD["word"]
+            word_list.append(saying[1])
+            WORD["word"] = word_list
+            with open("./saya/DrawSomething/word.json", "w") as f:
+                json.dump(WORD, f, indent=2, ensure_ascii=False)
+            await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([Plain(f"成功添加你画我猜词库：{saying[1]}")]))
+        else:
+            await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([Plain(f"词库内已存在该词")]))
