@@ -37,7 +37,8 @@ funcList = [
     {"name": "没啥用的回复", "key": "Message"},
     {"name": "每日早报", "key": "DailyNewspaper"},
     {"name": "色图", "key": "Setu"},
-    {"name": "防撤回", "key": "AnitRecall"}
+    {"name": "防撤回", "key": "AnitRecall"},
+    {"name": "娱乐功能", "key": "Entertainment"}
 ]
 
 configList = [
@@ -148,6 +149,11 @@ funcHelp = {
         "instruction": "防止群内消息撤回",
         "usage": "收到撤回事件自动触发",
         "options": "不会防止撤回的有：机器人被撤回的消息、语音、闪照、Xml消息、Json消息"
+    },
+    "娱乐功能": {
+        "instruction": "提供一些群内互动娱乐功能",
+        "usage": "发送指令：\n签到",
+        "options": "签到：每日凌晨四点重置签到，每次签到可获得 2-16 个游戏币"
     }
 }
 

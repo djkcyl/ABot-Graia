@@ -96,6 +96,10 @@ Saya: # saya 插件配置
 
   AnitRecall: #防撤回
     Disabled: false
+
+  Entertainment: #娱乐功能
+    Disabled: false
+    
 Final: false
 # 配置完成后请调整为 True
 # 配置完成后请调整为 True
