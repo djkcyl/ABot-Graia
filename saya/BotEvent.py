@@ -177,7 +177,8 @@ async def get_BotJoinGroup(app: GraiaMiraiApplication, kickgroup: BotLeaveEventK
         await app.sendFriendMessage(qq, MessageChain.create([
             Plain("收到被踢出群聊事件"),
             Plain(f"\n群号：{kickgroup.group.id}"),
-            Plain(f"\n群名：{kickgroup.group.name}")
+            Plain(f"\n群名：{kickgroup.group.name}"),
+            Plain(f"\n已添加至黑名单")
         ]))
 
 
