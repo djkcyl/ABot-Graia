@@ -184,8 +184,9 @@ async def atrep(app: GraiaMiraiApplication, group: Group, message: MessageChain,
                     f"\n@不会触发任何功能" +
                     f"\n@不会触发任何功能" +
                     f"\n@不会触发任何功能"))
-                await app.sendGroupMessage(group, MessageChain.create([Image_UnsafeBytes(image.getvalue())
-                                                                       ]))
+                await app.sendGroupMessage(group, MessageChain.create([
+                    Image_UnsafeBytes(image.getvalue()),
+                    Plain(f"\n\n 由于种种原因，专门开一个你画我猜的群供大家游玩，群号：717083491")]))
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
