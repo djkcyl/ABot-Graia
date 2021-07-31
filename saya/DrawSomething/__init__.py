@@ -43,7 +43,7 @@ async def main(app: GraiaMiraiApplication, group: Group, member: Member, source:
     try:
         await app.sendFriendMessage(member.id, MessageChain.create([Plain(f"本消息仅用于测试私信是否可用，无需回复\n{time.time()}")]))
     except:
-        await app.sendGroupMessage(group, MessageChain.create([Plain(f"由于由于未添加好友，暂时无法发起你画我猜，请自行添加 {yaml_data['Basic']['BotName']} 好友，用于发送题目")]))
+        await app.sendGroupMessage(group, MessageChain.create([Plain(f"由于你未添加好友，暂时无法发起你画我猜，请自行添加 {yaml_data['Basic']['BotName']} 好友，用于发送题目")]))
         return
     MEMBER_RUNING_LIST.append(member.id)
 
@@ -64,13 +64,22 @@ async def main(app: GraiaMiraiApplication, group: Group, member: Member, source:
     # 等待答案中断
     @Waiter.create_using_function([GroupMessage])
     async def start_game(submit_answer_group: Group, submit_answer_member: Member, submit_answer_message: MessageChain, submit_answer_source: Source):
-        question = GROUP_GAME_PROCESS[group.id]["question"]
-        owner = GROUP_GAME_PROCESS[group.id]["owner"]
-        saying = submit_answer_message.asDisplay()
-        if all([submit_answer_group.id == group.id,
-                submit_answer_member.id != owner,
-                saying == question, ]):
-            return [submit_answer_member, submit_answer_source]
+        group_id = GROUP_GAME_PROCESS[group.id]
+        if submit_answer_member.id not in group_id["player"]:
+            GROUP_GAME_PROCESS[group.id]["player"][submit_answer_member.id] = 1
+        if group_id["player"][submit_answer_member.id] < 5:
+            talk_num = group_id["player"][submit_answer_member.id] + 1
+            GROUP_GAME_PROCESS[group.id]["player"][submit_answer_member.id] = talk_num
+            question = group_id["question"].upper()
+            owner = group_id["owner"]
+            saying = submit_answer_message.asDisplay().upper()
+            if all([submit_answer_group.id == group.id,
+                    submit_answer_member.id != owner,
+                    saying == question, ]):
+                return [submit_answer_member, submit_answer_source]
+
+        
+
     # 如果当前群有一个正在进行中的游戏
     if group.id in GROUP_RUNING_LIST:
         owner = GROUP_GAME_PROCESS[group.id]["owner"]
@@ -89,6 +98,7 @@ async def main(app: GraiaMiraiApplication, group: Group, member: Member, source:
         GROUP_GAME_PROCESS[group.id] = {
             "question": question,
             "owner": member.id,
+            "player": {}
         }
         await app.sendGroupMessage(group, MessageChain.create([Plain("是否确认在本群开启一场你画我猜？这将消耗你 4 个游戏币")]),
                                    quote=source)
@@ -101,7 +111,7 @@ async def main(app: GraiaMiraiApplication, group: Group, member: Member, source:
                     await app.sendGroupMessage(group, MessageChain.create([At(member.id), Plain(" 你的游戏币不足，无法开始游戏")]))
                 else:
                     question_len = len(question)
-                    await app.sendGroupMessage(group, MessageChain.create([At(member.id), Plain(f" 已确认，你成功在本群开启你画我猜，正在向你发送题目。。。如无法接收题目请自行添加 {yaml_data['Basic']['BotName']} 好友")]), quote=source)
+                    await app.sendGroupMessage(group, MessageChain.create([At(member.id), Plain(f" 已确认，你成功在本群开启你画我猜，正在向你发送题目。。。每人每回合只有 5 次答题机会，请勿刷屏请勿抢答。")]), quote=source)
                     await asyncio.sleep(1)
                     await app.sendGroupMessage(group, MessageChain.create([Plain(f"本次题目为 {question_len} 个字，请等待 "),
                                                                            At(member.id),

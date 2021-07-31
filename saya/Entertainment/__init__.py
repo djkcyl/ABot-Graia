@@ -59,7 +59,8 @@ async def main(app: GraiaMiraiApplication, group: Group, member: Member):
         Plain(f"\n当前共有 {str(user_info[3])} 个游戏币"),
         Plain(f"\n你已累计签到 {str(user_info[2])} 天"),
         Plain(f"\n从有记录以来你共有 {str(user_info[4])} 次发言"),
-        Plain("\n当前游戏币可在群内发起 <你画我猜>")
+        Plain("\n\n当前游戏币可在群内发起 <你画我猜>"),
+        Plain("\n由于种种原因，专门开一个你画我猜的群供大家游玩，群号：717083491")
     ]))
 
 
@@ -95,4 +96,14 @@ async def main(app: GraiaMiraiApplication, friend: Friend, message: MessageChain
         await give_all_gold(int(saying[1]))
         await app.sendFriendMessage(friend, MessageChain.create([
             Plain(f"已向所有人充值 {saying[1]} 个游戏币")
+        ]))
+
+
+@channel.use(ListenerSchema(listening_events=[FriendMessage], inline_dispatchers=[Literature("充值")]))
+async def main(app: GraiaMiraiApplication, friend: Friend, message: MessageChain):
+    if friend.id == yaml_data['Basic']['Permission']['Master']:
+        saying = message.asDisplay().split()
+        await add_gold(saying[1], int(saying[2]))
+        await app.sendFriendMessage(friend, MessageChain.create([
+            Plain(f"已向 {saying[1]} 充值 {saying[2]} 个游戏币")
         ]))
