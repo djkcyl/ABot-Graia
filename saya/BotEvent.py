@@ -136,6 +136,9 @@ async def get_BotJoinGroup(app: GraiaMiraiApplication, joingroup: BotJoinGroupEv
     '''
     收到入群事件
     '''
+    if joingroup.group.id in black_list['group']:
+        return await app.quit(joingroup.group.id)
+    
     if joingroup.group.id not in group_data:
         group_data[joingroup.group.id] = groupInitData
         print("已为该群初始化配置文件")

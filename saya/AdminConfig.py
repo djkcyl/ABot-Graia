@@ -290,7 +290,7 @@ async def Announcement(app: GraiaMiraiApplication, friend: Friend, message: Mess
             image = await create_image(saying[1])
             groupList = await app.groupList()
             for group in groupList:
-                if group.id not in [885355617, 780537426, 474769367]:
+                if group.id not in [885355617, 780537426, 474769367, 690211045, 855895642]:
                     await app.sendGroupMessage(group.id, MessageChain.create([
                         Plain(f"公告：{str(group.id)}\n"),
                         Image_UnsafeBytes(image.getvalue())
@@ -298,7 +298,7 @@ async def Announcement(app: GraiaMiraiApplication, friend: Friend, message: Mess
                     await asyncio.sleep(random.randint(3, 5))
             tt = time.time()
             times = str(tt - ft)
-            await app.sendFriendMessage(friend, MessageChain.create(f"群发已完成，耗时 {times} 秒"))
+            await app.sendFriendMessage(friend, MessageChain.create(Plain(f"群发已完成，耗时 {times} 秒")))
 
 
 @channel.use(ListenerSchema(listening_events=[FriendMessage], inline_dispatchers=[Literature("拉黑群聊")]))

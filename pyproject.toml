@@ -28,6 +28,7 @@ playwright = "^1.12.1"
 lxml = "^4.6.3"
 PyYAML = "^5.4.1"
 interval = "^1.0.0"
+tencentcloud-sdk-python = "^3.0.452"
 
 [tool.poetry.dev-dependencies]
 autopep8 = "^1.5.7"

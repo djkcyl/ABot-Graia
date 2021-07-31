@@ -638,6 +638,14 @@ optional = false
 python-versions = ">=3.5"
 
 [[package]]
+name = "tencentcloud-sdk-python"
+version = "3.0.452"
+description = "Tencent Cloud SDK for Python"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "toml"
 version = "0.10.2"
 description = "Python Library for Tom's Obvious, Minimal Language"
@@ -726,7 +734,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "807825c386a44952f5edfbf6f26c747520ed7d82d200cfa4e1deab8534ca4969"
+content-hash = "34e8b4ddb25417f3ce5ace8116c2f6c871ee1beae09b438f980c44863d4ad33f"
 
 [metadata.files]
 aiohttp = [
@@ -1337,6 +1345,10 @@ six = [
 sniffio = [
     {file = "sniffio-1.2.0-py3-none-any.whl", hash = "sha256:471b71698eac1c2112a40ce2752bb2f4a4814c22a54a3eed3676bc0f5ca9f663"},
     {file = "sniffio-1.2.0.tar.gz", hash = "sha256:c4666eecec1d3f50960c6bdf61ab7bc350648da6c126e3cf6898d8cd4ddcd3de"},
+]
+tencentcloud-sdk-python = [
+    {file = "tencentcloud-sdk-python-3.0.452.tar.gz", hash = "sha256:a63f96aac42fde656f064a3263cf654200b0260ca8e3d160c35655a50422626a"},
+    {file = "tencentcloud_sdk_python-3.0.452-py2.py3-none-any.whl", hash = "sha256:dcb56914cbf4c5565a5b05e90ddf76bdf006ec010bd621dc004287a9b280841d"},
 ]
 toml = [
     {file = "toml-0.10.2-py2.py3-none-any.whl", hash = "sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b"},
