@@ -30,7 +30,7 @@ def mcping(say):
     get_status = json.dumps(get_status)
     get_status = re.sub(r'\\u00a7.', "", get_status)
     get_status = json.loads(get_status)
-    # print(get_status)
+    print(get_status)
 
     msg_send = []
     # 服务器信息解析
@@ -46,7 +46,6 @@ def mcping(say):
         image_data = BytesIO(byte_data)
         img = Image.open(image_data).convert('RGB')
         img.save(image_data, format="JPEG" , quality=90)
-        # msg_send.append("[图标]")
         msg_send.append(Image_UnsafeBytes(image_data.getvalue))
         # print("图标已生成")
 

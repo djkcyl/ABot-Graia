@@ -87,7 +87,7 @@ Saya: # saya 插件配置
 
   Message: # 杂七杂八的回复
     Disabled: false
-  
+
   DailyNewspaper: # 每日早报
     Disabled: false
 
@@ -97,9 +97,18 @@ Saya: # saya 插件配置
   AnitRecall: #防撤回
     Disabled: false
 
+    Moderation:
+      Disabled: false
+      # 腾讯内容安全 API
+      # 图片内容安全开通： https://console.cloud.tencent.com/cms
+      # 文字内容安全开通： https://console.cloud.tencent.com/cms/text/overview
+      # secret 获取地址： https://console.cloud.tencent.com/cam/capi
+      secretId: "xxxxx"
+      secretKey: "xxxxx"
+
   Entertainment: #娱乐功能
     Disabled: false
-    
+
 Final: false
 # 配置完成后请调整为 True
 # 配置完成后请调整为 True

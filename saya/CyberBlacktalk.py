@@ -1,13 +1,13 @@
 import json
 import httpx
 
-from graia.application import GraiaMiraiApplication
 from graia.saya import Saya, Channel
+from graia.application.group import Group, Member
+from graia.application import GraiaMiraiApplication
+from graia.application.event.messages import GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.event.messages import *
-from graia.application.event.mirai import *
-from graia.application.message.elements.internal import *
 from graia.application.message.parser.literature import Literature
+from graia.application.message.elements.internal import MessageChain, Plain, At
 
 from config import yaml_data, group_data, sendmsg
 
@@ -33,8 +33,8 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: 
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) "
                       "Chrome/51.0.2704.103 Safari/537.36"}
     translation = httpx.post(api_url,
-                                json=api_data,
-                                headers=api_headers)
+                             json=api_data,
+                             headers=api_headers)
     ta = translation.text
     tb = json.loads(ta)
     if len(tb) == 0:

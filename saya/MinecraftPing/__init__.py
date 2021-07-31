@@ -3,9 +3,9 @@ import re
 from graia.application import GraiaMiraiApplication
 from graia.saya import Saya, Channel
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.event.messages import *
-from graia.application.event.mirai import *
-from graia.application.message.elements.internal import *
+from graia.application.event.messages import GroupMessage
+from graia.application.group import Group
+from graia.application.message.elements.internal import MessageChain, Plain
 from graia.application.message.parser.literature import Literature
 
 from config import yaml_data, group_data, sendmsg
