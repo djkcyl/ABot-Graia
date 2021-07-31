@@ -1,12 +1,12 @@
 import requests
 
-from graia.application import GraiaMiraiApplication
 from graia.saya import Saya, Channel
+from graia.application.group import Group, Member
+from graia.application import GraiaMiraiApplication
+from graia.application.event.messages import GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.event.messages import *
-from graia.application.event.mirai import *
-from graia.application.message.elements.internal import *
 from graia.application.message.parser.literature import Literature
+from graia.application.message.elements.internal import MessageChain, Plain, At, Image_NetworkAddress
 
 from config import yaml_data, group_data, sendmsg
 
@@ -55,13 +55,13 @@ async def fun_dict(app: GraiaMiraiApplication, group: Group, message: MessageCha
 
     # 数据处理
     # 如果列表为空
-    if r_fun["size"] == 0:
-        await app.sendGroupMessage(group, MessageChain.create([
-            Plain(f"未找到相应词条：{say_name}"),
-        ]))
-    elif "size" not in r_fun:
+    if "size" not in r_fun:
         await app.sendGroupMessage(group, MessageChain.create([
             Plain(f"API 访问错误"),
+        ]))
+    elif r_fun["size"] == 0:
+        await app.sendGroupMessage(group, MessageChain.create([
+            Plain(f"未找到相应词条：{say_name}"),
         ]))
     else:
         # 循环 “data” 内所有项目

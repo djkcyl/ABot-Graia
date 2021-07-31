@@ -1,15 +1,15 @@
-import asyncio
-import random
 import time
+import random
+import asyncio
 
-from graia.application import GraiaMiraiApplication
 from graia.saya import Saya, Channel
-from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.event.messages import GroupMessage, FriendMessage
-from graia.application.group import Group, Member, MemberPerm
 from graia.application.friend import Friend
-from graia.application.message.elements.internal import MessageChain, Source, At, Plain, Image_UnsafeBytes
+from graia.application import GraiaMiraiApplication
+from graia.application.group import Group, Member, MemberPerm
+from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.parser.literature import Literature
+from graia.application.event.messages import GroupMessage, FriendMessage
+from graia.application.message.elements.internal import MessageChain, Source, At, Plain, Image_UnsafeBytes
 
 from config import save_config, yaml_data, group_data, black_list
 from text2image import create_image
@@ -123,7 +123,7 @@ funcHelp = {
     "涩图": {
         "instruction": "随机发送P站涩图",
         "usage": "发送指令：\n涩图\n色图\n瑟图\nsetu",
-        "options": "无"
+        "options": "由于近期腾讯严查，GHS封号比较频繁，再加上举报的内鬼太多了，涩图功能就先不开了，过段时间看情况再开"
     },
     "有点涩的聊天": {
         "instruction": "调用词库进行回复",
@@ -169,22 +169,23 @@ async def atrep(app: GraiaMiraiApplication, group: Group, message: MessageChain,
                     Plain(f"爹！")
                 ]), quote=source.id)
             else:
-                await app.sendGroupMessage(group, MessageChain.create([
-                    Plain(f"我是{yaml_data['Basic']['Permission']['MasterName']}"),
-                    Plain(f"的机器人{yaml_data['Basic']['BotName']}，"),
-                    Plain(f"如果有需要可以联系主人QQ”{str(yaml_data['Basic']['Permission']['Master'])}“，"),
-                    Plain(f"添加{yaml_data['Basic']['BotName']}好友后请私聊说明用途后即可拉进其他群，主人看到后会选择是否同意入群"),
-                    Plain(f"\n{yaml_data['Basic']['BotName']}被群禁言后会自动退出该群。"),
-                    Plain(f"\n发送 <菜单> 可以查看功能列表"),
-                    Plain(f"\n拥有管理员以上权限可以使用 <管理员功能菜单> 来开关功能"),
-                    Plain(f"\n如果用不明白菜单功能可以不用，建议去医院多看看"),
-                    Plain(f"\n\n@不会触发任何功能"),
-                    Plain(f"\n@不会触发任何功能"),
-                    Plain(f"\n@不会触发任何功能"),
-                    Plain(f"\n@不会触发任何功能"),
-                    Plain(f"\n@不会触发任何功能"),
-                    Plain(f"\n@不会触发任何功能")
-                ]))
+                image = await create_image(str(
+                    f"我是{yaml_data['Basic']['Permission']['MasterName']}" +
+                    f"的机器人{yaml_data['Basic']['BotName']}，" +
+                    f"如果有需要可以联系主人QQ”{str(yaml_data['Basic']['Permission']['Master'])}“，" +
+                    f"添加{yaml_data['Basic']['BotName']}好友后请私聊说明用途后即可拉进其他群，主人看到后会选择是否同意入群" +
+                    f"\n{yaml_data['Basic']['BotName']}被群禁言后会自动退出该群。" +
+                    f"\n发送 <菜单> 可以查看功能列表" +
+                    f"\n拥有管理员以上权限可以使用 <管理员功能菜单> 来开关功能" +
+                    f"\n如果用不明白菜单功能可以不用，建议去医院多看看" +
+                    f"\n\n@不会触发任何功能" +
+                    f"\n@不会触发任何功能" +
+                    f"\n@不会触发任何功能" +
+                    f"\n@不会触发任何功能" +
+                    f"\n@不会触发任何功能" +
+                    f"\n@不会触发任何功能"))
+                await app.sendGroupMessage(group, MessageChain.create([Image_UnsafeBytes(image.getvalue())
+                                                                       ]))
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))

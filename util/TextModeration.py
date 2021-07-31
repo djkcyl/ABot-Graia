@@ -1,33 +1,35 @@
 import json
+import base64
 from tencentcloud.common import credential
 from tencentcloud.common.profile.client_profile import ClientProfile
 from tencentcloud.common.profile.http_profile import HttpProfile
 from tencentcloud.common.exception.tencent_cloud_sdk_exception import TencentCloudSDKException
-from tencentcloud.ims.v20201229 import ims_client, models
+from tencentcloud.tms.v20201229 import tms_client, models
 
 from config import yaml_data
 
 
-async def image_moderation(url: str):
+async def text_moderation(text: str):
+
+    text_base64 = str(base64.b64encode(text.encode('utf-8')), "utf-8")
     try:
         cred = credential.Credential(yaml_data["Saya"]["AnitRecall"]["Moderation"]["secretId"], 
                                      yaml_data["Saya"]["AnitRecall"]["Moderation"]["secretKey"])
         httpProfile = HttpProfile()
-        httpProfile.endpoint = "ims.tencentcloudapi.com"
+        httpProfile.endpoint = "tms.tencentcloudapi.com"
 
         clientProfile = ClientProfile()
         clientProfile.httpProfile = httpProfile
-        client = ims_client.ImsClient(cred, "ap-shanghai", clientProfile)
+        client = tms_client.TmsClient(cred, "ap-shanghai", clientProfile)
 
-        req = models.ImageModerationRequest()
+        req = models.TextModerationRequest()
         params = {
-            "BizType": "group_recall",
-            "FileUrl": url
-
+            "Content": text_base64,
+            "BizType": "group_recall_text"
         }
         req.from_json_string(json.dumps(params))
 
-        resp = client.ImageModeration(req)
+        resp = client.TextModeration(req)
         return json.loads(resp.to_json_string())
 
     except TencentCloudSDKException as err:

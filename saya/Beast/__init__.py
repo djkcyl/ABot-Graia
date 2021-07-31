@@ -23,7 +23,7 @@ async def main(app: GraiaMiraiApplication, group: Group, message: MessageChain, 
         return await sendmsg(app=app, group=group)
 
     try:
-        saying = message.asDisplay().split()
+        saying = message.asDisplay().split(" ", 1)
         msg = encode(saying[1])
         print(len(msg))
         if (len(msg)) < 2000:
@@ -43,7 +43,7 @@ async def main(app: GraiaMiraiApplication, group: Group, message: MessageChain, 
         return await sendmsg(app=app, group=group)
 
     try:
-        saying = message.asDisplay().split()
+        saying = message.asDisplay().split(" ", 1)
         msg = decode(saying[1])
         await app.sendGroupMessage(group, MessageChain.create([Plain(msg)]), quote=source.id)
     except:
