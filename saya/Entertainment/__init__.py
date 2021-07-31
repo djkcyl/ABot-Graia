@@ -14,7 +14,7 @@ from graia.application.message.elements.internal import Plain, MessageChain
 
 
 from config import yaml_data, group_data
-from datebase.db import sign, add_gold, get_info, add_talk, reset_sign, all_sign_num
+from datebase.db import sign, add_gold, get_info, add_talk, reset_sign, all_sign_num, give_all_gold
 
 saya = Saya.current()
 channel = Channel.current()
@@ -58,7 +58,8 @@ async def main(app: GraiaMiraiApplication, group: Group, member: Member):
         Plain(f"\n{sign_text}"),
         Plain(f"\n当前共有 {str(user_info[3])} 个游戏币"),
         Plain(f"\n你已累计签到 {str(user_info[2])} 天"),
-        Plain(f"\n从有记录以来你共有 {str(user_info[4])} 次发言")
+        Plain(f"\n从有记录以来你共有 {str(user_info[4])} 次发言"),
+        Plain("\n当前游戏币可在群内发起 <你画我猜>")
     ]))
 
 
@@ -81,7 +82,17 @@ async def reset(app: GraiaMiraiApplication):
 async def main(app: GraiaMiraiApplication, friend: Friend):
     if friend.id == yaml_data['Basic']['Permission']['Master']:
         sign_info = await all_sign_num()
-        await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
+        await app.sendFriendMessage(friend, MessageChain.create([
             Plain(f"共有 {str(sign_info[0])} / {str(sign_info[1])} 人完成了签到，"),
             Plain(f"签到率为 {'{:.2%}'.format(sign_info[0]/sign_info[1])}")
+        ]))
+
+
+@channel.use(ListenerSchema(listening_events=[FriendMessage], inline_dispatchers=[Literature("全员充值")]))
+async def main(app: GraiaMiraiApplication, friend: Friend, message: MessageChain):
+    if friend.id == yaml_data['Basic']['Permission']['Master']:
+        saying = message.asDisplay().split()
+        await give_all_gold(int(saying[1]))
+        await app.sendFriendMessage(friend, MessageChain.create([
+            Plain(f"已向所有人充值 {saying[1]} 个游戏币")
         ]))

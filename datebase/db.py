@@ -7,6 +7,7 @@ class BaseModel(Model):
     class Meta:
         database = db
 
+
 class User(BaseModel):
     qq = CharField()
     is_sign = IntegerField()
@@ -31,7 +32,6 @@ def init_user(qq):
 
 async def sign(qq):
     init_user(qq)
-
     user = User.get(qq=qq)
     if user.is_sign:
         return False
@@ -44,25 +44,21 @@ async def sign(qq):
 
 async def get_info(qq):
     init_user(qq)
-
     user = User.get(qq=qq)
     return [user.id, user.is_sign, user.sign_num, user.gold, user.talk_num]
 
 
 async def add_gold(qq: str, num: int):
     init_user(qq)
-
     gold_num = User.get(qq=qq).gold
     gold_num += num
     p = User.update(gold=gold_num).where(User.qq == qq)
     p.execute()
-
     return True
 
 
 async def reduce_gold(qq: str, num: int):
     init_user(qq)
-    
     gold_num = User.get(qq=qq).gold
     if gold_num < num:
         return False
@@ -75,24 +71,23 @@ async def reduce_gold(qq: str, num: int):
 
 async def add_talk(qq: str):
     init_user(qq)
-
-    talk = User.get(qq=qq).talk_num
-    talk += 1
-    p = User.update(talk_num=talk).where(User.qq == qq)
-    p.execute()
-
+    User.update(talk_num=User.talk_num+1).where(User.qq == qq).execute()
     return
+
 
 async def reset_sign():
-    p = User.update(is_sign=0).where(User.is_sign == 1)
-    p.execute()
-    
+    User.update(is_sign=0).where(User.is_sign == 1).execute()
     return
+
 
 async def all_sign_num():
     all_num = User.select()
     all_num = len(all_num)
     sign_num = User.select().where(User.is_sign == 1)
     sign_num = len(sign_num)
-    
     return [sign_num, all_num]
+
+
+async def give_all_gold(num: int):
+    User.update(gold=User.gold+num).execute()
+    return
