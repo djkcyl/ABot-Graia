@@ -12,7 +12,7 @@ from graia.broadcast.interrupt import InterruptControl
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.parser.literature import Literature
 from graia.application.event.messages import GroupMessage, FriendMessage
-from graia.application.message.elements.internal import MessageChain, Source, Plain, At
+from graia.application.message.elements.internal import Image_LocalFile, MessageChain, Source, Plain, At
 
 from datebase.db import reduce_gold, add_gold
 from config import yaml_data, group_data, sendmsg
@@ -66,19 +66,22 @@ async def main(app: GraiaMiraiApplication, group: Group, member: Member, source:
     async def start_game(submit_answer_group: Group, submit_answer_member: Member, submit_answer_message: MessageChain, submit_answer_source: Source):
         group_id = GROUP_GAME_PROCESS[group.id]
         owner = group_id["owner"]
-        if all([submit_answer_group.id == group.id, submit_answer_member.id != owner]):
+        question = group_id["question"].upper()
+        question_len = len(question)
+        saying = submit_answer_message.asDisplay().upper()
+        saying_len = len(saying)
 
+        if all([submit_answer_group.id == group.id, submit_answer_member.id != owner, saying_len == question_len]):
             if submit_answer_member.id not in group_id["player"]:
                 GROUP_GAME_PROCESS[group.id]["player"][submit_answer_member.id] = 1
-            if group_id["player"][submit_answer_member.id] < 6:
+            if group_id["player"][submit_answer_member.id] < 9:
                 talk_num = group_id["player"][submit_answer_member.id] + 1
                 GROUP_GAME_PROCESS[group.id]["player"][submit_answer_member.id] = talk_num
-                question = group_id["question"].upper()
-
-                saying = submit_answer_message.asDisplay().upper()
-
                 if saying == question:
                     return [submit_answer_member, submit_answer_source]
+            elif group_id["player"][submit_answer_member.id] == 9:
+                await app.sendGroupMessage(group, MessageChain.create([At(submit_answer_member.id), Plain("你的本回合答题机会已用尽")]),
+                                           quote=submit_answer_source)
 
     # 如果当前群有一个正在进行中的游戏
     if group.id in GROUP_RUNING_LIST:
@@ -111,7 +114,7 @@ async def main(app: GraiaMiraiApplication, group: Group, member: Member, source:
                     await app.sendGroupMessage(group, MessageChain.create([At(member.id), Plain(" 你的游戏币不足，无法开始游戏")]))
                 else:
                     question_len = len(question)
-                    await app.sendGroupMessage(group, MessageChain.create([At(member.id), Plain(f" 已确认，你成功在本群开启你画我猜，正在向你发送题目。。。每人每回合只有 5 次答题机会，请勿刷屏请勿抢答。")]), quote=source)
+                    await app.sendGroupMessage(group, MessageChain.create([At(member.id), Plain(f" 已确认，你成功在本群开启你画我猜，正在向你发送题目。。。每人每回合只有 8 次答题机会，请勿刷屏请勿抢答。")]), quote=source)
                     await asyncio.sleep(1)
                     await app.sendGroupMessage(group, MessageChain.create([Plain(f"本次题目为 {question_len} 个字，请等待 "),
                                                                            At(member.id),
@@ -167,8 +170,8 @@ async def main(app: GraiaMiraiApplication, friend: Friend, message: MessageChain
             await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([Plain(f"成功添加你画我猜词库：{saying[1]}")]))
         else:
             await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([Plain(f"词库内已存在该词")]))
-            
-            
+
+
 @channel.use(ListenerSchema(listening_events=[FriendMessage], inline_dispatchers=[Literature("删除你画我猜词库")]))
 async def main(app: GraiaMiraiApplication, friend: Friend, message: MessageChain):
     if friend.id == yaml_data['Basic']['Permission']['Master']:

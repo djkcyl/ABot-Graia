@@ -69,6 +69,14 @@ pycodestyle = ">=2.7.0"
 toml = "*"
 
 [[package]]
+name = "azure-cognitiveservices-speech"
+version = "1.18.0"
+description = "\"Microsoft Cognitive Services Speech SDK\""
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "certifi"
 version = "2021.5.30"
 description = "Python package for providing Mozilla's CA Bundle."
@@ -220,7 +228,7 @@ graia-broadcast = ">=0.7.0"
 
 [[package]]
 name = "graiax-silkcoder"
-version = "0.0.8"
+version = "0.0.12"
 description = "transform audio file to silk"
 category = "main"
 optional = false
@@ -720,6 +728,14 @@ numpy = ">=1.6.1"
 pillow = "*"
 
 [[package]]
+name = "xmltodict"
+version = "0.12.0"
+description = "Makes working with XML feel like you are working with JSON"
+category = "main"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+
+[[package]]
 name = "yarl"
 version = "1.6.3"
 description = "Yet another URL library"
@@ -734,7 +750,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "34e8b4ddb25417f3ce5ace8116c2f6c871ee1beae09b438f980c44863d4ad33f"
+content-hash = "03010dbae29152e50d56d522b320ff1b20ab2ef55c498d489b3be29bffd92738"
 
 [metadata.files]
 aiohttp = [
@@ -791,6 +807,24 @@ attrs = [
 autopep8 = [
     {file = "autopep8-1.5.7-py2.py3-none-any.whl", hash = "sha256:aa213493c30dcdac99537249ee65b24af0b2c29f2e83cd8b3f68760441ed0db9"},
     {file = "autopep8-1.5.7.tar.gz", hash = "sha256:276ced7e9e3cb22e5d7c14748384a5cf5d9002257c0ed50c0e075b68011bb6d0"},
+]
+azure-cognitiveservices-speech = [
+    {file = "azure_cognitiveservices_speech-1.18.0-cp36-cp36m-macosx_10_12_x86_64.whl", hash = "sha256:ce3348b5065177d2c59c38d1f35c9c916afd39a2ac6329d889e0d0107051990b"},
+    {file = "azure_cognitiveservices_speech-1.18.0-cp36-cp36m-manylinux1_x86_64.whl", hash = "sha256:be7a5f9378b045d18730ba31b2247fa2a9077ff8e751f8323050f46b37aee995"},
+    {file = "azure_cognitiveservices_speech-1.18.0-cp36-cp36m-win32.whl", hash = "sha256:c8744c7eb61c2b454b69003fdf5576ebf5b4442acc9b25521a40eeb1bf9341a5"},
+    {file = "azure_cognitiveservices_speech-1.18.0-cp36-cp36m-win_amd64.whl", hash = "sha256:61463bc098d2df7a32ebd67664516cc9dc206e27d9b85f19711183ece43ca6f2"},
+    {file = "azure_cognitiveservices_speech-1.18.0-cp37-cp37m-macosx_10_12_x86_64.whl", hash = "sha256:bea46f0d553735be2618b7ceef7918ee46e64dbe102a752ebf6bb8c6b4d9c548"},
+    {file = "azure_cognitiveservices_speech-1.18.0-cp37-cp37m-manylinux1_x86_64.whl", hash = "sha256:4fa83642b471a4d5e1b7afcba2d9436d5e860072a8dee7c1973fe38b1ba32367"},
+    {file = "azure_cognitiveservices_speech-1.18.0-cp37-cp37m-win32.whl", hash = "sha256:a4228454f1f69d51698540eb9bfdd3221527c8a3ed77220e88b9973bd35269cd"},
+    {file = "azure_cognitiveservices_speech-1.18.0-cp37-cp37m-win_amd64.whl", hash = "sha256:1332e809c8ba836e6baf595b397ff07e39c8325ddafe355550e2a88db92ef2c8"},
+    {file = "azure_cognitiveservices_speech-1.18.0-cp38-cp38-macosx_10_12_x86_64.whl", hash = "sha256:036664ed5403cf3eea6326534de72ba25550f6752feb9a305b5b94def1c17aec"},
+    {file = "azure_cognitiveservices_speech-1.18.0-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:ec1f5f98bd3f2202d597477640f8f5df5e878d76a4211939407d70e84498effc"},
+    {file = "azure_cognitiveservices_speech-1.18.0-cp38-cp38-win32.whl", hash = "sha256:355c9e6250d48104902b8688f89139e2cd3f5f02d45600ac3a5d5caefa144932"},
+    {file = "azure_cognitiveservices_speech-1.18.0-cp38-cp38-win_amd64.whl", hash = "sha256:81c0182e63108e7e6bbc6f10f3f244bb7cb01062efa7f50f7e3dac3de5ea5b7e"},
+    {file = "azure_cognitiveservices_speech-1.18.0-cp39-cp39-macosx_10_12_x86_64.whl", hash = "sha256:21c573d482b8c4d96bedb850573642636c9f237ea2b0f1564b6f6d54efdc4107"},
+    {file = "azure_cognitiveservices_speech-1.18.0-cp39-cp39-manylinux1_x86_64.whl", hash = "sha256:d6fd703289b27f4b4d9538983064ca200c2d6d521e19b1bad3e2580cb72ca7cc"},
+    {file = "azure_cognitiveservices_speech-1.18.0-cp39-cp39-win32.whl", hash = "sha256:940d5994707dc062b5497ad8f7319267031e0415c8b2b3a21fbd1a79e36b5233"},
+    {file = "azure_cognitiveservices_speech-1.18.0-cp39-cp39-win_amd64.whl", hash = "sha256:9064f2771921cf1c6e7fa8a2c70ce8e164ea643fefe45cd85fe3af0269649d59"},
 ]
 certifi = [
     {file = "certifi-2021.5.30-py2.py3-none-any.whl", hash = "sha256:50b1e4f8446b06f41be7dd6338db18e0990601dce795c2b1686458aa7e8fa7d8"},
@@ -881,8 +915,8 @@ graia-scheduler = [
     {file = "graia_scheduler-0.0.4-py3-none-any.whl", hash = "sha256:142792d9e296a1625886bbd8aa070d2cb4dbb7f008db83c6932d82e35918bdd5"},
 ]
 graiax-silkcoder = [
-    {file = "graiax-silkcoder-0.0.8.tar.gz", hash = "sha256:33632003c925b1aa9f97bf70271452eb4ec585bb640f38e2007f4be53cb08098"},
-    {file = "graiax_silkcoder-0.0.8-cp38-cp38-win_amd64.whl", hash = "sha256:5fb6b42752fbef8416c28a44bc01dd951885bb4f585f39b42a0603774787951d"},
+    {file = "graiax-silkcoder-0.0.12.tar.gz", hash = "sha256:4109108301e5d604f0de680635997b5280f7fee8a4014a7b36596104dcaf9d5c"},
+    {file = "graiax_silkcoder-0.0.12-cp38-cp38-win_amd64.whl", hash = "sha256:88e71efc8af591917af22d1bd6a51fdd0ecc87cbef4f140b583961c9fa7eb12a"},
 ]
 greenlet = [
     {file = "greenlet-1.1.0-cp27-cp27m-macosx_10_14_x86_64.whl", hash = "sha256:60848099b76467ef09b62b0f4512e7e6f0a2c977357a036de602b653667f5f4c"},
@@ -1423,6 +1457,10 @@ wordcloud = [
     {file = "wordcloud-1.8.1-cp38-cp38-win_amd64.whl", hash = "sha256:f190eb3efcc17765a4ed9d78001fdb713988886b93e54b2758fcf4f6c519ad51"},
     {file = "wordcloud-1.8.1-cp39-cp39-manylinux1_x86_64.whl", hash = "sha256:90e9cff2c6939b5e1fa87d2a2c5d79c8ac2eafc4c9b9bc1bcb865ca5fde7e758"},
     {file = "wordcloud-1.8.1.tar.gz", hash = "sha256:e6ef771aac17c1cf8558c8d5ef025796184066d7b78f8118aefe011fb0d22952"},
+]
+xmltodict = [
+    {file = "xmltodict-0.12.0-py2.py3-none-any.whl", hash = "sha256:8bbcb45cc982f48b2ca8fe7e7827c5d792f217ecf1792626f808bf41c3b86051"},
+    {file = "xmltodict-0.12.0.tar.gz", hash = "sha256:50d8c638ed7ecb88d90561beedbf720c9b4e851a9fa6c47ebd64e99d166d8a21"},
 ]
 yarl = [
     {file = "yarl-1.6.3-cp36-cp36m-macosx_10_14_x86_64.whl", hash = "sha256:0355a701b3998dcd832d0dc47cc5dedf3874f966ac7f870e0f3a6788d802d434"},

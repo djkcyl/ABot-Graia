@@ -4,6 +4,7 @@ import time
 import asyncio
 import requests
 
+from pathlib import Path
 from graiax import silkcoder
 from graia.saya import Saya, Channel
 from graia.application.group import Group, Member
@@ -13,8 +14,7 @@ from graia.broadcast.interrupt import InterruptControl
 from graia.application.event.messages import GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.parser.literature import Literature
-from graia.application.message.elements.internal import MessageChain, Plain, Image_NetworkAddress, Voice_LocalFile
-
+from graia.application.message.elements.internal import MessageChain, Plain, Image_NetworkAddress, Voice
 
 from config import yaml_data, group_data, sendmsg
 
@@ -27,6 +27,13 @@ inc = InterruptControl(bcc)
 if not os.path.exists("./saya/CloudMusic/temp/"):
     print("正在创建音乐缓存文件夹")
     os.mkdir("./saya/CloudMusic/temp/")
+
+MIRAI_PATH = "/root/bot/"
+
+if not os.path.exists(f"{MIRAI_PATH}data/net.mamoe.mirai-api-http/voices/"):
+    print("请打开./saya/CloudMusic/__init__.py 并修改第 31 行的地址为Mirai的根目录")
+    exit()
+
 
 HOST = "http://127.0.0.1:3000"
 if not yaml_data['Saya']['CloudMusic']['Disabled']:
@@ -48,10 +55,11 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: 
     if member.id not in WAITING:
         waite_musicmessageId = await app.sendGroupMessage(group, MessageChain.create([Plain(f"请发送歌曲名，发送取消即可终止点歌")]))
         WAITING.append(member.id)
+
         @Waiter.create_using_function([GroupMessage])
         async def waiter1(waiter1_group: Group, waiter1_member: Member, waiter1_message: MessageChain):
             if all([waiter1_group.id == group.id,
-                waiter1_member.id == member.id]):
+                    waiter1_member.id == member.id]):
                 waiter1_saying = waiter1_message.asDisplay()
                 return waiter1_saying
         try:
@@ -102,6 +110,7 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: 
                         musicinfo = requests.get(
                             url=f"{HOST}/song/detail?ids={musicid}&timestamp={times}",
                             cookies=login).json()
+                        print(musicinfo)
                         musicurl = requests.get(
                             url=f"{HOST}/song/url?id={musicid}&br=128000&timestamp={times}",
                             cookies=login).json()
@@ -115,17 +124,17 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: 
                             await app.sendGroupMessage(group, MessageChain.create([
                                 Image_NetworkAddress(music_al),
                                 Plain(f"\n曲名：{music_name}\n作者：{music_ar}")]))
-                        if not os.path.exists(f"./saya/CloudMusic/temp/{musicid}.silk"):
+                        if not os.path.exists(f"./saya/CloudMusic/temp/{musicid}.mp3"):
                             music_url = musicurl["data"][0]["url"]
                             r = requests.get(music_url)
                             music_fcontent = r.content
                             with open(f'./saya/CloudMusic/temp/{musicid}.mp3', 'wb') as f:
                                 f.write(music_fcontent)
-                            await ffmpeg(f"ffmpeg -i ./saya/CloudMusic/temp/{musicid}.mp3 -ss 00:00:00 -t 00:02:00 -f wav ./saya/CloudMusic/temp/{musicid}.wav -y")
-                            await silkcoder.encode(f'./saya/CloudMusic/temp/{musicid}.wav', f'./saya/CloudMusic/temp/{musicid}.silk')
-                            os.remove(f'./saya/CloudMusic/temp/{musicid}.mp3')
-                            os.remove(f'./saya/CloudMusic/temp/{musicid}.wav')
-                        await app.sendGroupMessage(group, MessageChain.create([Voice_LocalFile(f"./saya/CloudMusic/temp/{musicid}.silk")]))
+
+                        cache = Path(f'{MIRAI_PATH}data/net.mamoe.mirai-api-http/voices/{musicid}')
+                        cache.write_bytes(await silkcoder.encode(f'./saya/CloudMusic/temp/{musicid}.mp3', rate=80000, ss=0, t=130))
+                        await app.sendGroupMessage(group, MessageChain.create([Voice(path=musicid)]))
+                        os.remove(f'{MIRAI_PATH}data/net.mamoe.mirai-api-http/voices/{musicid}')
                         return WAITING.remove(member.id)
 
                 except asyncio.TimeoutError:
