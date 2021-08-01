@@ -62,6 +62,13 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: 
                     waiter1_member.id == member.id]):
                 waiter1_saying = waiter1_message.asDisplay()
                 return waiter1_saying
+            
+        @Waiter.create_using_function([GroupMessage])
+        async def waiter2(waiter2_group: Group, waiter2_member: Member, waiter2_message: MessageChain):
+            if all([waiter2_group.id == group.id,
+                    waiter2_member.id == member.id]):
+                return waiter2_message.asDisplay()
+            
         try:
             message = await asyncio.wait_for(inc.wait(waiter1), timeout=15)
             if message == "取消":
@@ -92,11 +99,7 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: 
                 msg.append(Plain(f"\n发送歌曲id可完成点歌\n发送取消可终止当前点歌"))
                 await app.sendGroupMessage(group, MessageChain.create(msg))
 
-                @Waiter.create_using_function([GroupMessage])
-                async def waiter2(waiter2_group: Group, waiter2_member: Member, waiter2_message: MessageChain):
-                    if all([waiter2_group.id == group.id,
-                            waiter2_member.id == member.id]):
-                        return waiter2_message.asDisplay()
+
                 try:
                     wantMusicID = await asyncio.wait_for(inc.wait(waiter2), timeout=15)
                     if wantMusicID == "取消":

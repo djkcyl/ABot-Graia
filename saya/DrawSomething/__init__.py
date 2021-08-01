@@ -40,6 +40,7 @@ async def main(app: GraiaMiraiApplication, group: Group, member: Member, source:
 
     if member.id in MEMBER_RUNING_LIST:
         return
+    
     try:
         await app.sendFriendMessage(member.id, MessageChain.create([Plain(f"本消息仅用于测试私信是否可用，无需回复\n{time.time()}")]))
     except:
@@ -70,6 +71,9 @@ async def main(app: GraiaMiraiApplication, group: Group, member: Member, source:
         question_len = len(question)
         saying = submit_answer_message.asDisplay().upper()
         saying_len = len(saying)
+
+        if all([submit_answer_member.id == owner, saying in ["终止", "取消", "结束"]]):
+            return False
 
         if all([submit_answer_group.id == group.id, submit_answer_member.id != owner, saying_len == question_len]):
             if submit_answer_member.id not in group_id["player"]:
@@ -103,51 +107,67 @@ async def main(app: GraiaMiraiApplication, group: Group, member: Member, source:
             "owner": member.id,
             "player": {}
         }
-        await app.sendGroupMessage(group, MessageChain.create([Plain("是否确认在本群开启一场你画我猜？这将消耗你 4 个游戏币")]),
-                                   quote=source)
+        await app.sendGroupMessage(group, MessageChain.create([
+            Plain("是否确认在本群开启一场你画我猜？这将消耗你 4 个游戏币")]), quote=source)
         try:
             # 新游戏创建完成，进入等待玩家阶段
-            if await asyncio.wait_for(inc.wait(confirm), timeout=10):
+            if await asyncio.wait_for(inc.wait(confirm), timeout=15):
                 if not await reduce_gold(str(member.id), 4):
                     GROUP_RUNING_LIST.remove(group.id)
                     del GROUP_GAME_PROCESS[group.id]
-                    await app.sendGroupMessage(group, MessageChain.create([At(member.id), Plain(" 你的游戏币不足，无法开始游戏")]))
+                    await app.sendGroupMessage(group, MessageChain.create([
+                        At(member.id),
+                        Plain(" 你的游戏币不足，无法开始游戏")]))
                 else:
                     question_len = len(question)
-                    await app.sendGroupMessage(group, MessageChain.create([At(member.id), Plain(f" 已确认，你成功在本群开启你画我猜，正在向你发送题目。。。每人每回合只有 8 次答题机会，请勿刷屏请勿抢答。")]), quote=source)
+                    await app.sendGroupMessage(group, MessageChain.create([
+                        At(member.id),
+                        Plain(f" 已确认，你成功在本群开启你画我猜，正在向你发送题目。。。")]), quote=source)
                     await asyncio.sleep(1)
-                    await app.sendGroupMessage(group, MessageChain.create([Plain(f"本次题目为 {question_len} 个字，请等待 "),
-                                                                           At(member.id),
-                                                                           Plain(" 在群中绘图，本次游戏将在180秒后结束")]))
+                    await app.sendGroupMessage(group, MessageChain.create([
+                        Plain(f"本次题目为 {question_len} 个字，请等待 "),
+                        At(member.id),
+                        Plain(" 在群中绘图，本次游戏将在180秒后结束，创建者发送 <取消/终止/结束> 可结束本次游戏，每人每回合只有 8 次答题机会，请勿刷屏请勿抢答。")]))
                     await asyncio.sleep(1)
-                    await app.sendFriendMessage(member.id, MessageChain.create([Plain(f"本次的题目为：{question}，请在一分钟内\n在群中\n在群中\n在群中\n发送涂鸦或其他形式等来表示该主题")]))
+                    await app.sendFriendMessage(member.id, MessageChain.create([
+                        Plain(f"本次的题目为：{question}，请在一分钟内\n在群中\n在群中\n在群中\n发送涂鸦或其他形式等来表示该主题")]))
                     await asyncio.sleep(1)
 
                     try:
                         result = await asyncio.wait_for(inc.wait(start_game), timeout=180)
-                        owner = owner = str(GROUP_GAME_PROCESS[group.id]["owner"])
-                        await add_gold(owner, 2)
-                        await add_gold(str(result[0].id), 2)
-                        GROUP_RUNING_LIST.remove(group.id)
-                        del GROUP_GAME_PROCESS[group.id]
-                        await app.sendGroupMessage(group.id, MessageChain.create([
-                            Plain("恭喜 "),
-                            At(result[0].id),
-                            Plain(f" 成功猜出本次答案，你和创建者分别获得 1 个和 2 个游戏币，本次游戏结束")
-                        ]),
-                            quote=result[1])
+                        if result:
+                            owner = owner = str(GROUP_GAME_PROCESS[group.id]["owner"])
+                            await add_gold(owner, 2)
+                            await add_gold(str(result[0].id), 2)
+                            GROUP_RUNING_LIST.remove(group.id)
+                            del GROUP_GAME_PROCESS[group.id]
+                            await app.sendGroupMessage(group.id, MessageChain.create([
+                                Plain("恭喜 "),
+                                At(result[0].id),
+                                Plain(f" 成功猜出本次答案，你和创建者分别获得 1 个和 2 个游戏币，本次游戏结束")
+                            ]), quote=result[1])
+                        else:
+                            owner = str(GROUP_GAME_PROCESS[group.id]["owner"])
+                            await add_gold(owner, 1)
+                            GROUP_RUNING_LIST.remove(group.id)
+                            del GROUP_GAME_PROCESS[group.id]
+                            await app.sendGroupMessage(group, MessageChain.create([Plain("本次你画我猜已终止，将返还创建者 1 个游戏币")]))
                     except asyncio.TimeoutError:
                         owner = str(GROUP_GAME_PROCESS[group.id]["owner"])
+                        question = GROUP_GAME_PROCESS[group.id]["question"]
                         await add_gold(owner, 1)
                         GROUP_RUNING_LIST.remove(group.id)
                         del GROUP_GAME_PROCESS[group.id]
-                        await app.sendGroupMessage(group, MessageChain.create([Plain("由于长时间没有人回答出正确答案，将返还创建者 1 个游戏币，本次你画我猜已结束")]))
+                        await app.sendGroupMessage(group, MessageChain.create([
+                            Plain("由于长时间没有人回答出正确答案，将返还创建者 1 个游戏币，本次你画我猜已结束"),
+                            Plain(f"\n本次的答案为：{question}")]))
+
             # 终止创建流程
             else:
                 GROUP_RUNING_LIST.remove(group.id)
                 del GROUP_GAME_PROCESS[group.id]
                 await app.sendGroupMessage(group, MessageChain.create([Plain("已取消")]))
-        # 如果 10 秒内无响应
+        # 如果 15 秒内无响应
         except asyncio.TimeoutError:
             GROUP_RUNING_LIST.remove(group.id)
             del GROUP_GAME_PROCESS[group.id]

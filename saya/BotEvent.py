@@ -116,7 +116,9 @@ async def accept(app: GraiaMiraiApplication, invite: BotInvitedJoinGroupRequestE
                 elif saying == "拒绝":
                     return False
                 else:
-                    await app.sendFriendMessage(2948531755, MessageChain.create([Plain("请发送同意或拒绝")]))
+                    await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
+                        Plain("请发送同意或拒绝")
+                    ]))
         try:
             if await asyncio.wait_for(inc.wait(waiter), timeout=300):
                 await invite.accept()
