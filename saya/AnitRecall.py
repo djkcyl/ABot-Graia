@@ -19,8 +19,6 @@ async def anitRecall(app: GraiaMiraiApplication, events: GroupRecallEvent):
 
     if yaml_data['Saya']['AnitRecall']['Disabled']:
         return
-    elif 'AnitRecall' in group_data[events.group.id]['DisabledFunc']:
-        return
 
     if events.authorId != yaml_data["Basic"]["MAH"]["BotQQ"] or events.operator.id == yaml_data["Basic"]["MAH"]["BotQQ"]:
         try:
@@ -39,40 +37,43 @@ async def anitRecall(app: GraiaMiraiApplication, events: GroupRecallEvent):
                 for image in recallMsg.get(Image):
                     res = await image_moderation(image.url)
                     if res['Suggestion'] != "Pass":
-                        await app.sendGroupMessage(events.group, MessageChain.create([
-                            Plain(f"{events.operator.name}({events.operator.id})撤回了{authorName}的一条消息:"),
-                            Plain(f"\n=====================\n"),
-                            Plain(f"（由于撤回图片内包含 {res['Label']} / {res['SubLabel']} 违规，不予防撤回）")
-                        ]))
+                        if 'AnitRecall' not in group_data[events.group.id]['DisabledFunc']:
+                            await app.sendGroupMessage(events.group, MessageChain.create([
+                                Plain(f"{events.operator.name}({events.operator.id})撤回了{authorName}的一条消息:"),
+                                Plain(f"\n=====================\n"),
+                                Plain(f"（由于撤回图片内包含 {res['Label']} / {res['SubLabel']} 违规，不予防撤回）")
+                            ]))
+                            try:
+                                await app.mute(events.group, events.authorId, 3600)
+                            except:
+                                pass
                         await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], msg.asSendable())
-                        try:
-                            await app.mute(events.group, events.authorId, 3600)
-                        except:
-                            pass
                         return
 
             if recallMsg.has(Plain):
                 for text in recallMsg.get(Plain):
                     res = await text_moderation(text.text)
                     if res['Suggestion'] != "Pass":
-                        await app.sendGroupMessage(events.group, MessageChain.create([
-                            Plain(f"{events.operator.name}({events.operator.id})撤回了{authorName}的一条消息:"),
-                            Plain(f"\n=====================\n"),
-                            Plain(f"\n（由于撤回文字内包含 {res['Label']} 违规，不予防撤回）")
-                        ]))
-                        try:
-                            await app.mute(events.group, events.authorId, 3600)
-                        except:
-                            pass
+                        if 'AnitRecall' not in group_data[events.group.id]['DisabledFunc']:
+                            await app.sendGroupMessage(events.group, MessageChain.create([
+                                Plain(f"{events.operator.name}({events.operator.id})撤回了{authorName}的一条消息:"),
+                                Plain(f"\n=====================\n"),
+                                Plain(f"\n（由于撤回文字内包含 {res['Label']} 违规，不予防撤回）")
+                            ]))
+                            try:
+                                await app.mute(events.group, events.authorId, 3600)
+                            except:
+                                pass
                         return
-
-            if recallMsg.has(Voice) or recallMsg.has(Xml) or recallMsg.has(Json):
-                pass
-            elif recallMsg.has(FlashImage):
-                await app.sendGroupMessage(events.group, MessageChain.create([
-                    Plain(f"闪照不予防撤回")
-                ]))
-            else:
-                await app.sendGroupMessage(events.group, msg.asSendable())
+                    
+            if 'AnitRecall' not in group_data[events.group.id]['DisabledFunc']:
+                if recallMsg.has(Voice) or recallMsg.has(Xml) or recallMsg.has(Json):
+                    pass
+                elif recallMsg.has(FlashImage):
+                    await app.sendGroupMessage(events.group, MessageChain.create([
+                        Plain(f"闪照不予防撤回")
+                    ]))
+                else:
+                    await app.sendGroupMessage(events.group, msg.asSendable())
         except (AccountMuted, UnknownTarget):
             pass

@@ -65,20 +65,20 @@ async def main(app: GraiaMiraiApplication, group: Group, member: Member, source:
     @Waiter.create_using_function([GroupMessage])
     async def start_game(submit_answer_group: Group, submit_answer_member: Member, submit_answer_message: MessageChain, submit_answer_source: Source):
         group_id = GROUP_GAME_PROCESS[group.id]
-        if submit_answer_member.id not in group_id["player"]:
-            GROUP_GAME_PROCESS[group.id]["player"][submit_answer_member.id] = 1
-        if group_id["player"][submit_answer_member.id] < 5:
-            talk_num = group_id["player"][submit_answer_member.id] + 1
-            GROUP_GAME_PROCESS[group.id]["player"][submit_answer_member.id] = talk_num
-            question = group_id["question"].upper()
-            owner = group_id["owner"]
-            saying = submit_answer_message.asDisplay().upper()
-            if all([submit_answer_group.id == group.id,
-                    submit_answer_member.id != owner,
-                    saying == question, ]):
-                return [submit_answer_member, submit_answer_source]
+        owner = group_id["owner"]
+        if all([submit_answer_group.id == group.id, submit_answer_member.id != owner]):
 
-        
+            if submit_answer_member.id not in group_id["player"]:
+                GROUP_GAME_PROCESS[group.id]["player"][submit_answer_member.id] = 1
+            if group_id["player"][submit_answer_member.id] < 6:
+                talk_num = group_id["player"][submit_answer_member.id] + 1
+                GROUP_GAME_PROCESS[group.id]["player"][submit_answer_member.id] = talk_num
+                question = group_id["question"].upper()
+
+                saying = submit_answer_message.asDisplay().upper()
+
+                if saying == question:
+                    return [submit_answer_member, submit_answer_source]
 
     # 如果当前群有一个正在进行中的游戏
     if group.id in GROUP_RUNING_LIST:
@@ -167,6 +167,22 @@ async def main(app: GraiaMiraiApplication, friend: Friend, message: MessageChain
             await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([Plain(f"成功添加你画我猜词库：{saying[1]}")]))
         else:
             await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([Plain(f"词库内已存在该词")]))
+            
+            
+@channel.use(ListenerSchema(listening_events=[FriendMessage], inline_dispatchers=[Literature("删除你画我猜词库")]))
+async def main(app: GraiaMiraiApplication, friend: Friend, message: MessageChain):
+    if friend.id == yaml_data['Basic']['Permission']['Master']:
+        global WORD
+        saying = message.asDisplay().split()
+        if saying[1] in WORD["word"]:
+            word_list = WORD["word"]
+            word_list.remove(saying[1])
+            WORD["word"] = word_list
+            with open("./saya/DrawSomething/word.json", "w") as f:
+                json.dump(WORD, f, indent=2, ensure_ascii=False)
+            await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([Plain(f"成功删除你画我猜词库：{saying[1]}")]))
+        else:
+            await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([Plain(f"词库内未存在该词")]))
 
 
 @channel.use(ListenerSchema(listening_events=[FriendMessage], inline_dispatchers=[Literature("查看你画我猜状态")]))
