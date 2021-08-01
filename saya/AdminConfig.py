@@ -58,7 +58,7 @@ funcHelp = {
     "阿里云tts": {
         "instruction": "将文字转为音频以语音形式发出",
         "usage": "发送指令：\n/tts <语音模型> <文字>",
-        "options": "语音模型：男 / 女 / 童 / 日 / 美\n文字：任意180字以内文字"
+        "options": "语音模型：男 / 女 / 童 / 日 / 美\n文字：任意180字以内文字\n使用外语模型时请发送对应语言的文字，否则将无法使用"
     },
     "小鸡词典查梗": {
         "instruction": "在小鸡词典内查询梗详情",
@@ -185,8 +185,7 @@ async def atrep(app: GraiaMiraiApplication, group: Group, message: MessageChain,
                     f"\n@不会触发任何功能" +
                     f"\n@不会触发任何功能"))
                 await app.sendGroupMessage(group, MessageChain.create([
-                    Image_UnsafeBytes(image.getvalue()),
-                    Plain(f"\n\n 由于种种原因，专门开一个你画我猜的群供大家游玩，群号：717083491")]))
+                    Image_UnsafeBytes(image.getvalue())]))
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
@@ -300,7 +299,7 @@ async def Announcement(app: GraiaMiraiApplication, friend: Friend, message: Mess
                     await asyncio.sleep(random.randint(3, 5))
             tt = time.time()
             times = str(tt - ft)
-            await app.sendFriendMessage(friend, MessageChain.create(Plain(f"群发已完成，耗时 {times} 秒")))
+            await app.sendFriendMessage(friend, MessageChain.create([Plain(f"群发已完成，耗时 {times} 秒")]))
 
 
 @channel.use(ListenerSchema(listening_events=[FriendMessage], inline_dispatchers=[Literature("拉黑群聊")]))

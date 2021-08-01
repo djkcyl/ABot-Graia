@@ -20,7 +20,7 @@
 # root = {}
 
 
-# @channel.use(SchedulerSchema(crontabify("* * 0 * * *")))
+# @channel.use(SchedulerSchema(crontabify("0 0 * * *")))
 # def updateDict():
 #     global root
 #     root = json.loads(requests.get(

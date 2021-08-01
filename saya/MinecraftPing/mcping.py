@@ -1,22 +1,22 @@
-from PIL import Image
-from io import BytesIO
-
-from .statusping import StatusPing
+import re
+import json
 import base64
 import dns.resolver
-import json
-import re
 
+from PIL import Image
+from io import BytesIO
+from .statusping import StatusPing
 from graia.application.message.elements.internal import Image_UnsafeBytes, Plain
 
 
 def mcping(say):
     # 获取 ping 信息
+    # print(say)
     host = say.split(":")[0]
     try:
         port = say.split(":")[1]
         get_status = StatusPing(host=host, port=int(port)).get_status()
-    except: 
+    except:
         try:
             srv_records = dns.resolver.query('_minecraft._tcp.'+host, 'SRV')
             srvInfo = {}
@@ -30,7 +30,7 @@ def mcping(say):
     get_status = json.dumps(get_status)
     get_status = re.sub(r'\\u00a7.', "", get_status)
     get_status = json.loads(get_status)
-    print(get_status)
+    # print(get_status)
 
     msg_send = []
     # 服务器信息解析
@@ -43,10 +43,12 @@ def mcping(say):
     if "favicon" in get_status:
         favicon = get_status["favicon"][22:-1] + "="
         byte_data = base64.b64decode(favicon)
-        image_data = BytesIO(byte_data)
+        image_data = BytesIO()
+        image = BytesIO()
+        image_data.write(byte_data)
         img = Image.open(image_data).convert('RGB')
-        img.save(image_data, format="JPEG" , quality=90)
-        msg_send.append(Image_UnsafeBytes(image_data.getvalue))
+        img.save(image, format="JPEG", quality=90)
+        msg_send.append(Image_UnsafeBytes(image.getvalue()))
         # print("图标已生成")
 
     # 延迟
@@ -74,7 +76,7 @@ def mcping(say):
         sVer = get_status["version"]["name"]
     else:
         if get_status["version"]["name"].find(" ") > 0:
-            serType = get_status["version"]["name"].rsplit(" ",1)
+            serType = get_status["version"]["name"].rsplit(" ", 1)
             sType = serType[0]
             sVer = serType[1]
             # print(serType)
@@ -83,7 +85,7 @@ def mcping(say):
         else:
             sType = "Vanilla"
             sVer = get_status["version"]["name"]
-    
+
     sDevVer = str(get_status["version"]["protocol"])
     sPlayer = str(get_status["players"]["online"]) + " / " + str(get_status["players"]["max"])
 
