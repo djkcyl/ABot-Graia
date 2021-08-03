@@ -65,16 +65,20 @@
    ```shell
    git clone https://github.com/djkcyl/ABot-Graia
    ```
-2. 使用虚拟容器安装依赖
+2. 更换虚拟容器的 Python 版本为 3.8
+   ```shell
+   poetry env use python3.8
+   ```
+3. 使用虚拟容器安装依赖
    ```shell
    poetry install
    ```
-3. 进入虚拟容器`每次运行前都需要进行`
+4. 进入虚拟容器`每次运行前都需要进行`
    ```shell
    poetry shell
    ```
-4. 修改 ABot 配置文件 `config.exp.yaml` 后**并重命名**为 `config.yaml`
-5. 启动 ABot
+5. 修改 ABot 配置文件 `config.exp.yaml` 后**并重命名**为 `config.yaml`
+6. 启动 ABot
    ```shell
    python main.py
    ```

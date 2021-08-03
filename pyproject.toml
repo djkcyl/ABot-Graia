@@ -5,7 +5,7 @@ description = ""
 authors = ["djkcyl <cyl@cyllive.cn>"]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.8"
 graia-application-mirai = "^0.19.0"
 graia-saya = "^0.0.9"
 graia-scheduler = "^0.0.4"
@@ -38,3 +38,8 @@ autopep8 = "^1.5.7"
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[[tool.poetry.source]]
+name = "douban"
+url = "https://pypi.doubanio.com/simple"
+default = true
