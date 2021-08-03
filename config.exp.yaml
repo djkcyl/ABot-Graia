@@ -13,14 +13,11 @@ Basic: # 基础配置
       - 123456789
 
 Saya: # saya 插件配置
-  AliTTS: # 阿里云文字转语音
+  AzureTTS: # 阿里云文字转语音
     Disabled: false # 是否禁用
-    Appkey: "xxxx" # API申请地址：https://nls-portal.console.aliyun.com
-
-    AccessKey: # AccessKey 获取地址：https://help.aliyun.com/document_detail/69835.htm
-      Id: "xxxx"
-      Secret: "xxxx"
-
+    # 密钥和区域获取地址：https://docs.microsoft.com/zh-cn/azure/cognitive-services/speech-service/overview#find-keys-and-region
+    Subscription: "xxxxx" # 秘钥
+    Region: "xxxxx" # 区域
   ChickDict: # 小鸡词典
     Disabled: false
 
@@ -106,7 +103,10 @@ Saya: # saya 插件配置
       secretId: "xxxxx"
       secretKey: "xxxxx"
 
-  Entertainment: #娱乐功能
+  Entertainment: # 娱乐功能
+    Disabled: false
+
+  DiceMaid: # 骰娘
     Disabled: false
 
 Final: false

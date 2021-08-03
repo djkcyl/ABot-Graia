@@ -26,7 +26,7 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: 
 
     saying = message.asDisplay().split(" ", 1)
     if len(saying) != 2:
-        return await app.sendGroupMessage(group, MessageChain.create([Plain(f"你在说什么 <需要翻译的简写>")]))
+        return await app.sendGroupMessage(group, MessageChain.create([Plain(f"用法：你在说什么 <需要翻译的简写>")]))
     api_url = "https://lab.magiconch.com/api/nbnhhsh/guess"
     api_data = {"text": saying[1]}
     api_headers = {
@@ -38,7 +38,7 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: 
     ta = translation.text
     tb = json.loads(ta)
     if len(tb) == 0:
-        return await app.sendGroupMessage(group, MessageChain.create([Plain(f"你在说什么 <需要翻译的简写>")]))
+        return await app.sendGroupMessage(group, MessageChain.create([Plain(f"用法：你在说什么 <需要翻译的简写>")]))
 
     msg = [At(member.id)]
     for dict in tb:
