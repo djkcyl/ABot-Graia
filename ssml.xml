@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<speak xmlns="http://www.w3.org/2001/10/synthesis" xmlns:mstts="http://www.w3.org/2001/mstts" xmlns:emo="http://www.w3.org/2009/10/emotionml" version="1.0" xml:lang="zh-CN">
+        <voice name="Microsoft Server Speech Text to Speech Voice (zh-CN, XiaoxiaoNeural)">
+                <mstts:express-as style="fearful">助理</mstts:express-as>
+        </voice>
+</speak>

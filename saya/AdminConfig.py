@@ -5,6 +5,7 @@ import asyncio
 from graia.saya import Saya, Channel
 from graia.application.friend import Friend
 from graia.application import GraiaMiraiApplication
+from graia.application.exceptions import AccountMuted
 from graia.application.group import Group, Member, MemberPerm
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.parser.literature import Literature
@@ -19,7 +20,7 @@ channel = Channel.current()
 
 
 funcList = [
-    {"name": "阿里云tts", "key": "AliTTS"},
+    {"name": "微软文字转语音", "key": "AzureTTS"},
     {"name": "小鸡词典查梗", "key": "ChickDict"},
     {"name": "小鸡词典emoji转换", "key": "ChickEmoji"},
     {"name": "汉语词典查询", "key": "ChineseDict"},
@@ -38,7 +39,8 @@ funcList = [
     {"name": "每日早报", "key": "DailyNewspaper"},
     {"name": "色图", "key": "Setu"},
     {"name": "防撤回", "key": "AnitRecall"},
-    {"name": "娱乐功能", "key": "Entertainment"}
+    {"name": "娱乐功能", "key": "Entertainment"},
+    {"name": "骰娘", "key": "DiceMaid"}
 ]
 
 configList = [
@@ -55,10 +57,10 @@ groupInitData = {
 }
 
 funcHelp = {
-    "阿里云tts": {
+    "微软文字转语音": {
         "instruction": "将文字转为音频以语音形式发出",
-        "usage": "发送指令：\n/tts <语音模型> <文字>",
-        "options": "语音模型：男 / 女 / 童 / 日 / 美\n文字：任意180字以内文字\n使用外语模型时请发送对应语言的文字，否则将无法使用"
+        "usage": "发送指令：\n/tts <性别> <感情> <文字>",
+        "options": "性别：男 / 女\n感情：\n当性别为男时【助理、平静、害怕、开心、不满、严肃、生气、悲伤、沮丧、尴尬、默认】\n当性别为女时：【助理、聊天、客服、新闻、撒娇、生气、平静、开心、不满、害怕、温柔、抒情、悲伤、严肃、默认】\n文字：任意600字以内文字"
     },
     "小鸡词典查梗": {
         "instruction": "在小鸡词典内查询梗详情",
@@ -154,6 +156,11 @@ funcHelp = {
         "instruction": "提供一些群内互动娱乐功能",
         "usage": "发送指令：\n签到\n你画我猜",
         "options": f"签到：每日凌晨四点重置签到，每次签到可获得 2-16 个游戏币\n你画我猜：每次消耗4个游戏币，当前处于测试阶段，题库较少，如有题库可添加 {str(yaml_data['Basic']['Permission']['Master'])} 好友提供"
+    },
+    "骰娘": {
+        "instruction": "一个简易骰娘",
+        "usage": "发送指令：\n  .r",
+        "options": "可选参数有：\nr ==> 投掷的骰子个数\nd ==> 每个骰子的面数\nk ==> 取最大的前n个\n以上三个参数除 r 外均为可选参数\n如为填写的情况下：\nr 默认值为1\nd 默认值为100\nk 默认值为0（即不取最大）\n示例：\n.r  投掷1个骰子，最大值为100\n.rd50  投掷1个骰子，最大值为50\n.r3d6  投掷3个骰子，每个的最大值为6\n.r15k4  投掷15个骰子，每个的最大值为100，取最大的前4个"
     }
 }
 
@@ -197,7 +204,8 @@ async def adminmain(app: GraiaMiraiApplication, group: Group, message: MessageCh
                                  funcHelp[usage]["instruction"] + "\n          >>> 用法 >>>\n" +
                                  funcHelp[usage]["usage"] + "\n         >>> 注意事项 >>>\n" +
                                  funcHelp[usage]["options"]))
-        help = str(f"{yaml_data['Basic']['BotName']} 使用指南\n\n============================\n")
+        help = str(
+            f"{yaml_data['Basic']['BotName']} 使用指南\n\n============================\n")
         help = help + "\n\n----------------------------\n\n".join(funcusage)
         help = help + str(f"\n============================\n" +
                           f"\n所有功能均无需@机器人本身，<x>为可替内容" +
@@ -292,11 +300,16 @@ async def Announcement(app: GraiaMiraiApplication, friend: Friend, message: Mess
             groupList = await app.groupList()
             for group in groupList:
                 if group.id not in [885355617, 780537426, 474769367, 690211045, 855895642]:
-                    await app.sendGroupMessage(group.id, MessageChain.create([
-                        Plain(f"公告：{str(group.id)}\n"),
-                        Image_UnsafeBytes(image.getvalue())
-                    ]))
-                    await asyncio.sleep(random.randint(3, 5))
+                    try:
+                        await app.sendGroupMessage(group.id, MessageChain.create([
+                            Plain(f"公告：{str(group.id)}\n"),
+                            Image_UnsafeBytes(image.getvalue())
+                        ]))
+                    except Exception as err:
+                        await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
+                            Plain(f"{group.id} 的公告发送失败\n{err}")
+                        ]))
+                    await asyncio.sleep(random.uniform(5, 7))
             tt = time.time()
             times = str(tt - ft)
             await app.sendFriendMessage(friend, MessageChain.create([Plain(f"群发已完成，耗时 {times} 秒")]))

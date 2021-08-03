@@ -6,8 +6,9 @@ import time
 from io import BytesIO
 from graia.saya import Saya, Channel
 from graia.scheduler.timers import crontabify
-from graia.application import GraiaMiraiApplication
+from graia.application import GraiaMiraiApplication, message
 from graia.scheduler.saya.schema import SchedulerSchema
+from graia.application.exceptions import AccountMuted
 from graia.application.message.elements.internal import MessageChain, Plain, Image_UnsafeBytes
 
 from config import yaml_data, group_data
@@ -36,11 +37,15 @@ async def something_scheduled(app: GraiaMiraiApplication):
 
         if 'DailyNewspaper' in group_data[group.id]['DisabledFunc']:
             continue
-
-        await app.sendGroupMessage(group.id, MessageChain.create([
-            Plain(group.name),
-            Image_UnsafeBytes(paperimg.getvalue())
-        ]))
+        try:
+            await app.sendGroupMessage(group.id, MessageChain.create([
+                Plain(group.name),
+                Image_UnsafeBytes(paperimg.getvalue())
+            ]))
+        except Exception as err:
+            await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
+                Plain(f"{group.id} 的日报发送失败\n{err}")
+            ]))
         await asyncio.sleep(random.randint(1, 4))
     allTime = time.time() - ts
     await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
