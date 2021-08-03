@@ -32,26 +32,33 @@ async def anitRecall(app: GraiaMiraiApplication, events: GroupRecallEvent):
             msg = MessageChain.join(
                 MessageChain.create([
                     Plain(f"{events.operator.name}({events.operator.id})撤回了{authorName}的一条消息:"),
-                    Plain(f"\n=====================\n")]),
+                    Plain(f"\n=====================\n")
+                ]),
                 recallMsg)
 
             if recallMsg.has(Image):
                 for image in recallMsg.get(Image):
                     res = await image_moderation(image.url)
-                    if res['Suggestion'] != "Pass":
-                        if 'AnitRecall' not in group_data[events.group.id]['DisabledFunc']:
-                            await app.sendGroupMessage(events.group, MessageChain.create([
-                                Plain(f"{events.operator.name}({events.operator.id})撤回了{authorName}的一条消息:"),
-                                Plain(f"\n=====================\n"),
-                                Plain(f"（由于撤回图片内包含 {res['Label']} / {res['SubLabel']} 违规，不予防撤回）")
-                            ]))
-                            try:
-                                await app.mute(events.group, events.authorId, 3600)
-                            except:
-                                pass
-                        await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], msg.asSendable())
-                        return
-
+                    try:
+                        if res['Suggestion'] != "Pass":
+                            if 'AnitRecall' not in group_data[events.group.id]['DisabledFunc']:
+                                await app.sendGroupMessage(events.group, MessageChain.create([
+                                    Plain(f"{events.operator.name}({events.operator.id})撤回了{authorName}的一条消息:"),
+                                    Plain(f"\n=====================\n"),
+                                    Plain(f"（由于撤回图片内包含 {res['Label']} / {res['SubLabel']} 违规，不予防撤回）")
+                                ]))
+                                try:
+                                    await app.mute(events.group, events.authorId, 3600)
+                                except:
+                                    pass
+                            await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], msg.asSendable())
+                            return
+                    except:
+                        t = f"防撤回出错，内容为\n{json.dumps(res, indent=2, ensure_ascii=False)}"
+                        print(t)
+                        return await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
+                            Plain(t)
+                        ]))
             if recallMsg.has(Plain):
                 for text in recallMsg.get(Plain):
                     res = await text_moderation(text.text)
@@ -59,7 +66,8 @@ async def anitRecall(app: GraiaMiraiApplication, events: GroupRecallEvent):
                         if res['Suggestion'] != "Pass":
                             if 'AnitRecall' not in group_data[events.group.id]['DisabledFunc']:
                                 await app.sendGroupMessage(events.group, MessageChain.create([
-                                    Plain(f"{events.operator.name}({events.operator.id})撤回了{authorName}的一条消息:"),
+                                    Plain(
+                                        f"{events.operator.name}({events.operator.id})撤回了{authorName}的一条消息:"),
                                     Plain(f"\n=====================\n"),
                                     Plain(f"\n（由于撤回文字内包含 {res['Label']} 违规，不予防撤回）")
                                 ]))
@@ -71,8 +79,10 @@ async def anitRecall(app: GraiaMiraiApplication, events: GroupRecallEvent):
                     except:
                         t = f"防撤回出错，内容为\n{json.dumps(res, indent=2, ensure_ascii=False)}"
                         print(t)
-                        return await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([Plain(t)]))
-                    
+                        return await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
+                            Plain(t)
+                        ]))
+
             if 'AnitRecall' not in group_data[events.group.id]['DisabledFunc']:
                 if recallMsg.has(Voice) or recallMsg.has(Xml) or recallMsg.has(Json):
                     pass
