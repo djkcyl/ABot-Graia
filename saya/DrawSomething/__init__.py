@@ -33,19 +33,24 @@ GROUP_GAME_PROCESS = {}
 @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("你画我猜")]))
 async def main(app: GraiaMiraiApplication, group: Group, member: Member, source: Source):
 
+    # 判断插件是否处于禁用状态
     if yaml_data['Saya']['Entertainment']['Disabled']:
         return await sendmsg(app=app, group=group)
     elif 'Entertainment' in group_data[group.id]['DisabledFunc']:
         return await sendmsg(app=app, group=group)
 
+    # 判断用户是否正在游戏中
     if member.id in MEMBER_RUNING_LIST:
         return
     
+    # 判断私信是否可用
     try:
         await app.sendFriendMessage(member.id, MessageChain.create([Plain(f"本消息仅用于测试私信是否可用，无需回复\n{time.time()}")]))
     except:
         await app.sendGroupMessage(group, MessageChain.create([Plain(f"由于你未添加好友，暂时无法发起你画我猜，请自行添加 {yaml_data['Basic']['BotName']} 好友，用于发送题目")]))
         return
+
+    # 将用户加入到正在游戏中
     MEMBER_RUNING_LIST.append(member.id)
 
     # 请求确认中断
@@ -173,6 +178,7 @@ async def main(app: GraiaMiraiApplication, group: Group, member: Member, source:
             del GROUP_GAME_PROCESS[group.id]
             await app.sendGroupMessage(group, MessageChain.create([Plain("确认超时")]))
 
+    # 将用户移除正在游戏中
     MEMBER_RUNING_LIST.remove(member.id)
 
 

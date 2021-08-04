@@ -105,6 +105,7 @@ async def azuretts(app: GraiaMiraiApplication, group: Group, message: MessageCha
         cache.write_bytes(await silkcoder.encode(f'./saya/AzureTTS/temp/{times}.wav', rate=100000))
         await app.sendGroupMessage(group, MessageChain.create([Voice(path=times)]))
         os.remove(f'./saya/AzureTTS/temp/{times}.wav')
+        os.remove(f'{MIRAI_PATH}data/net.mamoe.mirai-api-http/voices/{times}')
     else:
         await app.sendGroupMessage(group, MessageChain.create([Plain("文字过长，仅支持600字以内")]))
 

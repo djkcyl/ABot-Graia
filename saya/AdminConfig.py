@@ -80,7 +80,7 @@ funcHelp = {
     "网易云音乐点歌": {
         "instruction": "在网易云音乐搜歌并以语音形式发出",
         "usage": "发送指令：\n点歌",
-        "options": "无"
+        "options": "可以点需要黑胶VIP的歌曲\n示例：\n点歌\n点歌 終わりの世界から"
     },
     "网络黑话翻译": {
         "instruction": "翻译类似‘nmsl’一类的简写词",

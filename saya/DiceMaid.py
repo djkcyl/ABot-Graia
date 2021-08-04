@@ -25,8 +25,7 @@ async def dice(app: GraiaMiraiApplication, group: Group, message: MessageChain):
 
         saying = message.asDisplay()
 
-        pattern = re.compile(
-            r"^.r(?P<times>\d+)?d?(?P<maxvalue>\d+)?k?(?P<kiswhat>\d+)?")
+        pattern = re.compile(r"^.r(?P<times>\d+)?d?(?P<maxvalue>\d+)?k?(?P<kiswhat>\d+)?")
         match = re.match(pattern, saying)
 
         r = match.group('times')
