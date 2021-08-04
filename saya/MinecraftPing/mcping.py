@@ -55,7 +55,8 @@ def mcping(say):
     msg_send.append(Plain(f"延迟：" + str(get_status["ping"]) + "ms\n"))
 
     # 描述
-    if "text" in get_status["description"]:
+    # print(get_status["description"])
+    if get_status["description"]["text"] != "" and "text" in get_status["description"]:
         sMotd = get_status["description"]["text"]
         msg_send.append(Plain(f"描述：" + sMotd + "\n"))
         # print(sMotd)
