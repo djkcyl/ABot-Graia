@@ -66,8 +66,7 @@ async def anitRecall(app: GraiaMiraiApplication, events: GroupRecallEvent):
                         if res['Suggestion'] != "Pass":
                             if 'AnitRecall' not in group_data[events.group.id]['DisabledFunc']:
                                 await app.sendGroupMessage(events.group, MessageChain.create([
-                                    Plain(
-                                        f"{events.operator.name}({events.operator.id})撤回了{authorName}的一条消息:"),
+                                    Plain(f"{events.operator.name}({events.operator.id})撤回了{authorName}的一条消息:"),
                                     Plain(f"\n=====================\n"),
                                     Plain(f"\n（由于撤回文字内包含 {res['Label']} 违规，不予防撤回）")
                                 ]))
