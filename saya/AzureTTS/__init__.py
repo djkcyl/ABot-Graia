@@ -6,6 +6,7 @@ import xmltodict
 from pathlib import Path
 from graiax import silkcoder
 from graia.saya import Saya, Channel
+from concurrent.futures import ThreadPoolExecutor
 from graia.application import GraiaMiraiApplication
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.event.messages import Group, GroupMessage
@@ -95,9 +96,12 @@ async def azuretts(app: GraiaMiraiApplication, group: Group, message: MessageCha
 
     if len(saying[3]) < 800:
         times = str(int(time.time() * 100))
-        await asyncio.to_thread(gettts, name, style, saying[3], times)
-        cache = Path(
-            f'{MIRAI_PATH}data/net.mamoe.mirai-api-http/voices/{times}')
+
+        loop = asyncio.get_event_loop()
+        pool = ThreadPoolExecutor(5)
+        await loop.run_in_executor(pool, gettts, name, style, saying[3], times)
+
+        cache = Path(f'{MIRAI_PATH}data/net.mamoe.mirai-api-http/voices/{times}')
         cache.write_bytes(await silkcoder.encode(f'./saya/AzureTTS/temp/{times}.wav', rate=100000))
         await app.sendGroupMessage(group, MessageChain.create([Voice(path=times)]))
         os.remove(f'./saya/AzureTTS/temp/{times}.wav')
