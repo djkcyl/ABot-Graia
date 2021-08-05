@@ -126,13 +126,10 @@ async def main(app: GraiaMiraiApplication, group: Group, member: Member, source:
                 else:
                     question_len = len(question)
                     await app.sendGroupMessage(group, MessageChain.create([
-                        At(member.id),
-                        Plain(f" 已确认，你成功在本群开启你画我猜，正在向你发送题目。。。")]), quote=source)
-                    await asyncio.sleep(1)
-                    await app.sendGroupMessage(group, MessageChain.create([
+                        Plain(f"已确认，你成功在本群开启你画我猜，正在向你发送题目。。。"),
                         Plain(f"本次题目为 {question_len} 个字，请等待 "),
                         At(member.id),
-                        Plain(" 在群中绘图，本次游戏将在180秒后结束，创建者发送 <取消/终止/结束> 可结束本次游戏，每人每回合只有 8 次答题机会，请勿刷屏请勿抢答。")]))
+                        Plain(" 在群中绘图，本次游戏将在180秒后结束，创建者发送 <取消/终止/结束> 可结束本次游戏，每人每回合只有 8 次答题机会，请勿刷屏请勿抢答。")]), quote=source)
                     await asyncio.sleep(1)
                     await app.sendFriendMessage(member.id, MessageChain.create([
                         Plain(f"本次的题目为：{question}，请在一分钟内\n在群中\n在群中\n在群中\n发送涂鸦或其他形式等来表示该主题")]))
@@ -217,11 +214,12 @@ async def main(app: GraiaMiraiApplication, friend: Friend, message: MessageChain
 @channel.use(ListenerSchema(listening_events=[FriendMessage], inline_dispatchers=[Literature("查看你画我猜状态")]))
 async def main(app: GraiaMiraiApplication, friend: Friend):
     if friend.id == yaml_data['Basic']['Permission']['Master']:
-        global GROUP_RUNING_LIST
         runlist_len = len(GROUP_RUNING_LIST)
+        runlist_str = "\n".join(map(lambda x: str(x), GROUP_RUNING_LIST))
         if runlist_len > 0:
             await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
-                Plain(f"当前共有 {runlist_len} 个群正在玩你画我猜")
+                Plain(f"当前共有 {runlist_len} 个群正在玩你画我猜"),
+                Plain(f"\n{runlist_str}")
             ]))
         else:
             await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([Plain(f"当前没有正在运行你画我猜的群")]))
