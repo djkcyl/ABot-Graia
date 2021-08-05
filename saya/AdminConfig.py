@@ -5,12 +5,11 @@ import asyncio
 from graia.saya import Saya, Channel
 from graia.application.friend import Friend
 from graia.application import GraiaMiraiApplication
-from graia.application.exceptions import AccountMuted
 from graia.application.group import Group, Member, MemberPerm
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.parser.literature import Literature
 from graia.application.event.messages import GroupMessage, FriendMessage
-from graia.application.message.elements.internal import MessageChain, Source, At, Plain, Image_UnsafeBytes
+from graia.application.message.elements.internal import MessageChain, Quote, At, Plain, Image_UnsafeBytes
 
 from config import save_config, yaml_data, group_data, black_list
 from text2image import create_image
@@ -80,7 +79,7 @@ funcHelp = {
     "网易云音乐点歌": {
         "instruction": "在网易云音乐搜歌并以语音形式发出",
         "usage": "发送指令：\n点歌",
-        "options": "可以点需要黑胶VIP的歌曲\n示例：\n点歌\n点歌 終わりの世界から"
+        "options": "可以点需要黑胶VIP的歌曲\n每次点歌消耗 1 个游戏币\n示例：\n点歌\n点歌 終わりの世界から"
     },
     "网络黑话翻译": {
         "instruction": "翻译类似‘nmsl’一类的简写词",
@@ -159,40 +158,39 @@ funcHelp = {
     },
     "骰娘": {
         "instruction": "一个简易骰娘",
-        "usage": "发送指令：\n  .r",
+        "usage": "发送指令：\n.r",
         "options": "可选参数有：\nr ==> 投掷的骰子个数\nd ==> 每个骰子的面数\nk ==> 取最大的前n个\n以上三个参数除 r 外均为可选参数\n如为填写的情况下：\nr 默认值为1\nd 默认值为100\nk 默认值为0（即不取最大）\n示例：\n.r  投掷1个骰子，最大值为100\n.rd50  投掷1个骰子，最大值为50\n.r3d6  投掷3个骰子，每个的最大值为6\n.r15k4  投掷15个骰子，每个的最大值为100，取最大的前4个"
     }
 }
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def atrep(app: GraiaMiraiApplication, group: Group, message: MessageChain, member: Member, source: Source):
+async def atrep(app: GraiaMiraiApplication, group: Group, message: MessageChain):
     ifat = message.has(At)
-    if ifat:
+    ifquote = message.has(Quote)
+    ifemtmsg = not message.has(Plain) or message.get(Plain)[0].text == " "
+    # 判断是否为空消息，判断是否at，判断是否回复
+    if ifemtmsg and ifat and not ifquote:
+        # 判断at对象是否为机器人
         ifa = message.get(At)[0].target == yaml_data['Basic']['MAH']['BotQQ']
         if ifa:
-            if member.id == yaml_data['Basic']['Permission']['Master']:
-                await app.sendGroupMessage(group, MessageChain.create([
-                    Plain(f"爹！")
-                ]), quote=source.id)
-            else:
-                image = await create_image(str(
-                    f"我是{yaml_data['Basic']['Permission']['MasterName']}" +
-                    f"的机器人{yaml_data['Basic']['BotName']}，" +
-                    f"如果有需要可以联系主人QQ”{str(yaml_data['Basic']['Permission']['Master'])}“，" +
-                    f"添加{yaml_data['Basic']['BotName']}好友后请私聊说明用途后即可拉进其他群，主人看到后会选择是否同意入群" +
-                    f"\n{yaml_data['Basic']['BotName']}被群禁言后会自动退出该群。" +
-                    f"\n发送 <菜单> 可以查看功能列表" +
-                    f"\n拥有管理员以上权限可以使用 <管理员功能菜单> 来开关功能" +
-                    f"\n如果用不明白菜单功能可以不用，建议去医院多看看" +
-                    f"\n\n@不会触发任何功能" +
-                    f"\n@不会触发任何功能" +
-                    f"\n@不会触发任何功能" +
-                    f"\n@不会触发任何功能" +
-                    f"\n@不会触发任何功能" +
-                    f"\n@不会触发任何功能"))
-                await app.sendGroupMessage(group, MessageChain.create([
-                    Image_UnsafeBytes(image.getvalue())]))
+            image = await create_image(str(
+                f"我是{yaml_data['Basic']['Permission']['MasterName']}" +
+                f"的机器人{yaml_data['Basic']['BotName']}，" +
+                f"如果有需要可以联系主人QQ”{str(yaml_data['Basic']['Permission']['Master'])}“，" +
+                f"添加{yaml_data['Basic']['BotName']}好友后即可拉进其他群，主人看到后会选择是否同意入群" +
+                f"\n{yaml_data['Basic']['BotName']}被群禁言后会自动退出该群。" +
+                f"\n发送 <菜单> 可以查看功能列表" +
+                f"\n拥有管理员以上权限可以使用 <管理员功能菜单> 来开关功能" +
+                f"\n如果用不明白菜单功能可以不用，建议去医院多看看" +
+                f"\n\n@不会触发任何功能" +
+                f"\n@不会触发任何功能" +
+                f"\n@不会触发任何功能" +
+                f"\n@不会触发任何功能" +
+                f"\n@不会触发任何功能" +
+                f"\n@不会触发任何功能"))
+            await app.sendGroupMessage(group, MessageChain.create([
+                Image_UnsafeBytes(image.getvalue())]))
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))

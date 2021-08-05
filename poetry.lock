@@ -344,7 +344,7 @@ reference = "douban"
 
 [[package]]
 name = "graiax-silkcoder"
-version = "0.0.13"
+version = "0.0.14"
 description = "transform audio file to silk"
 category = "main"
 optional = false
@@ -1104,7 +1104,7 @@ reference = "douban"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "69ca6f0c572b6f020ddc7b11b51e48f018c4c68d447fcdd95db3d6c359f8f196"
+content-hash = "feecb840d2bb291c1c683760d5dd1eec0cfdb54195c4596f1cba42b0f39d97bc"
 
 [metadata.files]
 aiohttp = [
@@ -1277,8 +1277,8 @@ graia-scheduler = [
     {file = "graia_scheduler-0.0.4-py3-none-any.whl", hash = "sha256:142792d9e296a1625886bbd8aa070d2cb4dbb7f008db83c6932d82e35918bdd5"},
 ]
 graiax-silkcoder = [
-    {file = "graiax-silkcoder-0.0.13.tar.gz", hash = "sha256:6ef2407b8b0c2eceb2da297747b67a25b9cf479c3189a2a1fecbf06e1ed99557"},
-    {file = "graiax_silkcoder-0.0.13-cp38-cp38-win_amd64.whl", hash = "sha256:c12ffd9be99aff2e11dd9052527d96da6d6f1add5ddd7e74519b9835b6816c06"},
+    {file = "graiax-silkcoder-0.0.14.tar.gz", hash = "sha256:b306b1104931eea7101dc84a44e29b63c3f536205207cc430f9bc8cf2235349d"},
+    {file = "graiax_silkcoder-0.0.14-cp38-cp38-win_amd64.whl", hash = "sha256:7f6bc82343780bbf981f2118a00f2ce9cc607ec4c839c7fb970f74d771b36022"},
 ]
 greenlet = [
     {file = "greenlet-1.1.0-cp27-cp27m-macosx_10_14_x86_64.whl", hash = "sha256:60848099b76467ef09b62b0f4512e7e6f0a2c977357a036de602b653667f5f4c"},

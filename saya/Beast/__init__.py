@@ -26,10 +26,10 @@ async def main(app: GraiaMiraiApplication, group: Group, message: MessageChain, 
         saying = message.asDisplay().split(" ", 1)
         msg = encode(saying[1])
         print(len(msg))
-        if (len(msg)) < 2000:
+        if (len(msg)) < 500:
             await app.sendGroupMessage(group, MessageChain.create([Plain(msg)]), quote=source.id)
         else:
-            await app.sendGroupMessage(group, MessageChain.create([Plain(f"文字太长")]))
+            await app.sendGroupMessage(group, MessageChain.create([Plain(f"文字过长")]), quote=source.id)
     except:
         await app.sendGroupMessage(group, MessageChain.create([Plain("明文错误``")]), quote=source.id)
 
