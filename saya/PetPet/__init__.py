@@ -19,13 +19,14 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 
 from config import yaml_data, group_data
-
+from util.RestControl import rest_control
 
 saya = Saya.current()
 channel = Channel.current()
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage]))
+@channel.use(ListenerSchema(listening_events=[GroupMessage],
+                            headless_decorators=[rest_control()]))
 async def petpet_generator(app: GraiaMiraiApplication, message: MessageChain, group: Group):
         
     if yaml_data['Saya']['PetPet']['Disabled'] and not yaml_data['Saya']['PetPet']['CanAt']:
@@ -50,7 +51,8 @@ async def petpet_generator(app: GraiaMiraiApplication, message: MessageChain, gr
             pass
 
 
-@channel.use(ListenerSchema(listening_events=[NudgeEvent]))
+@channel.use(ListenerSchema(listening_events=[NudgeEvent],
+                            headless_decorators=[rest_control()]))
 async def get_nudge(app: GraiaMiraiApplication, nudge: NudgeEvent):
         
     if yaml_data['Saya']['PetPet']['Disabled'] and not yaml_data['Saya']['PetPet']['CanNudge']:

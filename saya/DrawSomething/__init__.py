@@ -12,7 +12,7 @@ from graia.broadcast.interrupt import InterruptControl
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.parser.literature import Literature
 from graia.application.event.messages import GroupMessage, FriendMessage
-from graia.application.message.elements.internal import Image_LocalFile, MessageChain, Source, Plain, At
+from graia.application.message.elements.internal import MessageChain, Source, Plain, At
 
 from datebase.db import reduce_gold, add_gold
 from config import yaml_data, group_data, sendmsg

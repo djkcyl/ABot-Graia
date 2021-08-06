@@ -109,9 +109,10 @@ async def accept(app: GraiaMiraiApplication, invite: BotInvitedJoinGroupRequestE
                     ]))
         try:
             if await asyncio.wait_for(inc.wait(waiter), timeout=300):
+                group_list['white'] = group_list['white'].append(invite.groupId)
                 await invite.accept()
                 await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
-                    Plain("已同意申请")
+                    Plain("已同意申请并加入白名单")
                 ]))
             else:
                 await invite.reject("主人拒绝加入该群")
@@ -132,6 +133,9 @@ async def get_BotJoinGroup(app: GraiaMiraiApplication, joingroup: BotJoinGroupEv
     收到入群事件
     '''
     if joingroup.group.id not in group_list['white']:
+        await app.sendGroupMessage(joingroup.group.id, MessageChain.create([
+            Plain("该群未在白名单中，正在退出")
+        ]))
         return await app.quit(joingroup.group.id)
 
     if joingroup.group.id not in group_data:

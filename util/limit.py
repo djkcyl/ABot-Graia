@@ -38,6 +38,7 @@ def member_limit_check(limit: int):
         name = str(group.id) + "_" + str(member.id)
         limit_blocked, cd = limit_exists(name, limit)
         if limit_blocked:
+            print(2)
             if name not in BLOCK_LIST:
                 await app.sendGroupMessage(group, MessageChain.create([
                     At(member.id),

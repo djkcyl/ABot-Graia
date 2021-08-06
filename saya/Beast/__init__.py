@@ -6,6 +6,8 @@ from graia.application.message.parser.literature import Literature
 from graia.application.message.elements.internal import MessageChain, Source, Plain
 
 from config import yaml_data, group_data, sendmsg
+from util.RestControl import rest_control
+from util.limit import member_limit_check
 
 from .beast import encode, decode
 
@@ -14,7 +16,9 @@ saya = Saya.current()
 channel = Channel.current()
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("嗷")]))
+@channel.use(ListenerSchema(listening_events=[GroupMessage],
+                            inline_dispatchers=[Literature("嗷")],
+                            headless_decorators=[rest_control(), member_limit_check(30)]))
 async def main(app: GraiaMiraiApplication, group: Group, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['Beast']['Disabled']:
@@ -34,7 +38,9 @@ async def main(app: GraiaMiraiApplication, group: Group, message: MessageChain, 
         await app.sendGroupMessage(group, MessageChain.create([Plain("明文错误``")]), quote=source.id)
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("呜")]))
+@channel.use(ListenerSchema(listening_events=[GroupMessage],
+                            inline_dispatchers=[Literature("呜")],
+                            headless_decorators=[rest_control(), member_limit_check(30)]))
 async def main(app: GraiaMiraiApplication, group: Group, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['Beast']['Disabled']:

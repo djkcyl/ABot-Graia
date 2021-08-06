@@ -22,6 +22,7 @@ from datebase.db import reduce_gold
 from util.aiorequests import aiorequests
 from util.text2image import create_image
 from util.limit import member_limit_check
+from util.RestControl import rest_control
 
 
 saya = Saya.current()
@@ -49,7 +50,9 @@ if not yaml_data['Saya']['CloudMusic']['Disabled']:
 WAITING = []
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("点歌")], headless_decorators=[member_limit_check(120)]))
+@channel.use(ListenerSchema(listening_events=[GroupMessage],
+                            inline_dispatchers=[Literature("点歌")],
+                            headless_decorators=[rest_control(), member_limit_check(120)]))
 async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['CloudMusic']['Disabled']:

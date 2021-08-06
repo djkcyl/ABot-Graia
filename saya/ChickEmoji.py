@@ -10,12 +10,16 @@ from graia.application.message.parser.literature import Literature
 from graia.application.message.elements.internal import MessageChain, Plain
 
 from config import yaml_data, group_data, sendmsg
+from util.limit import member_limit_check
+from util.RestControl import rest_control
 
 saya = Saya.current()
 channel = Channel.current()
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("emoji")]))
+@channel.use(ListenerSchema(listening_events=[GroupMessage],
+                            inline_dispatchers=[Literature("emoji")],
+                            headless_decorators=[rest_control(), member_limit_check(5)]))
 async def fun_dict(app: GraiaMiraiApplication, group: Group, message: MessageChain, member: Member):
 
     if yaml_data['Saya']['ChickEmoji']['Disabled']:

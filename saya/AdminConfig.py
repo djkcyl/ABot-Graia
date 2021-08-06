@@ -13,6 +13,7 @@ from graia.application.message.elements.internal import MessageChain, Quote, At,
 
 from config import save_config, yaml_data, group_data, group_list
 from util.text2image import create_image
+from util.RestControl import set_sleep
 
 saya = Saya.current()
 channel = Channel.current()
@@ -225,7 +226,7 @@ async def menu(app: GraiaMiraiApplication, group: Group, message: MessageChain):
 
         help = str(f"{yaml_data['Basic']['BotName']} 使用指南\n===========================\n")
         help = help + "\n----------------------------------\n".join(funcusage)
-        help = help + str("\n===========================\n" +
+        help = help + str("\n===========================" +
                           "\n详细查看功能使用方法请发送 功能 <id>" +
                           "\n所有功能均无需@机器人本身" +
                           "\n如果用不明白菜单功能可以不用，建议去医院多看看" +
@@ -259,7 +260,7 @@ async def adminmain(app: GraiaMiraiApplication, group: Group, message: MessageCh
 @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("管理员功能菜单")]))
 async def adminmain(app: GraiaMiraiApplication, group: Group, member: Member):
     if member.permission in [MemberPerm.Administrator, MemberPerm.Owner] or member.id in yaml_data['Basic']['Permission']['Admin']:
-        msg = "机器人群管理菜单\n===============================\n当前有以下功能可以调整："
+        msg = f"机器人群管理菜单　　{str(group.id)} / {group.name}\n===============================\n当前有以下功能可以调整："
         i = 1
         for func in funcList:
             funcname = func["name"]
@@ -388,3 +389,16 @@ async def Announcement(app: GraiaMiraiApplication, friend: Friend, message: Mess
                 await asyncio.sleep(3)
                 await app.quit(int(saying[1]))
                 await app.sendFriendMessage(friend, MessageChain.create([Plain(f"成功将该群移出白名单")]))
+
+
+@channel.use(ListenerSchema(listening_events=[FriendMessage], inline_dispatchers=[Literature("休息")]))
+async def Announcement(app: GraiaMiraiApplication, friend: Friend):
+    if friend.id == yaml_data['Basic']['Permission']['Master']:
+        set_sleep(1)
+        await app.sendFriendMessage(friend, MessageChain.create([Plain(f"已进入休息")]))
+
+@channel.use(ListenerSchema(listening_events=[FriendMessage], inline_dispatchers=[Literature("工作")]))
+async def Announcement(app: GraiaMiraiApplication, friend: Friend):
+    if friend.id == yaml_data['Basic']['Permission']['Master']:
+        set_sleep(0)
+        await app.sendFriendMessage(friend, MessageChain.create([Plain(f"已开始工作")]))

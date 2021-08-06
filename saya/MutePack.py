@@ -11,7 +11,7 @@ from graia.application.message.parser.literature import Literature
 from graia.application.message.elements.internal import MessageChain, Plain, AtAll
 
 from config import sendmsg, group_data, yaml_data
-
+from util.RestControl import rest_control
 
 saya = Saya.current()
 channel = Channel.current()
@@ -21,7 +21,9 @@ if yaml_data['Saya']['MutePack']['MaxTime'] * yaml_data['Saya']['MutePack']['Max
     exit()
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("我要禁言套餐")]))
+@channel.use(ListenerSchema(listening_events=[GroupMessage],
+                            inline_dispatchers=[Literature("我要禁言套餐")],
+                            headless_decorators=[rest_control()]))
 async def random_mute(app: GraiaMiraiApplication, group: Group, member: Member):
 
     if yaml_data['Saya']['MutePack']['Disabled']:
