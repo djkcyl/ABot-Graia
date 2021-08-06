@@ -14,7 +14,7 @@ from graia.application.event.lifecycle import ApplicationLaunched, ApplicationSh
 from graia.application.message.elements.internal import MessageChain, Plain, Image_NetworkAddress
 from graia.application.event.mirai import NewFriendRequestEvent, BotInvitedJoinGroupRequestEvent, BotJoinGroupEvent, BotLeaveEventKick, BotGroupPermissionChangeEvent, BotMuteEvent, MemberCardChangeEvent, MemberJoinEvent
 
-from config import save_config, yaml_data, group_data, black_list
+from config import save_config, yaml_data, group_data, group_list
 from .AdminConfig import groupInitData
 
 saya = Saya.current()
@@ -61,26 +61,15 @@ async def get_BotJoinGroup(app: GraiaMiraiApplication, events: NewFriendRequestE
     收到好友申请
     '''
     sourceGroup: Optional[int] = events.sourceGroup
-    if events.supplicant in black_list['member']:
-        await events.reject("你已被拉黑")
-        for qq in yaml_data['Basic']['Permission']['Admin']:
-            await app.sendFriendMessage(qq, MessageChain.create([
-                Plain("收到添加好友事件"),
-                Plain(f"\nQQ：{events.supplicant}"),
-                Plain(f"\n昵称：{events.nickname}"),
-                Plain(f"\n来自群：{sourceGroup}"),
-                Plain(f"\n状态：已拉黑，未通过申请\n\n{events.message.upper()}")
-            ]))
-    else:
-        for qq in yaml_data['Basic']['Permission']['Admin']:
-            await app.sendFriendMessage(qq, MessageChain.create([
-                Plain("收到添加好友事件"),
-                Plain(f"\nQQ：{events.supplicant}"),
-                Plain(f"\n昵称：{events.nickname}"),
-                Plain(f"\n来自群：{sourceGroup}"),
-                Plain(f"\n状态：已通过申请\n\n{events.message.upper()}")
-            ]))
-        await events.accept()
+    for qq in yaml_data['Basic']['Permission']['Admin']:
+        await app.sendFriendMessage(qq, MessageChain.create([
+            Plain("收到添加好友事件"),
+            Plain(f"\nQQ：{events.supplicant}"),
+            Plain(f"\n昵称：{events.nickname}"),
+            Plain(f"\n来自群：{sourceGroup}"),
+            Plain(f"\n状态：已通过申请\n\n{events.message.upper()}")
+        ]))
+    await events.accept()
 
 
 @channel.use(ListenerSchema(listening_events=[BotInvitedJoinGroupRequestEvent]))
@@ -88,16 +77,15 @@ async def accept(app: GraiaMiraiApplication, invite: BotInvitedJoinGroupRequestE
     '''
     被邀请入群
     '''
-
-    if invite.groupId in black_list['group']:
+    if invite.groupId in group_list['white']:
         await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
-            Plain(f"收到邀请入群事件"),
+            Plain("收到邀请入群事件"),
             Plain(f"\n邀请者：{invite.supplicant} | {invite.nickname}"),
             Plain(f"\n群号：{invite.groupId}"),
             Plain(f"\n群名：{invite.groupName}"),
-            Plain(f"\n该群已被拉入黑名单群，已拒绝加入")
+            Plain("\n该群为白名单群，已同意加入")
         ]))
-        await invite.reject("该群已被拉入黑名单群，拒绝加入")
+        await invite.accept("")
     else:
         await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
             Plain(f"收到邀请入群事件"),
@@ -143,7 +131,7 @@ async def get_BotJoinGroup(app: GraiaMiraiApplication, joingroup: BotJoinGroupEv
     '''
     收到入群事件
     '''
-    if joingroup.group.id in black_list['group']:
+    if joingroup.group.id not in group_list['white']:
         return await app.quit(joingroup.group.id)
 
     if joingroup.group.id not in group_data:
@@ -178,9 +166,12 @@ async def get_BotJoinGroup(app: GraiaMiraiApplication, kickgroup: BotLeaveEventK
     '''
     被踢出群
     '''
-    groupBlackList = black_list['group']
-    groupBlackList.append(kickgroup.group.id)
-    black_list['group'] = groupBlackList
+    groupBlackList = group_list['white']
+    try:
+        groupBlackList.remove(kickgroup.group.id)
+    except:
+        pass
+    group_list['white'] = groupBlackList
     save_config()
 
     for qq in yaml_data['Basic']['Permission']['Admin']:
@@ -211,9 +202,12 @@ async def get_BotJoinGroup(app: GraiaMiraiApplication, group: Group, mute: BotMu
     '''
     被禁言
     '''
-    groupBlackList = black_list['group']
-    groupBlackList.append(group.id)
-    black_list['group'] = groupBlackList
+    groupBlackList = group_list['white']
+    try:
+        groupBlackList.remove(group.id)
+    except:
+        pass
+    group_list['white'] = groupBlackList
     save_config()
 
     for qq in yaml_data['Basic']['Permission']['Admin']:
@@ -248,7 +242,7 @@ async def main(app: GraiaMiraiApplication, events: MemberCardChangeEvent):
     '''
     if events.member.id == yaml_data['Basic']['MAH']['BotQQ']:
         if events.current != yaml_data['Basic']['BotName']:
-            await app.sendFriendMessage(2948531755, MessageChain.create([
+            await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
                 Plain(f"检测到 {yaml_data['Basic']['BotName']} 群名片变动"),
                 Plain(f"\n群号：{str(events.member.group.id)}"),
                 Plain(f"\n群名：{events.member.group.name}"),
@@ -256,8 +250,7 @@ async def main(app: GraiaMiraiApplication, events: MemberCardChangeEvent):
                 Plain(f"\n已为你修改回：{yaml_data['Basic']['BotName']}")
             ]))
             await app.modifyMemberInfo(member=yaml_data['Basic']['MAH']['BotQQ'],
-                                       info=MemberInfo(
-                                           name=yaml_data['Basic']['BotName']),
+                                       info=MemberInfo(name=yaml_data['Basic']['BotName']),
                                        group=events.member.group.id)
             await app.sendGroupMessage(events.member.group.id,
                                        MessageChain.create([Plain(f"请不要修改我的群名片")]))

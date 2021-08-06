@@ -8,7 +8,7 @@ tempWordCloud.png
 test.py
 config.yaml
 groupdata.yaml
-blacklist.yaml
+grouplist.yaml
 qr.jpg
 
 /测试文件夹
