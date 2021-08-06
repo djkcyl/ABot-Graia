@@ -42,6 +42,6 @@ async def get_hans_screenshot(url):
 def install():
     print("正在检查 Chromium 更新")
     import os
-    os.system("python3.8 -m playwright install chromium")
+    os.system("python -m playwright install chromium")
 
 install()

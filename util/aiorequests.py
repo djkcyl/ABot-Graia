@@ -59,41 +59,41 @@ class AsyncResponse:
     def raise_for_status(self):
         self.raw_response.raise_for_status()
 
-
-async def request(method, url, **kwargs) -> AsyncResponse:
-    return AsyncResponse(await run_sync_func(requests.request,
-                                             method=method, url=url, **kwargs))
-
-
-async def get(url, params=None, **kwargs) -> AsyncResponse:
-    return AsyncResponse(
-        await run_sync_func(requests.get, url=url, params=params, **kwargs))
+class aiorequests:
+    async def request(method, url, **kwargs) -> AsyncResponse:
+        return AsyncResponse(await run_sync_func(requests.request,
+                                                method=method, url=url, **kwargs))
 
 
-async def options(url, **kwargs) -> AsyncResponse:
-    return AsyncResponse(
-        await run_sync_func(requests.options, url=url, **kwargs))
+    async def get(url, params=None, **kwargs) -> AsyncResponse:
+        return AsyncResponse(
+            await run_sync_func(requests.get, url=url, params=params, **kwargs))
 
 
-async def head(url, **kwargs) -> AsyncResponse:
-    return AsyncResponse(await run_sync_func(requests.head, url=url, **kwargs))
+    async def options(url, **kwargs) -> AsyncResponse:
+        return AsyncResponse(
+            await run_sync_func(requests.options, url=url, **kwargs))
 
 
-async def post(url, data=None, json=None, **kwargs) -> AsyncResponse:
-    return AsyncResponse(await run_sync_func(requests.post, url=url,
-                                             data=data, json=json, **kwargs))
+    async def head(url, **kwargs) -> AsyncResponse:
+        return AsyncResponse(await run_sync_func(requests.head, url=url, **kwargs))
 
 
-async def put(url, data=None, **kwargs) -> AsyncResponse:
-    return AsyncResponse(
-        await run_sync_func(requests.put, url=url, data=data, **kwargs))
+    async def post(url, data=None, json=None, **kwargs) -> AsyncResponse:
+        return AsyncResponse(await run_sync_func(requests.post, url=url,
+                                                data=data, json=json, **kwargs))
 
 
-async def patch(url, data=None, **kwargs) -> AsyncResponse:
-    return AsyncResponse(
-        await run_sync_func(requests.patch, url=url, data=data, **kwargs))
+    async def put(url, data=None, **kwargs) -> AsyncResponse:
+        return AsyncResponse(
+            await run_sync_func(requests.put, url=url, data=data, **kwargs))
 
 
-async def delete(url, **kwargs) -> AsyncResponse:
-    return AsyncResponse(
-        await run_sync_func(requests.delete, url=url, **kwargs))
+    async def patch(url, data=None, **kwargs) -> AsyncResponse:
+        return AsyncResponse(
+            await run_sync_func(requests.patch, url=url, data=data, **kwargs))
+
+
+    async def delete(url, **kwargs) -> AsyncResponse:
+        return AsyncResponse(
+            await run_sync_func(requests.delete, url=url, **kwargs))

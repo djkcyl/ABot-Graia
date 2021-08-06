@@ -32,6 +32,7 @@ interval = "^1.0.0"
 tencentcloud-sdk-python = "^3.0.454"
 xmltodict = "^0.12.0"
 azure-cognitiveservices-speech = "^1.18.0"
+redis = "^3.5.3"
 
 [tool.poetry.dev-dependencies]
 autopep8 = "^1.5.7"

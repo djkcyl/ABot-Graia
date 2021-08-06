@@ -1,11 +1,13 @@
 import os
 import time
 import asyncio
+
 import xmltodict
 
 from pathlib import Path
 from graiax import silkcoder
 from graia.saya import Saya, Channel
+from graia.application.group import Member
 from concurrent.futures import ThreadPoolExecutor
 from graia.application import GraiaMiraiApplication
 from graia.saya.builtins.broadcast.schema import ListenerSchema
@@ -14,7 +16,10 @@ from graia.application.message.parser.literature import Literature
 from graia.application.message.elements.internal import Plain, MessageChain, Voice, Source
 from azure.cognitiveservices.speech import AudioDataStream, SpeechConfig, SpeechSynthesizer
 
+
+from datebase.db import reduce_gold
 from config import sendmsg, yaml_data, group_data
+from util.limit import member_limit_check
 
 saya = Saya.current()
 channel = Channel.current()
@@ -27,8 +32,11 @@ if not os.path.exists(f"{MIRAI_PATH}data/net.mamoe.mirai-api-http/voices/"):
     exit()
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("/tts")]))
-async def azuretts(app: GraiaMiraiApplication, group: Group, message: MessageChain, source: Source):
+@channel.use(ListenerSchema(listening_events=[GroupMessage],
+                            inline_dispatchers=[Literature("/tts")],
+                            headless_decorators=[member_limit_check(15)]
+                            ))
+async def azuretts(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['AzureTTS']['Disabled']:
         return await sendmsg(app=app, group=group)
@@ -90,6 +98,9 @@ async def azuretts(app: GraiaMiraiApplication, group: Group, message: MessageCha
         style = "depressed"
     elif saying[2] == "尴尬":
         style = "embarrassed"
+
+    if not await reduce_gold(str(member.id), 2):
+        return await app.sendGroupMessage(group, MessageChain.create([Plain("你的游戏币不足，无法请求语音")]), quote=source)
 
     if TTSRUNING:
         return app.sendGroupMessage(group, MessageChain.create([Plain("当前tts队列已满，请等待")]), quote=source)
