@@ -7,6 +7,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.elements.internal import Image_UnsafeBytes
 
 from config import yaml_data, group_data, sendmsg
+from util.RestControl import rest_control
 
 from .setu import create_setu
 
@@ -14,7 +15,8 @@ saya = Saya.current()
 channel = Channel.current()
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage]))
+@channel.use(ListenerSchema(listening_events=[GroupMessage],
+                            headless_decorators=[rest_control()]))
 async def main(app: GraiaMiraiApplication, group: Group, message: MessageChain):
 
     saying = message.asDisplay().split(" ", 1)

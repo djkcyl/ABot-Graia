@@ -11,7 +11,6 @@ class NoAliasDumper(yaml.SafeDumper):
     def ignore_aliases(self, data):
         return True
 
-
 async def sendmsg(app: GraiaMiraiApplication, group: Group):
     await app.sendGroupMessage(group, MessageChain.create([Plain("该功能暂不开启")]))
 
@@ -46,8 +45,7 @@ if os.path.exists('grouplist.yaml'):
 else:
     with open('grouplist.yaml', 'w', encoding="utf-8") as f:
         group_list = {
-            "member": [1],
-            "group": [1]
+            "white": [1]
         }
         yaml.dump(group_list, f, allow_unicode=True, Dumper=NoAliasDumper)
 
