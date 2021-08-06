@@ -127,9 +127,10 @@ async def main(app: GraiaMiraiApplication, group: Group, member: Member, source:
                     question_len = len(question)
                     await app.sendGroupMessage(group, MessageChain.create([
                         Plain(f"已确认，你成功在本群开启你画我猜，正在向你发送题目。。。"),
-                        Plain(f"本次题目为 {question_len} 个字，请等待 "),
+                        Plain(f"\n本次题目为 {question_len} 个字，请等待 "),
                         At(member.id),
-                        Plain(" 在群中绘图，本次游戏将在180秒后结束，创建者发送 <取消/终止/结束> 可结束本次游戏，每人每回合只有 8 次答题机会，请勿刷屏请勿抢答。")]), quote=source)
+                        Plain(" 在群中绘图，本次游戏将在180秒后结束"),
+                        Plain("\n创建者发送 <取消/终止/结束> 可结束本次游戏，每人每回合只有 8 次答题机会，请勿刷屏请勿抢答。")]), quote=source)
                     await asyncio.sleep(1)
                     await app.sendFriendMessage(member.id, MessageChain.create([
                         Plain(f"本次的题目为：{question}，请在一分钟内\n在群中\n在群中\n在群中\n发送涂鸦或其他形式等来表示该主题")]))

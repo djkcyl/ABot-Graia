@@ -19,6 +19,8 @@ from graia.application.message.elements.internal import MessageChain, Plain, Ima
 
 from config import yaml_data, group_data, sendmsg
 from datebase.db import reduce_gold
+from util.aiorequests import aiorequests
+from util.limit import member_limit_check
 
 
 saya = Saya.current()
@@ -46,7 +48,7 @@ if not yaml_data['Saya']['CloudMusic']['Disabled']:
 WAITING = []
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("点歌")]))
+@channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("点歌")], headless_decorators=[member_limit_check(120)]))
 async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['CloudMusic']['Disabled']:
@@ -119,7 +121,7 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: 
         waite_musicmessageId = await app.sendGroupMessage(group, MessageChain.create(msg))
 
         try:
-            wantMusicID = await asyncio.wait_for(inc.wait(waiter2), timeout=15)
+            wantMusicID = await asyncio.wait_for(inc.wait(waiter2), timeout=30)
             if not wantMusicID:
                 WAITING.remove(member.id)
                 return await app.sendGroupMessage(group, MessageChain.create([Plain("已取消点歌")]))
@@ -144,15 +146,15 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: 
             if music_url == None:
                 WAITING.remove(member.id)
                 return await app.sendGroupMessage(group, MessageChain.create([Plain("该歌曲暂无法点歌")]), quote=source)
-            r = requests.get(music_url)
-            music_fcontent = r.content
+            r = await aiorequests.get(music_url)
+            music_fcontent = await r.content
             print(f"正在缓存歌曲：{music_name}")
             with open(f'./saya/CloudMusic/temp/{musicid}.mp3', 'wb') as f:
                 f.write(music_fcontent)
 
-        if not reduce_gold(str(member.id), 1):
+        if not await reduce_gold(str(member.id), 1):
             WAITING.remove(member.id)
-            return await app.sendGroupMessage(group, MessageChain.create([Plain("你的游戏币不足，无法点歌")]), quote=source)
+            return await app.sendGroupMessage(group, MessageChain.create([Plain("你的游戏币不足，无法使用")]), quote=source)
         
         if yaml_data['Saya']['CloudMusic']['MusicInfo']:
             music_name = musicinfo['songs'][0]['name']
