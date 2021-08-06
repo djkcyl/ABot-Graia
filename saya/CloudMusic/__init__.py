@@ -15,11 +15,12 @@ from graia.broadcast.interrupt import InterruptControl
 from graia.application.event.messages import FriendMessage, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.parser.literature import Literature
-from graia.application.message.elements.internal import MessageChain, Plain, Image_NetworkAddress, Voice, Source
+from graia.application.message.elements.internal import Image_UnsafeBytes, MessageChain, Plain, Image_NetworkAddress, Voice, Source
 
 from config import yaml_data, group_data, sendmsg
 from datebase.db import reduce_gold
 from util.aiorequests import aiorequests
+from util.text2image import create_image
 from util.limit import member_limit_check
 
 
@@ -58,7 +59,7 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: 
 
     @Waiter.create_using_function([GroupMessage])
     async def waiter1(waiter1_group: Group, waiter1_member: Member, waiter1_message: MessageChain):
-        if all([waiter1_group.id == group.id,waiter1_member.id == member.id]):
+        if all([waiter1_group.id == group.id, waiter1_member.id == member.id]):
             waiter1_saying = waiter1_message.asDisplay()
             if waiter1_saying == "取消":
                 return False
@@ -75,11 +76,10 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: 
             else:
                 await app.sendGroupMessage(group, MessageChain.create([Plain("请发送歌曲 id<1-10> 来点歌，发送取消可终止本次点歌")]))
 
-
     if member.id not in WAITING:
         saying = message.asDisplay().split(" ", 1)
         WAITING.append(member.id)
-        
+
         if len(saying) == 1:
             waite_musicmessageId = await app.sendGroupMessage(group, MessageChain.create([Plain(f"请发送歌曲名，发送取消即可终止点歌")]))
             try:
@@ -101,9 +101,8 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: 
             WAITING.remove(member.id)
             return await app.sendGroupMessage(group, MessageChain.create([Plain("未找到此歌曲")]))
         musiclist = json.loads(search.text)["result"]["songs"]
-        msg = []
         musicIdList = []
-        msg.append(Plain(f"为你在网易云音乐找到以下歌曲！"))
+        msg = "为你在网易云音乐找到以下歌曲！\n==============================="
         num = 1
         for music in musiclist:
             if num > 10:
@@ -114,11 +113,14 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: 
             for ar in music['ar']:
                 music_ar.append(ar['name'])
             music_ar = "/".join(music_ar)
-            msg.append(Plain(f"\n{num} ---> {music_name} - {music_ar}"))
+            msg += f"\n{num}　--->　{music_name} - {music_ar}"
             musicIdList.append(music_id)
             num += 1
-        msg.append(Plain(f"\n发送歌曲id可完成点歌\n发送取消可终止当前点歌\n点歌将消耗 1 个游戏币"))
-        waite_musicmessageId = await app.sendGroupMessage(group, MessageChain.create(msg))
+        msg += f"\n===============================\n发送歌曲id可完成点歌\n发送取消可终止当前点歌\n点歌将消耗 12个游戏币"
+        image = await create_image(msg)
+        waite_musicmessageId = await app.sendGroupMessage(group, MessageChain.create([
+            Image_UnsafeBytes(image.getvalue())
+        ]))
 
         try:
             wantMusicID = await asyncio.wait_for(inc.wait(waiter2), timeout=30)
@@ -152,10 +154,10 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: 
             with open(f'./saya/CloudMusic/temp/{musicid}.mp3', 'wb') as f:
                 f.write(music_fcontent)
 
-        if not await reduce_gold(str(member.id), 1):
+        if not await reduce_gold(str(member.id), 2):
             WAITING.remove(member.id)
             return await app.sendGroupMessage(group, MessageChain.create([Plain("你的游戏币不足，无法使用")]), quote=source)
-        
+
         if yaml_data['Saya']['CloudMusic']['MusicInfo']:
             music_name = musicinfo['songs'][0]['name']
             music_ar = []

@@ -39,17 +39,17 @@ else:
     group_data = json.loads("{}")
 
 
-if os.path.exists('blacklist.yaml'):
-    with open('blacklist.yaml', 'r', encoding="utf-8") as f:
+if os.path.exists('grouplist.yaml'):
+    with open('grouplist.yaml', 'r', encoding="utf-8") as f:
         file_data = f.read()
-    black_list = yaml.load(file_data, Loader=yaml.FullLoader)
+    group_list = yaml.load(file_data, Loader=yaml.FullLoader)
 else:
-    with open('blacklist.yaml', 'w', encoding="utf-8") as f:
-        black_list = {
+    with open('grouplist.yaml', 'w', encoding="utf-8") as f:
+        group_list = {
             "member": [1],
             "group": [1]
         }
-        yaml.dump(black_list, f, allow_unicode=True, Dumper=NoAliasDumper)
+        yaml.dump(group_list, f, allow_unicode=True, Dumper=NoAliasDumper)
 
 
 if not bool(yaml_data['Final']):
@@ -69,5 +69,5 @@ def save_config():
         yaml.dump(group_data, f, allow_unicode=True, Dumper=NoAliasDumper)
     with open("config.yaml", 'w', encoding="utf-8") as f:
         yaml.dump(yaml_data, f, allow_unicode=True, Dumper=NoAliasDumper)
-    with open("blacklist.yaml", 'w', encoding="utf-8") as f:
-        yaml.dump(black_list, f, allow_unicode=True, Dumper=NoAliasDumper)
+    with open("grouplist.yaml", 'w', encoding="utf-8") as f:
+        yaml.dump(group_list, f, allow_unicode=True, Dumper=NoAliasDumper)
