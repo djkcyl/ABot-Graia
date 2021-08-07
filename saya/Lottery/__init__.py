@@ -6,22 +6,23 @@ import asyncio
 import time
 
 from graia.saya import Saya, Channel
+from graia.application.friend import Friend
 from graia.scheduler.timers import crontabify
 from graia.application.group import Group, Member
 from graia.application import GraiaMiraiApplication
 from graia.broadcast.interrupt.waiter import Waiter
 from graia.broadcast.interrupt import InterruptControl
 from graia.scheduler.saya.schema import SchedulerSchema
-from graia.application.event.messages import FriendMessage, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.parser.literature import Literature
+from graia.application.event.messages import FriendMessage, GroupMessage
 from graia.application.message.elements.internal import At, Image_UnsafeBytes, Plain, MessageChain, Source, Image
 
 from datebase.db import add_gold, reduce_gold
-from config import yaml_data
+from config import sendmsg, yaml_data, group_data
 
-from .lottery_image import qrgen, qrdecode
 from .certification import decrypt
+from .lottery_image import qrgen, qrdecode
 
 saya = Saya.current()
 channel = Channel.current()
@@ -49,6 +50,12 @@ else:
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("购买彩票")]))
 async def buy_lottery(app: GraiaMiraiApplication, group: Group, member: Member, source: Source):
+
+    if yaml_data['Saya']['Lottery']['Disabled']:
+        return await sendmsg(app=app, group=group)
+    elif 'Lottery' in group_data[group.id]['DisabledFunc']:
+        return await sendmsg(app=app, group=group)
+
     if await reduce_gold(str(member.id), 2):
         number = ''.join(random.sample(string.digits+string.digits+string.digits, 24))
         period = str(LOTTERY["period"])
@@ -75,6 +82,15 @@ async def buy_lottery(app: GraiaMiraiApplication, group: Group, member: Member, 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("兑换彩票")]))
 async def redeem_lottery(app: GraiaMiraiApplication, group: Group, member: Member, source: Source):
+
+    if member.id in WAITING:
+        return
+
+    if yaml_data['Saya']['Lottery']['Disabled']:
+        return await sendmsg(app=app, group=group)
+    elif 'Lottery' in group_data[group.id]['DisabledFunc']:
+        return await sendmsg(app=app, group=group)
+
     WAITING.append(member.id)
 
     @Waiter.create_using_function([GroupMessage])
@@ -123,7 +139,7 @@ async def redeem_lottery(app: GraiaMiraiApplication, group: Group, member: Membe
             await app.sendGroupMessage(group, MessageChain.create([Plain("该彩票已过期")]))
     else:
         await app.sendGroupMessage(group, MessageChain.create([Plain("该彩票不为你所有，请勿窃取他人彩票")]))
-
+    WAITING.remove(member.id)
 
 @channel.use(SchedulerSchema(crontabify("0 0 * * 1")))
 async def something_scheduled(app: GraiaMiraiApplication):
@@ -171,24 +187,25 @@ async def something_scheduled(app: GraiaMiraiApplication):
 
 
 @channel.use(ListenerSchema(listening_events=[FriendMessage], inline_dispatchers=[Literature("开奖")]))
-async def something_scheduled(app: GraiaMiraiApplication):
-    global LOTTERY
-    lottery = LOTTERY
-    lottery["period"] += 1
-    lottery_len = len(lottery["week_lottery_list"])
-    winner = random.choice(lottery["week_lottery_list"])
-    lottery["lastweek"] = {
-        "received": False,
-        "number": winner,
-        "len": lottery_len
-    }
-    lottery["week_lottery_list"] = []
+async def something_scheduled(app: GraiaMiraiApplication, friend: Friend):
+    if friend.id == yaml_data['Basic']['Permission']['Master']:
+        global LOTTERY
+        lottery = LOTTERY
+        lottery["period"] += 1
+        lottery_len = len(lottery["week_lottery_list"])
+        winner = random.choice(lottery["week_lottery_list"])
+        lottery["lastweek"] = {
+            "received": False,
+            "number": winner,
+            "len": lottery_len
+        }
+        lottery["week_lottery_list"] = []
 
-    LOTTERY = lottery
-    with open("./saya/Lottery/data.json", "w") as f:
-        json.dump(LOTTERY, f, indent=2, ensure_ascii=False)
+        LOTTERY = lottery
+        with open("./saya/Lottery/data.json", "w") as f:
+            json.dump(LOTTERY, f, indent=2, ensure_ascii=False)
 
-    await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
-        Plain("本期彩票开奖完毕，中奖号码为\n"),
-        Plain(str(winner))
-    ]))
+        await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
+            Plain("本期彩票开奖完毕，中奖号码为\n"),
+            Plain(str(winner))
+        ]))
