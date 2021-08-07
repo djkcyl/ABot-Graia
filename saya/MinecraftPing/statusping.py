@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 import socket
 import struct
 import json
@@ -68,7 +67,6 @@ class StatusPing:
         byte = b''
 
         if extra_varint:
-            # Packet contained netty header offset for this
             if packet_id > packet_length:
                 self._unpack_varint(connection)
 
@@ -89,18 +87,14 @@ class StatusPing:
                 connection.connect((self._host, self._port))
             except:
                 return("error")
-            # Send handshake + status request
             self._send_data(connection, b'\x00\x00', self._host, self._port, b'\x01')
             self._send_data(connection, b'\x00')
 
-            # Read response, offset for string length
             data = self._read_fully(connection, extra_varint=True)
 
-            # Send and read unix time
             self._send_data(connection, b'\x01', time.time() * 1000)
             unix = self._read_fully(connection)
 
-        # Load json and return
         try:
             response = json.loads(data.decode('utf8'))
             response['ping'] = int(time.time() * 1000) - struct.unpack('Q', unix)[0]

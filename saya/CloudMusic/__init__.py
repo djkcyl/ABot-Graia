@@ -119,7 +119,7 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: 
             msg += f"\n{num}　--->　{music_name} - {music_ar}"
             musicIdList.append(music_id)
             num += 1
-        msg += f"\n===============================\n发送歌曲id可完成点歌\n发送取消可终止当前点歌\n点歌将消耗 12个游戏币"
+        msg += f"\n===============================\n发送歌曲id可完成点歌\n发送取消可终止当前点歌\n点歌将消耗 4 个游戏币"
         image = await create_image(msg)
         waite_musicmessageId = await app.sendGroupMessage(group, MessageChain.create([
             Image_UnsafeBytes(image.getvalue())
@@ -157,7 +157,7 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: 
             with open(f'./saya/CloudMusic/temp/{musicid}.mp3', 'wb') as f:
                 f.write(music_fcontent)
 
-        if not await reduce_gold(str(member.id), 2):
+        if not await reduce_gold(str(member.id), 4):
             WAITING.remove(member.id)
             return await app.sendGroupMessage(group, MessageChain.create([Plain("你的游戏币不足，无法使用")]), quote=source)
 

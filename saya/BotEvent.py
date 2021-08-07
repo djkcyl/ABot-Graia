@@ -132,8 +132,19 @@ async def get_BotJoinGroup(app: GraiaMiraiApplication, joingroup: BotJoinGroupEv
     '''
     收到入群事件
     '''
+    membernum = len(await app.memberList(joingroup.group.id))
+    await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
+        Plain("收到加入群聊事件"),
+        Plain(f"\n群号：{joingroup.group.id}"),
+        Plain(f"\n群名：{joingroup.group.name}"),
+        Plain(f"\n群人数：{membernum}")
+    ]))
+
     if joingroup.group.id not in group_list['white']:
         await app.sendGroupMessage(joingroup.group.id, MessageChain.create([
+            Plain("该群未在白名单中，正在退出")
+        ]))
+        await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
             Plain("该群未在白名单中，正在退出")
         ]))
         return await app.quit(joingroup.group.id)
@@ -153,15 +164,6 @@ async def get_BotJoinGroup(app: GraiaMiraiApplication, joingroup: BotJoinGroupEv
             Plain(f"\n\n@不会触发任何功能"),
             Plain(f"\n@不会触发任何功能"),
             Plain(f"\n@不会触发任何功能")
-        ]))
-
-    membernum = len(await app.memberList(joingroup.group.id))
-    for qq in yaml_data['Basic']['Permission']['Admin']:
-        await app.sendFriendMessage(qq, MessageChain.create([
-            Plain("收到加入群聊事件"),
-            Plain(f"\n群号：{joingroup.group.id}"),
-            Plain(f"\n群名：{joingroup.group.name}"),
-            Plain(f"\n群人数：{membernum}")
         ]))
 
 
