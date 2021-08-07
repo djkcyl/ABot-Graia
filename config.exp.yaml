@@ -109,7 +109,7 @@ Saya: # saya 插件配置
   DiceMaid: # 骰娘
     Disabled: false
 
-  Lottery: # 彩票
+  Lottery: # 奖券
     Disabled: false
 
 Final: false
