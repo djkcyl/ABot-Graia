@@ -1,32 +1,32 @@
 import base64
 
-from typing import Optional
-from playwright.async_api import Browser, async_playwright
+from playwright.async_api import async_playwright
 
 
-_browser: Optional[Browser] = None
+path_to_extension = "./saya/ChineseDict/chrome/extension/ad"
+user_data_dir = "./saya/ChineseDict/chrome/data"
 
+_browser = None
 
-async def init(**kwargs) -> Browser:
-    args = []
-
+async def init():
     global _browser
     browser = await async_playwright().start()
-    _browser = await browser.chromium.launch(args=args, **kwargs)
-    return _browser
-
-
-async def get_browser(**kwargs) -> Browser:
-    return _browser or await init(**kwargs)
-
+    _browser = await browser.chromium.launch_persistent_context(
+        user_data_dir,
+        headless=True,
+        args=[
+            f"--disable-extensions-except={path_to_extension}",
+            f"--load-extension={path_to_extension}",
+        ],
+    )
 
 async def get_hans_screenshot(url):
-    browser = await get_browser()
-    page = None
+    if _browser == None:
+        await init()
     try:
-        page = await browser.new_page()
+        page = await _browser.new_page()
         await page.goto(url, wait_until='load', timeout=10000)
-        await page.set_viewport_size({"width": 1300, "height": 6880})
+        await page.set_viewport_size({"width": 1600, "height": 2000})
         card = await page.query_selector(".shiyi_content")
         # await page.evaluate()
         assert card is not None
@@ -42,6 +42,7 @@ async def get_hans_screenshot(url):
 def install():
     print("正在检查 Chromium 更新")
     import os
-    os.system("python -m playwright install chromium")
+    os.system("poetry run playwright install")
+
 
 install()

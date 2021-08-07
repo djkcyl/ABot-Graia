@@ -10,6 +10,8 @@ config.yaml
 groupdata.yaml
 grouplist.yaml
 qr.jpg
+data.json
+*.pem
 
 /测试文件夹
 /saya/Ark/
