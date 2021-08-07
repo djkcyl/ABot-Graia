@@ -35,7 +35,7 @@ if os.path.exists("./saya/Lottery/data.json"):
         LOTTERY = json.load(f)
 else:
     with open("./saya/Lottery/data.json", "w") as f:
-        print("正在初始化彩票数据")
+        print("正在初始化奖券数据")
         LOTTERY = {
             "period": 1,
             "lastweek": {
@@ -48,7 +48,7 @@ else:
         json.dump(LOTTERY, f, indent=2, ensure_ascii=False)
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("购买彩票")]))
+@channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("购买奖券")]))
 async def buy_lottery(app: GraiaMiraiApplication, group: Group, member: Member, source: Source):
 
     if yaml_data['Saya']['Lottery']['Disabled']:
@@ -67,10 +67,10 @@ async def buy_lottery(app: GraiaMiraiApplication, group: Group, member: Member, 
         with open("./saya/Lottery/data.json", "w") as f:
             json.dump(LOTTERY, f, indent=2, ensure_ascii=False)
         await app.sendGroupMessage(group, MessageChain.create([
-            Plain("已成功购买一张彩票，编号为："),
+            Plain("购买成功，编号为："),
             Plain(f"\n{number}"),
-            Plain(f"\n当前票池已有 {lottery_len} 张彩票"),
-            Plain(f"\n请妥善保管好你的彩票，丢失一概不补"),
+            Plain(f"\n当前卡池已有 {lottery_len} 张"),
+            Plain(f"\n请妥善保管，丢失一概不补"),
             Image_UnsafeBytes(lottery.getvalue())
         ]), quote=source)
     else:
@@ -80,7 +80,7 @@ async def buy_lottery(app: GraiaMiraiApplication, group: Group, member: Member, 
         ]), quote=source)
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("兑换彩票")]))
+@channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("兑换奖券")]))
 async def redeem_lottery(app: GraiaMiraiApplication, group: Group, member: Member, source: Source):
 
     if member.id in WAITING:
@@ -102,7 +102,7 @@ async def redeem_lottery(app: GraiaMiraiApplication, group: Group, member: Membe
                 return get_pic
 
     await app.sendGroupMessage(group, MessageChain.create([
-        Plain("请发送需要兑换的彩票")
+        Plain("请发送需要兑换的奖券")
     ]), quote=source)
 
     try:
@@ -111,7 +111,7 @@ async def redeem_lottery(app: GraiaMiraiApplication, group: Group, member: Membe
         WAITING.remove(member.id)
         return await app.sendGroupMessage(group, MessageChain.create([
             At(member.id),
-            Plain(" 彩票兑换等待超时")
+            Plain(" 奖券兑换等待超时")
         ]), quote=source)
 
     qrinfo = qrdecode(waite_pic)
@@ -128,17 +128,17 @@ async def redeem_lottery(app: GraiaMiraiApplication, group: Group, member: Membe
                     LOTTERY["lastweek"]["received"] = True
                     with open("./saya/Lottery/data.json", "w") as f:
                         json.dump(LOTTERY, f, indent=2, ensure_ascii=False)
-                    await app.sendGroupMessage(group, MessageChain.create([Plain("你已成功兑换上期彩票")]))
+                    await app.sendGroupMessage(group, MessageChain.create([Plain("你已成功兑换上期奖券")]))
                 else:
-                    await app.sendGroupMessage(group, MessageChain.create([Plain("该彩票已被兑换")]))
+                    await app.sendGroupMessage(group, MessageChain.create([Plain("该奖券已被兑换")]))
             else:
                 await app.sendGroupMessage(group, MessageChain.create([Plain("该号码与中奖号码不符")]))
         elif period == int(lottery_period):
-            await app.sendGroupMessage(group, MessageChain.create([Plain("当期彩票请等待每周一开奖后在进行兑换")]))
+            await app.sendGroupMessage(group, MessageChain.create([Plain("当期奖券请等待每周一开奖后在进行兑换")]))
         else:
-            await app.sendGroupMessage(group, MessageChain.create([Plain("该彩票已过期")]))
+            await app.sendGroupMessage(group, MessageChain.create([Plain("该奖券已过期")]))
     else:
-        await app.sendGroupMessage(group, MessageChain.create([Plain("该彩票不为你所有，请勿窃取他人彩票")]))
+        await app.sendGroupMessage(group, MessageChain.create([Plain("该奖券不为你所有，请勿窃取他人奖券")]))
     WAITING.remove(member.id)
 
 @channel.use(SchedulerSchema(crontabify("0 0 * * 1")))
@@ -160,7 +160,7 @@ async def something_scheduled(app: GraiaMiraiApplication):
         json.dump(LOTTERY, f, indent=2, ensure_ascii=False)
 
     await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
-        Plain("本期彩票开奖完毕，中奖号码为\n"),
+        Plain("本期奖券开奖完毕，中奖号码为\n"),
         Plain(str(winner))
     ]))
 
@@ -171,7 +171,7 @@ async def something_scheduled(app: GraiaMiraiApplication):
             try:
                 await app.sendGroupMessage(group.id, MessageChain.create([
                     Plain(f"{str(group.id)}"),
-                    Plain("\n本期彩票开奖完毕，中奖号码为\n"),
+                    Plain("\n本期奖券开奖完毕，中奖号码为\n"),
                     Plain(str(winner))
                 ]))
             except Exception as err:
@@ -206,6 +206,6 @@ async def something_scheduled(app: GraiaMiraiApplication, friend: Friend):
             json.dump(LOTTERY, f, indent=2, ensure_ascii=False)
 
         await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
-            Plain("本期彩票开奖完毕，中奖号码为\n"),
+            Plain("本期奖券开奖完毕，中奖号码为\n"),
             Plain(str(winner))
         ]))
