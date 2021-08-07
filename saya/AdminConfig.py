@@ -84,7 +84,7 @@ funcHelp = {
     "网易云音乐点歌": {
         "instruction": "在网易云音乐搜歌并以语音形式发出",
         "usage": "发送指令：\n点歌",
-        "options": "可以点需要黑胶VIP的歌曲\n每次点歌消耗 2 个游戏币",
+        "options": "可以点需要黑胶VIP的歌曲\n每次点歌消耗 4 个游戏币",
         "example": "点歌\n点歌 梦于星海之间"
     },
     "网络黑话翻译": {
@@ -196,45 +196,26 @@ async def atrep(app: GraiaMiraiApplication, group: Group, message: MessageChain)
         # 判断at对象是否为机器人
         ifa = message.get(At)[0].target == yaml_data['Basic']['MAH']['BotQQ']
         if ifa:
-            image = await create_image(str(
-                f"我是{yaml_data['Basic']['Permission']['MasterName']}" +
-                f"的机器人{yaml_data['Basic']['BotName']}，" +
-                f"如果有需要可以联系主人QQ”{str(yaml_data['Basic']['Permission']['Master'])}“，" +
-                f"添加{yaml_data['Basic']['BotName']}好友后即可拉进其他群，主人看到后会选择是否同意入群" +
-                f"\n{yaml_data['Basic']['BotName']}被群禁言后会自动退出该群。" +
-                f"\n发送 <菜单> 可以查看功能列表" +
-                f"\n拥有管理员以上权限可以使用 <管理员功能菜单> 来开关功能" +
-                f"\n如果用不明白菜单功能可以不用，建议去医院多看看" +
-                f"\n\n@不会触发任何功能" +
-                f"\n@不会触发任何功能" +
-                f"\n@不会触发任何功能" +
-                f"\n@不会触发任何功能" +
-                f"\n@不会触发任何功能" +
-                f"\n@不会触发任何功能"))
-            await app.sendGroupMessage(group, MessageChain.create([
-                Image_UnsafeBytes(image.getvalue())]))
-
-
-@channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def menu(app: GraiaMiraiApplication, group: Group, message: MessageChain):
-    if message.asDisplay() in [".help", "/help", "help", "帮助", "菜单"]:
-        funcusage = []
-        i = 1
-        for usage in funcHelp:
-            funcusage.append(str(f"{str(i)}、{usage}：\n" + funcHelp[usage]["instruction"]))
-            i += 1
-
-        help = str(f"{yaml_data['Basic']['BotName']} 使用指南\n===========================\n")
-        help = help + "\n----------------------------------\n".join(funcusage)
-        help = help + str("\n===========================" +
-                          "\n详细查看功能使用方法请发送 功能 <id>" +
-                          "\n所有功能均无需@机器人本身" +
-                          "\n如果用不明白菜单功能可以不用，建议去医院多看看" +
-                          "\n方舟玩家可以加个好友，[官服 A60#6660]" +
-                          "\n源码：github.com/djkcyl/ABot-Graia" +
-                          "\n发送 <管理员功能菜单> 即可调整群内功能是否开启")
-        image = await create_image(help)
-        await app.sendGroupMessage(group, MessageChain.create([Image_UnsafeBytes(image.getvalue())]))
+            now_localtime = time.strftime("%H:%M:%S", time.localtime())
+            if "00:00:00" < now_localtime < "07:30:00":
+                image = await create_image(str(
+                    f"我是{yaml_data['Basic']['Permission']['MasterName']}" +
+                    f"的机器人{yaml_data['Basic']['BotName']}" +
+                    f"\n如果有需要可以联系主人QQ”{str(yaml_data['Basic']['Permission']['Master'])}“，" +
+                    f"\n添加{yaml_data['Basic']['BotName']}好友后即可拉进其他群，主人看到后会选择是否同意入群" +
+                    f"\n{yaml_data['Basic']['BotName']}被群禁言后会自动退出该群。" +
+                    f"\n发送 <菜单> 可以查看功能列表" +
+                    f"\n如果用不明白菜单功能可以不用，建议去医院多看看" +
+                    f"\n\n@不会触发任何功能" +
+                    f"\n@不会触发任何功能" +
+                    f"\n@不会触发任何功能" +
+                    f"\n@不会触发任何功能" +
+                    f"\n@不会触发任何功能" +
+                    f"\n@不会触发任何功能"))
+                msg = [Image_UnsafeBytes(image.getvalue())]
+            else:
+                msg = [Plain("Zzzzzz~")]
+            await app.sendGroupMessage(group, MessageChain.create(msg))
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("功能")]))
@@ -243,24 +224,23 @@ async def adminmain(app: GraiaMiraiApplication, group: Group, message: MessageCh
     if len(saying) == 2:
         sayfunc = funcList[int(saying[1]) - 1]['name']
         help = str(sayfunc +
-                "\n\n >>> 用法 >>>\n" +
-                funcHelp[sayfunc]["usage"] +
-                "\n\n >>> 注意事项 >>>\n" +
-                funcHelp[sayfunc]["options"] +
-                "\n\n >>> 示例 >>>\n" +
-                funcHelp[sayfunc]["example"]
-                )
+                   "\n\n >>> 用法 >>>\n" +
+                   funcHelp[sayfunc]["usage"] +
+                   "\n\n >>> 注意事项 >>>\n" +
+                   funcHelp[sayfunc]["options"] +
+                   "\n\n >>> 示例 >>>\n" +
+                   funcHelp[sayfunc]["example"]
+                   )
         image = await create_image(help)
         await app.sendGroupMessage(group, MessageChain.create([Image_UnsafeBytes(image.getvalue())]))
     else:
         await app.sendGroupMessage(group, MessageChain.create([[Plain("请输入 功能 <id>，如果不知道id可以发送菜单查看")]]))
-    
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("管理员功能菜单")]))
-async def adminmain(app: GraiaMiraiApplication, group: Group, member: Member):
-    if member.permission in [MemberPerm.Administrator, MemberPerm.Owner] or member.id in yaml_data['Basic']['Permission']['Admin']:
-        msg = f"机器人群管理菜单　　{str(group.id)} / {group.name}\n===============================\n当前有以下功能可以调整："
+@channel.use(ListenerSchema(listening_events=[GroupMessage]))
+async def adminmain(app: GraiaMiraiApplication, group: Group, message: MessageChain):
+    if message.asDisplay() in [".help", "/help", "help", "帮助", "菜单"]:
+        msg = f"{yaml_data['Basic']['BotName']} 群菜单 / {str(group.id)}\n{group.name}\n==============================="
         i = 1
         for func in funcList:
             funcname = func["name"]
@@ -279,13 +259,18 @@ async def adminmain(app: GraiaMiraiApplication, group: Group, member: Member):
                 si = str(i)
             msg += f"\n{si}　{statu}　{funcname}"
             i += 1
-        msg += str(f"\n===============================\n开启功能/关闭功能 <功能id> " +
-                   f"\n如果用不明白菜单可以不用，建议去医院多看看" +
+        msg += str("\n===============================" +
+                   "\n管理员可发送 开启功能/关闭功能 <功能id> " +
+                   "\n详细查看功能使用方法请发送 功能 <id>" +
+                   "\n所有功能均无需@机器人本身" +
+                   "\n如果用不明白菜单功能可以不用，建议去医院多看看" +
+                   "\n方舟玩家可以加个好友，[官服 A60#6660]" +
+                   "\n源码：github.com/djkcyl/ABot-Graia" +
+                   "\n管理员可发送 开启功能/关闭功能 <功能id> " +
+                   "\n如果用不明白菜单可以不用，建议去医院多看看" +
                    f"\n更多功能待开发，如有特殊需求可以向 {yaml_data['Basic']['Permission']['Master']} 询问")
         image = await create_image(msg)
         await app.sendGroupMessage(group, MessageChain.create([Image_UnsafeBytes(image.getvalue())]))
-    else:
-        await app.sendGroupMessage(group, MessageChain.create([Plain(f"你没有使用该功能的权限")]))
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("开启功能")]))
@@ -396,6 +381,7 @@ async def Announcement(app: GraiaMiraiApplication, friend: Friend):
     if friend.id == yaml_data['Basic']['Permission']['Master']:
         set_sleep(1)
         await app.sendFriendMessage(friend, MessageChain.create([Plain(f"已进入休息")]))
+
 
 @channel.use(ListenerSchema(listening_events=[FriendMessage], inline_dispatchers=[Literature("工作")]))
 async def Announcement(app: GraiaMiraiApplication, friend: Friend):
