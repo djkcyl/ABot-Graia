@@ -10,6 +10,7 @@ from graia.application.event.messages import GroupMessage, FriendMessage
 from graia.application.message.elements.internal import MessageChain, Plain, Source, Quote, At
 
 from config import yaml_data
+from datebase.db import add_gold, all_sign_num, give_all_gold
 
 saya = Saya.current()
 channel = Channel.current()
@@ -63,3 +64,23 @@ async def livegroup(app: GraiaMiraiApplication, friend: Friend, message: Message
             await app.unmute(groupid, friend.id)
         except PermissionError:
             await app.sendFriendMessage(friend, MessageChain.create([Plain(f"权限不足，无法取消禁言")]))
+
+
+@channel.use(ListenerSchema(listening_events=[FriendMessage], inline_dispatchers=[Literature("全员充值")]))
+async def main(app: GraiaMiraiApplication, friend: Friend, message: MessageChain):
+    if friend.id == yaml_data['Basic']['Permission']['Master']:
+        saying = message.asDisplay().split()
+        await give_all_gold(int(saying[1]))
+        await app.sendFriendMessage(friend, MessageChain.create([
+            Plain(f"已向所有人充值 {saying[1]} 个游戏币")
+        ]))
+
+
+@channel.use(ListenerSchema(listening_events=[FriendMessage], inline_dispatchers=[Literature("充值")]))
+async def main(app: GraiaMiraiApplication, friend: Friend, message: MessageChain):
+    if friend.id == yaml_data['Basic']['Permission']['Master']:
+        saying = message.asDisplay().split()
+        await add_gold(saying[1], int(saying[2]))
+        await app.sendFriendMessage(friend, MessageChain.create([
+            Plain(f"已向 {saying[1]} 充值 {saying[2]} 个游戏币")
+        ]))

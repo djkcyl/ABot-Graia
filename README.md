@@ -83,6 +83,11 @@
    python main.py
    ```
 
+如果你的系统为 Ubuntu 你可能还需要执行下面这条命令才能正常使用词典功能
+```shell
+npx playwright install-deps 
+```
+
 **尽情享用吧~**
 
 ## 保持在后台运行

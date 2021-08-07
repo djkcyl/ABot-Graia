@@ -38,12 +38,11 @@ def member_limit_check(limit: int):
         name = str(group.id) + "_" + str(member.id)
         limit_blocked, cd = limit_exists(name, limit)
         if limit_blocked:
-            print(2)
             if name not in BLOCK_LIST:
                 await app.sendGroupMessage(group, MessageChain.create([
                     At(member.id),
                     Plain(" 超过调用频率限制"),
-                    Plain(f"\n该功能在 {str(limit)} 秒内仅可使用一次"),
+                    Plain(f"\n你使用的上一个功能需要你冷却 {str(limit)} 秒"),
                     Plain(f"\n剩余 {cd} 秒后可用")
                 ]))
                 BLOCK_LIST.append(name)
