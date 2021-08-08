@@ -1,4 +1,5 @@
 import re
+from util.limit import manual_limit
 import numpy as np
 
 from io import BytesIO
@@ -41,6 +42,7 @@ channel = Channel.current()
 async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group):
     msg = await StylePictureGeneraterHandler.handle(group, message)
     if msg:
+        manual_limit(group.id, "StylePictureGenerater", 5)
         await app.sendGroupMessage(group, msg)
 
 

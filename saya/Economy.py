@@ -10,13 +10,16 @@ from graia.application.message.elements.internal import MessageChain, At, Plain,
 
 
 from datebase.db import reduce_gold, add_gold
+from util.limit import member_limit_check
 from config import yaml_data, group_data, sendmsg
 
 saya = Saya.current()
 channel = Channel.current()
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Kanata([FullMatch("转账"), OptionalParam("saying")])]))
+@channel.use(ListenerSchema(listening_events=[GroupMessage],
+                            inline_dispatchers=[Kanata([FullMatch("赠送游戏币"), OptionalParam("saying")])],
+                            headless_decorators=[member_limit_check(5)]))
 async def adminmain(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['Entertainment']['Disabled']:
@@ -26,13 +29,13 @@ async def adminmain(app: GraiaMiraiApplication, group: Group, member: Member, me
 
     if not message.has(At):
         await app.sendGroupMessage(group, MessageChain.create([
-            Plain("请at需要转账的对象")
+            Plain("请at需要赠送的对象")
         ]), quote=source)
     else:
         to = str(message.getFirst(At).target)
         if int(to) == member.id:
             return await app.sendGroupMessage(group, MessageChain.create([
-                Plain("请勿向自己转账")
+                Plain("请勿向自己赠送")
             ]), quote=source)
         # print(message.getOne(Plain, 1))
         try:
@@ -43,17 +46,17 @@ async def adminmain(app: GraiaMiraiApplication, group: Group, member: Member, me
                 ]), quote=source)
         except:
             return await app.sendGroupMessage(group, MessageChain.create([
-                Plain("请输入需要转账的金额")
+                Plain("请输入需要赠送的金额")
             ]), quote=source)
 
         if await reduce_gold(str(member.id), num):
             await add_gold(to, num)
             await app.sendGroupMessage(group, MessageChain.create([
-                Plain("你已成功为 "),
+                Plain("你已成功向 "),
                 At(int(to)),
-                Plain(f" 转账 {num} 个游戏币")
+                Plain(f" 赠送 {num} 个游戏币")
             ]), quote=source)
         else:
             await app.sendGroupMessage(group, MessageChain.create([
-                Plain("你的游戏币不足，无法转账")
+                Plain("你的游戏币不足，无法赠送")
             ]), quote=source)

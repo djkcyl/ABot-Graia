@@ -1,6 +1,6 @@
 import json
 import time
-import random
+import secrets
 import asyncio
 
 from graia.saya import Saya, Channel
@@ -119,7 +119,7 @@ async def main(app: GraiaMiraiApplication, group: Group, member: Member, source:
         try:
             # 新游戏创建完成，进入等待玩家阶段
             if await asyncio.wait_for(inc.wait(confirm), timeout=15):
-                question = random.choice(WORD["word"])
+                question = secrets.choice(WORD["word"])
                 GROUP_GAME_PROCESS[group.id] = {
                     "question": question,
                     "owner": member.id,

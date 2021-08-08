@@ -7,6 +7,7 @@ from graia.application.event.messages import GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.elements.internal import MessageChain, Source, Plain, Image_NetworkAddress, At
 
+from util.limit import manual_limit
 from config import sendmsg, yaml_data
 
 saya = Saya.current()
@@ -18,7 +19,7 @@ async def trashCard(app: GraiaMiraiApplication, group: Group, member: Member, me
     saying = message.asDisplay()
     key = ["废物证申请", "我是废物"]
     if saying in key:
-
+        manual_limit(group.id, "TrashCard", 5)
         if yaml_data['Saya']['TrashCard']['Disabled']:
             return await sendmsg(app=app, group=group)
 

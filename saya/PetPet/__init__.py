@@ -10,16 +10,17 @@ from graia.application.event.messages import Group
 from graia.application import GraiaMiraiApplication
 from graia.application.event.mirai import NudgeEvent
 from graia.application.exceptions import AccountMuted
+from graia.application.message.chain import MessageChain
 from moviepy.editor import ImageSequenceClip as imageclip
 from graia.application.event.messages import GroupMessage
-from graia.application.message.chain import MessageChain
 from graia.application.message.elements.internal import At
 from graia.application.message.elements.internal import Image
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 
-
+from util.limit import manual_limit
 from config import yaml_data, group_data
 from util.RestControl import rest_control
+
 
 saya = Saya.current()
 channel = Channel.current()
@@ -33,6 +34,8 @@ async def petpet_generator(app: GraiaMiraiApplication, message: MessageChain, gr
         return
     elif 'PetPet' in group_data[group.id]['DisabledFunc']:
         return
+
+    manual_limit(group.id, "petpet", 3)
 
     message_text = message.asDisplay()
     if message.has(At) and message_text.startswith("摸") or message_text.startswith("摸头 "):
@@ -59,6 +62,8 @@ async def get_nudge(app: GraiaMiraiApplication, nudge: NudgeEvent):
         return
     elif 'PetPet' in group_data[nudge.group_id]['DisabledFunc']:
         return
+
+    manual_limit(nudge.group_id, "petpet", 3)
 
     app.logger.info(f"[{nudge.group_id}] 收到戳一戳事件 -> [{nudge.target}]")
     if not os.path.exists("./saya/PetPet/temp"):
