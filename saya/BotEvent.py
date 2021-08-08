@@ -265,7 +265,6 @@ async def main(app: GraiaMiraiApplication, events: MemberCardChangeEvent):
                                        group=events.member.group.id)
             await app.sendGroupMessage(events.member.group.id,
                                        MessageChain.create([Plain(f"请不要修改我的群名片")]))
-            await asyncio.sleep(2)
 
 
 # 群内事件

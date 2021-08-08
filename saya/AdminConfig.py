@@ -15,6 +15,7 @@ from graia.application.message.elements.internal import MessageChain, Quote, At,
 from config import save_config, yaml_data, group_data, group_list
 from util.text2image import create_image
 from util.RestControl import set_sleep
+from util.limit import manual_limit
 
 saya = Saya.current()
 channel = Channel.current()
@@ -174,9 +175,9 @@ funcHelp = {
     },
     "娱乐功能": {
         "instruction": "提供一些群内互动娱乐功能",
-        "usage": "发送指令：\n签到\n你画我猜\n购买奖券 | 兑换奖券 | 开奖查询\n转账",
-        "options": "签到：每日凌晨四点重置签到，每次签到可获得 2-16 个游戏币\n你画我猜：每次消耗 4 个游戏币\n奖券：奖券每人可不限量购买，每张需要 2 游戏币，每周一00:00开奖。当期开奖的奖券仅可当期兑换，兑换后将扣取10%。奖券请妥善保管，如有丢失一概不补！\n转账：可以向他人转送自己的游戏币，限值 1-1000以内",
-        "example": "转账 @ABot 15"
+        "usage": "发送指令：\n签到\n你画我猜\n赠送游戏币",
+        "options": "签到：每日凌晨四点重置签到，每次签到可获得 2-16 个游戏币\n你画我猜：每次消耗 4 个游戏币\n赠送游戏币：可以向他人赠送自己的游戏币，限值 1-1000以内",
+        "example": "赠送游戏币 @ABot 15"
     },
     "骰娘": {
         "instruction": "一个简易骰娘",
@@ -197,6 +198,7 @@ async def atrep(app: GraiaMiraiApplication, group: Group, message: MessageChain)
     ifasdisplay = message.asDisplay().replace(" ", "") == f"@{yaml_data['Basic']['MAH']['BotQQ']}"
     # 判断是否为空消息，判断是否at，判断是否回复
     if ifa and ifasdisplay and ifquote:
+        manual_limit(group.id, "Help", 3)
         now_localtime = time.strftime("%H:%M:%S", time.localtime())
         if "00:00:00" < now_localtime < "07:30:00":
             msg = [Plain("Zzzzzz~")]
@@ -222,8 +224,16 @@ async def atrep(app: GraiaMiraiApplication, group: Group, message: MessageChain)
 @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("功能")]))
 async def adminmain(app: GraiaMiraiApplication, group: Group, message: MessageChain):
     saying = message.asDisplay().split()
+    manual_limit(group.id, "Help", 3)
     if len(saying) == 2:
         sayfunc = funcList[int(saying[1]) - 1]['name']
+        funckey = funcList[int(saying[1]) - 1]['key']
+        funcGlobalDisabled = yaml_data["Saya"][funckey]["Disabled"]
+        funcGroupDisabledList = funckey in group_data[group.id]["DisabledFunc"]
+        if funcGlobalDisabled or funcGroupDisabledList:
+            return await app.sendGroupMessage(group, MessageChain.create([
+                Plain("该功能暂不开启")
+            ]))
         help = str(sayfunc +
                    "\n\n >>> 用法 >>>\n" +
                    funcHelp[sayfunc]["usage"] +
@@ -241,6 +251,7 @@ async def adminmain(app: GraiaMiraiApplication, group: Group, message: MessageCh
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
 async def adminmain(app: GraiaMiraiApplication, group: Group, message: MessageChain):
     if message.asDisplay() in [".help", "/help", "help", "帮助", "菜单"]:
+        manual_limit(group.id, "Help", 3)
         msg = f"{yaml_data['Basic']['BotName']} 群菜单 / {str(group.id)}\n{group.name}\n==============================="
         i = 1
         for func in funcList:
@@ -251,7 +262,7 @@ async def adminmain(app: GraiaMiraiApplication, group: Group, message: MessageCh
             if funcGlobalDisabled:
                 statu = "【全局关闭】"
             elif funcGroupDisabledList:
-                statu = "【本群关闭】"
+                statu = "【　关闭　】"
             else:
                 statu = "　　　　　　"
             if i < 10:
@@ -276,6 +287,7 @@ async def adminmain(app: GraiaMiraiApplication, group: Group, message: MessageCh
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("开启功能")]))
 async def onAoff(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain):
+    manual_limit(group.id, "FuncConfig", 2)
     if member.permission in [MemberPerm.Administrator, MemberPerm.Owner] or member.id in yaml_data['Basic']['Permission']['Admin']:
         saying = message.asDisplay().split()
         sayfunc = int(saying[1]) - 1
@@ -300,6 +312,7 @@ async def onAoff(app: GraiaMiraiApplication, group: Group, member: Member, messa
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("关闭功能")]))
 async def onAoff(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain):
+    manual_limit(group.id, "FuncConfig", 2)
     if member.permission in [MemberPerm.Administrator, MemberPerm.Owner] or member.id in yaml_data['Basic']['Permission']['Admin']:
         saying = message.asDisplay().split()
         sayfunc = int(saying[1]) - 1

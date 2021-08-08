@@ -6,8 +6,9 @@ from graia.application.event.messages import GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.elements.internal import Image_UnsafeBytes
 
-from config import yaml_data, group_data, sendmsg
+from util.limit import manual_limit
 from util.RestControl import rest_control
+from config import yaml_data, group_data, sendmsg
 
 from .setu import create_setu
 
@@ -21,6 +22,8 @@ async def main(app: GraiaMiraiApplication, group: Group, message: MessageChain):
 
     saying = message.asDisplay().split(" ", 1)
     if saying[0] in ['色图', '涩图', '瑟图', 'setu']:
+
+        manual_limit(group.id, "setu", 3)
 
         if yaml_data['Saya']['Setu']['Disabled']:
             return await sendmsg(app=app, group=group)

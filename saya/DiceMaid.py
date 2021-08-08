@@ -8,6 +8,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.event.messages import Group, GroupMessage
 from graia.application.message.elements.internal import Plain, MessageChain
 
+from util.limit import manual_limit
 from config import sendmsg, yaml_data, group_data
 
 saya = Saya.current()
@@ -22,6 +23,7 @@ async def dice(app: GraiaMiraiApplication, group: Group, message: MessageChain):
             return await sendmsg(app=app, group=group)
         elif 'DiceMaid' in group_data[group.id]['DisabledFunc']:
             return await sendmsg(app=app, group=group)
+        manual_limit(group.id, "DiceMaid", 3)
 
         saying = message.asDisplay()
 
@@ -43,6 +45,10 @@ async def dice(app: GraiaMiraiApplication, group: Group, message: MessageChain):
 
         if not d:
             dd = 100
+        elif int(d) > 1000:
+            return await app.sendGroupMessage(group, MessageChain.create([
+                Plain(f"仅可投掷 1000 面以下的骰子")
+            ]))
         else:
             dd = int(d)
 

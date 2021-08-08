@@ -16,8 +16,9 @@ except ConnectionError:
 r.flushdb()
 BLOCK_LIST = []
 
+
 def limit_exists(name, limit):
-    
+
     now_time = int(time.time())
     if r.exists(name):
         last_time = int(r.get(name))
@@ -48,3 +49,10 @@ def member_limit_check(limit: int):
                 BLOCK_LIST.append(name)
             raise ExecutionStop()
     return Depend(limit_wrapper)
+
+
+def manual_limit(group, func, limit: int):
+    name = str(group) + "_" + func
+    limit_blocked, _ = limit_exists(name, limit)
+    if limit_blocked:
+        raise ExecutionStop()

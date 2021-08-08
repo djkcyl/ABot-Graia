@@ -10,6 +10,7 @@ from graia.application.message.elements.internal import MessageChain, Plain, Ima
 from config import yaml_data, group_data
 from util.ImageModeration import image_moderation
 from util.TextModeration import text_moderation
+from util.limit import manual_limit
 
 
 saya = Saya.current()
@@ -19,8 +20,7 @@ channel = Channel.current()
 @channel.use(ListenerSchema(listening_events=[GroupRecallEvent]))
 async def anitRecall(app: GraiaMiraiApplication, events: GroupRecallEvent):
 
-    if yaml_data['Saya']['AnitRecall']['Disabled']:
-        return
+
 
     if events.authorId != yaml_data["Basic"]["MAH"]["BotQQ"] or events.operator.id == yaml_data["Basic"]["MAH"]["BotQQ"]:
         try:
@@ -40,35 +40,35 @@ async def anitRecall(app: GraiaMiraiApplication, events: GroupRecallEvent):
                 for image in recallMsg.get(Image):
                     res = await image_moderation(image.url)
                     if res['Suggestion'] != "Pass":
-                        if 'AnitRecall' not in group_data[events.group.id]['DisabledFunc']:
-                            await app.sendGroupMessage(events.group, MessageChain.create([
-                                Plain(f"{events.operator.name}({events.operator.id})撤回了{authorName}的一条消息:"),
-                                Plain(f"\n=====================\n"),
-                                Plain(f"（由于撤回图片内包含 {res['Label']} / {res['SubLabel']} 违规，不予防撤回）")
-                            ]))
-                            try:
-                                await app.mute(events.group, events.authorId, 3600)
-                            except:
-                                pass
+                        try:
+                            await app.mute(events.group, events.authorId, 3600)
+                        except:
+                            pass
                         await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], msg.asSendable())
+                        manual_limit(events.group.id, "AnitRecall", 3)
+                        await app.sendGroupMessage(events.group, MessageChain.create([
+                            Plain(f"{events.operator.name}({events.operator.id})撤回了{authorName}的一条消息:"),
+                            Plain(f"\n=====================\n"),
+                            Plain(f"（由于撤回图片内包含 {res['Label']} / {res['SubLabel']} 违规，不予防撤回）")
+                        ]))
                         return
             if recallMsg.has(Plain):
                 for text in recallMsg.get(Plain):
                     res = await text_moderation(text.text)
                     if res['Suggestion'] != "Pass":
-                        if 'AnitRecall' not in group_data[events.group.id]['DisabledFunc']:
-                            await app.sendGroupMessage(events.group, MessageChain.create([
-                                Plain(f"{events.operator.name}({events.operator.id})撤回了{authorName}的一条消息:"),
-                                Plain(f"\n=====================\n"),
-                                Plain(f"\n（由于撤回文字内包含 {res['Label']} 违规，不予防撤回）")
-                            ]))
-                            try:
-                                await app.mute(events.group, events.authorId, 3600)
-                            except:
-                                pass
+                        try:
+                            await app.mute(events.group, events.authorId, 3600)
+                        except:
+                            pass
+                        manual_limit(events.group.id, "AnitRecall", 3)
+                        await app.sendGroupMessage(events.group, MessageChain.create([
+                            Plain(f"{events.operator.name}({events.operator.id})撤回了{authorName}的一条消息:"),
+                            Plain(f"\n=====================\n"),
+                            Plain(f"\n（由于撤回文字内包含 {res['Label']} 违规，不予防撤回）")
+                        ]))
                         return
-
-            if 'AnitRecall' not in group_data[events.group.id]['DisabledFunc']:
+            if 'AnitRecall' not in group_data[events.group.id]['DisabledFunc'] and not yaml_data['Saya']['AnitRecall']['Disabled']:
+                manual_limit(events.group.id, "AnitRecall", 3)
                 if recallMsg.has(Voice) or recallMsg.has(Xml) or recallMsg.has(Json):
                     pass
                 elif recallMsg.has(FlashImage):

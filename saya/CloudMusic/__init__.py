@@ -52,7 +52,7 @@ WAITING = []
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("点歌")],
-                            headless_decorators=[rest_control(), member_limit_check(120)]))
+                            headless_decorators=[rest_control(), member_limit_check(300)]))
 async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['CloudMusic']['Disabled']:

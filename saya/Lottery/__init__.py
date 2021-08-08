@@ -1,6 +1,7 @@
 import os
 import json
 import random
+import secrets
 import string
 import asyncio
 import time
@@ -30,7 +31,9 @@ bcc = saya.broadcast
 inc = InterruptControl(bcc)
 
 WAITING = []
-if os.path.exists("./saya/Lottery/data.json"):
+if not yaml_data['Saya']['Entertainment']['Lottery']:
+    pass
+elif os.path.exists("./saya/Lottery/data.json"):
     with open("./saya/Lottery/data.json", "r") as f:
         LOTTERY = json.load(f)
 else:
@@ -51,7 +54,9 @@ else:
 @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("购买奖券")]))
 async def buy_lottery(app: GraiaMiraiApplication, group: Group, member: Member, source: Source):
 
-    if yaml_data['Saya']['Entertainment']['Disabled']:
+    if not yaml_data['Saya']['Entertainment']['Lottery']:
+        return
+    elif yaml_data['Saya']['Entertainment']['Disabled']:
         return await sendmsg(app=app, group=group)
     elif 'Entertainment' in group_data[group.id]['DisabledFunc']:
         return await sendmsg(app=app, group=group)
@@ -86,7 +91,9 @@ async def redeem_lottery(app: GraiaMiraiApplication, group: Group, member: Membe
     if member.id in WAITING:
         return
 
-    if yaml_data['Saya']['Entertainment']['Disabled']:
+    if not yaml_data['Saya']['Entertainment']['Lottery']:
+        return
+    elif yaml_data['Saya']['Entertainment']['Disabled']:
         return await sendmsg(app=app, group=group)
     elif 'Entertainment' in group_data[group.id]['DisabledFunc']:
         return await sendmsg(app=app, group=group)
@@ -148,7 +155,7 @@ async def something_scheduled(app: GraiaMiraiApplication):
     lottery = LOTTERY
     lottery["period"] += 1
     lottery_len = len(lottery["week_lottery_list"])
-    winner = random.choice(lottery["week_lottery_list"])
+    winner = secrets.choice(lottery["week_lottery_list"])
     lottery["lastweek"] = {
         "received": False,
         "number": winner,
@@ -165,27 +172,6 @@ async def something_scheduled(app: GraiaMiraiApplication):
         Plain(str(winner))
     ]))
 
-    ft = time.time()
-    groupList = await app.groupList()
-    for group in groupList:
-        if group.id not in [885355617, 780537426, 474769367, 690211045, 855895642]:
-            try:
-                await app.sendGroupMessage(group.id, MessageChain.create([
-                    Plain(f"{str(group.id)}"),
-                    Plain("\n本期奖券开奖完毕，中奖号码为\n"),
-                    Plain(str(winner))
-                ]))
-            except Exception as err:
-                await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
-                    Plain(f"{group.id} 的开奖信息发送失败\n{err}")
-                ]))
-            await asyncio.sleep(random.uniform(5, 7))
-    tt = time.time()
-    times = str(tt - ft)
-    await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
-        Plain(f"开奖信息已发送完成，耗时 {times} 秒")
-    ]))
-
 
 @channel.use(ListenerSchema(listening_events=[FriendMessage], inline_dispatchers=[Literature("开奖")]))
 async def something_scheduled(app: GraiaMiraiApplication, friend: Friend):
@@ -194,7 +180,7 @@ async def something_scheduled(app: GraiaMiraiApplication, friend: Friend):
         lottery = LOTTERY
         lottery["period"] += 1
         lottery_len = len(lottery["week_lottery_list"])
-        winner = random.choice(lottery["week_lottery_list"])
+        winner = secrets.choice(lottery["week_lottery_list"])
         lottery["lastweek"] = {
             "received": False,
             "number": winner,
@@ -215,7 +201,9 @@ async def something_scheduled(app: GraiaMiraiApplication, friend: Friend):
 @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("开奖查询")]))
 async def redeem_lottery(app: GraiaMiraiApplication, group: Group):
 
-    if yaml_data['Saya']['Entertainment']['Disabled']:
+    if not yaml_data['Saya']['Entertainment']['Lottery']:
+        return
+    elif yaml_data['Saya']['Entertainment']['Disabled']:
         return await sendmsg(app=app, group=group)
     elif 'Entertainment' in group_data[group.id]['DisabledFunc']:
         return await sendmsg(app=app, group=group)

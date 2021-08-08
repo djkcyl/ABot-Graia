@@ -105,11 +105,9 @@ Saya: # saya 插件配置
 
   Entertainment: # 娱乐功能
     Disabled: false
+    Lottery: true
 
   DiceMaid: # 骰娘
-    Disabled: false
-
-  Lottery: # 奖券
     Disabled: false
 
 Final: false
