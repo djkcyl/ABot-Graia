@@ -5,11 +5,12 @@ import asyncio
 from graia.saya import Saya, Channel
 from graia.application.friend import Friend
 from graia.application import GraiaMiraiApplication
+from graia.application.exceptions import UnknownTarget
 from graia.application.group import Group, Member, MemberPerm
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.parser.literature import Literature
 from graia.application.event.messages import GroupMessage, FriendMessage
-from graia.application.message.elements.internal import Image, MessageChain, Quote, At, Plain, Image_UnsafeBytes
+from graia.application.message.elements.internal import MessageChain, Quote, At, Plain, Image_UnsafeBytes
 
 from config import save_config, yaml_data, group_data, group_list
 from util.text2image import create_image
@@ -40,8 +41,7 @@ funcList = [
     {"name": "色图", "key": "Setu"},
     {"name": "防撤回", "key": "AnitRecall"},
     {"name": "娱乐功能", "key": "Entertainment"},
-    {"name": "骰娘", "key": "DiceMaid"},
-    {"name": "奖券", "key": "Lottery"}
+    {"name": "骰娘", "key": "DiceMaid"}
 ]
 
 configList = [
@@ -61,7 +61,7 @@ funcHelp = {
     "微软文字转语音": {
         "instruction": "将文字转为音频以语音形式发出",
         "usage": "发送指令：\n/tts <性别> <感情> <文字>",
-        "options": "性别：男 / 女\n感情：\n当性别为男时：【助理、平静、害怕、开心、不满、严肃、生气、悲伤、沮丧、尴尬、默认】\n当性别为女时：【助理、聊天、客服、新闻、撒娇、生气、平静、开心、不满、害怕、温柔、抒情、悲伤、严肃、默认】\n文字：任意600字以内文字",
+        "options": "性别：男 / 女\n感情：\n当性别为男时：【助理、平静、害怕、开心、不满、严肃、生气、悲伤、沮丧、尴尬、默认】\n当性别为女时：【助理、聊天、客服、新闻、撒娇、生气、平静、开心、不满、害怕、温柔、抒情、悲伤、严肃、默认】\n文字：任意600字以内文字\n请求语音需要消耗 2 个游戏币",
         "example": "/tts 男 助理 您好，您的外卖到了，请您开下门"
     },
     "小鸡词典查梗": {
@@ -74,7 +74,7 @@ funcHelp = {
         "instruction": "吧文字转换为emoji表情",
         "usage": "发送指令：\nemoji <文字>",
         "options": "文字：任意可能被转换为emoji的文字",
-        "example": "emogi 差不多的了"
+        "example": "emoji 差不多的了"
     },
     "汉语词典查询": {
         "instruction": "在汉语词典内查询词条",
@@ -85,7 +85,7 @@ funcHelp = {
     "网易云音乐点歌": {
         "instruction": "在网易云音乐搜歌并以语音形式发出",
         "usage": "发送指令：\n点歌",
-        "options": "可以点需要黑胶VIP的歌曲\n每次点歌消耗 4 个游戏币",
+        "options": "可以点需要黑胶VIP的歌曲，每次点歌消耗 4 个游戏币",
         "example": "点歌\n点歌 梦于星海之间"
     },
     "网络黑话翻译": {
@@ -174,21 +174,15 @@ funcHelp = {
     },
     "娱乐功能": {
         "instruction": "提供一些群内互动娱乐功能",
-        "usage": "发送指令：\n签到\n你画我猜",
-        "options": f"签到：每日凌晨四点重置签到，每次签到可获得 2-16 个游戏币\n你画我猜：每次消耗4个游戏币",
-        "example": "（这也需要示例吗？"
+        "usage": "发送指令：\n签到\n你画我猜\n购买奖券 | 兑换奖券 | 开奖查询\n转账",
+        "options": "签到：每日凌晨四点重置签到，每次签到可获得 2-16 个游戏币\n你画我猜：每次消耗 4 个游戏币\n奖券：奖券每人可不限量购买，每张需要 2 游戏币，每周一00:00开奖。当期开奖的奖券仅可当期兑换，兑换后将扣取10%。奖券请妥善保管，如有丢失一概不补！\n转账：可以向他人转送自己的游戏币，限值 1-1000以内",
+        "example": "转账 @ABot 15"
     },
     "骰娘": {
         "instruction": "一个简易骰娘",
         "usage": "发送指令：\n.r",
-        "options": "可选参数有：\nr ==> 投掷的骰子个数\nd ==> 每个骰子的面数\nk ==> 取最大的前n个\n以上三个参数除 r 外均为可选参数\n如为填写的情况下：\nr 默认值为1\nd 默认值为100\nk 默认值为0（即不取最大）\n",
+        "options": "可选参数有：\nr ==> 投掷的骰子个数\nd ==> 每个骰子的面数\nk ==> 取最大的前n个\n以上三个参数除 r 外均为可选参数\n如为填写的情况下：\nr 默认值为1\nd 默认值为100\nk 默认值为0（即不取最大）",
         "example": ".r  投掷1个骰子，最大值为100\n.rd50  投掷1个骰子，最大值为50\n.r3d6  投掷3个骰子，每个的最大值为6\n.r15k4  投掷15个骰子，每个的最大值为100，取最大的前4个"
-    },
-    "奖券": {
-        "instruction": "每周开奖一次的奖券系统",
-        "usage": "发送指令：\n购买奖券\n兑换奖券\n开奖查询",
-        "options": "奖券每人可不限量购买，每张需要 2 游戏币，每周一00:00开奖，当期开奖的奖券仅可当期兑换，兑换后将扣取10%，奖券请妥善保管，如有丢失一概不补！",
-        "example": "（这也需要示例吗？"
     }
 }
 
@@ -267,8 +261,8 @@ async def adminmain(app: GraiaMiraiApplication, group: Group, message: MessageCh
             msg += f"\n{si}　{statu}　{funcname}"
             i += 1
         msg += str("\n===============================" +
-                   "\n管理员可发送 开启功能/关闭功能 <功能id> " +
-                   "\n详细查看功能使用方法请发送 功能 <id>" +
+                   "\n管理员可发送 开启功能/关闭功能 <id>，例如：关闭功能 1" +
+                   "\n详细查看功能使用方法请发送 功能 <id>，例如：功能 1" +
                    "\n所有功能均无需@机器人本身" +
                    "\n如果用不明白菜单功能可以不用，建议去医院多看看" +
                    "\n方舟玩家可以加个好友，[官服 A60#6660]" +
@@ -355,12 +349,10 @@ async def Announcement(app: GraiaMiraiApplication, friend: Friend, message: Mess
     if friend.id == yaml_data['Basic']['Permission']['Master']:
         saying = message.asDisplay().split()
         if len(saying) == 2:
-            groupBlackList = group_list['white']
-            if int(saying[1]) in groupBlackList:
+            if int(saying[1]) in group_list['white']:
                 await app.sendFriendMessage(friend, MessageChain.create([Plain(f"该群已在白名单中")]))
             else:
-                groupBlackList.append(int(saying[1]))
-                group_list['white'] = groupBlackList
+                group_list['white'].append(int(saying[1]))
                 save_config()
                 await app.sendFriendMessage(friend, MessageChain.create([Plain(f"成功将该群加入白名单")]))
 
@@ -370,16 +362,17 @@ async def Announcement(app: GraiaMiraiApplication, friend: Friend, message: Mess
     if friend.id == yaml_data['Basic']['Permission']['Master']:
         saying = message.asDisplay().split()
         if len(saying) == 2:
-            groupBlackList = group_list['white']
-            if int(saying[1]) not in groupBlackList:
+            if int(saying[1]) not in group_list['white']:
                 await app.sendFriendMessage(friend, MessageChain.create([Plain(f"该群未在白名单中")]))
             else:
-                groupBlackList.remove(int(saying[1]))
-                group_list['white'] = groupBlackList
+                group_list['white'].remove(int(saying[1]))
                 save_config()
-                await app.sendGroupMessage(int(saying[1]), MessageChain.create([Plain(f"该群已被移出白名单，将在3秒后退出")]))
-                await asyncio.sleep(3)
-                await app.quit(int(saying[1]))
+                try:
+                    await app.sendGroupMessage(int(saying[1]), MessageChain.create([Plain(f"该群已被移出白名单，将在3秒后退出")]))
+                    await asyncio.sleep(3)
+                    await app.quit(int(saying[1]))
+                except UnknownTarget:
+                    pass
                 await app.sendFriendMessage(friend, MessageChain.create([Plain(f"成功将该群移出白名单")]))
 
 

@@ -43,7 +43,6 @@ async def main(app: GraiaMiraiApplication, group: Group, member: Member, source:
     if member.id in MEMBER_RUNING_LIST:
         return
     else:
-        # 将用户加入到正在游戏中
         MEMBER_RUNING_LIST.append(member.id)
 
     # 判断私信是否可用
@@ -55,6 +54,7 @@ async def main(app: GraiaMiraiApplication, group: Group, member: Member, source:
         await app.sendGroupMessage(group, MessageChain.create([
             Plain(f"由于你未添加好友，暂时无法发起你画我猜，请自行添加 {yaml_data['Basic']['BotName']} 好友，用于发送题目")
         ]))
+        MEMBER_RUNING_LIST.remove(member.id)
         return
 
     # 请求确认中断
