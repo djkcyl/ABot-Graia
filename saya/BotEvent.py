@@ -1,3 +1,4 @@
+import time
 import asyncio
 
 from typing import Optional
@@ -14,8 +15,9 @@ from graia.application.event.lifecycle import ApplicationLaunched, ApplicationSh
 from graia.application.message.elements.internal import MessageChain, Plain, Image_NetworkAddress
 from graia.application.event.mirai import NewFriendRequestEvent, BotInvitedJoinGroupRequestEvent, BotJoinGroupEvent, BotLeaveEventKick, BotGroupPermissionChangeEvent, BotMuteEvent, MemberCardChangeEvent, MemberJoinEvent
 
-from config import save_config, yaml_data, group_data, group_list
+from util.RestControl import set_sleep
 from .AdminConfig import groupInitData
+from config import save_config, yaml_data, group_data, group_list
 
 saya = Saya.current()
 channel = Channel.current()
@@ -46,6 +48,12 @@ async def groupDataInit(app: GraiaMiraiApplication):
     if i > 0:
         msg.append(Plain(f"\n以为 {str(1)} 个群进行了初始化配置"))
     await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create(msg))
+    now_localtime = time.strftime("%H:%M:%S", time.localtime())
+    if "00:00:00" < now_localtime < "07:30:00":
+        set_sleep(1)
+        await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
+            Plain("当前为休息时间，已进入休息状态")
+        ]))
 
 
 @channel.use(ListenerSchema(listening_events=[ApplicationShutdowned]))
@@ -109,7 +117,8 @@ async def accept(app: GraiaMiraiApplication, invite: BotInvitedJoinGroupRequestE
                     ]))
         try:
             if await asyncio.wait_for(inc.wait(waiter), timeout=300):
-                group_list['white'] = group_list['white'].append(invite.groupId)
+                group_list['white'].append(invite.groupId)
+                save_config()
                 await invite.accept()
                 await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
                     Plain("已同意申请并加入白名单")
@@ -172,12 +181,10 @@ async def get_BotJoinGroup(app: GraiaMiraiApplication, kickgroup: BotLeaveEventK
     '''
     被踢出群
     '''
-    groupBlackList = group_list['white']
     try:
-        groupBlackList.remove(kickgroup.group.id)
+        group_list['white'].remove(kickgroup.group.id)
     except:
         pass
-    group_list['white'] = groupBlackList
     save_config()
 
     for qq in yaml_data['Basic']['Permission']['Admin']:
@@ -208,12 +215,10 @@ async def get_BotJoinGroup(app: GraiaMiraiApplication, group: Group, mute: BotMu
     '''
     被禁言
     '''
-    groupBlackList = group_list['white']
     try:
-        groupBlackList.remove(group.id)
+        group_list['white'].remove(group.id)
     except:
         pass
-    group_list['white'] = groupBlackList
     save_config()
 
     for qq in yaml_data['Basic']['Permission']['Admin']:

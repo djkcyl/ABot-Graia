@@ -51,9 +51,9 @@ else:
 @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("购买奖券")]))
 async def buy_lottery(app: GraiaMiraiApplication, group: Group, member: Member, source: Source):
 
-    if yaml_data['Saya']['Lottery']['Disabled']:
+    if yaml_data['Saya']['Entertainment']['Disabled']:
         return await sendmsg(app=app, group=group)
-    elif 'Lottery' in group_data[group.id]['DisabledFunc']:
+    elif 'Entertainment' in group_data[group.id]['DisabledFunc']:
         return await sendmsg(app=app, group=group)
 
     if await reduce_gold(str(member.id), 2):
@@ -86,9 +86,9 @@ async def redeem_lottery(app: GraiaMiraiApplication, group: Group, member: Membe
     if member.id in WAITING:
         return
 
-    if yaml_data['Saya']['Lottery']['Disabled']:
+    if yaml_data['Saya']['Entertainment']['Disabled']:
         return await sendmsg(app=app, group=group)
-    elif 'Lottery' in group_data[group.id]['DisabledFunc']:
+    elif 'Entertainment' in group_data[group.id]['DisabledFunc']:
         return await sendmsg(app=app, group=group)
 
     WAITING.append(member.id)
@@ -128,7 +128,7 @@ async def redeem_lottery(app: GraiaMiraiApplication, group: Group, member: Membe
                     LOTTERY["lastweek"]["received"] = True
                     with open("./saya/Lottery/data.json", "w") as f:
                         json.dump(LOTTERY, f, indent=2, ensure_ascii=False)
-                    await app.sendGroupMessage(group, MessageChain.create([Plain("你已成功兑换上期奖券")]))
+                    await app.sendGroupMessage(group, MessageChain.create([Plain(f"你已成功兑换上期奖券，共获得 {str(gold)} 个游戏币")]))
                 else:
                     await app.sendGroupMessage(group, MessageChain.create([Plain("该奖券已被兑换")]))
             else:
@@ -215,18 +215,21 @@ async def something_scheduled(app: GraiaMiraiApplication, friend: Friend):
 @channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("开奖查询")]))
 async def redeem_lottery(app: GraiaMiraiApplication, group: Group):
 
-    if yaml_data['Saya']['Lottery']['Disabled']:
+    if yaml_data['Saya']['Entertainment']['Disabled']:
         return await sendmsg(app=app, group=group)
-    elif 'Lottery' in group_data[group.id]['DisabledFunc']:
+    elif 'Entertainment' in group_data[group.id]['DisabledFunc']:
         return await sendmsg(app=app, group=group)
 
     lottery = LOTTERY
-    period = str(lottery["period"])
+    period = str(lottery["period"] - 1)
     winner = lottery["lastweek"]["number"]
+    lottery_len = LOTTERY["lastweek"]["len"]
+    gold = int(lottery_len * 2 * 0.9)
     received = "已领取" if lottery["lastweek"]["received"] else "未领取"
     await app.sendGroupMessage(group, MessageChain.create([
         Plain("上期开奖信息：\n"),
-        Plain(f"期号：{period}\n"),
+        Plain(f"上期期号：{period}\n"),
         Plain(f"中奖号码：{winner}\n"),
-        Plain(received)
+        Plain(f"奖励：{gold} 个游戏币\n"),
+        Plain(f"状态：{received}")
     ]))

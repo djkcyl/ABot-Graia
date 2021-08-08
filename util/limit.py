@@ -1,13 +1,13 @@
 import time
 import redis
 
+from redis.exceptions import ConnectionError
+from graia.application.group import Group, Member
 from graia.application import GraiaMiraiApplication
 from graia.broadcast.exceptions import ExecutionStop
 from graia.broadcast.builtin.decorators import Depend
-from graia.application.group import Group, Member
 from graia.application.message.chain import MessageChain
 from graia.application.message.elements.internal import At, Plain
-from redis.exceptions import ConnectionError
 
 try:
     r = redis.Redis(host='localhost', port=6379, db=6, decode_responses=True)
