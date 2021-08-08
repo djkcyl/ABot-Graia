@@ -141,6 +141,7 @@ async def redeem_lottery(app: GraiaMiraiApplication, group: Group, member: Membe
         await app.sendGroupMessage(group, MessageChain.create([Plain("该奖券不为你所有，请勿窃取他人奖券")]))
     WAITING.remove(member.id)
 
+
 @channel.use(SchedulerSchema(crontabify("0 0 * * 1")))
 async def something_scheduled(app: GraiaMiraiApplication):
     global LOTTERY
@@ -209,3 +210,23 @@ async def something_scheduled(app: GraiaMiraiApplication, friend: Friend):
             Plain("本期奖券开奖完毕，中奖号码为\n"),
             Plain(str(winner))
         ]))
+
+
+@channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("开奖查询")]))
+async def redeem_lottery(app: GraiaMiraiApplication, group: Group):
+
+    if yaml_data['Saya']['Lottery']['Disabled']:
+        return await sendmsg(app=app, group=group)
+    elif 'Lottery' in group_data[group.id]['DisabledFunc']:
+        return await sendmsg(app=app, group=group)
+
+    lottery = LOTTERY
+    period = str(lottery["period"])
+    winner = lottery["lastweek"]["number"]
+    received = "已领取" if lottery["lastweek"]["received"] else "未领取"
+    await app.sendGroupMessage(group, MessageChain.create([
+        Plain("上期开奖信息：\n"),
+        Plain(f"期号：{period}\n"),
+        Plain(f"中奖号码：{winner}\n"),
+        Plain(received)
+    ]))
