@@ -14,7 +14,6 @@ from graia.application.message.elements.internal import Plain, MessageChain
 
 
 from config import yaml_data, group_data
-from util.RestControl import rest_control
 from util.limit import member_limit_check
 from datebase.db import sign, add_gold, get_info, add_talk, reset_sign, all_sign_num
 
@@ -24,7 +23,7 @@ channel = Channel.current()
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("签到")],
-                            headless_decorators=[rest_control(), member_limit_check(5)]))
+                            headless_decorators=[member_limit_check(5)]))
 async def main(app: GraiaMiraiApplication, group: Group, member: Member):
     if await sign(str(member.id)):
         i = random.randint(1, 10)
