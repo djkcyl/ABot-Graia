@@ -29,7 +29,7 @@ channel = Channel.current()
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             headless_decorators=[rest_control()]))
 async def petpet_generator(app: GraiaMiraiApplication, message: MessageChain, group: Group):
-        
+
     if yaml_data['Saya']['PetPet']['Disabled'] and not yaml_data['Saya']['PetPet']['CanAt']:
         return
     elif 'PetPet' in group_data[group.id]['DisabledFunc']:
@@ -57,7 +57,7 @@ async def petpet_generator(app: GraiaMiraiApplication, message: MessageChain, gr
 @channel.use(ListenerSchema(listening_events=[NudgeEvent],
                             headless_decorators=[rest_control()]))
 async def get_nudge(app: GraiaMiraiApplication, nudge: NudgeEvent):
-        
+
     if yaml_data['Saya']['PetPet']['Disabled'] and not yaml_data['Saya']['PetPet']['CanNudge']:
         return
     elif 'PetPet' in group_data[nudge.group_id]['DisabledFunc']:
@@ -72,17 +72,15 @@ async def get_nudge(app: GraiaMiraiApplication, nudge: NudgeEvent):
     # await app.sendGroupMessage(
     #         nudge.group_id,
     #         MessageChain.create([
-    #             Plain("收到拍一拍，正在制图")
+    #             Plain("收到戳一戳，正在制图")
     #         ])
     #     )
+
     await petpet(nudge.target)
-    await app.sendGroupMessage(
-        nudge.group_id,
-        MessageChain.create([
-            Image.fromLocalFile(
-                f"./saya/PetPet/temp/tempPetPet-{nudge.target}.gif")
-        ])
-    )
+    await app.sendGroupMessage(nudge.group_id, MessageChain.create([
+        Image.fromLocalFile(
+            f"./saya/PetPet/temp/tempPetPet-{nudge.target}.gif")
+    ]))
 
 
 frame_spec = [

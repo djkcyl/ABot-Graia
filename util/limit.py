@@ -21,29 +21,28 @@ def limit_exists(name, limit):
 
     now_time = int(time.time())
     if r.exists(name):
-        last_time = int(r.get(name))
-        return True, last_time + limit - now_time
+        last_time, limited = r.get(name).split("_")
+        return True, int(last_time) + limit - now_time, limited
     else:
         now_time = int(time.time())
-        r.set(name, now_time, ex=limit)
+        r.set(name, str(now_time) + "_" + str(limit), ex=limit)
         try:
             BLOCK_LIST.remove(name)
         except ValueError:
             pass
-        return False, None
+        return False, None, None
 
 
 def member_limit_check(limit: int):
-
     async def limit_wrapper(app: GraiaMiraiApplication, group: Group, member: Member):
         name = str(group.id) + "_" + str(member.id)
-        limit_blocked, cd = limit_exists(name, limit)
+        limit_blocked, cd, limited = limit_exists(name, limit)
         if limit_blocked:
             if name not in BLOCK_LIST:
                 await app.sendGroupMessage(group, MessageChain.create([
                     At(member.id),
                     Plain(" 超过调用频率限制"),
-                    Plain(f"\n你使用的上一个功能需要你冷却 {str(limit)} 秒"),
+                    Plain(f"\n你使用的上一个功能需要你冷却 {str(limited)} 秒"),
                     Plain(f"\n剩余 {cd} 秒后可用")
                 ]))
                 BLOCK_LIST.append(name)
@@ -51,8 +50,25 @@ def member_limit_check(limit: int):
     return Depend(limit_wrapper)
 
 
+def group_limit_check(limit: int):
+    async def limit_wrapper(app: GraiaMiraiApplication, group: Group):
+        name = str(group.id)
+        limit_blocked, cd, limited = limit_exists(name, limit)
+        if limit_blocked:
+            if name not in BLOCK_LIST:
+                await app.sendGroupMessage(group, MessageChain.create([
+                    Plain(" 超过调用频率限制"),
+                    Plain(f"\n本群的上一个功能需要冷却 {str(limited)} 秒"),
+                    Plain(f"\n剩余 {cd} 秒后可用")
+                ]))
+                BLOCK_LIST.append(name)
+            raise ExecutionStop()
+    return Depend(limit_wrapper)
+
+
+
 def manual_limit(group, func, limit: int):
     name = str(group) + "_" + func
-    limit_blocked, _ = limit_exists(name, limit)
+    limit_blocked, _, _ = limit_exists(name, limit)
     if limit_blocked:
         raise ExecutionStop()
