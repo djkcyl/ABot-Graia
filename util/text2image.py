@@ -1,42 +1,26 @@
 import re
 
 from io import BytesIO
-from PIL import Image,ImageFont,ImageDraw
+from PIL import Image, ImageFont, ImageDraw
 
-font_file = './util/AdobeHeitiStd-Regular.otf'
+from .CutString import get_cut_str
 
-async def create_image(text: str):
+font_file = './font/sarasa-mono-sc-semibold.ttf'
+font = ImageFont.truetype(font_file, 18)
+
+
+async def create_image(text: str, cut=64, transparent=False):
     imageio = BytesIO()
-    text = '\n'.join(await split_text(text))
-    height = len(text.split('\n')) + 1
-    image = Image.new('RGB', (565, height * 19), (255, 255, 255))
+    cut_str = '\n'.join(await get_cut_str(text, cut))
+    textx, texty = font.getsize_multiline(cut_str)
+    if transparent:
+        image = Image.new('RGBA', (textx + 40, texty + 40), (0, 0, 0, 0,))
+    else:
+        image = Image.new('RGB', (textx + 40, texty + 40), (255, 255, 255))
     draw = ImageDraw.Draw(image)
-    font = ImageFont.truetype(font_file, 16)
-    draw.text((10, 5), text, font=font, fill='#000000')
-    image.save(imageio, format="JPEG", quality=85)
+    draw.text((20, 20), cut_str, font=font, fill='#000000')
+    if transparent:
+        image.save(imageio, format="PNG")
+    else:
+        image.save(imageio, format="JPEG", quality=85)
     return imageio
-
-
-async def split_text(text):
-    text = text.strip('\n').split('\n')
-
-    new_text = []
-    for item in text:
-        if len(item) > 34:
-            for sub_item in await cut_code(item, 34):
-                if sub_item:
-                    new_text.append(sub_item)
-        else:
-            new_text.append(item)
-
-    return new_text
-
-
-async def cut_code(code, length):
-    code_list = re.findall('.{' + str(length) + '}', code)
-    code_list.append(code[(len(code_list) * length):])
-    res_list = []
-    for n in code_list:
-        if n != '':
-            res_list.append(n)
-    return res_list

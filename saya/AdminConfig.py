@@ -12,10 +12,11 @@ from graia.application.message.parser.literature import Literature
 from graia.application.event.messages import GroupMessage, FriendMessage
 from graia.application.message.elements.internal import MessageChain, Quote, At, Plain, Image_UnsafeBytes
 
-from config import save_config, yaml_data, group_data, group_list
-from util.text2image import create_image
-from util.RestControl import set_sleep
+
 from util.limit import manual_limit
+from util.RestControl import set_sleep
+from util.text2image import create_image
+from config import save_config, yaml_data, group_data, group_list
 
 saya = Saya.current()
 channel = Channel.current()
@@ -235,11 +236,11 @@ async def adminmain(app: GraiaMiraiApplication, group: Group, message: MessageCh
                 Plain("该功能暂不开启")
             ]))
         help = str(sayfunc +
-                   "\n\n >>> 用法 >>>\n" +
+                   "\n\n       >>> 用法 >>>\n" +
                    funcHelp[sayfunc]["usage"] +
-                   "\n\n >>> 注意事项 >>>\n" +
+                   "\n\n       >>> 注意事项 >>>\n" +
                    funcHelp[sayfunc]["options"] +
-                   "\n\n >>> 示例 >>>\n" +
+                   "\n\n       >>> 示例 >>>\n" +
                    funcHelp[sayfunc]["example"]
                    )
         image = await create_image(help)
@@ -252,7 +253,7 @@ async def adminmain(app: GraiaMiraiApplication, group: Group, message: MessageCh
 async def adminmain(app: GraiaMiraiApplication, group: Group, message: MessageChain):
     if message.asDisplay() in [".help", "/help", "help", "帮助", "菜单"]:
         manual_limit(group.id, "Help", 3)
-        msg = f"{yaml_data['Basic']['BotName']} 群菜单 / {str(group.id)}\n{group.name}\n==============================="
+        msg = f"{yaml_data['Basic']['BotName']} 群菜单 / {str(group.id)}\n{group.name}\n========================================================"
         i = 1
         for func in funcList:
             funcname = func["name"]
@@ -262,16 +263,16 @@ async def adminmain(app: GraiaMiraiApplication, group: Group, message: MessageCh
             if funcGlobalDisabled:
                 statu = "【全局关闭】"
             elif funcGroupDisabledList:
-                statu = "【　关闭　】"
+                statu = "【  关闭  】"
             else:
-                statu = "　　　　　　"
+                statu = "            "
             if i < 10:
-                si = "  " + str(i)
+                si = " " + str(i)
             else:
                 si = str(i)
-            msg += f"\n{si}　{statu}　{funcname}"
+            msg += f"\n{si}  {statu}  {funcname}"
             i += 1
-        msg += str("\n===============================" +
+        msg += str("\n========================================================" +
                    "\n管理员可发送 开启功能/关闭功能 <id>，例如：关闭功能 1" +
                    "\n详细查看功能使用方法请发送 功能 <id>，例如：功能 1" +
                    "\n所有功能均无需@机器人本身" +

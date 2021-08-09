@@ -116,7 +116,8 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: 
             for ar in music['ar']:
                 music_ar.append(ar['name'])
             music_ar = "/".join(music_ar)
-            msg += f"\n{num}　--->　{music_name} - {music_ar}"
+            num_str = " " + str(num) if num < 10 else str(num)
+            msg += f"\n{num_str}    ===>    {music_name} - {music_ar}"
             musicIdList.append(music_id)
             num += 1
         msg += f"\n===============================\n发送歌曲id可完成点歌\n发送取消可终止当前点歌\n点歌将消耗 4 个游戏币"
