@@ -33,7 +33,7 @@ GROUP_GAME_PROCESS = {}
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("你画我猜")],
-                            headless_decorators=[group_limit_check(150)]))
+                            headless_decorators=[group_limit_check(100)]))
 async def main(app: GraiaMiraiApplication, group: Group, member: Member, source: Source):
 
     # 判断插件是否处于禁用状态

@@ -110,6 +110,9 @@ Saya: # saya 插件配置
   DiceMaid: # 骰娘
     Disabled: false
 
+  BilibiliResolve: # B站解析
+    Disabled: false
+
 Final: false
 # 配置完成后请调整为 True
 # 配置完成后请调整为 True

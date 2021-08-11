@@ -1,6 +1,7 @@
 import string
 
-async def get_cut_str(str, cut):
+
+def get_cut_str(str, cut):
     '''
     自动断句，用于 Pillow 等不会自动换行的场景
     '''
@@ -15,7 +16,9 @@ async def get_cut_str(str, cut):
         else:
             si += 2
         i += 1
-        if next_str[0] == "\n":
+        if next_str == "":
+            break
+        elif next_str[0] == "\n":
             next_str = next_str[1:]
         elif s == "\n":
             str_list.append(next_str[:i-1])
@@ -38,11 +41,10 @@ async def get_cut_str(str, cut):
     i = 0
     non_wrap_str = []
     for p in str_list:
-        if p[-1] == "\n":
+        if p == "":
+            break
+        elif p[-1] == "\n":
             p = p[:-1]
-        # 左侧悬挂，太jb蠢了，建议别用
-        # if p[0] not in punc and p[0] not in string.ascii_letters and p[0] not in string.digits:
-        #     p = "  " + p
         non_wrap_str.append(p)
         i += 1
     return non_wrap_str

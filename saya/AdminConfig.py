@@ -43,7 +43,8 @@ funcList = [
     {"name": "色图", "key": "Setu"},
     {"name": "防撤回", "key": "AnitRecall"},
     {"name": "娱乐功能", "key": "Entertainment"},
-    {"name": "骰娘", "key": "DiceMaid"}
+    {"name": "骰娘", "key": "DiceMaid"},
+    {"name": "B站视频解析", "key": "BilibiliResolve"}
 ]
 
 configList = [
@@ -185,6 +186,12 @@ funcHelp = {
         "usage": "发送指令：\n.r",
         "options": "可选参数有：\nr ==> 投掷的骰子个数\nd ==> 每个骰子的面数\nk ==> 取最大的前n个\n以上三个参数除 r 外均为可选参数\n如为填写的情况下：\nr 默认值为1\nd 默认值为100\nk 默认值为0（即不取最大）",
         "example": ".r  投掷1个骰子，最大值为100\n.rd50  投掷1个骰子，最大值为50\n.r3d6  投掷3个骰子，每个的最大值为6\n.r15k4  投掷15个骰子，每个的最大值为100，取最大的前4个"
+    },
+    "B站视频解析": {
+        "instruction": "全自动B站链接解析",
+        "usage": "收到任意带有B站链接的消息，av号、BV号、b23短链、小程序等",
+        "options": "无",
+        "example": "（这也需要示例吗？"
     }
 }
 
@@ -276,7 +283,6 @@ async def adminmain(app: GraiaMiraiApplication, group: Group, message: MessageCh
                    "\n管理员可发送 开启功能/关闭功能 <id>，例如：关闭功能 1" +
                    "\n详细查看功能使用方法请发送 功能 <id>，例如：功能 1" +
                    "\n所有功能均无需@机器人本身" +
-                   "\n如果用不明白菜单功能可以不用，建议去医院多看看" +
                    "\n方舟玩家可以加个好友，[官服 A60#6660]" +
                    "\n源码：github.com/djkcyl/ABot-Graia" +
                    "\n管理员可发送 开启功能/关闭功能 <功能id> " +
