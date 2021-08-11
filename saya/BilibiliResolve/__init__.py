@@ -45,11 +45,13 @@ async def bilibili_main(app: GraiaMiraiApplication, group: Group, message: Messa
         loop = asyncio.get_event_loop()
         pool = ThreadPoolExecutor(6)
         try:
+            manual_limit(group.id, "BilibiliResolve", 30)
             image = await loop.run_in_executor(pool, binfo_image_create, video_info)
-            manual_limit(group.id, "BilibiliResolve", 20)
-        except:
+        except Exception as err:
+            await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
+                Plain(f"B站视频 {video_number} 解析失败\n{err}")
+            ]))
             await app.sendGroupMessage(group, MessageChain.create([Plain("API 调用频繁，请10分钟后重试")]))
-            manual_limit(group.id, "BilibiliResolve", 600)
         else:
             await app.sendGroupMessage(group, MessageChain.create([Image_UnsafeBytes(image.getvalue())]))
 

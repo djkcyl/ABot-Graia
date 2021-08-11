@@ -106,7 +106,7 @@ def binfo_image_create(video_info: str):
                 "name": up['name'],
                 "up_title": up['title'],
                 "face": up['face'],
-                "color": up['vip']['nickname_color'],
+                "color": up_data['data']['vip']['nickname_color'] if up_data['data']['vip']['nickname_color'] != "" else "black",
                 "follower": up['follower'],
                 "level": up_data['data']['level']
             })
@@ -118,7 +118,7 @@ def binfo_image_create(video_info: str):
             "name": up_data['data']['name'],
             "up_title": "UP主",
             "face": up_data['data']['face'],
-            "color": up_data['data']['vip']['nickname_color'],
+            "color": up_data['data']['vip']['nickname_color'] if up_data['data']['vip']['nickname_color'] != "" else "black",
             "follower": up_stat['data']['follower'],
             "level": up_data['data']['level']
         }]
