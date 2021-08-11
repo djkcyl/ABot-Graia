@@ -26,7 +26,7 @@ def binfo_image_create(video_info: str):
     pic_get = requests.get(pic_url).content
     pic_bio = BytesIO(pic_get)
     pic = Image.open(pic_bio)
-    pic.resize((560, 350))
+    pic = pic.resize((560, 350))
     pic_time_box = Image.new("RGBA", (560, 50), (0, 0, 0, 150))
     pic.paste(pic_time_box, (0, 300), pic_time_box)
     bg_y += 350 + 20
@@ -41,7 +41,7 @@ def binfo_image_create(video_info: str):
 
     # 分区
     tname = video_info['data']['tname']
-    tname_x, tname_y = tiem_font.getsize(tname)
+    tname_x, _ = tiem_font.getsize(tname)
     draw.text((560 - tname_x - 10, 305), tname, "white", tiem_font)
 
     # 标题
