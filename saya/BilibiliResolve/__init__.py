@@ -7,7 +7,7 @@ from concurrent.futures import ThreadPoolExecutor
 from graia.application import GraiaMiraiApplication
 from graia.application.event.messages import GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.message.elements.internal import MessageChain, Image_UnsafeBytes
+from graia.application.message.elements.internal import MessageChain, Image_UnsafeBytes, Plain
 
 from util.limit import manual_limit
 from util.aiorequests import aiorequests
@@ -38,11 +38,20 @@ async def bilibili_main(app: GraiaMiraiApplication, group: Group, message: Messa
         if video_number:
             video_info = await video_info_get(video_number)
     if video_info:
-        manual_limit(group.id, "BilibiliResolve", 3)
+        if video_info["code"] != 0:
+            manual_limit(group.id, "BilibiliResolve", 5)
+            return await app.sendGroupMessage(group, MessageChain.create([Plain("视频不存在")]))
+        print(video_info)
         loop = asyncio.get_event_loop()
-        pool = ThreadPoolExecutor(5)
-        image = await loop.run_in_executor(pool, binfo_image_create, video_info)
-        await app.sendGroupMessage(group, MessageChain.create([Image_UnsafeBytes(image.getvalue())]))
+        pool = ThreadPoolExecutor(6)
+        try:
+            image = await loop.run_in_executor(pool, binfo_image_create, video_info)
+            manual_limit(group.id, "BilibiliResolve", 20)
+        except:
+            await app.sendGroupMessage(group, MessageChain.create([Plain("API 调用频繁，请10分钟后重试")]))
+            manual_limit(group.id, "BilibiliResolve", 600)
+        else:
+            await app.sendGroupMessage(group, MessageChain.create([Image_UnsafeBytes(image.getvalue())]))
 
 
 async def b23_extract(text):

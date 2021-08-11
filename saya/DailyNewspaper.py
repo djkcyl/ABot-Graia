@@ -20,7 +20,7 @@ saya = Saya.current()
 channel = Channel.current()
 
 
-@channel.use(SchedulerSchema(crontabify("0 8 * * *")))
+@channel.use(SchedulerSchema(crontabify("30 9 * * *")))
 async def something_scheduled(app: GraiaMiraiApplication):
     if yaml_data['Saya']['DailyNewspaper']['Disabled']:
         return

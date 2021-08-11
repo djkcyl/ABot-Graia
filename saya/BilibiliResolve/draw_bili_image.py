@@ -26,7 +26,7 @@ def binfo_image_create(video_info: str):
     pic_get = requests.get(pic_url).content
     pic_bio = BytesIO(pic_get)
     pic = Image.open(pic_bio)
-    pic.thumbnail((560, 350))
+    pic.resize((560, 350))
     pic_time_box = Image.new("RGBA", (560, 50), (0, 0, 0, 150))
     pic.paste(pic_time_box, (0, 300), pic_time_box)
     bg_y += 350 + 20
