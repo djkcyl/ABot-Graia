@@ -41,7 +41,7 @@ async def bilibili_main(app: GraiaMiraiApplication, group: Group, message: Messa
         if video_info["code"] != 0:
             manual_limit(group.id, "BilibiliResolve", 5)
             return await app.sendGroupMessage(group, MessageChain.create([Plain("视频不存在")]))
-        print(video_info)
+        # print(video_info)
         loop = asyncio.get_event_loop()
         pool = ThreadPoolExecutor(6)
         try:

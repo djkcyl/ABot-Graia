@@ -1,3 +1,4 @@
+import re
 import string
 
 
@@ -10,6 +11,8 @@ def get_cut_str(str, cut):
     i = 0
     next_str = str
     str_list = []
+    while re.search(r'\n\n\n\n\n', next_str):
+        next_str = re.sub(r'\n\n\n\n\n', "\n", next_str)
     for s in next_str:
         if s in string.printable:
             si += 1
