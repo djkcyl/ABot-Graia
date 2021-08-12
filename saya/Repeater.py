@@ -8,7 +8,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.elements.internal import MessageChain, Plain, At
 
 from config import yaml_data, group_data
-
+from util.TextModeration import text_moderation
 
 saya = Saya.current()
 channel = Channel.current()
@@ -36,8 +36,10 @@ async def repeater(app: GraiaMiraiApplication, group: Group, message: MessageCha
         elif saying == repdict[group.id]['msg']:
             repdict[group.id]['times'] = repdict[group.id]['times'] + 1
             if repdict[group.id]['times'] == yaml_data['Saya']['Repeater']['RepeatTimes'] and saying != repdict[group.id]['last']:
-                await app.sendGroupMessage(group, MessageChain.create([Plain(saying)]))
-                repdict[group.id] = {'msg': saying, 'times': 1, 'last': saying}
+                res = await text_moderation(saying)
+                if res['Suggestion'] == "Pass":
+                    await app.sendGroupMessage(group, MessageChain.create([Plain(saying)]))
+                    repdict[group.id] = {'msg': saying, 'times': 1, 'last': saying}
         else:
             repdict[group.id]['msg'] = saying
             repdict[group.id]['times'] = 1
@@ -60,4 +62,6 @@ async def repeateron(app: GraiaMiraiApplication, group: Group, message: MessageC
         ifat = not message.has(At)
         if ifpic & ifface & ifat:
             print('已触发随机复读')
-            await app.sendGroupMessage(group, MessageChain.create([Plain(saying)]))
+            res = await text_moderation(saying)
+            if res['Suggestion'] == "Pass":
+                await app.sendGroupMessage(group, MessageChain.create([Plain(saying)]))

@@ -5,9 +5,10 @@ from graia.application.event.messages import GroupMessage, Group
 from graia.application.message.parser.literature import Literature
 from graia.application.message.elements.internal import MessageChain, Source, Plain
 
-from config import yaml_data, group_data, sendmsg
 from util.RestControl import rest_control
 from util.limit import member_limit_check
+from util.TextModeration import text_moderation
+from config import yaml_data, group_data, sendmsg
 
 from .beast import encode, decode
 
@@ -51,6 +52,8 @@ async def main(app: GraiaMiraiApplication, group: Group, message: MessageChain, 
     try:
         saying = message.asDisplay().split(" ", 1)
         msg = decode(saying[1])
-        await app.sendGroupMessage(group, MessageChain.create([Plain(msg)]), quote=source.id)
+        res = await text_moderation(saying)
+        if res['Suggestion'] == "Pass":
+            await app.sendGroupMessage(group, MessageChain.create([Plain(msg)]), quote=source.id)
     except:
         await app.sendGroupMessage(group, MessageChain.create([Plain("密文错误``")]), quote=source.id)

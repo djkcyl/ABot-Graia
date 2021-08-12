@@ -4,13 +4,14 @@ import string
 
 def get_cut_str(str, cut):
     '''
-    自动断句，用于 Pillow 等不会自动换行的场景
+    自动断行，用于 Pillow 等不会自动换行的场景
     '''
     punc = """，,、。.？?）》】“"‘'；;：:！!·`~%^& """
     si = 0
     i = 0
     next_str = str
     str_list = []
+
     while re.search(r'\n\n\n\n\n', next_str):
         next_str = re.sub(r'\n\n\n\n\n', "\n", next_str)
     for s in next_str:
