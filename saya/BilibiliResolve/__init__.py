@@ -20,8 +20,6 @@ channel = Channel.current()
 loop = asyncio.get_event_loop()
 pool = ThreadPoolExecutor(6)
 
-BOT_BLOCK = []
-
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
 async def bilibili_main(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain):
@@ -41,7 +39,7 @@ async def bilibili_main(app: GraiaMiraiApplication, group: Group, member: Member
         video_number = video_number.group(0)
         if video_number:
             video_info = await video_info_get(video_number)
-    if video_info and member.id not in BOT_BLOCK:
+    if video_info:
         if video_info["code"] != 0:
             manual_limit(group.id, "BilibiliResolve", 10)
             return await app.sendGroupMessage(group, MessageChain.create([Plain("视频不存在")]))
