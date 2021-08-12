@@ -747,6 +747,19 @@ url = "https://pypi.doubanio.com/simple"
 reference = "douban"
 
 [[package]]
+name = "pyacrcloud"
+version = "1.0.2"
+description = "Python wrapper for acrcloud libraries"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.source]
+type = "legacy"
+url = "https://pypi.doubanio.com/simple"
+reference = "douban"
+
+[[package]]
 name = "pyasn1"
 version = "0.4.8"
 description = "ASN.1 types and codecs"
@@ -1188,7 +1201,7 @@ reference = "douban"
 [metadata]
 lock-version = "1.1"
 python-versions = "3.8"
-content-hash = "78206f1e480dd6223cd5390ec5ba6170622ce8875f0d8fa64e3570e199eb3631"
+content-hash = "8b8e3184f87916200bb09c79cbba59da28fff4c082d7e9ba263078e989eb8a57"
 
 [metadata.files]
 aiohttp = [
@@ -1707,6 +1720,10 @@ playwright = [
 ]
 proglog = [
     {file = "proglog-0.1.9.tar.gz", hash = "sha256:d8c4ccbf2138e0c5e3f3fc0d80dc51d7e69dcfe8bfde4cacb566725092a5b18d"},
+]
+pyacrcloud = [
+    {file = "pyacrcloud-1.0.2-py3-none-macosx_10_15_x86_64.whl", hash = "sha256:484465683ea906ba9c2663028634b70a6e8b91eb7db1235ef0a7ee5ce4621dd6"},
+    {file = "pyacrcloud-1.0.2-py3-none-manylinux1_x86_64.whl", hash = "sha256:1b82f723574918a63ecd8fdcd90fb21e1143d00018ef449d55f9336ff7e45c15"},
 ]
 pyasn1 = [
     {file = "pyasn1-0.4.8-py2.py3-none-any.whl", hash = "sha256:39c7e2ec30515947ff4e87fb6f456dfc6e84857d34be479c9d4a4ba4bf46aa5d"},

@@ -113,6 +113,14 @@ Saya: # saya 插件配置
   BilibiliResolve: # B站解析
     Disabled: false
 
+  VoiceMusicRecognition: # 听歌识曲
+    Disabled: false
+    # ACRCloud 音频识别 API
+    # API 获取地址： https://cn-console.acrcloud.cn/service/avr
+    host: "xxxxx"
+    access_key: "xxxxx"
+    access_secret: "xxxxx"
+
 Final: false
 # 配置完成后请调整为 True
 # 配置完成后请调整为 True
