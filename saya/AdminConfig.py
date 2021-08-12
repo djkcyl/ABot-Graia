@@ -44,7 +44,8 @@ funcList = [
     {"name": "防撤回", "key": "AnitRecall"},
     {"name": "娱乐功能", "key": "Entertainment"},
     {"name": "骰娘", "key": "DiceMaid"},
-    {"name": "B站视频解析", "key": "BilibiliResolve"}
+    {"name": "B站视频解析", "key": "BilibiliResolve"},
+    {"name": "听歌识曲", "key": "VoiceMusicRecognition"}
 ]
 
 configList = [
@@ -192,6 +193,12 @@ funcHelp = {
         "usage": "收到任意带有B站链接的消息，av号、BV号、b23短链、小程序等",
         "options": "无",
         "example": "（这也需要示例吗？"
+    },
+    "听歌识曲": {
+        "instruction": "和音乐软件一样的听歌识曲",
+        "usage": "发送指令：\n识曲",
+        "options": "每使用一次无论成功与否均会消耗 2 个游戏币",
+        "example": "（这也需要示例吗？"
     }
 }
 
@@ -282,10 +289,11 @@ async def adminmain(app: GraiaMiraiApplication, group: Group, message: MessageCh
         msg += str("\n========================================================" +
                    "\n管理员可发送 开启功能/关闭功能 <id>，例如：关闭功能 1" +
                    "\n详细查看功能使用方法请发送 功能 <id>，例如：功能 1" +
+                   "\n管理员可发送 开启功能/关闭功能 <功能id> " +
+                   "\n每日00:00至07:30为休息时间，将关闭大部分功能" +
                    "\n所有功能均无需@机器人本身" +
                    "\n方舟玩家可以加个好友，[官服 A60#6660]" +
                    "\n源码：github.com/djkcyl/ABot-Graia" +
-                   "\n管理员可发送 开启功能/关闭功能 <功能id> " +
                    "\n如果用不明白菜单可以不用，建议去医院多看看" +
                    f"\n更多功能待开发，如有特殊需求可以向 {yaml_data['Basic']['Permission']['Master']} 询问")
         image = await create_image(msg)
