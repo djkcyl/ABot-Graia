@@ -2,7 +2,7 @@ import re
 import asyncio
 
 from graia.saya import Saya, Channel
-from graia.application.group import Group
+from graia.application.group import Group, Member
 from concurrent.futures import ThreadPoolExecutor
 from graia.application import GraiaMiraiApplication
 from graia.application.event.messages import GroupMessage
@@ -17,10 +17,14 @@ from .draw_bili_image import binfo_image_create
 
 saya = Saya.current()
 channel = Channel.current()
+loop = asyncio.get_event_loop()
+pool = ThreadPoolExecutor(6)
+
+BOT_BLOCK = []
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def bilibili_main(app: GraiaMiraiApplication, group: Group, message: MessageChain):
+async def bilibili_main(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain):
 
     if yaml_data['Saya']['BilibiliResolve']['Disabled']:
         return
@@ -37,23 +41,20 @@ async def bilibili_main(app: GraiaMiraiApplication, group: Group, message: Messa
         video_number = video_number.group(0)
         if video_number:
             video_info = await video_info_get(video_number)
-    if video_info:
+    if video_info and member.id not in BOT_BLOCK:
         if video_info["code"] != 0:
-            manual_limit(group.id, "BilibiliResolve", 5)
+            manual_limit(group.id, "BilibiliResolve", 10)
             return await app.sendGroupMessage(group, MessageChain.create([Plain("视频不存在")]))
-        # print(video_info)
-        loop = asyncio.get_event_loop()
-        pool = ThreadPoolExecutor(6)
+        else:
+            manual_limit(group.id, video_number, 30)
         try:
-            manual_limit(group.id, "BilibiliResolve", 30)
             image = await loop.run_in_executor(pool, binfo_image_create, video_info)
+            await app.sendGroupMessage(group, MessageChain.create([Image_UnsafeBytes(image.getvalue())]))
         except Exception as err:
             await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
                 Plain(f"B站视频 {video_number} 解析失败\n{err}")
             ]))
             await app.sendGroupMessage(group, MessageChain.create([Plain("API 调用频繁，请10分钟后重试")]))
-        else:
-            await app.sendGroupMessage(group, MessageChain.create([Image_UnsafeBytes(image.getvalue())]))
 
 
 async def b23_extract(text):
@@ -63,7 +64,6 @@ async def b23_extract(text):
     url = f'https://b23.tv/{b23[1]}'
     resp = await aiorequests.get(url)
     r = str(resp.url)
-    print
     return r
 
 

@@ -122,7 +122,6 @@ def binfo_image_create(video_info: str):
             "follower": up_stat['data']['follower'],
             "level": up_data['data']['level']
         }]
-
     up_num = len(up_list)
     up_bg = Image.new("RGB", (560, 20 + (up_num * 120) + 20), '#F5F5F7')
     draw = ImageDraw.Draw(up_bg)
