@@ -22,7 +22,7 @@ pool = ThreadPoolExecutor(6)
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def bilibili_main(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain):
+async def bilibili_main(app: GraiaMiraiApplication, group: Group, message: MessageChain):
 
     if yaml_data['Saya']['BilibiliResolve']['Disabled']:
         return
