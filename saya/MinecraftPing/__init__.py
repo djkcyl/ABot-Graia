@@ -30,7 +30,7 @@ async def minecraft_ping(app: GraiaMiraiApplication, group: Group, saying: Messa
     pattern = re.compile('/mcping (.*)', re.M)
     try:
         say = pattern.search(saying.asDisplay()).group(1)
-        send_msg = mcping(say)
+        send_msg = await mcping(say)
         # print(send_msg)
         await app.sendGroupMessage(str(group.id), MessageChain.create(send_msg))
     except:

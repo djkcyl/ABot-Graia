@@ -4,14 +4,13 @@ import json
 from graiax import silkcoder
 from graia.saya import Saya, Channel
 from graia.application.group import Group, Member
-from acrcloud.recognizer import ACRCloudRecognizer
-from acrcloud.recognizer import ACRCloudRecognizeType
 from graia.broadcast.interrupt.waiter import Waiter
 from graia.application import GraiaMiraiApplication
 from graia.broadcast.interrupt import InterruptControl
 from graia.application.event.messages import GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.parser.literature import Literature
+from acrcloud.recognizer import ACRCloudRecognizer, ACRCloudRecognizeType
 from graia.application.message.elements.internal import Image_UnsafeBytes, MessageChain, Plain, Source, Voice
 
 from datebase.db import reduce_gold
