@@ -82,7 +82,7 @@ async def main(app: GraiaMiraiApplication, group: Group, member: Member, message
             ]))
         WAITING.append(member.id)
         await app.sendGroupMessage(group, MessageChain.create([
-            Plain(f"请通过语音发送想要识别的歌曲，5至10秒即可，发送取消可终止识别，无论识别成功与否均需扣除 2 游戏币")
+            Plain(f"请尽量将麦克风靠近音源后通过语音发送想要识别的歌曲，5至10秒即可，发送取消可终止识别，无论识别成功与否均需扣除 2 游戏币")
         ]))
         try:
             voice_url = await asyncio.wait_for(inc.wait(waiter), timeout=60)
