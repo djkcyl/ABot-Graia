@@ -9,7 +9,7 @@ from .statusping import StatusPing
 from graia.application.message.elements.internal import Image_UnsafeBytes, Plain
 
 
-def mcping(say):
+async def mcping(say):
     # 获取 ping 信息
     # print(say)
     host = say.split(":")[0]
