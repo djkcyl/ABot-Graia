@@ -383,7 +383,8 @@ async def Announcement(app: GraiaMiraiApplication, friend: Friend, message: Mess
                 group_list['white'].append(int(saying[1]))
                 save_config()
                 await app.sendFriendMessage(friend, MessageChain.create([Plain(f"成功将该群加入白名单")]))
-
+        else:
+            await app.sendFriendMessage(friend, MessageChain.create([Plain(f"未输入群号")]))
 
 @channel.use(ListenerSchema(listening_events=[FriendMessage], inline_dispatchers=[Literature("取消白名单")]))
 async def Announcement(app: GraiaMiraiApplication, friend: Friend, message: MessageChain):
@@ -402,6 +403,8 @@ async def Announcement(app: GraiaMiraiApplication, friend: Friend, message: Mess
                 except UnknownTarget:
                     pass
                 await app.sendFriendMessage(friend, MessageChain.create([Plain(f"成功将该群移出白名单")]))
+        else:
+            await app.sendFriendMessage(friend, MessageChain.create([Plain(f"未输入群号")]))
 
 
 @channel.use(ListenerSchema(listening_events=[FriendMessage], inline_dispatchers=[Literature("休息")]))

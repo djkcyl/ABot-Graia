@@ -55,31 +55,6 @@ inc = InterruptControl(bcc)
 #         # print(message_id)
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("/ping943")]))
-async def ping943(app: GraiaMiraiApplication, group: Group, message: MessageChain):
-    saylist = message.asDisplay().split()
-    saylistnum = len(saylist)
-    if saylistnum == 3:
-        if saylist[1] == "t":
-            i = 0
-            atnum = []
-            while i < int(saylist[2]):
-                atnum.append(At(target=568248266))
-                atnum.append(Plain(" "))
-                i += 1
-            print(atnum)
-            await app.sendGroupMessage(group, MessageChain.create([Plain(f"正在ping {i} 次")]))
-            await app.sendGroupMessage(group, MessageChain.create(atnum))
-        else:
-            await app.sendGroupMessage(group, MessageChain.create([Plain("使用方法：/ping943 [t *int]")]))
-    elif saylistnum == 2:
-        if saylist[1] == "t":
-            await app.sendGroupMessage(group, MessageChain.create([Plain("请输入ping次数")]))
-        else:
-            await app.sendGroupMessage(group, MessageChain.create([Plain("使用方法：/ping943 [t *int]")]))
-    elif saylist[0] == "/ping943":
-        await app.sendGroupMessage(group, MessageChain.create([At(568248266)]))
-
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
 async def a_plant(app: GraiaMiraiApplication, group: Group, message: MessageChain):

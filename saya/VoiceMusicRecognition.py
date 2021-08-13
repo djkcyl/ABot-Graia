@@ -31,7 +31,6 @@ original_config = {
     'recognize_type': ACRCloudRecognizeType.ACR_OPT_REC_AUDIO,
     'timeout': 15
 }
-print(original_config)
 humming_config = {
     'host': yaml_data['Saya']['VoiceMusicRecognition']['humming']['host'],
     'access_key': yaml_data['Saya']['VoiceMusicRecognition']['humming']['access_key'],
@@ -39,7 +38,7 @@ humming_config = {
     'recognize_type': ACRCloudRecognizeType.ACR_OPT_REC_HUMMING,
     'timeout': 15
 }
-print(humming_config)
+
 WAITING = []
 
 
