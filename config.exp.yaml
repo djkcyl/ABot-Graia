@@ -117,9 +117,14 @@ Saya: # saya 插件配置
     Disabled: false
     # ACRCloud 音频识别 API
     # API 获取地址： https://cn-console.acrcloud.cn/service/avr
-    host: "xxxxx"
-    access_key: "xxxxx"
-    access_secret: "xxxxx"
+    original: # 原曲识别
+      host: "xxxxx"
+      access_key: "xxxxx"
+      access_secret: "xxxxx"
+    humming: # 哼唱识别
+      host: "xxxxx"
+      access_key: "xxxxx"
+      access_secret: "xxxxx"
 
 Final: false
 # 配置完成后请调整为 True
