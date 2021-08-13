@@ -45,7 +45,7 @@ funcList = [
     {"name": "娱乐功能", "key": "Entertainment"},
     {"name": "骰娘", "key": "DiceMaid"},
     {"name": "B站视频解析", "key": "BilibiliResolve"},
-    {"name": "听歌识曲", "key": "VoiceMusicRecognition"}
+    {"name": "听歌识曲 / 哼唱识曲", "key": "VoiceMusicRecognition"}
 ]
 
 configList = [
@@ -194,7 +194,7 @@ funcHelp = {
         "options": "无",
         "example": "（这也需要示例吗？"
     },
-    "听歌识曲": {
+    "听歌识曲 / 哼唱识曲": {
         "instruction": "和音乐软件一样的听歌识曲、哼唱识曲",
         "usage": "发送指令：\n识曲 <模式>",
         "options": "模式：原曲、哼唱\n可选择听歌识曲或哼唱识曲，每使用一次无论成功与否均会消耗 2 个游戏币",
