@@ -1,4 +1,9 @@
+import json
+import httpx
+
 from peewee import *
+from prettytable import PrettyTable
+
 
 db = SqliteDatabase('./datebase/userData.db')
 
@@ -91,3 +96,78 @@ async def all_sign_num():
 async def give_all_gold(num: int):
     User.update(gold=User.gold+num).execute()
     return
+
+
+async def get_ranking():
+    user_list = User.select().order_by(User.gold.desc())
+    user_num = len(user_list)
+    gold_rank = PrettyTable()
+    gold_rank.field_names = [" ID ", "      QQ      ", "         NICK         ", "  GOLD  ", "  TALK  ", "RANK"]
+    gold_rank.align[" ID "] = "r"
+    i = 1
+
+    for user_info in user_list[:15]:
+        user_id = user_info.id
+        user_qq = user_info.qq
+
+        async with httpx.AsyncClient() as client:
+            r = await client.get(f"https://r.qzone.qq.com/fcg-bin/cgi_get_portrait.fcg?uins={user_qq}")
+            r.encoding = 'GBK'
+            qqdata = r.text
+
+        qqdata = json.loads(qqdata[17:-1])
+        user_nick = qqdata[user_qq][-2]
+
+        # user_nick = await getCutStr(qqnick, 20)
+        user_gold = user_info.gold
+        user_talk = user_info.talk_num
+        gold_rank.add_row([user_id, user_qq, user_nick, user_gold, user_talk, i])
+        i += 1
+
+    gold_rank = gold_rank.get_string()
+
+    user_list = User.select().order_by(User.talk_num.desc())
+    user_num = len(user_list)
+    talk_rank = PrettyTable()
+    talk_rank.field_names = [" ID ", "      QQ      ", "         NICK         ", "  GOLD  ", "  TALK  ", "RANK"]
+    talk_rank.align[" ID "] = "r"
+    i = 1
+
+    for user_info in user_list[:15]:
+        user_id = user_info.id
+        user_qq = user_info.qq
+
+        async with httpx.AsyncClient() as client:
+            r = await client.get(f"https://r.qzone.qq.com/fcg-bin/cgi_get_portrait.fcg?uins={user_qq}")
+            r.encoding = 'GBK'
+            qqdata = r.text
+
+        qqdata = json.loads(qqdata[17:-1])
+        user_nick = qqdata[user_qq][-2]
+
+        # user_nick = await getCutStr(qqnick, 20)
+        user_gold = user_info.gold
+        user_talk = user_info.talk_num
+        talk_rank.add_row([user_id, user_qq, user_nick, user_gold, user_talk, i])
+        i += 1
+
+    talk_rank = talk_rank.get_string()
+    return str(f"ABot 游戏币排行榜：\n当前共服务了 {user_num} 位用户\n金币排行榜\n{gold_rank}\n发言排行榜\n{talk_rank}")
+
+
+async def getCutStr(str, cut):
+    si = 0
+    i = 0
+    for s in str:
+        if '\u4e00' <= s <= '\u9fff':
+            si += 2
+        else:
+            si += 1
+        i += 1
+        if si > cut:
+            cutStr = str[:i] + '....'
+            break
+        else:
+            cutStr = str
+
+    return cutStr

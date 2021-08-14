@@ -731,6 +731,25 @@ url = "https://pypi.doubanio.com/simple"
 reference = "douban"
 
 [[package]]
+name = "prettytable"
+version = "2.1.0"
+description = "A simple Python library for easily displaying tabular data in a visually appealing ASCII table format"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+wcwidth = "*"
+
+[package.extras]
+tests = ["pytest", "pytest-cov"]
+
+[package.source]
+type = "legacy"
+url = "https://pypi.doubanio.com/simple"
+reference = "douban"
+
+[[package]]
 name = "proglog"
 version = "0.1.9"
 description = "Log and progress bar manager for console, notebooks, web..."
@@ -1122,6 +1141,19 @@ url = "https://pypi.doubanio.com/simple"
 reference = "douban"
 
 [[package]]
+name = "wcwidth"
+version = "0.2.5"
+description = "Measures the displayed width of unicode strings in a terminal"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.source]
+type = "legacy"
+url = "https://pypi.doubanio.com/simple"
+reference = "douban"
+
+[[package]]
 name = "websockets"
 version = "9.1"
 description = "An implementation of the WebSocket Protocol (RFC 6455 & 7692)"
@@ -1201,7 +1233,7 @@ reference = "douban"
 [metadata]
 lock-version = "1.1"
 python-versions = "3.8"
-content-hash = "8b8e3184f87916200bb09c79cbba59da28fff4c082d7e9ba263078e989eb8a57"
+content-hash = "2719a7d8a271fe8592ceb940477dc893642c02c918ed83606faa2426f0261021"
 
 [metadata.files]
 aiohttp = [
@@ -1718,6 +1750,10 @@ playwright = [
     {file = "playwright-1.13.1-py3-none-win32.whl", hash = "sha256:b08271b01051094f5ea6b3f89feb5fbffd7131df6243eee2cdcea9845a58e0b3"},
     {file = "playwright-1.13.1-py3-none-win_amd64.whl", hash = "sha256:d99a7a13c39e6571ba3a4cbed1e772a24742ec1099d4cb6486394752eb725c08"},
 ]
+prettytable = [
+    {file = "prettytable-2.1.0-py3-none-any.whl", hash = "sha256:bb5abc72bdfae6f3cdadb04fb7726f6915af0ddb7c897a41d4ad7736d9bfd8fd"},
+    {file = "prettytable-2.1.0.tar.gz", hash = "sha256:5882ed9092b391bb8f6e91f59bcdbd748924ff556bb7c634089d5519be87baa0"},
+]
 proglog = [
     {file = "proglog-0.1.9.tar.gz", hash = "sha256:d8c4ccbf2138e0c5e3f3fc0d80dc51d7e69dcfe8bfde4cacb566725092a5b18d"},
 ]
@@ -1903,6 +1939,10 @@ typing-extensions = [
 urllib3 = [
     {file = "urllib3-1.26.6-py2.py3-none-any.whl", hash = "sha256:39fb8672126159acb139a7718dd10806104dec1e2f0f6c88aab05d17df10c8d4"},
     {file = "urllib3-1.26.6.tar.gz", hash = "sha256:f57b4c16c62fa2760b7e3d97c35b255512fb6b59a259730f36ba32ce9f8e342f"},
+]
+wcwidth = [
+    {file = "wcwidth-0.2.5-py2.py3-none-any.whl", hash = "sha256:beb4802a9cebb9144e99086eff703a642a13d6a0052920003a230f3294bbe784"},
+    {file = "wcwidth-0.2.5.tar.gz", hash = "sha256:c4d647b99872929fdb7bdcaa4fbe7f01413ed3d98077df798530e5b04f116c83"},
 ]
 websockets = [
     {file = "websockets-9.1-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:d144b350045c53c8ff09aa1cfa955012dd32f00c7e0862c199edcabb1a8b32da"},

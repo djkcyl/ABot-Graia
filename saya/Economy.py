@@ -58,3 +58,4 @@ async def adminmain(app: GraiaMiraiApplication, group: Group, member: Member, me
             await app.sendGroupMessage(group, MessageChain.create([
                 Plain("你的游戏币不足，无法赠送")
             ]), quote=source)
+
