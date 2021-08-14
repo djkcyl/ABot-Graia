@@ -149,7 +149,7 @@ async def get_ranking():
         i += 1
 
     talk_rank = talk_rank.get_string()
-    return str(f"ABot 游戏币排行榜：\n当前共服务了 {user_num} 位用户\n金币排行榜\n{gold_rank}\n发言排行榜\n{talk_rank}")
+    return str(f"ABot 排行榜：\n当前共服务了 {user_num} 位用户\n金币排行榜\n{gold_rank}\n发言排行榜\n{talk_rank}")
 
 
 async def getCutStr(str, cut):
