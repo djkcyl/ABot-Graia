@@ -80,16 +80,16 @@ def binfo_image_create(video_info: str):
 
     info_bg = Image.new("RGB", (560, 170), "#F5F5F7")
     draw = ImageDraw.Draw(info_bg)
-    draw.text((5 + 10, 8), "\uE6E0", icon_color, icon_font)
-    draw.text((5 + 64, 15), like, "#474747", info_font)
-    draw.text((5 + 10 + 180, 8), "\uE6E4", icon_color, icon_font)
-    draw.text((5 + 64 + 180, 15), coin, "#474747", info_font)
-    draw.text((5 + 10 + 180 + 180, 8), "\uE6E1", icon_color, icon_font)
-    draw.text((5 + 64 + 180 + 180, 15), favorite, "#474747", info_font)
-    draw.text((5 + 100, 80), "\uE6E6", icon_color, icon_font)
-    draw.text((5 + 154, 87), view, "#474747", info_font)
-    draw.text((5 + 100 + 210, 80), "\uE6E7", icon_color, icon_font)
-    draw.text((5 + 154 + 210, 87), danmaku, "#474747", info_font)
+    draw.text((5 + 10, 20), "\uE6E0", icon_color, icon_font)
+    draw.text((5 + 64, 27), like, "#474747", info_font)
+    draw.text((5 + 10 + 180, 20), "\uE6E4", icon_color, icon_font)
+    draw.text((5 + 64 + 180, 27), coin, "#474747", info_font)
+    draw.text((5 + 10 + 180 + 180, 20), "\uE6E1", icon_color, icon_font)
+    draw.text((5 + 64 + 180 + 180, 27), favorite, "#474747", info_font)
+    draw.text((5 + 100, 93), "\uE6E6", icon_color, icon_font)
+    draw.text((5 + 154, 100), view, "#474747", info_font)
+    draw.text((5 + 100 + 210, 93), "\uE6E7", icon_color, icon_font)
+    draw.text((5 + 154 + 210, 100), danmaku, "#474747", info_font)
     info_bg_y = info_bg.size[1]
     bg_y += info_bg_y
 
@@ -186,7 +186,7 @@ def binfo_image_create(video_info: str):
     draw = ImageDraw.Draw(baner_bg)
     # 二维码
     qr = qrcode.QRCode(border=1)
-    qr.add_data("https://www.bilibili.com/video/" + video_info["data"]["bvid"])
+    qr.add_data("https://b23.tv/" + video_info["data"]["bvid"])
     qr_image = qr.make_image(PilImage, fill_color=icon_color, back_color="#F5F5F7")
     qr_image = qr_image.resize((140, 140))
     baner_bg.paste(qr_image, (50, 10))
