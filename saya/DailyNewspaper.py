@@ -20,7 +20,7 @@ saya = Saya.current()
 channel = Channel.current()
 
 
-@channel.use(SchedulerSchema(crontabify("30 9 * * *")))
+@channel.use(SchedulerSchema(crontabify("30 8 * * *")))
 async def something_scheduled(app: GraiaMiraiApplication):
     if yaml_data['Saya']['DailyNewspaper']['Disabled']:
         return
@@ -37,11 +37,14 @@ async def send(app):
     ts = time.time()
     groupList = await app.groupList()
     groupNum = len(groupList)
+    await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
+        Plain(f"正在开始发送每日日报，当前共有 {groupNum} 个群")
+    ]))
     paperurl = requests.get("http://api.2xb.cn/zaob").json()['imageUrl']
     paperimg = BytesIO()
     paperimg.write(requests.get(paperurl).content)
     await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
-        Plain(f"正在开始发送每日日报，当前共有 {groupNum} 个群")
+        Image_UnsafeBytes(paperimg.getvalue())
     ]))
     for group in groupList:
 

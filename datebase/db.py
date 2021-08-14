@@ -41,8 +41,7 @@ async def sign(qq):
     if user.is_sign:
         return False
     else:
-        sign_num = user.sign_num + 1
-        p = User.update(is_sign=1, sign_num=sign_num).where(User.qq == qq)
+        p = User.update(is_sign=1, sign_num=User.is_sign+1).where(User.qq == qq)
         p.execute()
         return True
 
@@ -56,8 +55,7 @@ async def get_info(qq):
 async def add_gold(qq: str, num: int):
     init_user(qq)
     gold_num = User.get(qq=qq).gold
-    gold_num += num
-    p = User.update(gold=gold_num).where(User.qq == qq)
+    p = User.update(gold=User.gold+num).where(User.qq == qq)
     p.execute()
     return True
 
@@ -68,8 +66,7 @@ async def reduce_gold(qq: str, num: int):
     if gold_num < num:
         return False
     else:
-        gold_num -= num
-        p = User.update(gold=gold_num).where(User.qq == qq)
+        p = User.update(gold=User.gold-num).where(User.qq == qq)
         p.execute()
         return True
 

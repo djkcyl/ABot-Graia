@@ -159,7 +159,7 @@ funcHelp = {
         "example": "（这也需要示例吗？"
     },
     "每日早报": {
-        "instruction": "明天早上八点发送新闻",
+        "instruction": "明天早上八点半发送新闻",
         "usage": "每日自动触发",
         "options": "无",
         "example": "（这也需要示例吗？"
