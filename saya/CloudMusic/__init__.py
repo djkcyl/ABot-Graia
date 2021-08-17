@@ -193,3 +193,13 @@ async def main(app: GraiaMiraiApplication, friend: Friend):
             ]))
         else:
             await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([Plain(f"当前没有正在点歌的人")]))
+
+
+
+@channel.use(ListenerSchema(listening_events=[FriendMessage], inline_dispatchers=[Literature("勾指起誓")]))
+async def main(app: GraiaMiraiApplication, friend: Friend, message: MessageChain):
+    saying = message.asDisplay().split()
+    if friend.id == yaml_data['Basic']['Permission']['Master']:
+        cache = Path(f'{MIRAI_PATH}data/net.mamoe.mirai-api-http/voices/gzqs')
+        cache.write_bytes(await silkcoder.encode(f'./saya/CloudMusic/temp/A60 - 勾指起誓.mp3', t=540))
+        await app.sendGroupMessage(int(saying[1]), MessageChain.create([Voice(path='gzqs')]))

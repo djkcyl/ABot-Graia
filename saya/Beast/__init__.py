@@ -52,7 +52,7 @@ async def main(app: GraiaMiraiApplication, group: Group, message: MessageChain, 
     try:
         saying = message.asDisplay().split(" ", 1)
         msg = decode(saying[1])
-        res = await text_moderation(saying)
+        res = await text_moderation(msg)
         if res['Suggestion'] == "Pass":
             await app.sendGroupMessage(group, MessageChain.create([Plain(msg)]), quote=source.id)
     except:
