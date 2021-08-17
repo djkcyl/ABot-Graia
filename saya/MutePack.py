@@ -32,7 +32,7 @@ async def random_mute(app: GraiaMiraiApplication, group: Group, member: Member):
         return await sendmsg(app=app, group=group)
 
     if member.id in yaml_data['Basic']['Permission']['Admin']:
-        time = random.randint(60, 180)
+        return await app.sendGroupMessage(group, MessageChain.create([Plain("我不能这样做！")]))
     else:
         time = random.randint(60, yaml_data['Saya']['MutePack']['MaxTime'])
     multiple = random.randint(1, yaml_data['Saya']['MutePack']['MaxMultiple'])

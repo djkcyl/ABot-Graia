@@ -236,14 +236,16 @@ async def friendTrans(app: GraiaMiraiApplication, friend: Friend, message: Messa
     '''
     收到私信
     '''
-    if not friend.id == yaml_data['Basic']['Permission']['Master']:
+    if friend.id not in yaml_data['Basic']['Permission']['Admin']:
         await app.sendFriendMessage(friend, MessageChain.create([Plain("私信不会触发任何功能，触发功能请前往群聊触发")]))
-        say = MessageChain.join(MessageChain.create([
-            Plain(f"收到私信消息"),
-            Plain(f"\n来源：{friend.id} | {friend.nickname}"),
-            Plain(f"\n消息内容：\n\n")
-        ]), message)
-        await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], say.asSendable())
+        for qq in yaml_data['Basic']['Permission']['Admin']:
+            say = MessageChain.join(MessageChain.create([
+                Plain(f"收到私信消息"),
+                Plain(f"\n来源：{friend.id} | {friend.nickname}"),
+                Plain(f"\n消息内容：\n\n")
+            ]), message)
+            await app.sendFriendMessage(qq, say.asSendable())
+            await asyncio.sleep(0.2)
 
 
 @channel.use(ListenerSchema(listening_events=[MemberCardChangeEvent]))

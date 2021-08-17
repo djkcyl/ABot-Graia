@@ -41,7 +41,7 @@ async def sign(qq):
     if user.is_sign:
         return False
     else:
-        p = User.update(is_sign=1, sign_num=User.is_sign+1).where(User.qq == qq)
+        p = User.update(is_sign=1, sign_num=User.sign_num+1).where(User.qq == qq)
         p.execute()
         return True
 

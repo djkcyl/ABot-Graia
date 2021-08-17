@@ -15,6 +15,7 @@ from graia.application.message.parser.literature import Literature
 from graia.application.message.elements.internal import MessageChain, Plain, Image_UnsafeBytes
 
 from config import yaml_data, group_data
+from util.aiorequests import aiorequests
 
 saya = Saya.current()
 channel = Channel.current()
@@ -40,11 +41,23 @@ async def send(app):
     await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
         Plain(f"正在开始发送每日日报，当前共有 {groupNum} 个群")
     ]))
-    paperurl = requests.get("http://api.2xb.cn/zaob").json()['imageUrl']
-    paperimg = BytesIO()
-    paperimg.write(requests.get(paperurl).content)
+    for i in range(3):
+        try:
+            paperurl = await aiorequests.get("http://api.2xb.cn/zaob")
+            paperurl = await paperurl.json()
+            paperurl = paperurl['imageUrl']
+            paperimg = await aiorequests.get(paperurl)
+            paperimg = await paperimg.content
+            paperimgbio = BytesIO()
+            paperimgbio.write(paperimg) 
+            break
+        except Exception as err:
+            await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
+                Plain(f"第 {i + 1} 次日报加载失败\n{err}")
+            ]))
+            await asyncio.sleep(3)
     await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
-        Image_UnsafeBytes(paperimg.getvalue())
+        Image_UnsafeBytes(paperimgbio.getvalue())
     ]))
     for group in groupList:
 
@@ -53,7 +66,7 @@ async def send(app):
         try:
             await app.sendGroupMessage(group.id, MessageChain.create([
                 Plain(group.name),
-                Image_UnsafeBytes(paperimg.getvalue())
+                Image_UnsafeBytes(paperimgbio.getvalue())
             ]))
         except Exception as err:
             await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
