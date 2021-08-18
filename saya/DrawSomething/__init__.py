@@ -105,13 +105,19 @@ async def main(app: GraiaMiraiApplication, group: Group, member: Member, source:
 
     # 如果当前群有一个正在进行中的游戏
     if group.id in GROUP_RUNING_LIST:
-        owner = GROUP_GAME_PROCESS[group.id]["owner"]
-        owner_name = (await app.getMember(group, owner)).name
-        await app.sendGroupMessage(group, MessageChain.create([
-            At(member.id),
-            Plain(" 本群存在一场已经开始的游戏，请等待当前游戏结束"),
-            Plain(f"\n发起者：{str(owner)} | {owner_name}")
-        ]), quote=source)
+        if group.id not in GROUP_GAME_PROCESS:
+            await app.sendGroupMessage(group, MessageChain.create([
+                At(member.id),
+                Plain(" 本群正在请求确认开启一场游戏，请稍候")
+            ]), quote=source)
+        else:
+            owner = GROUP_GAME_PROCESS[group.id]["owner"]
+            owner_name = (await app.getMember(group, owner)).name
+            await app.sendGroupMessage(group, MessageChain.create([
+                At(member.id),
+                Plain(" 本群存在一场已经开始的游戏，请等待当前游戏结束"),
+                Plain(f"\n发起者：{str(owner)} | {owner_name}")
+            ]), quote=source)
 
     # 新游戏创建流程
     else:
@@ -153,7 +159,7 @@ async def main(app: GraiaMiraiApplication, group: Group, member: Member, source:
                         if result:
                             owner = owner = str(GROUP_GAME_PROCESS[group.id]["owner"])
                             await add_gold(owner, 2)
-                            await add_gold(str(result[0].id), 2)
+                            await add_gold(str(result[0].id), 1)
                             GROUP_RUNING_LIST.remove(group.id)
                             del GROUP_GAME_PROCESS[group.id]
                             await app.sendGroupMessage(group.id, MessageChain.create([
