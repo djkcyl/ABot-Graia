@@ -13,9 +13,8 @@ from graia.application.exceptions import AccountMuted
 from graia.application.message.chain import MessageChain
 from moviepy.editor import ImageSequenceClip as imageclip
 from graia.application.event.messages import GroupMessage
-from graia.application.message.elements.internal import At
-from graia.application.message.elements.internal import Image
 from graia.saya.builtins.broadcast.schema import ListenerSchema
+from graia.application.message.elements.internal import At, Image, Plain
 
 from util.limit import manual_limit
 from config import yaml_data, group_data
@@ -40,16 +39,9 @@ async def petpet_generator(app: GraiaMiraiApplication, message: MessageChain, gr
         if not os.path.exists("./saya/PetPet/temp"):
             os.mkdir("./saya/PetPet/temp")
         await petpet(message.get(At)[0].target)
-        try:
-            await app.sendGroupMessage(
-                group,
-                MessageChain.create([
-                    Image.fromLocalFile(
-                        f"./saya/PetPet/temp/tempPetPet-{message.get(At)[0].target}.gif")
-                ])
-            )
-        except AccountMuted:
-            pass
+        await app.sendGroupMessage(group, MessageChain.create([
+            Image.fromLocalFile(f"./saya/PetPet/temp/tempPetPet-{message.get(At)[0].target}.gif")
+        ]))
 
 
 @channel.use(ListenerSchema(listening_events=[NudgeEvent],
@@ -67,12 +59,11 @@ async def get_nudge(app: GraiaMiraiApplication, nudge: NudgeEvent):
     if not os.path.exists("./saya/PetPet/temp"):
         os.mkdir("./saya/PetPet/temp")
 
-    # await app.sendGroupMessage(
-    #         nudge.group_id,
-    #         MessageChain.create([
-    #             Plain("收到戳一戳，正在制图")
-    #         ])
-    #     )
+    await app.sendGroupMessage(nudge.group_id, MessageChain.create([
+        Plain("收到 "),
+        At(nudge.supplicant),
+        Plain(" 的戳一戳，正在制图")
+    ]))
 
     await petpet(nudge.target)
     await app.sendGroupMessage(nudge.group_id, MessageChain.create([

@@ -46,3 +46,4 @@ async def main(app: GraiaMiraiApplication, friend: Friend, message: MessageChain
         await app.sendFriendMessage(friend, MessageChain.create([
             Plain(f"已向 {saying[1]} 充值 {saying[2]} 个游戏币")
         ]))
+

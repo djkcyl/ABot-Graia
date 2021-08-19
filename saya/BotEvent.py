@@ -255,18 +255,21 @@ async def main(app: GraiaMiraiApplication, events: MemberCardChangeEvent):
     '''
     if events.member.id == yaml_data['Basic']['MAH']['BotQQ']:
         if events.current != yaml_data['Basic']['BotName']:
-            await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
-                Plain(f"检测到 {yaml_data['Basic']['BotName']} 群名片变动"),
-                Plain(f"\n群号：{str(events.member.group.id)}"),
-                Plain(f"\n群名：{events.member.group.name}"),
-                Plain(f"\n被修改为：{events.current}"),
-                Plain(f"\n已为你修改回：{yaml_data['Basic']['BotName']}")
-            ]))
+            for qq in yaml_data['Basic']['Permission']['Admin']:
+                await app.sendFriendMessage(qq, MessageChain.create([
+                    Plain(f"检测到 {yaml_data['Basic']['BotName']} 群名片变动"),
+                    Plain(f"\n群号：{str(events.member.group.id)}"),
+                    Plain(f"\n群名：{events.member.group.name}"),
+                    Plain(f"\n操作者{events.operator.name}（{events.operator.id}）"),
+                    Plain(f"\n被修改为：{events.current}"),
+                    Plain(f"\n已为你修改回：{yaml_data['Basic']['BotName']}")
+                ]))
             await app.modifyMemberInfo(member=yaml_data['Basic']['MAH']['BotQQ'],
                                        info=MemberInfo(name=yaml_data['Basic']['BotName']),
                                        group=events.member.group.id)
-            await app.sendGroupMessage(events.member.group.id,
-                                       MessageChain.create([Plain(f"请不要修改我的群名片")]))
+            await app.sendGroupMessage(events.member.group.id, MessageChain.create([
+                Plain(f"请不要修改我的群名片")
+            ]))
 
 
 # 群内事件
