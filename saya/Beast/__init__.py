@@ -30,7 +30,6 @@ async def main(app: GraiaMiraiApplication, group: Group, message: MessageChain, 
     try:
         saying = message.asDisplay().split(" ", 1)
         msg = encode(saying[1])
-        print(len(msg))
         if (len(msg)) < 500:
             await app.sendGroupMessage(group, MessageChain.create([Plain(msg)]), quote=source.id)
         else:

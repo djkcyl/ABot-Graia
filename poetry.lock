@@ -505,6 +505,19 @@ url = "https://pypi.doubanio.com/simple"
 reference = "douban"
 
 [[package]]
+name = "jieba"
+version = "0.42.1"
+description = "Chinese Words Segmentation Utilities"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.source]
+type = "legacy"
+url = "https://pypi.doubanio.com/simple"
+reference = "douban"
+
+[[package]]
 name = "kiwisolver"
 version = "1.3.1"
 description = "A fast implementation of the Cassowary constraint solver"
@@ -1233,7 +1246,7 @@ reference = "douban"
 [metadata]
 lock-version = "1.1"
 python-versions = "3.8"
-content-hash = "2719a7d8a271fe8592ceb940477dc893642c02c918ed83606faa2426f0261021"
+content-hash = "b3da33119a990e5f0c7fc713ebe31e0b95d7aba4fab3b346290605810ff7c590"
 
 [metadata.files]
 aiohttp = [
@@ -1495,6 +1508,9 @@ interval = [
 iterwrapper = [
     {file = "iterwrapper-0.1.4-py3-none-any.whl", hash = "sha256:a3296d81fa2e558734f572617487fb6be3e2af12af2776899dd29d2154ffdba5"},
     {file = "iterwrapper-0.1.4.tar.gz", hash = "sha256:f2dd1e5a55935a0ce151912524de1781d2aa9cb1fda3e2424fb403ff857f63d9"},
+]
+jieba = [
+    {file = "jieba-0.42.1.tar.gz", hash = "sha256:055ca12f62674fafed09427f176506079bc135638a14e23e25be909131928db2"},
 ]
 kiwisolver = [
     {file = "kiwisolver-1.3.1-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:fd34fbbfbc40628200730bc1febe30631347103fc8d3d4fa012c21ab9c11eca9"},

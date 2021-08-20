@@ -45,7 +45,8 @@ funcList = [
     {"name": "娱乐功能", "key": "Entertainment"},
     {"name": "骰娘", "key": "DiceMaid"},
     {"name": "B站视频解析", "key": "BilibiliResolve"},
-    {"name": "听歌识曲 / 哼唱识曲", "key": "VoiceMusicRecognition"}
+    {"name": "听歌识曲 / 哼唱识曲", "key": "VoiceMusicRecognition"},
+    {"name": "淫文翻译机", "key": "Yinglish"}
 ]
 
 configList = [
@@ -199,6 +200,12 @@ funcHelp = {
         "usage": "发送指令：\n识曲 <模式>",
         "options": "模式：原曲、哼唱\n可选择听歌识曲或哼唱识曲，每使用一次无论成功与否均会消耗 2 个游戏币",
         "example": "识曲 原曲"
+    },
+    "淫文翻译机": {
+        "instruction": "能把中文翻译成淫语的翻译机！",
+        "usage": "发送指令：\n淫语 <文字>",
+        "options": "文字：任意100字以内的文字（建议）",
+        "example": "淫语 不行，那里不行"
     }
 }
 
@@ -385,6 +392,7 @@ async def Announcement(app: GraiaMiraiApplication, friend: Friend, message: Mess
                 await app.sendFriendMessage(friend, MessageChain.create([Plain(f"成功将该群加入白名单")]))
         else:
             await app.sendFriendMessage(friend, MessageChain.create([Plain(f"未输入群号")]))
+
 
 @channel.use(ListenerSchema(listening_events=[FriendMessage], inline_dispatchers=[Literature("取消白名单")]))
 async def Announcement(app: GraiaMiraiApplication, friend: Friend, message: MessageChain):
