@@ -126,6 +126,9 @@ Saya: # saya 插件配置
       access_key: "xxxxx"
       access_secret: "xxxxx"
 
+  Yinglish: #淫文翻译机
+    Disabled: false
+    
 Final: false
 # 配置完成后请调整为 True
 # 配置完成后请调整为 True

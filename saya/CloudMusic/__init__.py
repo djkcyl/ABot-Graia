@@ -1,5 +1,4 @@
 import os
-import json
 import time
 import asyncio
 import requests
@@ -36,15 +35,16 @@ if not os.path.exists("./saya/CloudMusic/temp/"):
 MIRAI_PATH = "/A60/bot/"
 
 if not os.path.exists(f"{MIRAI_PATH}data/net.mamoe.mirai-api-http/voices/"):
-    print("请打开./saya/CloudMusic/__init__.py 并修改第 31 行的地址为Mirai的根目录")
+    print("请打开./saya/CloudMusic/__init__.py 并修改变量 MIRAI_PATH 的内容为Mirai的根目录")
     exit()
 
-
-HOST = "http://127.0.0.1:3000"
+CLOUD_HOST = "http://127.0.0.1:3000"
 if not yaml_data['Saya']['CloudMusic']['Disabled']:
     phone = yaml_data['Saya']['CloudMusic']['ApiConfig']['PhoneNumber']
     password = yaml_data['Saya']['CloudMusic']['ApiConfig']['Password']
-    login = requests.get(f"{HOST}/login/cellphone?phone={phone}&password={password}").cookies
+    login = requests.get(f"{CLOUD_HOST}/login/cellphone?phone={phone}&password={password}").cookies
+
+QQ_HOST = "http://127.0.0.1:3200"
 
 WAITING = []
 
@@ -65,6 +65,8 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: 
             waiter1_saying = waiter1_message.asDisplay()
             if waiter1_saying == "取消":
                 return False
+            elif waiter1_saying.replace(" ", "") == "":
+                await app.sendGroupMessage(group, MessageChain.create([Plain("请不要输入空格")]))
             else:
                 return waiter1_saying
 
@@ -73,7 +75,8 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: 
         if all([waiter2_group.id == group.id, waiter2_member.id == member.id]):
             if waiter2_message.asDisplay() == "取消":
                 return False
-            elif waiter2_message.asDisplay() in ["1", "2", "3", "4", "5", "6", "7", "8", "8", "10"]:
+            elif waiter2_message.asDisplay() in [
+                    "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"]:
                 return waiter2_message.asDisplay()
             else:
                 await app.sendGroupMessage(group, MessageChain.create([Plain("请发送歌曲 id<1-10> 来点歌，发送取消可终止本次点歌")]))
@@ -96,16 +99,20 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: 
                 ]), quote=waite_musicmessageId.messageId)
         else:
             musicname = saying[1]
+            if musicname == None:
+                WAITING.remove(member.id)
+                return await app.sendGroupMessage(group, MessageChain.create([Plain("歌名输入有误")]))
         times = str(int(time.time()))
-        search = requests.get(
-            url=f"{HOST}/cloudsearch?keywords={musicname}&timestamp={times}", cookies=login)
-        if json.loads(search.text)["result"]["songCount"] == 0:
+        search = requests.get(f"{CLOUD_HOST}/cloudsearch?keywords={musicname}&timestamp={times}", cookies=login).json()
+        if search["result"]["songCount"] == 0:
             WAITING.remove(member.id)
             return await app.sendGroupMessage(group, MessageChain.create([Plain("未找到此歌曲")]))
-        musiclist = json.loads(search.text)["result"]["songs"]
+        musiclist = search["result"]["songs"]
         musicIdList = []
-        msg = "为你在网易云音乐找到以下歌曲！\n==============================="
         num = 1
+        i = 1
+
+        msg = "===============================\n为你在网易云音乐找到以下歌曲！\n==============================="
         for music in musiclist:
             if num > 10:
                 break
@@ -115,11 +122,35 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: 
             for ar in music['ar']:
                 music_ar.append(ar['name'])
             music_ar = "/".join(music_ar)
-            num_str = " " + str(num) if num < 10 else str(num)
+            num_str = " " + str(i) if i < 10 else str(i)
             msg += f"\n{num_str}    ===>    {music_name} - {music_ar}"
-            musicIdList.append(music_id)
+            musicIdList.append([1, music_id])
             num += 1
-        msg += f"\n===============================\n发送歌曲id可完成点歌\n发送取消可终止当前点歌\n点歌将消耗 4 个游戏币"
+            i += 1
+
+        search = requests.get(f"{QQ_HOST}/getSearchByKey?key={musicname}").json()
+        if search["response"]["data"]["song"]["curnum"] == 0:
+            WAITING.remove(member.id)
+            return await app.sendGroupMessage(group, MessageChain.create([Plain("未找到此歌曲")]))
+        musiclist = search["response"]["data"]["song"]["list"]
+        num = 1
+        msg += "\n===============================\n为你在QQ音乐找到以下歌曲！\n==============================="
+        for music in musiclist:
+            if num > 10:
+                break
+            music_id = music['mid']
+            music_name = music['name']
+            music_ar = []
+            for ar in music['singer']:
+                music_ar.append(ar['name'])
+            music_ar = "/".join(music_ar)
+            num_str = " " + str(i) if i < 10 else str(i)
+            msg += f"\n{num_str}    ===>    {music_name} - {music_ar}"
+            musicIdList.append([2, music_id])
+            num += 1
+            i += 1
+
+        msg += f"\n===============================\n发送歌曲id可完成点歌\n发送取消可终止当前点歌\n点歌将消耗 4 个游戏币\n==============================="
         image = await create_image(msg)
         waite_musicmessageId = await app.sendGroupMessage(group, MessageChain.create([
             Image_UnsafeBytes(image.getvalue())
@@ -137,47 +168,61 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: 
             ]), quote=waite_musicmessageId.messageId)
 
         musicid = musicIdList[int(wantMusicID) - 1]
-        times = str(int(time.time()))
-        musicinfo = requests.get(
-            url=f"{HOST}/song/detail?ids={musicid}&timestamp={times}",
-            cookies=login).json()
-        # print(musicinfo)
-        musicurl = requests.get(
-            url=f"{HOST}/song/url?id={musicid}&br=128000&timestamp={times}",
-            cookies=login).json()
+        if musicid[0] == 1:
+            times = str(int(time.time()))
+            musicinfo = requests.get(
+                url=f"{CLOUD_HOST}/song/detail?ids={musicid[1]}&timestamp={times}",
+                cookies=login).json()
+            musicurl = requests.get(
+                url=f"{CLOUD_HOST}/song/url?id={musicid[1]}&br=128000&timestamp={times}",
+                cookies=login).json()["data"][0]["url"]
+            if yaml_data['Saya']['CloudMusic']['MusicInfo']:
+                music_name = musicinfo['songs'][0]['name']
+                music_ar = []
+                for ar in musicinfo['songs'][0]['ar']:
+                    music_ar.append(ar['name'])
+                music_ar = "/".join(music_ar)
+                music_al = musicinfo['songs'][0]['al']['picUrl']+"?param=300x300"
+        elif musicid[0] == 2:
+            musicinfo = requests.get(f"{QQ_HOST}/getSongInfo?songmid={musicid[1]}").json()["response"]["songinfo"]["data"]["track_info"]
+            musicurl = requests.get(f"{QQ_HOST}/getMusicPlay?songmid={musicid[1]}").json()["data"]["playUrl"][musicid[1]]["url"]
+            album_mid = musicinfo["album"]["mid"]
+            if yaml_data['Saya']['CloudMusic']['MusicInfo']:
+                music_name = musicinfo["name"]
+                music_ar = []
+                for ar in musicinfo["singer"]:
+                    music_ar.append(ar['name'])
+                    music_ar = "/".join(music_ar)
+                music_al = requests.get(f"{QQ_HOST}/getImageUrl?id={album_mid}").json()["response"]["data"]["imageUrl"]
 
-        if not os.path.exists(f"./saya/CloudMusic/temp/{musicid}.mp3"):
-            music_url = musicurl["data"][0]["url"]
-            if music_url == None:
-                WAITING.remove(member.id)
-                return await app.sendGroupMessage(group, MessageChain.create([Plain("该歌曲暂无法点歌")]), quote=source)
-            r = await aiorequests.get(music_url)
-            music_fcontent = await r.content
+        if not os.path.exists(f"./saya/CloudMusic/temp/{musicid[1]}.mp3"):
             print(f"正在缓存歌曲：{music_name}")
-            with open(f'./saya/CloudMusic/temp/{musicid}.mp3', 'wb') as f:
+            if musicurl == None or musicurl == "":
+                WAITING.remove(member.id)
+                return await app.sendGroupMessage(group, MessageChain.create([Plain("该歌曲由于版权问题无法点歌，请使用客户端播放")]), quote=source)
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36 Edg/92.0.902.73"
+            }
+            r = await aiorequests.get(musicurl, headers=headers)
+            music_fcontent = await r.content
+
+            with open(f'./saya/CloudMusic/temp/{musicid[1]}.mp3', 'wb') as f:
                 f.write(music_fcontent)
+
+        await app.sendGroupMessage(group, MessageChain.create([
+            Image_NetworkAddress(music_al),
+            Plain(f"\n曲名：{music_name}\n作者：{music_ar}"),
+            Plain("\n超过9:00的歌曲将被裁切前9:00\n歌曲时长越长音质越差\n超过4分钟的歌曲音质将受到较大程度的损伤\n发送语音需要一定时间，请耐心等待")
+        ]))
 
         if not await reduce_gold(str(member.id), 4):
             WAITING.remove(member.id)
             return await app.sendGroupMessage(group, MessageChain.create([Plain("你的游戏币不足，无法使用")]), quote=source)
 
-        if yaml_data['Saya']['CloudMusic']['MusicInfo']:
-            music_name = musicinfo['songs'][0]['name']
-            music_ar = []
-            for ar in musicinfo['songs'][0]['ar']:
-                music_ar.append(ar['name'])
-            music_ar = "/".join(music_ar)
-            music_al = musicinfo['songs'][0]['al']['picUrl']+"?param=300x300"
-            await app.sendGroupMessage(group, MessageChain.create([
-                Image_NetworkAddress(music_al),
-                Plain(f"\n曲名：{music_name}\n作者：{music_ar}"),
-                Plain("\n超过9:00的歌曲将被裁切前9:00\n歌曲时长越长音质越差\n超过4分钟的歌曲音质将受到较大程度的损伤\n发送语音需要一定时间，请耐心等待")
-            ]))
-
-        cache = Path(f'{MIRAI_PATH}data/net.mamoe.mirai-api-http/voices/{musicid}')
-        cache.write_bytes(await silkcoder.encode(f'./saya/CloudMusic/temp/{musicid}.mp3', t=540))
-        await app.sendGroupMessage(group, MessageChain.create([Voice(path=musicid)]))
-        # os.remove(f'{MIRAI_PATH}data/net.mamoe.mirai-api-http/voices/{musicid}')
+        cache = Path(f'{MIRAI_PATH}data/net.mamoe.mirai-api-http/voices/{musicid[1]}')
+        cache.write_bytes(await silkcoder.encode(f'./saya/CloudMusic/temp/{musicid[1]}.mp3', t=540))
+        await app.sendGroupMessage(group, MessageChain.create([Voice(path=musicid[1])]))
+        # os.remove(f'{MIRAI_PATH}data/net.mamoe.mirai-api-http/voices/{musicid[1]}')
         return WAITING.remove(member.id)
 
 
@@ -193,7 +238,6 @@ async def main(app: GraiaMiraiApplication, friend: Friend):
             ]))
         else:
             await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([Plain(f"当前没有正在点歌的人")]))
-
 
 
 @channel.use(ListenerSchema(listening_events=[FriendMessage], inline_dispatchers=[Literature("勾指起誓")]))
