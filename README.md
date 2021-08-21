@@ -11,7 +11,7 @@
 > - 小鸡词典查梗 `查梗 <msg>`
 > - 小鸡词典文字转 emoji `emoji <msg>`
 > - 汉语词典查询 `词典 <msg>`
-> - 网易云音乐点歌姬（语音形式） `搜歌 <msg>` and `唱歌 <msg>`
+> - 点歌姬（支持\[QQ音乐/网易云音乐\]语音形式） `搜歌 <msg>` and `唱歌 <msg>`
 > - 网络黑话翻译（字母缩写，如 `awsl` 等） `你在说什么 <msg>`
 > - 词云生成 `我的月内总结` and `我的年内总结` and `本群月内总结` and `本群年内总结`
 > - 我的世界服务器 Motd Ping `/mcping <host:port>`
@@ -65,7 +65,8 @@
 - [Python](https://www.python.org/) `3.8`
 - - [Poetry](https://python-poetry.org/)
 - [Mirai HTTP API](https://github.com/project-mirai/mirai-api-http) `=< 1.12.0`
-- [Netease Cloud Music Api](https://github.com/Binaryify/NeteaseCloudMusicApi) `如果你需要网易云音乐点歌姬功能的话需要自行搭建`
+- [Netease Cloud Music Api](https://github.com/Binaryify/NeteaseCloudMusicApi) `如果你需要点歌姬功能的话需要自行搭建`
+- [QQ Music API](https://github.com/Rain120/qq-music-api) `如果你需要点歌姬功能的话需要自行搭建`
 
 ### 安装
 
