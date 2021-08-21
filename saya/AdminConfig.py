@@ -427,3 +427,17 @@ async def Announcement(app: GraiaMiraiApplication, friend: Friend):
     if friend.id == yaml_data['Basic']['Permission']['Master']:
         set_sleep(0)
         await app.sendFriendMessage(friend, MessageChain.create([Plain(f"已开始工作")]))
+
+
+@channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("休息")]))
+async def Announcement(app: GraiaMiraiApplication, group: Group, member: Member):
+    if member.id == yaml_data['Basic']['Permission']['Master']:
+        set_sleep(1)
+        await app.sendGroupMessage(group, MessageChain.create([Plain(f"已进入休息")]))
+
+
+@channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("工作")]))
+async def Announcement(app: GraiaMiraiApplication, group: Group, member: Member):
+    if member.id == yaml_data['Basic']['Permission']['Master']:
+        set_sleep(0)
+        await app.sendGroupMessage(group, MessageChain.create([Plain(f"已开始工作")]))
