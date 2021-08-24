@@ -199,7 +199,7 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: 
             print(f"正在缓存歌曲：{music_name}")
             if musicurl == None or musicurl == "":
                 WAITING.remove(member.id)
-                return await app.sendGroupMessage(group, MessageChain.create([Plain("该歌曲由于版权问题无法点歌，请使用客户端播放")]), quote=source)
+                return await app.sendGroupMessage(group, MessageChain.create([Plain(f"该歌曲（{music_name}）由于版权问题无法点歌，请使用客户端播放")]))
             headers = {
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36 Edg/92.0.902.73"
             }
@@ -208,12 +208,18 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: 
 
             with open(f'./saya/CloudMusic/temp/{musicid[1]}.mp3', 'wb') as f:
                 f.write(music_fcontent)
-
-        await app.sendGroupMessage(group, MessageChain.create([
-            Image_NetworkAddress(music_al),
-            Plain(f"\n曲名：{music_name}\n作者：{music_ar}"),
-            Plain("\n超过9:00的歌曲将被裁切前9:00\n歌曲时长越长音质越差\n超过4分钟的歌曲音质将受到较大程度的损伤\n发送语音需要一定时间，请耐心等待")
-        ]))
+        
+        try:
+            await app.sendGroupMessage(group, MessageChain.create([
+                Image_NetworkAddress(music_al),
+                Plain(f"\n曲名：{music_name}\n作者：{music_ar}"),
+                Plain("\n超过9:00的歌曲将被裁切前9:00\n歌曲时长越长音质越差\n超过4分钟的歌曲音质将受到较大程度的损伤\n发送语音需要一定时间，请耐心等待")
+            ]))
+        except:
+            await app.sendGroupMessage(group, MessageChain.create([
+                Plain(f"曲名：{music_name}\n作者：{music_ar}"),
+                Plain("\n超过9:00的歌曲将被裁切前9:00\n歌曲时长越长音质越差\n超过4分钟的歌曲音质将受到较大程度的损伤\n发送语音需要一定时间，请耐心等待")
+            ]))
 
         if not await reduce_gold(str(member.id), 4):
             WAITING.remove(member.id)
