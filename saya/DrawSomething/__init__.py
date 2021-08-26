@@ -2,6 +2,7 @@ import json
 import time
 import secrets
 import asyncio
+from graia.application.exceptions import UnknownTarget
 
 from graia.saya import Saya, Channel
 from graia.application.friend import Friend
@@ -122,9 +123,15 @@ async def main(app: GraiaMiraiApplication, group: Group, member: Member, source:
     # 新游戏创建流程
     else:
         GROUP_RUNING_LIST.append(group.id)
-        await app.sendGroupMessage(group, MessageChain.create([
-            Plain("是否确认在本群开启一场你画我猜？这将消耗你 4 个游戏币")
-        ]), quote=source)
+        try:
+            await app.sendGroupMessage(group, MessageChain.create([
+                Plain("是否确认在本群开启一场你画我猜？这将消耗你 4 个游戏币")
+            ]), quote=source)
+        except UnknownTarget:
+            await app.sendGroupMessage(group, MessageChain.create([
+                At(member.id),
+                Plain(" 是否确认在本群开启一场你画我猜？这将消耗你 4 个游戏币")
+            ]))
         try:
             # 新游戏创建完成，进入等待玩家阶段
             if await asyncio.wait_for(inc.wait(confirm), timeout=15):
