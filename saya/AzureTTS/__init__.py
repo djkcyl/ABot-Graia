@@ -35,7 +35,7 @@ if not os.path.exists(f"{MIRAI_PATH}data/net.mamoe.mirai-api-http/voices/"):
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("/tts")],
-                            headless_decorators=[rest_control(), member_limit_check(80)]
+                            headless_decorators=[rest_control(), member_limit_check(40)]
                             ))
 async def azuretts(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain, source: Source):
 

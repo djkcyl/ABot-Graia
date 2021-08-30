@@ -19,5 +19,8 @@ data.json
 /saya/ArkTools/
 /saya/ChineseDict/chrome/
 /saya/2048/
+/saya/ArkFriend/
+/saya/DriftingBottle/
 
 /pixiv/
+.gitignore
