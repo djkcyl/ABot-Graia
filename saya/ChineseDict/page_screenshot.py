@@ -42,7 +42,7 @@ async def get_hans_screenshot(url):
 def install():
     print("正在检查 Chromium 更新")
     import os
-    os.system("poetry run playwright install")
+    os.system("poetry run playwright install chromium")
 
 
 install()

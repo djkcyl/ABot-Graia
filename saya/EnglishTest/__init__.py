@@ -32,7 +32,7 @@ bookid = {
     "TOEFL_2": {"name": "TOEFL 词汇", "id": "7"},
     "ChuZhongluan_2": {"name": "中考必备词汇", "id": "8"},
     "GaoZhongluan_2": {"name": "高考必备词汇", "id": "9"},
-    "PEPXiaoXue3_1": {"name": "人教版小学英语-三年级上册", "id": "10"},
+    "PEPXiaoXue3_1": {"name": "人教版小学英语-三年级上册（你真的确定要选这个吗", "id": "10"},
     "PEPChuZhong7_1": {"name": "人教版初中英语-七年级上册", "id": "11"},
     "PEPGaoZhong": {"name": "人教版高中英语-必修", "id": "12"},
     "ChuZhong_2": {"name": "初中英语词汇", "id": "13"},
@@ -148,5 +148,5 @@ async def learn(app: GraiaMiraiApplication, group: Group, member: Member):
                 elif process == 4:
                     del RUNNING[group.id]
                     return await app.sendGroupMessage(group, MessageChain.create([
-                        Plain(f"本次答案为：{word_data[0]}\n游戏已结束，请重新开启")
+                        Plain(f"本次答案为：{word_data[0]}\n答题已结束，请重新开启")
                     ]))
