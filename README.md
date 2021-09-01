@@ -66,6 +66,7 @@
 - [Python](https://www.python.org/) `3.8`
 - - [Poetry](https://python-poetry.org/)
 - [Mirai HTTP API](https://github.com/project-mirai/mirai-api-http) `=< 1.12.0`
+- [Redis](https://redis.io/)
 - [Netease Cloud Music Api](https://github.com/Binaryify/NeteaseCloudMusicApi) `如果你需要点歌姬功能的话需要自行搭建`
 - [QQ Music API](https://github.com/Rain120/qq-music-api) `如果你需要点歌姬功能的话需要自行搭建`
 
@@ -111,13 +112,13 @@ npx playwright install-deps
 
 > **Centos**
 >
-> > ```shell
-> > yum install screen
-> > screen -R ABot
-> > ...
-> > ```
-> >
-> > 其他发行版怎么用就不多说了，自己查吧
+> ```shell
+> yum install screen
+> screen -R ABot
+> ...
+> ```
+>
+> 其他发行版怎么用就不多说了，自己查吧
 > > [Screen 基础用法](https://www.runoob.com/linux/linux-comm-screen.html)
 
 ABot 的 saya 插件应该都可以抠出来放在别的 graia bot 里使用
