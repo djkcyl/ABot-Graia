@@ -21,8 +21,6 @@ data.json
 /saya/ChineseDict/chrome/
 /saya/2048/
 /saya/ArkFriend/
-/saya/DriftingBottle/
 
 /pixiv/
 .gitignore
-datebase/migrator.py
