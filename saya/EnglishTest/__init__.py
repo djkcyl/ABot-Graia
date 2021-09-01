@@ -8,9 +8,10 @@ from graia.broadcast.interrupt import InterruptControl
 from graia.application.event.messages import GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.parser.literature import Literature
-from graia.application.message.elements.internal import Image_UnsafeBytes, MessageChain, Plain
+from graia.application.message.elements.internal import At, Image_UnsafeBytes, MessageChain, Plain
 
 from util.text2image import create_image
+from datebase.db import add_answer
 
 from .database.database import random_word
 
@@ -69,13 +70,13 @@ async def learn(app: GraiaMiraiApplication, group: Group, member: Member):
                     ]))
 
     @Waiter.create_using_function([GroupMessage])
-    async def waiter(waiter_group: Group, waiter_message: MessageChain):
+    async def waiter(waiter_group: Group, waiter_member: Member, waiter_message: MessageChain):
         if waiter_group.id == group.id:
             waiter_saying = waiter_message.asDisplay()
             if waiter_saying == "取消":
                 return False
             elif waiter_saying == RUNNING[group.id]:
-                return True
+                return waiter_member.id
 
     if group.id in RUNNING:
         return
@@ -117,9 +118,13 @@ async def learn(app: GraiaMiraiApplication, group: Group, member: Member):
         ]))
         for process in Process:
             try:
-                if await asyncio.wait_for(inc.wait(waiter), timeout=30):
+                answer_qq = await asyncio.wait_for(inc.wait(waiter), timeout=30)
+                if answer_qq:
+                    await add_answer(str(answer_qq))
                     await app.sendGroupMessage(group, MessageChain.create([
-                        Plain(f"恭喜回答正确 {word_data[0]}")
+                        Plain("恭喜 "),
+                        At(answer_qq),
+                        Plain(f" 回答正确 {word_data[0]}")
                     ]))
                     await asyncio.sleep(1)
                     break
