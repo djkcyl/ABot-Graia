@@ -15,10 +15,11 @@ class BaseModel(Model):
 
 class User(BaseModel):
     qq = CharField()
-    is_sign = IntegerField()
-    sign_num = IntegerField()
-    gold = IntegerField()
-    talk_num = IntegerField()
+    is_sign = IntegerField(default=0)
+    sign_num = IntegerField(default=0)
+    # continuous_sign = IntegerField(default=0)
+    gold = IntegerField(default=0)
+    talk_num = IntegerField(default=0)
 
     class Meta:
         table_name = 'user_info'
@@ -30,7 +31,7 @@ db.create_tables([User], safe=True)
 def init_user(qq):
     user = User.select().where(User.qq == qq)
     if not user.exists():
-        p = User(qq=qq, is_sign=0, sign_num=0, gold=0, talk_num=0)
+        p = User(qq=qq)
         p.save()
         print("已初始化" + str(qq))
 

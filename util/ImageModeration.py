@@ -23,7 +23,6 @@ async def image_moderation(url: str):
         params = {
             "BizType": "group_recall",
             "FileUrl": url
-
         }
         req.from_json_string(json.dumps(params))
 

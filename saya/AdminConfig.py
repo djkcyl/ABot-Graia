@@ -46,7 +46,8 @@ funcList = [
     {"name": "骰娘", "key": "DiceMaid"},
     {"name": "B站视频解析", "key": "BilibiliResolve"},
     {"name": "听歌识曲 / 哼唱识曲", "key": "VoiceMusicRecognition"},
-    {"name": "淫文翻译机", "key": "Yinglish"}
+    {"name": "淫文翻译机", "key": "Yinglish"},
+    {"name": "背单词", "key": "EnglishTest"}
 ]
 
 configList = [
@@ -206,6 +207,12 @@ funcHelp = {
         "usage": "发送指令：\n淫语 <文字>",
         "options": "文字：任意100字以内的文字（建议）",
         "example": "淫语 不行，那里不行"
+    },
+    "背单词": {
+        "instruction": "字面意思",
+        "usage": "发送指令：\n背单词",
+        "options": "发送背单词后选择想要学习的词库，机器人将会发题，请根据题目作答，30秒后未作答将提供三次提示，答题系统为全群共享，即“一人开启，全群皆可作答”，如果不想学或者想更换题库可发送取消来终止进程。",
+        "example": "（这也需要示例吗？"
     }
 }
 

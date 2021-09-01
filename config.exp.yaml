@@ -128,6 +128,9 @@ Saya: # saya 插件配置
 
   Yinglish: #淫文翻译机
     Disabled: false
+
+  EnglishTest: # 背单词
+    Disabled: false
     
 Final: false
 # 配置完成后请调整为 True
