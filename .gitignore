@@ -4,6 +4,7 @@ temp/
 voice_file
 config.json
 *.db
+!WordData.db
 tempWordCloud.png
 test.py
 config.yaml
@@ -24,3 +25,4 @@ data.json
 
 /pixiv/
 .gitignore
+datebase/migrator.py

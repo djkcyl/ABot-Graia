@@ -62,7 +62,7 @@ async def main(app: GraiaMiraiApplication, group: Group, member: Member):
         Plain(f"\n当前共有 {str(user_info[3])} 个游戏币"),
         Plain(f"\n你已累计签到 {str(user_info[2])} 天"),
         Plain(f"\n从有记录以来你共有 {str(user_info[4])} 次发言"),
-        Plain("\n\n当前游戏币可在群内发起 <你画我猜>")
+        Plain("\n\n为响应国家号召，加强未成年人网络娱乐监管，欢迎爱学习的孩子输入 背单词 来学习英语")
     ]))
 
 

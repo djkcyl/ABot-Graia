@@ -236,7 +236,7 @@ async def friendTrans(app: GraiaMiraiApplication, friend: Friend, message: Messa
     '''
     收到私信
     '''
-    if friend.id not in yaml_data['Basic']['Permission']['Admin']:
+    if friend.id not in yaml_data['Basic']['Permission']['Admin'] and friend.id not in [1397587862, 2766249949, 3311316892]:
         await app.sendFriendMessage(friend, MessageChain.create([Plain("私信不会触发任何功能，触发功能请前往群聊触发")]))
         for qq in yaml_data['Basic']['Permission']['Admin']:
             say = MessageChain.join(MessageChain.create([
