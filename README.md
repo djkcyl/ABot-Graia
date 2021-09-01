@@ -1,6 +1,6 @@
 # ABot for Graia
-
-这是一个从头屎到尾的 Bot
+### 由于不可抗力 ABot 暂时停更（
+![DT% IQ$B@{AGT_9J`}VIPQ3](https://user-images.githubusercontent.com/59153990/131631980-74f08a13-e638-4e7f-a42a-bceb33d75b3b.jpg)
 
 ## ABot 现在能干什么
 
