@@ -1,5 +1,7 @@
 # ABot for Graia
 ### 由于不可抗力 ABot 暂时停更（
+![7L4P%)_QA6_B3QPS0$74@49](https://user-images.githubusercontent.com/59153990/131785951-2d093dac-6d72-489b-a05d-0cbeab710c04.jpg)
+
 ![DT% IQ$B@{AGT_9J`}VIPQ3](https://user-images.githubusercontent.com/59153990/131631980-74f08a13-e638-4e7f-a42a-bceb33d75b3b.jpg)
 
 ## ABot 现在能干什么
