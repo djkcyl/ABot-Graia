@@ -1,1 +1,3 @@
 saya/ChineseDict/chrome/extension/*.js linguist-language=Python
+saya/ChineseDict/chrome/extension/*.html linguist-language=Python
+saya/ChineseDict/chrome/extension/*.css linguist-language=Python
