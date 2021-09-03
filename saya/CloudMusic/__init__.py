@@ -213,7 +213,7 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: 
             await app.sendGroupMessage(group, MessageChain.create([
                 Image_NetworkAddress(music_al),
                 Plain(f"\n曲名：{music_name}\n作者：{music_ar}"),
-                Plain("\n超过9:00的歌曲将被裁切前9:00\n歌曲时长越长音质越差\n超过4分钟的歌曲音质将受到较大程度的损伤\n发送语音需要一定时间，请耐心等待")
+                Plain(f"\n超过9:00的歌曲将被裁切前9:00\n歌曲时长越长音质越差\n超过4分钟的歌曲音质将受到较大程度的损伤\n发送语音需要一定时间，请耐心等待\n{musicurl}")
             ]))
         except:
             await app.sendGroupMessage(group, MessageChain.create([
