@@ -55,7 +55,6 @@ async def get_info(qq):
 
 async def add_gold(qq: str, num: int):
     init_user(qq)
-    gold_num = User.get(qq=qq).gold
     p = User.update(gold=User.gold+num).where(User.qq == qq)
     p.execute()
     return True
