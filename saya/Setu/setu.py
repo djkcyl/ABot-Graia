@@ -26,9 +26,9 @@ async def create_setu():
         img.paste(imr, (300, 0))
         img.paste(iml, (0, 0))
         text = ImageDraw.Draw(img)
-        FZDBSJWFont = ImageFont.truetype('FZDBSJW.TTF', random.randint(120, 220))
+        FZDBSJWFont = ImageFont.truetype('./font/FZDBSJW.TTF', random.randint(120, 220))
         text.text((random.randint(10, 100), random.randint(10, 100)), "色", font=FZDBSJWFont, fill=ccolor)
-        FZDBSJWFont = ImageFont.truetype('FZDBSJW.TTF', random.randint(120, 220))
+        FZDBSJWFont = ImageFont.truetype('./font/FZDBSJW.TTF', random.randint(120, 220))
         text.text((random.randint(320, 380), random.randint(10, 100)), "图", font=FZDBSJWFont, fill=color)
         frames.append(img)
 
@@ -36,9 +36,9 @@ async def create_setu():
         img.paste(iml, (300, 0))
         img.paste(imr, (0, 0))
         text = ImageDraw.Draw(img)
-        FZDBSJWFont = ImageFont.truetype('FZDBSJW.TTF', random.randint(120, 220))
+        FZDBSJWFont = ImageFont.truetype('./font/FZDBSJW.TTF', random.randint(120, 220))
         text.text((random.randint(10, 100), random.randint(10, 100)), "色", font=FZDBSJWFont, fill=color)
-        FZDBSJWFont = ImageFont.truetype('FZDBSJW.TTF', random.randint(120, 220))
+        FZDBSJWFont = ImageFont.truetype('./font/FZDBSJW.TTF', random.randint(120, 220))
         text.text((random.randint(320, 380), random.randint(10, 100)), "图", font=FZDBSJWFont, fill=ccolor)
         frames.append(img)
 
