@@ -97,7 +97,7 @@ async def learn(app: GraiaMiraiApplication, group: Group, member: Member):
         del RUNNING[group.id]
         return await app.sendGroupMessage(group, MessageChain.create([Plain("等待超时")]))
 
-    await app.sendGroupMessage(group, MessageChain.create([Plain("已开启本次答题，每一题有30秒答题时间，可随时发送取消终止进程")]))
+    await app.sendGroupMessage(group, MessageChain.create([Plain("已开启本次答题，可随时发送取消终止进程")]))
 
     while True:
         word_data = await random_word(bookid)
@@ -118,7 +118,7 @@ async def learn(app: GraiaMiraiApplication, group: Group, member: Member):
         ]))
         for process in Process:
             try:
-                answer_qq = await asyncio.wait_for(inc.wait(waiter), timeout=30)
+                answer_qq = await asyncio.wait_for(inc.wait(waiter), timeout=15)
                 if answer_qq:
                     await add_answer(str(answer_qq))
                     await app.sendGroupMessage(group, MessageChain.create([
