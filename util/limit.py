@@ -33,6 +33,11 @@ def limit_exists(name, limit):
 
 
 def member_limit_check(limit: int):
+    '''
+    单用户频率限制
+    ~~~~~~~~~~~~~~~~~~~~~
+    按群用户独立控制
+    '''
     async def limit_wrapper(app: GraiaMiraiApplication, group: Group, member: Member):
         name = str(group.id) + "_" + str(member.id)
         limit_blocked, cd, limited = limit_exists(name, limit)
@@ -48,8 +53,12 @@ def member_limit_check(limit: int):
             raise ExecutionStop()
     return Depend(limit_wrapper)
 
-
 def group_limit_check(limit: int):
+    '''
+    群频率限制
+    ~~~~~~~~~~~~~~~~~~~~~
+    按群独立控制
+    '''
     async def limit_wrapper(app: GraiaMiraiApplication, group: Group):
         name = str(group.id)
         limit_blocked, cd, limited = limit_exists(name, limit)
@@ -64,8 +73,12 @@ def group_limit_check(limit: int):
             raise ExecutionStop()
     return Depend(limit_wrapper)
 
-
 def manual_limit(group, func, limit: int):
+    '''
+    手动频率限制
+    ~~~~~~~~~~~~~~~~~~~~~
+    手动控制
+    '''
     name = str(group) + "_" + func
     limit_blocked, _, _ = limit_exists(name, limit)
     if limit_blocked:

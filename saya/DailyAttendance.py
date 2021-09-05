@@ -23,7 +23,7 @@ channel = Channel.current()
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("签到")],
-                            headless_decorators=[member_limit_check(5)]))
+                            headless_decorators=[member_limit_check(10)]))
 async def main(app: GraiaMiraiApplication, group: Group, member: Member):
     if await sign(str(member.id)):
         i = random.randint(1, 10)
