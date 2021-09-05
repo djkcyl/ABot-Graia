@@ -170,7 +170,7 @@ async def get_BotJoinGroup(app: GraiaMiraiApplication, joingroup: BotJoinGroupEv
             Plain(f"\n{yaml_data['Basic']['BotName']}被群禁言后会自动退出该群。"),
             Plain(f"\n发送 <菜单> 可以查看功能列表"),
             Plain(f"\n拥有管理员以上权限可以开关功能"),
-            Plain(f"\n\n住：@{yaml_data['Basic']['BotName']}不会触发任何功能"),
+            Plain(f"\n\n注：@{yaml_data['Basic']['BotName']}不会触发任何功能"),
         ]))
 
 

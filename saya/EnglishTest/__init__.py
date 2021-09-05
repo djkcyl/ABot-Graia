@@ -126,7 +126,7 @@ async def learn(app: GraiaMiraiApplication, group: Group, member: Member):
                         At(answer_qq),
                         Plain(f" 回答正确 {word_data[0]}")
                     ]))
-                    await asyncio.sleep(1)
+                    await asyncio.sleep(2)
                     break
                 else:
                     del RUNNING[group.id]
