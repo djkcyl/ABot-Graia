@@ -21,6 +21,7 @@ data.json
 /saya/ChineseDict/chrome/data/*
 /saya/2048/
 /saya/ArkFriend/
+/saya/ChaoxingSign
 
 /pixiv/
 .gitignore

@@ -99,7 +99,7 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: 
                 ]), quote=waite_musicmessageId.messageId)
         else:
             musicname = saying[1]
-            if musicname == None:
+            if musicname == None or musicname.replace(" ", "") == "":
                 WAITING.remove(member.id)
                 return await app.sendGroupMessage(group, MessageChain.create([Plain("歌名输入有误")]))
         times = str(int(time.time()))
@@ -208,7 +208,7 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: 
 
             with open(f'./saya/CloudMusic/temp/{musicid[1]}.mp3', 'wb') as f:
                 f.write(music_fcontent)
-        
+
         try:
             await app.sendGroupMessage(group, MessageChain.create([
                 Image_NetworkAddress(music_al),

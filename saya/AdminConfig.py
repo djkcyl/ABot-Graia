@@ -181,7 +181,7 @@ funcHelp = {
     "娱乐功能": {
         "instruction": "提供一些群内互动娱乐功能",
         "usage": "发送指令：\n签到\n你画我猜\n赠送游戏币\n查看排行榜",
-        "options": "签到：每日凌晨四点重置签到，每次签到可获得 2-16 个游戏币\n你画我猜：每次消耗 4 个游戏币\n    赠送游戏币：可以向他人赠送自己的游戏币，限值 1-1000以内\n排行榜可同时查看游戏币榜和发言榜，一般情况下排行榜每十分钟更新一次",
+        "options": "签到：每日凌晨四点重置签到，每次签到可获得 5-21 个游戏币\n你画我猜：每次消耗 4 个游戏币\n    赠送游戏币：可以向他人赠送自己的游戏币，限值 1-1000以内\n排行榜可同时查看游戏币榜和发言榜，一般情况下排行榜每十分钟更新一次",
         "example": "赠送游戏币 @ABot 15"
     },
     "骰娘": {
@@ -264,17 +264,17 @@ async def adminmain(app: GraiaMiraiApplication, group: Group, message: MessageCh
                 Plain("该功能暂不开启")
             ]))
         help = str(sayfunc +
-                   "\n\n       >>> 用法 >>>\n" +
+                   "\n\n      >>> 用法 >>>\n" +
                    funcHelp[sayfunc]["usage"] +
-                   "\n\n       >>> 注意事项 >>>\n" +
+                   "\n\n      >>> 注意事项 >>>\n" +
                    funcHelp[sayfunc]["options"] +
-                   "\n\n       >>> 示例 >>>\n" +
+                   "\n\n      >>> 示例 >>>\n" +
                    funcHelp[sayfunc]["example"]
                    )
         image = await create_image(help)
         await app.sendGroupMessage(group, MessageChain.create([Image_UnsafeBytes(image.getvalue())]))
     else:
-        await app.sendGroupMessage(group, MessageChain.create([[Plain("请输入 功能 <id>，如果不知道id可以发送菜单查看")]]))
+        await app.sendGroupMessage(group, MessageChain.create([Plain("请输入 功能 <id>，如果不知道id可以发送菜单查看")]))
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))

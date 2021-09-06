@@ -229,23 +229,6 @@ async def get_BotJoinGroup(app: GraiaMiraiApplication, group: Group, mute: BotMu
         await app.quit(group)
 
 
-@channel.use(ListenerSchema(listening_events=[FriendMessage]))
-async def friendTrans(app: GraiaMiraiApplication, friend: Friend, message: MessageChain):
-    '''
-    收到私信
-    '''
-    if friend.id not in yaml_data['Basic']['Permission']['Admin'] and friend.id not in [1397587862, 2766249949, 3311316892]:
-        await app.sendFriendMessage(friend, MessageChain.create([Plain("私信不会触发任何功能，触发功能请前往群聊触发")]))
-        for qq in yaml_data['Basic']['Permission']['Admin']:
-            say = MessageChain.join(MessageChain.create([
-                Plain(f"收到私信消息"),
-                Plain(f"\n来源：{friend.id} | {friend.nickname}"),
-                Plain(f"\n消息内容：\n\n")
-            ]), message)
-            await app.sendFriendMessage(qq, say.asSendable())
-            await asyncio.sleep(0.2)
-
-
 @channel.use(ListenerSchema(listening_events=[MemberCardChangeEvent]))
 async def main(app: GraiaMiraiApplication, events: MemberCardChangeEvent):
     '''
