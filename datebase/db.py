@@ -124,7 +124,7 @@ async def get_ranking():
         qqdata = json.loads(qqdata[17:-1])
         user_nick = qqdata[user_qq][-2]
 
-        # user_nick = await getCutStr(qqnick, 20)
+        # user_nick = getCutStr(qqnick, 20)
         user_gold = user_info.gold
         user_talk = user_info.talk_num
         user_answer = user_info.english_answer
@@ -156,7 +156,7 @@ async def get_ranking():
         qqdata = json.loads(qqdata[17:-1])
         user_nick = qqdata[user_qq][-2]
 
-        # user_nick = await getCutStr(qqnick, 20)
+        # user_nick = getCutStr(qqnick, 20)
         user_gold = user_info.gold
         user_talk = user_info.talk_num
         user_answer = user_info.english_answer
@@ -188,7 +188,7 @@ async def get_ranking():
         qqdata = json.loads(qqdata[17:-1])
         user_nick = qqdata[user_qq][-2]
 
-        # user_nick = await getCutStr(qqnick, 20)
+        # user_nick = getCutStr(qqnick, 20)
         user_gold = user_info.gold
         user_talk = user_info.talk_num
         user_answer = user_info.english_answer
@@ -202,7 +202,7 @@ async def get_ranking():
                f"\n游戏币排行榜\n{gold_rank}\n发言排行榜\n{talk_rank}\n答题排行榜\n{answer_rank}\n")
 
 
-async def getCutStr(str, cut):
+def getCutStr(str, cut):
     si = 0
     i = 0
     for s in str:
