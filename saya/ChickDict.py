@@ -8,9 +8,11 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.parser.literature import Literature
 from graia.application.message.elements.internal import MessageChain, Plain, At, Image_NetworkAddress
 
-from config import yaml_data, group_data, sendmsg
+
 from util.limit import member_limit_check
 from util.RestControl import rest_control
+from util.UserBlock import black_list_block
+from config import yaml_data, group_data, sendmsg
 
 saya = Saya.current()
 channel = Channel.current()
@@ -18,7 +20,7 @@ channel = Channel.current()
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("查梗")],
-                            headless_decorators=[rest_control(), member_limit_check(300)]))
+                            headless_decorators=[rest_control(), member_limit_check(300), black_list_block()]))
 async def fun_dict(app: GraiaMiraiApplication, group: Group, message: MessageChain, member: Member):
 
     if yaml_data['Saya']['ChickDict']['Disabled']:

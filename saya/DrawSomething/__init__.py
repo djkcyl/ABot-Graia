@@ -16,6 +16,7 @@ from graia.application.event.messages import GroupMessage, FriendMessage
 from graia.application.message.elements.internal import MessageChain, Source, Plain, At
 
 from util.limit import group_limit_check
+from util.UserBlock import black_list_block
 from datebase.db import reduce_gold, add_gold
 from config import yaml_data, group_data, sendmsg
 
@@ -34,7 +35,7 @@ GROUP_GAME_PROCESS = {}
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("你画我猜")],
-                            headless_decorators=[group_limit_check(20)]))
+                            headless_decorators=[group_limit_check(20), black_list_block()]))
 async def main(app: GraiaMiraiApplication, group: Group, member: Member, source: Source):
 
     # 判断插件是否处于禁用状态

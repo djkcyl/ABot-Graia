@@ -10,8 +10,9 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.parser.literature import Literature
 from graia.application.message.elements.internal import At, Image_UnsafeBytes, MessageChain, Plain
 
-from util.text2image import create_image
 from datebase.db import add_answer
+from util.text2image import create_image
+from util.UserBlock import black_list_block
 
 from .database.database import random_word
 
@@ -50,7 +51,9 @@ Process = [1, 2, 3, 4]
 RUNNING = {}
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("背单词")]))
+@channel.use(ListenerSchema(listening_events=[GroupMessage],
+                            inline_dispatchers=[Literature("背单词")],
+                            headless_decorators=[black_list_block()]))
 async def learn(app: GraiaMiraiApplication, group: Group, member: Member):
 
     @Waiter.create_using_function([GroupMessage])

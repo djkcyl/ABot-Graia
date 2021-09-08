@@ -18,6 +18,7 @@ from config import yaml_data, group_data
 from util.aiorequests import aiorequests
 from util.text2image import create_image
 from util.limit import member_limit_check
+from util.UserBlock import black_list_block
 
 saya = Saya.current()
 channel = Channel.current()
@@ -44,7 +45,7 @@ WAITING = []
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("识曲")],
-                            headless_decorators=[member_limit_check(30)]))
+                            headless_decorators=[member_limit_check(30), black_list_block()]))
 async def main(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['VoiceMusicRecognition']['Disabled']:

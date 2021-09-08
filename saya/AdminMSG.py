@@ -10,7 +10,7 @@ from graia.application.event.messages import GroupMessage, FriendMessage
 from graia.application.message.elements.internal import MessageChain, Plain, Source, Quote, At
 
 from config import yaml_data
-from datebase.db import add_gold, all_sign_num, give_all_gold
+from datebase.db import add_gold, give_all_gold
 
 saya = Saya.current()
 channel = Channel.current()
@@ -46,4 +46,3 @@ async def main(app: GraiaMiraiApplication, friend: Friend, message: MessageChain
         await app.sendFriendMessage(friend, MessageChain.create([
             Plain(f"已向 {saying[1]} 充值 {saying[2]} 个游戏币")
         ]))
-

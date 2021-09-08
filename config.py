@@ -11,6 +11,7 @@ class NoAliasDumper(yaml.SafeDumper):
     def ignore_aliases(self, data):
         return True
 
+
 async def sendmsg(app: GraiaMiraiApplication, group: Group):
     await app.sendGroupMessage(group, MessageChain.create([Plain("该功能暂不开启")]))
 
@@ -50,6 +51,18 @@ else:
         yaml.dump(group_list, f, allow_unicode=True, Dumper=NoAliasDumper)
 
 
+if os.path.exists('userlist.json'):
+    with open('userlist.json', 'r', encoding="utf-8") as f:
+        user_list = json.load(f.read())
+else:
+    with open('userlist.json', 'w', encoding="utf-8") as f:
+        user_list = {
+            "black": []
+        }
+        json.dump(user_list, f, indent=2)
+
+user_black_list = user_list['black']
+
 if not bool(yaml_data['Final']):
     print("配置文件未修改完成，请手动编辑 config.exp.ymal 进行修改并重命名为 config.yaml")
     exit()
@@ -69,3 +82,5 @@ def save_config():
         yaml.dump(yaml_data, f, allow_unicode=True, Dumper=NoAliasDumper)
     with open("grouplist.yaml", 'w', encoding="utf-8") as f:
         yaml.dump(group_list, f, allow_unicode=True, Dumper=NoAliasDumper)
+    with open('userlist.json', 'w', encoding="utf-8") as f:
+        json.dump(user_list, f, indent=2)

@@ -12,6 +12,7 @@ from graia.application.message.elements.internal import MessageChain, Image_Unsa
 from util.limit import manual_limit
 from util.aiorequests import aiorequests
 from config import yaml_data, group_data
+from util.UserBlock import black_list_block
 
 from .draw_bili_image import binfo_image_create
 
@@ -21,7 +22,7 @@ loop = asyncio.get_event_loop()
 pool = ThreadPoolExecutor(6)
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage]))
+@channel.use(ListenerSchema(listening_events=[GroupMessage], headless_decorators=[black_list_block()]))
 async def bilibili_main(app: GraiaMiraiApplication, group: Group, message: MessageChain):
 
     if yaml_data['Saya']['BilibiliResolve']['Disabled']:

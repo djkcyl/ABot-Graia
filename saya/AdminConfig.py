@@ -16,6 +16,7 @@ from graia.application.message.elements.internal import MessageChain, Quote, At,
 from util.limit import manual_limit
 from util.RestControl import set_sleep
 from util.text2image import create_image
+from util.UserBlock import black_list_block
 from config import save_config, yaml_data, group_data, group_list
 
 saya = Saya.current()
@@ -217,7 +218,8 @@ funcHelp = {
 }
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage]))
+@channel.use(ListenerSchema(listening_events=[GroupMessage],
+                            headless_decorators=[black_list_block()]))
 async def atrep(app: GraiaMiraiApplication, group: Group, message: MessageChain):
     if message.has(At):
         ifa = message.get(At)[0].target == yaml_data['Basic']['MAH']['BotQQ']
@@ -250,7 +252,9 @@ async def atrep(app: GraiaMiraiApplication, group: Group, message: MessageChain)
         await app.sendGroupMessage(group, MessageChain.create(msg))
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("功能")]))
+@channel.use(ListenerSchema(listening_events=[GroupMessage],
+                            inline_dispatchers=[Literature("功能")],
+                            headless_decorators=[black_list_block()]))
 async def adminmain(app: GraiaMiraiApplication, group: Group, message: MessageChain):
     saying = message.asDisplay().split()
     manual_limit(group.id, "Help", 3)
@@ -277,7 +281,8 @@ async def adminmain(app: GraiaMiraiApplication, group: Group, message: MessageCh
         await app.sendGroupMessage(group, MessageChain.create([Plain("请输入 功能 <id>，如果不知道id可以发送菜单查看")]))
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage]))
+@channel.use(ListenerSchema(listening_events=[GroupMessage],
+                            headless_decorators=[black_list_block()]))
 async def adminmain(app: GraiaMiraiApplication, group: Group, message: MessageChain):
     if message.asDisplay() in [".help", "/help", "help", "帮助", "菜单"]:
         manual_limit(group.id, "Help", 3)
@@ -314,7 +319,9 @@ async def adminmain(app: GraiaMiraiApplication, group: Group, message: MessageCh
         await app.sendGroupMessage(group, MessageChain.create([Image_UnsafeBytes(image.getvalue())]))
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("开启功能")]))
+@channel.use(ListenerSchema(listening_events=[GroupMessage],
+                            inline_dispatchers=[Literature("开启功能")],
+                            headless_decorators=[black_list_block()]))
 async def onAoff(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain):
     manual_limit(group.id, "FuncConfig", 2)
     if member.permission in [MemberPerm.Administrator, MemberPerm.Owner] or member.id in yaml_data['Basic']['Permission']['Admin']:
@@ -339,7 +346,9 @@ async def onAoff(app: GraiaMiraiApplication, group: Group, member: Member, messa
         await app.sendGroupMessage(group, MessageChain.create([Plain(f"你没有使用该功能的权限")]))
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage], inline_dispatchers=[Literature("关闭功能")]))
+@channel.use(ListenerSchema(listening_events=[GroupMessage],
+                            inline_dispatchers=[Literature("关闭功能")],
+                            headless_decorators=[black_list_block()]))
 async def onAoff(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain):
     manual_limit(group.id, "FuncConfig", 2)
     if member.permission in [MemberPerm.Administrator, MemberPerm.Owner] or member.id in yaml_data['Basic']['Permission']['Admin']:
@@ -361,7 +370,8 @@ async def onAoff(app: GraiaMiraiApplication, group: Group, member: Member, messa
         await app.sendGroupMessage(group, MessageChain.create([Plain(f"你没有使用该功能的权限")]))
 
 
-@channel.use(ListenerSchema(listening_events=[FriendMessage], inline_dispatchers=[Literature("公告")]))
+@channel.use(ListenerSchema(listening_events=[FriendMessage],
+                            inline_dispatchers=[Literature("公告")]))
 async def Announcement(app: GraiaMiraiApplication, friend: Friend, message: MessageChain):
     if friend.id == yaml_data['Basic']['Permission']['Master']:
         ft = time.time()
@@ -386,7 +396,8 @@ async def Announcement(app: GraiaMiraiApplication, friend: Friend, message: Mess
             await app.sendFriendMessage(friend, MessageChain.create([Plain(f"群发已完成，耗时 {times} 秒")]))
 
 
-@channel.use(ListenerSchema(listening_events=[FriendMessage], inline_dispatchers=[Literature("添加白名单")]))
+@channel.use(ListenerSchema(listening_events=[FriendMessage],
+                            inline_dispatchers=[Literature("添加白名单")]))
 async def Announcement(app: GraiaMiraiApplication, friend: Friend, message: MessageChain):
     if friend.id == yaml_data['Basic']['Permission']['Master']:
         saying = message.asDisplay().split()
@@ -401,7 +412,8 @@ async def Announcement(app: GraiaMiraiApplication, friend: Friend, message: Mess
             await app.sendFriendMessage(friend, MessageChain.create([Plain(f"未输入群号")]))
 
 
-@channel.use(ListenerSchema(listening_events=[FriendMessage], inline_dispatchers=[Literature("取消白名单")]))
+@channel.use(ListenerSchema(listening_events=[FriendMessage],
+                            inline_dispatchers=[Literature("取消白名单")]))
 async def Announcement(app: GraiaMiraiApplication, friend: Friend, message: MessageChain):
     if friend.id == yaml_data['Basic']['Permission']['Master']:
         saying = message.asDisplay().split()

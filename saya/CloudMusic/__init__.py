@@ -21,6 +21,7 @@ from util.aiorequests import aiorequests
 from util.text2image import create_image
 from util.limit import member_limit_check
 from util.RestControl import rest_control
+from util.UserBlock import black_list_block
 from config import yaml_data, group_data, sendmsg
 
 saya = Saya.current()
@@ -51,7 +52,7 @@ WAITING = []
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("点歌")],
-                            headless_decorators=[rest_control(), member_limit_check(300)]))
+                            headless_decorators=[rest_control(), member_limit_check(300), black_list_block()]))
 async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['CloudMusic']['Disabled']:
@@ -244,12 +245,3 @@ async def main(app: GraiaMiraiApplication, friend: Friend):
             ]))
         else:
             await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([Plain(f"当前没有正在点歌的人")]))
-
-
-@channel.use(ListenerSchema(listening_events=[FriendMessage], inline_dispatchers=[Literature("勾指起誓")]))
-async def main(app: GraiaMiraiApplication, friend: Friend, message: MessageChain):
-    saying = message.asDisplay().split()
-    if friend.id == yaml_data['Basic']['Permission']['Master']:
-        cache = Path(f'{MIRAI_PATH}data/net.mamoe.mirai-api-http/voices/gzqs')
-        cache.write_bytes(await silkcoder.encode(f'./saya/CloudMusic/temp/A60 - 勾指起誓.mp3', t=540))
-        await app.sendGroupMessage(int(saying[1]), MessageChain.create([Voice(path='gzqs')]))

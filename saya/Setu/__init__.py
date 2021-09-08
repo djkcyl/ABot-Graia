@@ -8,6 +8,7 @@ from graia.application.message.elements.internal import Image_UnsafeBytes
 
 from util.limit import manual_limit
 from util.RestControl import rest_control
+from util.UserBlock import black_list_block
 from config import yaml_data, group_data, sendmsg
 
 from .setu import create_setu
@@ -17,7 +18,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            headless_decorators=[rest_control()]))
+                            headless_decorators=[rest_control(), black_list_block()]))
 async def main(app: GraiaMiraiApplication, group: Group, message: MessageChain):
 
     saying = message.asDisplay().split(" ", 1)
