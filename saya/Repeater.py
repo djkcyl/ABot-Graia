@@ -49,7 +49,7 @@ async def repeater(app: GraiaMiraiApplication, group: Group, message: MessageCha
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            headless_decorators=[rest_control(), black_list_block]))
+                            headless_decorators=[rest_control(), black_list_block()]))
 async def repeateron(app: GraiaMiraiApplication, group: Group, message: MessageChain):
     if yaml_data['Saya']['Repeater']['Disabled']:
         return

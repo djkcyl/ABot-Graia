@@ -10,6 +10,7 @@ test.py
 config.yaml
 groupdata.yaml
 grouplist.yaml
+userlist.json
 qr.jpg
 data.json
 *.pem
