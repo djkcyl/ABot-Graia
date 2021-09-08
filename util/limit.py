@@ -9,6 +9,8 @@ from graia.broadcast.builtin.decorators import Depend
 from graia.application.message.chain import MessageChain
 from graia.application.message.elements.internal import At, Plain
 
+from config import user_black_list
+
 try:
     r = redis.Redis(host='localhost', port=6379, db=6, decode_responses=True)
 except ConnectionError:
@@ -41,6 +43,8 @@ def member_limit_check(limit: int):
     async def limit_wrapper(app: GraiaMiraiApplication, group: Group, member: Member):
         name = str(group.id) + "_" + str(member.id)
         limit_blocked, cd, limited = limit_exists(name, limit)
+        if member.id in user_black_list:
+            raise ExecutionStop()
         if limit_blocked:
             if name not in BLOCK_LIST:
                 await app.sendGroupMessage(group, MessageChain.create([
@@ -53,15 +57,18 @@ def member_limit_check(limit: int):
             raise ExecutionStop()
     return Depend(limit_wrapper)
 
+
 def group_limit_check(limit: int):
     '''
     群频率限制
     ~~~~~~~~~~~~~~~~~~~~~
     按群独立控制
     '''
-    async def limit_wrapper(app: GraiaMiraiApplication, group: Group):
+    async def limit_wrapper(app: GraiaMiraiApplication, group: Group, member: Member):
         name = str(group.id)
         limit_blocked, cd, limited = limit_exists(name, limit)
+        if member.id in user_black_list:
+            raise ExecutionStop()
         if limit_blocked:
             if name not in BLOCK_LIST:
                 await app.sendGroupMessage(group, MessageChain.create([
@@ -72,6 +79,7 @@ def group_limit_check(limit: int):
                 BLOCK_LIST.append(name)
             raise ExecutionStop()
     return Depend(limit_wrapper)
+
 
 def manual_limit(group, func, limit: int):
     '''

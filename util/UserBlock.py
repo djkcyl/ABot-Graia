@@ -17,3 +17,8 @@ def black_list_block():
         if group.id in group_black_list or member.id in user_black_list:
             raise ExecutionStop()
     return Depend(_block)
+
+
+def manual_block(memberid=None, groupid=None):
+    if groupid in group_black_list or memberid in user_black_list:
+        raise ExecutionStop()
