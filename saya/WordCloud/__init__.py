@@ -41,7 +41,7 @@ RUNNING = False
                             inline_dispatchers=[Kanata([RegexMatch("查看(个人|本群)词云")])],
                             headless_decorators=[member_limit_check(300), black_list_block()]))
 async def wordcloud(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain):
-    print(123)
+
     global RUNNING
     pattern = re.compile("^查看(个人|本群)词云")
     match = pattern.match(message.asDisplay())
@@ -53,16 +53,21 @@ async def wordcloud(app: GraiaMiraiApplication, group: Group, member: Member, me
         elif 'WordCloud' in group_data[group.id]['DisabledFunc']:
             return await sendmsg(app=app, group=group)
 
-        if match.group(1) == "个人":
-            talk_list = await get_user_talk(str(member.id), str(group.id))
-        elif match.group(1) == "本群":
-            talk_list = await get_group_talk(str(group.id))
-
         if not RUNNING:
             RUNNING = True
+            mode = match.group(1)
+            if mode == "个人":
+                talk_list = await get_user_talk(str(member.id), str(group.id))
+            elif mode == "本群":
+                talk_list = await get_group_talk(str(group.id))
+            app.logger.info(f"正在制作词云，共 {len(talk_list)} 条记录")
             words = await get_frequencies(talk_list)
             image = await loop.run_in_executor(pool, make_wordcloud, words)
-            await app.sendGroupMessage(group, MessageChain.create([Image_UnsafeBytes(image)]))
+            await app.sendGroupMessage(group, MessageChain.create([
+                At(member.id),
+                Plain(f" 已成功制作{mode}词云"),
+                Image_UnsafeBytes(image)
+            ]))
             RUNNING = False
         else:
             await app.sendGroupMessage(group, MessageChain.create([Plain("词云正在生成进程正忙，请稍后")]))
