@@ -18,6 +18,7 @@ from graia.application.message.elements.internal import At, MessageChain, Plain,
 from config import yaml_data, group_data
 from util.RestControl import rest_control
 from util.limit import member_limit_check
+from util.UserBlock import black_list_block
 
 from .Sqlite3Manager import execute_sql
 
@@ -31,7 +32,7 @@ GWCGRAINING = False
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            headless_decorators=[rest_control()]))
+                            headless_decorators=[rest_control(), black_list_block()]))
 async def group_wordcloud_generator(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
 
     if yaml_data['Saya']['WordCloud']['Disabled']:

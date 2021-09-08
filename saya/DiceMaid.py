@@ -9,13 +9,15 @@ from graia.application.event.messages import Group, GroupMessage
 from graia.application.message.elements.internal import Plain, MessageChain
 
 from util.limit import manual_limit
+from util.UserBlock import black_list_block
 from config import sendmsg, yaml_data, group_data
 
 saya = Saya.current()
 channel = Channel.current()
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage]))
+@channel.use(ListenerSchema(listening_events=[GroupMessage],
+                            headless_decorators=[black_list_block()]))
 async def dice(app: GraiaMiraiApplication, group: Group, message: MessageChain):
 
     if message.asDisplay()[:2] == ".r":

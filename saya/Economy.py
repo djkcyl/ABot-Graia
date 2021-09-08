@@ -8,6 +8,7 @@ from graia.application.message.parser.signature import FullMatch, OptionalParam
 from graia.application.message.elements.internal import MessageChain, At, Plain, Source
 
 from util.limit import member_limit_check
+from util.UserBlock import black_list_block
 from datebase.db import reduce_gold, add_gold
 from config import yaml_data, group_data, sendmsg
 
@@ -17,7 +18,7 @@ channel = Channel.current()
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Kanata([FullMatch("赠送游戏币"), OptionalParam("saying")])],
-                            headless_decorators=[member_limit_check(5)]))
+                            headless_decorators=[member_limit_check(5), black_list_block()]))
 async def adminmain(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['Entertainment']['Disabled']:
@@ -58,4 +59,3 @@ async def adminmain(app: GraiaMiraiApplication, group: Group, member: Member, me
             await app.sendGroupMessage(group, MessageChain.create([
                 Plain("你的游戏币不足，无法赠送")
             ]), quote=source)
-

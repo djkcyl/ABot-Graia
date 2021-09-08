@@ -8,8 +8,9 @@ from graia.application.group import Group
 from graia.application.message.elements.internal import MessageChain, Plain
 from graia.application.message.parser.literature import Literature
 
-from config import yaml_data, group_data, sendmsg
 from util.RestControl import rest_control
+from util.UserBlock import black_list_block
+from config import yaml_data, group_data, sendmsg
 
 from .mcping import mcping
 
@@ -19,7 +20,7 @@ channel = Channel.current()
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("/mcping")],
-                            headless_decorators=[rest_control()]))
+                            headless_decorators=[rest_control(), black_list_block()]))
 async def minecraft_ping(app: GraiaMiraiApplication, group: Group, saying: MessageChain):
 
     if yaml_data['Saya']['MinecraftPing']['Disabled']:
