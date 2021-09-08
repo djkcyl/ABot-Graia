@@ -11,20 +11,19 @@ from graia.application.message.parser.literature import Literature
 from graia.application.message.elements.internal import MessageChain, Plain, AtAll
 
 from util.RestControl import rest_control
-from util.UserBlock import black_list_block
 from config import sendmsg, group_data, yaml_data
 
 saya = Saya.current()
 channel = Channel.current()
 
 if yaml_data['Saya']['MutePack']['MaxTime'] * yaml_data['Saya']['MutePack']['MaxMultiple'] * yaml_data['Saya']['MutePack']['MaxSuperDoubleMultiple'] > 2592000:
-    print("禁言套餐最大基础时长设定超过30天，请检查配置文件")
+    print("禁言套餐最大时长设定超过30天，请检查配置文件")
     exit()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("我要禁言套餐")],
-                            headless_decorators=[rest_control(), black_list_block()]))
+                            headless_decorators=[rest_control()]))
 async def random_mute(app: GraiaMiraiApplication, group: Group, member: Member):
 
     if yaml_data['Saya']['MutePack']['Disabled']:
