@@ -53,7 +53,7 @@ else:
 
 if os.path.exists('userlist.json'):
     with open('userlist.json', 'r', encoding="utf-8") as f:
-        user_list = json.load(f.read())
+        user_list = json.load(f)
 else:
     with open('userlist.json', 'w', encoding="utf-8") as f:
         user_list = {

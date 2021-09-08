@@ -16,4 +16,4 @@ def black_list_block():
     async def _block(group: Group, member: Member):
         if group.id in group_black_list or member.id in user_black_list:
             raise ExecutionStop()
-        return Depend(_block)
+    return Depend(_block)
