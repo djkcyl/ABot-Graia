@@ -17,7 +17,7 @@ from util.limit import manual_limit
 from util.RestControl import set_sleep
 from util.text2image import create_image
 from util.UserBlock import black_list_block
-from config import save_config, yaml_data, group_data, group_list
+from config import save_config, yaml_data, group_data, group_list, user_black_list
 
 saya = Saya.current()
 channel = Channel.current()
@@ -397,8 +397,8 @@ async def Announcement(app: GraiaMiraiApplication, friend: Friend, message: Mess
 
 
 @channel.use(ListenerSchema(listening_events=[FriendMessage],
-                            inline_dispatchers=[Literature("添加白名单")]))
-async def Announcement(app: GraiaMiraiApplication, friend: Friend, message: MessageChain):
+                            inline_dispatchers=[Literature("添加群白名单群")]))
+async def add_white_group(app: GraiaMiraiApplication, friend: Friend, message: MessageChain):
     if friend.id == yaml_data['Basic']['Permission']['Master']:
         saying = message.asDisplay().split()
         if len(saying) == 2:
@@ -413,8 +413,8 @@ async def Announcement(app: GraiaMiraiApplication, friend: Friend, message: Mess
 
 
 @channel.use(ListenerSchema(listening_events=[FriendMessage],
-                            inline_dispatchers=[Literature("取消白名单")]))
-async def Announcement(app: GraiaMiraiApplication, friend: Friend, message: MessageChain):
+                            inline_dispatchers=[Literature("取消白名单群")]))
+async def remove_white_group(app: GraiaMiraiApplication, friend: Friend, message: MessageChain):
     if friend.id == yaml_data['Basic']['Permission']['Master']:
         saying = message.asDisplay().split()
         if len(saying) == 2:
@@ -432,6 +432,78 @@ async def Announcement(app: GraiaMiraiApplication, friend: Friend, message: Mess
                 await app.sendFriendMessage(friend, MessageChain.create([Plain(f"成功将该群移出白名单")]))
         else:
             await app.sendFriendMessage(friend, MessageChain.create([Plain(f"未输入群号")]))
+
+
+@channel.use(ListenerSchema(listening_events=[FriendMessage],
+                            inline_dispatchers=[Literature("拉黑用户")]))
+async def add_black_user(app: GraiaMiraiApplication, friend: Friend, message: MessageChain):
+    if friend.id == yaml_data['Basic']['Permission']['Master']:
+        saying = message.asDisplay().split()
+        if len(saying) == 2:
+            if int(saying[1]) in user_black_list:
+                await app.sendFriendMessage(friend, MessageChain.create([Plain(f"该用户已在黑名单中")]))
+            else:
+                user_black_list.append(int(saying[1]))
+                save_config()
+                await app.sendFriendMessage(friend, MessageChain.create([Plain(f"成功将该用户加入黑名单")]))
+        else:
+            await app.sendFriendMessage(friend, MessageChain.create([Plain(f"未输入qq号")]))
+
+
+@channel.use(ListenerSchema(listening_events=[FriendMessage],
+                            inline_dispatchers=[Literature("取消拉黑用户")]))
+async def remove_block_user(app: GraiaMiraiApplication, friend: Friend, message: MessageChain):
+    if friend.id == yaml_data['Basic']['Permission']['Master']:
+        saying = message.asDisplay().split()
+        if len(saying) == 2:
+            if int(saying[1]) not in user_black_list:
+                await app.sendFriendMessage(friend, MessageChain.create([Plain(f"该用户未在黑名单中")]))
+            else:
+                user_black_list.remove(int(saying[1]))
+                save_config()
+                await app.sendFriendMessage(friend, MessageChain.create([Plain(f"成功将该用户移出白名单")]))
+        else:
+            await app.sendFriendMessage(friend, MessageChain.create([Plain(f"未输入qq号")]))
+
+
+@channel.use(ListenerSchema(listening_events=[GroupMessage],
+                            inline_dispatchers=[Literature("拉黑")]))
+async def add_black_user(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain):
+    if member.id == yaml_data['Basic']['Permission']['Master']:
+        user = message.getFirst(At).target
+        if message.has(At):
+            if user in user_black_list:
+                await app.sendGroupMessage(group, MessageChain.create([Plain(f"{user} 已在黑名单中")]))
+            else:
+                user_black_list.append(user)
+                save_config()
+                await app.sendGroupMessage(group, MessageChain.create([
+                    Plain("成功将 "),
+                    At(user),
+                    Plain(" 加入黑名单")
+                ]))
+        else:
+            await app.sendGroupMessage(group, MessageChain.create([Plain(f"未输入qq号")]))
+
+
+@channel.use(ListenerSchema(listening_events=[GroupMessage],
+                            inline_dispatchers=[Literature("取消拉黑")]))
+async def remove_block_user(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain):
+    if member.id == yaml_data['Basic']['Permission']['Master']:
+        user = message.getFirst(At).target
+        if message.has(At):
+            if user not in user_black_list:
+                await app.sendGroupMessage(group, MessageChain.create([Plain(f"{user} 未在黑名单中")]))
+            else:
+                user_black_list.remove(user)
+                save_config()
+                await app.sendGroupMessage(group, MessageChain.create([
+                    Plain("成功将 "),
+                    At(user),
+                    Plain(" 移出黑名单")
+                ]))
+        else:
+            await app.sendGroupMessage(group, MessageChain.create([Plain(f"未输入qq号")]))
 
 
 @channel.use(ListenerSchema(listening_events=[FriendMessage], inline_dispatchers=[Literature("休息")]))

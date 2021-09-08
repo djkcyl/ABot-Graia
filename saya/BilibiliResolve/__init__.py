@@ -2,9 +2,10 @@ import re
 import asyncio
 
 from graia.saya import Saya, Channel
-from graia.application.group import Group, Member
+from graia.application.group import Group
 from concurrent.futures import ThreadPoolExecutor
 from graia.application import GraiaMiraiApplication
+from graia.broadcast.exceptions import ExecutionStop
 from graia.application.event.messages import GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.elements.internal import MessageChain, Image_UnsafeBytes, Plain
@@ -60,7 +61,10 @@ async def b23_extract(text):
     b23 = re.compile(r'b23.tv\\/(\w+)').search(text)
     if not b23:
         b23 = re.compile(r'b23.tv/(\w+)').search(text)
-    url = f'https://b23.tv/{b23[1]}'
+    try:
+        url = f'https://b23.tv/{b23[1]}'
+    except TypeError:
+        raise ExecutionStop()
     resp = await aiorequests.get(url)
     r = str(resp.url)
     return r

@@ -19,7 +19,7 @@ from graia.application.message.elements.internal import At, Image, Plain
 from util.limit import manual_limit
 from config import yaml_data, group_data
 from util.RestControl import rest_control
-from util.UserBlock import black_list_block
+from util.UserBlock import black_list_block, manual_block
 
 
 saya = Saya.current()
@@ -46,7 +46,7 @@ async def petpet_generator(app: GraiaMiraiApplication, message: MessageChain, gr
 
 
 @channel.use(ListenerSchema(listening_events=[NudgeEvent],
-                            headless_decorators=[rest_control(), black_list_block()]))
+                            headless_decorators=[rest_control()]))
 async def get_nudge(app: GraiaMiraiApplication, nudge: NudgeEvent):
 
     if yaml_data['Saya']['PetPet']['Disabled'] and not yaml_data['Saya']['PetPet']['CanNudge']:
@@ -54,6 +54,7 @@ async def get_nudge(app: GraiaMiraiApplication, nudge: NudgeEvent):
     elif 'PetPet' in group_data[nudge.group_id]['DisabledFunc']:
         return
 
+    manual_block(nudge.supplicant, nudge.group_id)
     manual_limit(nudge.group_id, "petpet", 3)
 
     app.logger.info(f"[{nudge.group_id}] 收到戳一戳事件 -> [{nudge.target}]")
