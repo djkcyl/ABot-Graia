@@ -20,5 +20,10 @@ def black_list_block():
 
 
 def manual_block(memberid=None, groupid=None):
+    '''
+    手动黑名单
+    ~~~~~~~~~~~~~~~~~~~~~
+    当 `black_list_block()` 无法使用时可用此方法
+    '''
     if groupid in group_black_list or memberid in user_black_list:
         raise ExecutionStop()
