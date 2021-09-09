@@ -232,7 +232,7 @@ async def atrep(app: GraiaMiraiApplication, group: Group, message: MessageChain)
         manual_limit(group.id, "Help", 3)
         now_localtime = time.strftime("%H:%M:%S", time.localtime())
         if "00:00:00" < now_localtime < "07:30:00":
-            msg = [Plain("Zzzzzz~")]
+            msg = Plain("Zzzzzz~")
         else:
             image = await create_image(str(
                 f"我是{yaml_data['Basic']['Permission']['MasterName']}" +
@@ -241,15 +241,15 @@ async def atrep(app: GraiaMiraiApplication, group: Group, message: MessageChain)
                 f"\n邀请 {yaml_data['Basic']['BotName']} 加入其他群需先询问主人获得白名单" +
                 f"\n{yaml_data['Basic']['BotName']} 被群禁言后会自动退出该群。" +
                 f"\n发送 <菜单> 可以查看功能列表" +
-                f"\n如果用不明白菜单功能可以不用，建议去医院多看看" +
-                f"\n\n@不会触发任何功能　　　　@不会触发任何功能" +
+                f"\n如果用不明白菜单功能可以不用，建议去医院多看看\n" +
+                f"\n@不会触发任何功能　　　　@不会触发任何功能" +
                 f"\n@不会触发任何功能　　　　@不会触发任何功能" +
                 f"\n@不会触发任何功能　　　　@不会触发任何功能" +
                 f"\n@不会触发任何功能　　　　@不会触发任何功能" +
                 f"\n@不会触发任何功能　　　　@不会触发任何功能" +
                 f"\n@不会触发任何功能　　　　@不会触发任何功能"))
-            msg = [Image_UnsafeBytes(image.getvalue())]
-        await app.sendGroupMessage(group, MessageChain.create(msg))
+            msg = Image_UnsafeBytes(image.getvalue())
+        await app.sendGroupMessage(group, MessageChain.create([msg]))
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
