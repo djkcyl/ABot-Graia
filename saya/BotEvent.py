@@ -46,7 +46,7 @@ async def groupDataInit(app: GraiaMiraiApplication):
     save_config()
     msg = [Plain(f"初始化结束")]
     if i > 0:
-        msg.append(Plain(f"\n以为 {str(1)} 个群进行了初始化配置"))
+        msg.append(Plain(f"\n已为 {i} 个群进行了初始化配置"))
     await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create(msg))
     now_localtime = time.strftime("%H:%M:%S", time.localtime())
     if "00:00:00" < now_localtime < "07:30:00":

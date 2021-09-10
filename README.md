@@ -7,6 +7,7 @@
 ## ABot 现在能干什么
 
 > - 菜单以及功能介绍 `菜单` and `功能 <id>`
+> - 群名片修正 `[被他人修改后自动触发]` and 私聊`群名片修正`
 > - 微软文字转语音 `/tts <model> <msg>`
 > - 兽语转换 `嗷 <msg>` and `呜 <msg>`
 > - 小鸡词典查梗 `查梗 <msg>`
@@ -56,7 +57,6 @@
 >   - ABot 私聊消息转发
 >   - 撤回群消息 `[回复]1`
 >   - 大清扫（如果 ABot 是管理员的情况下）`/viveall` and `/kickall`
->   - 群名片修正
 > - （待开发中）
 
 ## 部署 ABot
@@ -65,7 +65,7 @@
 
 - [Python](https://www.python.org/) `3.8`
 - - [Poetry](https://python-poetry.org/)
-- [Mirai HTTP API](https://github.com/project-mirai/mirai-api-http) `=< 1.12.0`
+- [Mirai HTTP API](https://github.com/project-mirai/mirai-api-http) `1.12.0`
 - [Redis](https://redis.io/)
 - [Netease Cloud Music Api](https://github.com/Binaryify/NeteaseCloudMusicApi) `如果你需要点歌姬功能的话需要自行搭建`
 - [QQ Music API](https://github.com/Rain120/qq-music-api) `如果你需要点歌姬功能的话需要自行搭建`

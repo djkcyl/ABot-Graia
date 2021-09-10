@@ -35,8 +35,6 @@ def set_sleep(set):
 
 def rest_control():
     async def sleep():
-        # print("作息控制", SLEEP)
         if SLEEP:
-            # print("已休息")
             raise ExecutionStop()
     return Depend(sleep)

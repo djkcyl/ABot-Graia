@@ -6,7 +6,7 @@ from graia.saya import Saya, Channel
 from graia.application.friend import Friend
 from graia.application import GraiaMiraiApplication
 from graia.application.exceptions import UnknownTarget
-from graia.application.group import Group, Member, MemberPerm
+from graia.application.group import Group, Member, MemberInfo, MemberPerm
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.parser.literature import Literature
 from graia.application.event.messages import GroupMessage, FriendMessage
@@ -532,3 +532,25 @@ async def Announcement(app: GraiaMiraiApplication, group: Group, member: Member)
     if member.id == yaml_data['Basic']['Permission']['Master']:
         set_sleep(0)
         await app.sendGroupMessage(group, MessageChain.create([Plain(f"已开始工作")]))
+
+
+@channel.use(ListenerSchema(listening_events=[FriendMessage], inline_dispatchers=[Literature("群名片修正")]))
+async def mute(app: GraiaMiraiApplication, friend: Friend):
+    if friend.id == yaml_data['Basic']['Permission']['Master']:
+        grouplits = await app.groupList()
+        i = 0
+        for group in grouplits:
+            opt = await app.modifyMemberInfo(member=yaml_data['Basic']['MAH']['BotQQ'],
+                                             info=MemberInfo(name=yaml_data['Basic']['BotName']),
+                                             group=group.id)
+            if opt == None:
+                i += 1
+            else:
+                await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
+                    Plain(f"群 {group.name}（{group.id}）名片修改失败，请检查后重试")
+                ]))
+                break
+            await asyncio.sleep(0.1)
+        await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
+            Plain(f"共完成 {i} 个群的名片修改。")
+        ]))
