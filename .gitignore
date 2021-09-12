@@ -26,3 +26,4 @@ data.json
 
 /pixiv/
 .gitignore
+util/UpImage.py

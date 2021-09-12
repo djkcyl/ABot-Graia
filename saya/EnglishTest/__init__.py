@@ -100,7 +100,7 @@ async def learn(app: GraiaMiraiApplication, group: Group, member: Member):
         del RUNNING[group.id]
         return await app.sendGroupMessage(group, MessageChain.create([Plain("等待超时")]))
 
-    await app.sendGroupMessage(group, MessageChain.create([Plain("已开启本次答题，可随时发送取消终止进程")]))
+    await app.sendGroupMessage(group, MessageChain.create([Plain("已开启本次答题，可随时发送“取消”以终止进程")]))
 
     while True:
         word_data = await random_word(bookid)

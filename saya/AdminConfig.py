@@ -383,7 +383,7 @@ async def Announcement(app: GraiaMiraiApplication, friend: Friend, message: Mess
                 if group.id not in [885355617, 780537426, 474769367, 690211045, 855895642]:
                     try:
                         await app.sendGroupMessage(group.id, MessageChain.create([
-                            Plain(f"公告：{str(group.id)}\n"),
+                            Plain(f"公告：{str(group.name)}\n"),
                             Image_UnsafeBytes(image.getvalue())
                         ]))
                     except Exception as err:
@@ -419,7 +419,13 @@ async def remove_white_group(app: GraiaMiraiApplication, friend: Friend, message
         saying = message.asDisplay().split()
         if len(saying) == 2:
             if int(saying[1]) not in group_list['white']:
-                await app.sendFriendMessage(friend, MessageChain.create([Plain(f"该群未在白名单中")]))
+                try:
+                    await app.quit(int(saying[1]))
+                    await app.sendFriendMessage(friend, MessageChain.create([Plain(f"该群未在白名单中，但成功退出")]))
+                except:
+                    pass
+                else:
+                    await app.sendFriendMessage(friend, MessageChain.create([Plain(f"该群未在白名单中")]))
             else:
                 group_list['white'].remove(int(saying[1]))
                 save_config()
@@ -467,13 +473,16 @@ async def remove_block_user(app: GraiaMiraiApplication, friend: Friend, message:
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            inline_dispatchers=[Literature("拉黑")]))
+                            inline_dispatchers=[Literature("拉黑用户")]))
 async def add_black_user(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain):
     if member.id == yaml_data['Basic']['Permission']['Master']:
         if message.has(At):
             user = message.getFirst(At).target
             if user in user_black_list:
-                await app.sendGroupMessage(group, MessageChain.create([Plain(f"{user} 已在黑名单中")]))
+                await app.sendGroupMessage(group, MessageChain.create([
+                    At(user),
+                    Plain(" 已在黑名单中")
+                ]))
             else:
                 user_black_list.append(user)
                 save_config()
@@ -487,7 +496,7 @@ async def add_black_user(app: GraiaMiraiApplication, group: Group, member: Membe
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            inline_dispatchers=[Literature("取消拉黑")]))
+                            inline_dispatchers=[Literature("取消拉黑用户")]))
 async def remove_block_user(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain):
     if member.id == yaml_data['Basic']['Permission']['Master']:
         if message.has(At):
