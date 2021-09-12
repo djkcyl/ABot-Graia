@@ -2,13 +2,13 @@ import json
 import time
 import secrets
 import asyncio
-from graia.application.exceptions import UnknownTarget
 
 from graia.saya import Saya, Channel
 from graia.application.friend import Friend
 from graia.application.group import Group, Member
 from graia.broadcast.interrupt.waiter import Waiter
 from graia.application import GraiaMiraiApplication
+from graia.application.exceptions import UnknownTarget
 from graia.broadcast.interrupt import InterruptControl
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.parser.literature import Literature
@@ -150,13 +150,21 @@ async def main(app: GraiaMiraiApplication, group: Group, member: Member, source:
                         Plain(" 你的游戏币不足，无法开始游戏")]))
                 else:
                     question_len = len(question)
-                    await app.sendGroupMessage(group, MessageChain.create([
-                        Plain(f"本次题目为 {question_len} 个字，请等待 "),
-                        At(member.id),
-                        Plain(" 在群中绘图"),
-                        Plain("\n创建者发送 <取消/终止/结束> 可结束本次游戏"),
-                        Plain("\n每人每回合只有 8 次答题机会，请勿刷屏请勿抢答。")
-                    ]), quote=source)
+                    try:
+                        await app.sendGroupMessage(group, MessageChain.create([
+                            Plain(f"本次题目为 {question_len} 个字，请等待 "),
+                            At(member.id),
+                            Plain(" 在群中绘图"),
+                            Plain("\n创建者发送 <取消/终止/结束> 可结束本次游戏"),
+                            Plain("\n每人每回合只有 8 次答题机会，请勿刷屏请勿抢答。")
+                        ]), quote=source)
+                    except UnknownTarget:
+                        await app.sendGroupMessage(group, MessageChain.create([
+                            Plain(f"本次题目为 {question_len} 个字，请等待 "),
+                            Plain(" 在群中绘图"),
+                            Plain("\n创建者发送 <取消/终止/结束> 可结束本次游戏"),
+                            Plain("\n每人每回合只有 8 次答题机会，请勿刷屏请勿抢答。")
+                        ]))
                     await asyncio.sleep(1)
                     await app.sendFriendMessage(member.id, MessageChain.create([
                         Plain(f"本次的题目为：{question}，请在一分钟内\n在群中\n在群中\n在群中\n发送涂鸦或其他形式等来表示该主题")

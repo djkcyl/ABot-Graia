@@ -12,12 +12,13 @@ from graia.broadcast.interrupt import InterruptControl
 from graia.application.event.messages import FriendMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.event.lifecycle import ApplicationLaunched, ApplicationShutdowned
-from graia.application.message.elements.internal import MessageChain, Plain, Image_NetworkAddress
+from graia.application.message.elements.internal import At, MessageChain, Plain, Image_NetworkAddress
 from graia.application.event.mirai import NewFriendRequestEvent, BotInvitedJoinGroupRequestEvent, BotJoinGroupEvent, BotLeaveEventKick, BotGroupPermissionChangeEvent, BotMuteEvent, MemberCardChangeEvent, MemberJoinEvent
 
 from util.RestControl import set_sleep
-from .AdminConfig import groupInitData
 from config import save_config, yaml_data, group_data, group_list
+
+from .AdminConfig import groupInitData
 
 saya = Saya.current()
 channel = Channel.current()
@@ -234,6 +235,7 @@ async def main(app: GraiaMiraiApplication, events: MemberCardChangeEvent):
     '''
     群名片被修改
     '''
+    print(events)
     if events.member.id == yaml_data['Basic']['MAH']['BotQQ']:
         if events.current != yaml_data['Basic']['BotName']:
             for qq in yaml_data['Basic']['Permission']['Admin']:
@@ -251,6 +253,13 @@ async def main(app: GraiaMiraiApplication, events: MemberCardChangeEvent):
             await app.sendGroupMessage(events.member.group.id, MessageChain.create([
                 Plain(f"请不要修改我的群名片")
             ]))
+    elif events.operator != None:
+        await app.sendGroupMessage(events.member.group, MessageChain.create([
+            At(events.member.id),
+            Plain(" 的群名片被修改"),
+            Plain(f"\n操作者为 "),
+            At(events.operator.id)
+        ]))
 
 
 # 群内事件

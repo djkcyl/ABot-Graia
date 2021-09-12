@@ -28,13 +28,12 @@ channel = Channel.current()
 loop = asyncio.get_event_loop()
 pool = ThreadPoolExecutor(1)
 
-
 BAST_PATH = "./saya/WordCloud"
 MASK_FILE = f'{BAST_PATH}/bgg.jpg'
 FONT_PATH = './font/sarasa-mono-sc-regular.ttf'
 
 
-RUNNING = False
+RUNNING = 0
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
@@ -54,13 +53,17 @@ async def wordcloud(app: GraiaMiraiApplication, group: Group, member: Member, me
             return await sendmsg(app=app, group=group)
 
         if not RUNNING:
-            RUNNING = True
+            RUNNING = 1
             mode = match.group(1)
             if mode == "个人":
                 talk_list = await get_user_talk(str(member.id), str(group.id))
             elif mode == "本群":
                 talk_list = await get_group_talk(str(group.id))
             app.logger.info(f"正在制作词云，共 {len(talk_list)} 条记录")
+            await app.sendGroupMessage(group, MessageChain.create([
+                At(member.id),
+                Plain(f" 正在制作词云，共 {len(talk_list)} 条记录")
+            ]))
             words = await get_frequencies(talk_list)
             image = await loop.run_in_executor(pool, make_wordcloud, words)
             await app.sendGroupMessage(group, MessageChain.create([
@@ -68,14 +71,14 @@ async def wordcloud(app: GraiaMiraiApplication, group: Group, member: Member, me
                 Plain(f" 已成功制作{mode}词云"),
                 Image_UnsafeBytes(image)
             ]))
-            RUNNING = False
+            RUNNING = 0
         else:
             await app.sendGroupMessage(group, MessageChain.create([Plain("词云正在生成进程正忙，请稍后")]))
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             headless_decorators=[black_list_block()]))
-async def wordcloud(group: Group, member: Member, message: MessageChain):
+async def add_talk_word(group: Group, member: Member, message: MessageChain):
     if message.has(Plain):
         plain_list = message.get(Plain)
         plain = MessageChain.create(plain_list).asDisplay()
@@ -84,7 +87,7 @@ async def wordcloud(group: Group, member: Member, message: MessageChain):
 
 async def get_frequencies(msg_list):
     text = "\n".join(msg_list)
-    words = jieba.analyse.extract_tags(text, topK=1000, withWeight=True)
+    words = jieba.analyse.extract_tags(text, topK=800, withWeight=True)
     return dict(words)
 
 
@@ -95,9 +98,9 @@ def make_wordcloud(words):
         font_path=FONT_PATH,
         background_color='white',
         mask=mask,
-        max_words=1000,
+        max_words=800,
         scale=2,
-        relative_scaling=0.8,
+        relative_scaling=0.9,
     )
     wordcloud.generate_from_frequencies(words)
     image_colors = ImageColorGenerator(mask, default_color=(255, 255, 255))
