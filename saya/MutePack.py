@@ -6,11 +6,13 @@ from graia.saya import Saya, Channel
 from graia.application.group import Group, Member
 from graia.application import GraiaMiraiApplication
 from graia.application.event.messages import GroupMessage
+from graia.application.message.parser.kanata import Kanata
+from graia.application.message.parser.signature import RegexMatch, OptionalParam, RequireParam
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.message.parser.literature import Literature
 from graia.application.message.elements.internal import MessageChain, Plain, AtAll
 
 from util.RestControl import rest_control
+from util.limit import member_limit_check
 from config import sendmsg, group_data, yaml_data
 
 saya = Saya.current()
@@ -22,9 +24,10 @@ if yaml_data['Saya']['MutePack']['MaxTime'] * yaml_data['Saya']['MutePack']['Max
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            inline_dispatchers=[Literature("我要禁言套餐")],
-                            headless_decorators=[rest_control()]))
-async def random_mute(app: GraiaMiraiApplication, group: Group, member: Member):
+                            inline_dispatchers=[Kanata([RegexMatch("(?=.*要)(?=.*禁)(?=.*言)(?=.*套)(?=.*餐)"),
+                                                        OptionalParam("saying")])],
+                            headless_decorators=[member_limit_check(20), rest_control()]))
+async def random_mute(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain):
 
     if yaml_data['Saya']['MutePack']['Disabled']:
         return await sendmsg(app=app, group=group)

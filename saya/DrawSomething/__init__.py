@@ -12,6 +12,7 @@ from graia.application.exceptions import UnknownTarget
 from graia.broadcast.interrupt import InterruptControl
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.parser.literature import Literature
+from graia.application.event.lifecycle import ApplicationShutdowned
 from graia.application.event.messages import GroupMessage, FriendMessage
 from graia.application.message.elements.internal import MessageChain, Source, Plain, At
 
@@ -273,3 +274,14 @@ async def main(app: GraiaMiraiApplication, friend: Friend):
             await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
                 Plain(f"当前没有正在运行你画我猜的群")
             ]))
+
+
+@channel.use(ListenerSchema(listening_events=[ApplicationShutdowned]))
+async def groupDataInit(app: GraiaMiraiApplication):
+    for game_group in GROUP_RUNING_LIST:
+        if game_group in GROUP_GAME_PROCESS:
+            await add_gold(str(GROUP_GAME_PROCESS[game_group]['owner']), 4)
+            await app.sendGroupMessage(game_group, MessageChain.create([
+                Plain(f"由于 {yaml_data['Basic']['BotName']} 正在重启，本场你画我猜重置，已补偿4个游戏币")
+            ]))
+            await asyncio.sleep(0.2)

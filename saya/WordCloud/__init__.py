@@ -26,7 +26,7 @@ from .datebase import get_user_talk, get_group_talk, add_talk
 saya = Saya.current()
 channel = Channel.current()
 loop = asyncio.get_event_loop()
-pool = ThreadPoolExecutor(1)
+pool = ThreadPoolExecutor(4)
 
 BAST_PATH = "./saya/WordCloud"
 MASK_FILE = f'{BAST_PATH}/bgg.jpg'
@@ -52,8 +52,8 @@ async def wordcloud(app: GraiaMiraiApplication, group: Group, member: Member, me
         elif 'WordCloud' in group_data[group.id]['DisabledFunc']:
             return await sendmsg(app=app, group=group)
 
-        if not RUNNING:
-            RUNNING = 1
+        if RUNNING < 5:
+            RUNNING += 1
             mode = match.group(1)
             if mode == "个人":
                 talk_list = await get_user_talk(str(member.id), str(group.id))
@@ -71,9 +71,9 @@ async def wordcloud(app: GraiaMiraiApplication, group: Group, member: Member, me
                 Plain(f" 已成功制作{mode}词云"),
                 Image_UnsafeBytes(image)
             ]))
-            RUNNING = 0
+            RUNNING -= 1
         else:
-            await app.sendGroupMessage(group, MessageChain.create([Plain("词云正在生成进程正忙，请稍后")]))
+            await app.sendGroupMessage(group, MessageChain.create([Plain("词云生成进程正忙，请稍后")]))
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
@@ -99,8 +99,7 @@ def make_wordcloud(words):
         background_color='white',
         mask=mask,
         max_words=800,
-        scale=2,
-        relative_scaling=0.9,
+        scale=2
     )
     wordcloud.generate_from_frequencies(words)
     image_colors = ImageColorGenerator(mask, default_color=(255, 255, 255))
