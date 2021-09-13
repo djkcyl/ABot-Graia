@@ -184,6 +184,8 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: 
                     music_ar.append(ar['name'])
                 music_ar = "/".join(music_ar)
                 music_al = musicinfo['songs'][0]['al']['picUrl']+"?param=300x300"
+            musiclyric = requests.get(f"{CLOUD_HOST}/lyric?id={musicid[1]}&timestamp={times}").json()
+            music_lyric = musiclyric.get("lrc", False).get("lyric", None)
         elif musicid[0] == 2:
             musicinfo = requests.get(f"{QQ_HOST}/getSongInfo?songmid={musicid[1]}").json()["response"]["songinfo"]["data"]["track_info"]
             musicurl = requests.get(f"{QQ_HOST}/getMusicPlay?songmid={musicid[1]}").json()["data"]["playUrl"][musicid[1]]["url"]
@@ -195,6 +197,10 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: 
                     music_ar.append(ar['name'])
                     music_ar = "/".join(music_ar)
                 music_al = requests.get(f"{QQ_HOST}/getImageUrl?id={album_mid}").json()["response"]["data"]["imageUrl"]
+            musiclyric = requests.get(f"{QQ_HOST}/getLyric?songmid={musicid[1]}").json()
+            music_lyric = musiclyric["response"]["lyric"]
+            if music_lyric == "[00:00:00]此歌曲为没有填词的纯音乐，请您欣赏":
+                music_lyric = None
 
         if not os.path.exists(f"./saya/CloudMusic/temp/{musicid[1]}.mp3"):
             print(f"正在缓存歌曲：{music_name}")
@@ -221,6 +227,10 @@ async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: 
                 Plain(f"曲名：{music_name}\n作者：{music_ar}"),
                 Plain("\n超过9:00的歌曲将被裁切前9:00\n歌曲时长越长音质越差\n超过4分钟的歌曲音质将受到较大程度的损伤\n发送语音需要一定时间，请耐心等待")
             ]))
+
+        if music_lyric:
+            music_lyric_image = await create_image(music_lyric, 120)
+            await app.sendGroupMessage(group, MessageChain.create([Image_UnsafeBytes(music_lyric_image.getvalue())]))
 
         if not await reduce_gold(str(member.id), 4):
             WAITING.remove(member.id)
