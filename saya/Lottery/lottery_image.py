@@ -1,4 +1,3 @@
-import time
 import qrcode
 import numpy as np
 from qrcode.image.pil import PilImage
