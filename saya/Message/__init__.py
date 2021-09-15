@@ -16,46 +16,6 @@ bcc = saya.broadcast
 inc = InterruptControl(bcc)
 
 
-# baidu_Token_api = f'https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id={configs["API Key"]}&client_secret={configs["Secret Key"]}'
-# r = requests.get(baidu_Token_api)
-# _Token = json.loads(r.text)['access_token']
-# print(_Token)
-
-
-# @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-# async def message_review(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
-#     global _Token
-#     if group.id == 790380594:
-#         message_id = message.getFirst(Source).id
-
-#         # 判断是否包含图片
-#         # if message.has(Image):
-#         #     message_image = message.get(Image)
-
-#         if message.has(Plain):
-#             print("检测到文本")
-#             message_text = message.asDisplay().replace(
-#                 "[图片]", "").replace("[表情]", "").replace("\n", "").strip("")
-#             censor = text_censor(message_text, _Token)
-#             if censor["conclusionType"] != 1:
-#                 await app.sendGroupMessage(group.id, MessageChain.create([Plain(censor["data"][0]["msg"])]))
-#                 await app.revokeMessage(message_id)
-#                 await app.mute(group, member.id, 5)
-#                 # await app.unmute(group, member.id)
-
-#         message_plain = message.asMerged()
-
-#         # print(message.asDisplay())
-#         # print(message.get(Image))
-#         print(message_text)
-#         # await app.sendGroupMessage(group.id, MessageChain.create([Plain("爬")]), quote=message_id)
-#         # await app.revokeMessage(message_id)
-#         # await app.mute(group, member.id, 2592000)
-#         # await app.unmute(group, member.id)
-#         # print(message_id)
-
-
-
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
 async def a_plant(app: GraiaMiraiApplication, group: Group, message: MessageChain):
     
