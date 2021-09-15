@@ -27,7 +27,7 @@ if yaml_data['Saya']['MutePack']['MaxTime'] * yaml_data['Saya']['MutePack']['Max
                             inline_dispatchers=[Kanata([RegexMatch("(?=.*要)(?=.*禁)(?=.*言)(?=.*套)(?=.*餐)"),
                                                         OptionalParam("saying")])],
                             headless_decorators=[member_limit_check(20), rest_control()]))
-async def random_mute(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain):
+async def random_mute(app: GraiaMiraiApplication, group: Group, member: Member):
 
     if yaml_data['Saya']['MutePack']['Disabled']:
         return await sendmsg(app=app, group=group)

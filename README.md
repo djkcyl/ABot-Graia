@@ -1,4 +1,9 @@
+<div align="center">
+
 # ABot for Graia
+
+</div>
+
 ### 由于不可抗力 ABot 暂时停更（
 ![7L4P%)_QA6_B3QPS0$74@49](https://user-images.githubusercontent.com/59153990/131785951-2d093dac-6d72-489b-a05d-0cbeab710c04.jpg)
 
@@ -61,8 +66,8 @@
 
 ### 环境要求
 
-- [Python](https://www.python.org/) `3.8`
-- - [Poetry](https://python-poetry.org/)
+- [Python](https://www.python.org/) `^3.8`
+  - [Poetry](https://python-poetry.org/)
 - [Mirai HTTP API](https://github.com/project-mirai/mirai-api-http) `1.12.0`
 - [Redis](https://redis.io/)
 - [Netease Cloud Music Api](https://github.com/Binaryify/NeteaseCloudMusicApi) `如果你需要点歌姬功能的话需要自行搭建`

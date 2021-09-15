@@ -5,7 +5,7 @@ description = ""
 authors = ["djkcyl <cyl@cyllive.cn>"]
 
 [tool.poetry.dependencies]
-python = "3.8"
+python = "^3.8"
 graia-application-mirai = "0.19.2"
 graia-broadcast = "0.8.11"
 graia-saya = "0.0.9"
@@ -15,7 +15,6 @@ Pillow = "^8.3.1"
 numpy = "^1.21.1"
 matplotlib = "^3.4.2"
 wordcloud = "^1.8.1"
-pkuseg = "^0.0.25"
 dnspython = "^2.1.0"
 moviepy = "^1.0.3"
 pydantic = "1.7.1"
@@ -40,6 +39,7 @@ pyacrcloud = "^1.0.2"
 prettytable = "^2.1.0"
 jieba = "^0.42.1"
 psutil = "^5.8.0"
+markdown = "^3.3.4"
 
 [tool.poetry.dev-dependencies]
 autopep8 = "^1.5.7"
