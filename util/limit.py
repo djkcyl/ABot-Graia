@@ -13,9 +13,10 @@ from config import user_black_list
 
 try:
     r = redis.Redis(host='localhost', port=6379, db=6, decode_responses=True)
+    r.flushdb()
 except ConnectionError:
     print("Redis 服务器（localhost:6379）连接失败，请检查 Redis 服务器是否正常运行")
-r.flushdb()
+
 BLOCK_LIST = []
 
 
