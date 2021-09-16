@@ -123,10 +123,6 @@ async def init(app: GraiaMiraiApplication):
         app.logger.info(msg)
 
 
-def get_sub_dict():
-    return dynamic_list["subscription"]
-
-
 @channel.use(SchedulerSchema(every_custom_seconds(yaml_data['Saya']['BilibiliDynamic']['Intervals'])))
 async def update_scheduled(app: GraiaMiraiApplication):
 
@@ -134,7 +130,7 @@ async def update_scheduled(app: GraiaMiraiApplication):
         return
 
     app.logger.info("[BiliBili推送] 正在检测动态更新")
-    sub_list = get_sub_dict()
+    sub_list = dynamic_list["subscription"].copy()
     for up_id in sub_list:
         async with httpx.AsyncClient() as client:
             r = await client.get(f"https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/space_history?host_uid={up_id}")
