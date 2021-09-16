@@ -20,8 +20,7 @@ from graia.application.message.elements.internal import MessageChain, At, Plain,
 from util.limit import member_limit_check
 from util.UserBlock import black_list_block
 from config import yaml_data, group_data, sendmsg
-
-from .datebase import get_user_talk, get_group_talk, add_talk
+from datebase.usertalk import get_user_talk, get_group_talk, add_talk
 
 saya = Saya.current()
 channel = Channel.current()

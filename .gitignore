@@ -14,12 +14,12 @@ userlist.json
 qr.jpg
 data.json
 *.pem
+/util/browser/data/*
 
 /测试文件夹
 /saya/Ark/
 /saya/ArkrecWIKI/
 /saya/ArkTools/
-/saya/ChineseDict/chrome/data/*
 /saya/2048/
 /saya/ArkFriend/
 /saya/ChaoxingSign
@@ -27,3 +27,4 @@ data.json
 /pixiv/
 .gitignore
 util/UpImage.py
+saya/BilibiliDynamic/dynamic_list.json
