@@ -123,6 +123,10 @@ async def init(app: GraiaMiraiApplication):
         app.logger.info(msg)
 
 
+def get_sub_dict():
+    return dynamic_list["subscription"]
+
+
 @channel.use(SchedulerSchema(every_custom_seconds(yaml_data['Saya']['BilibiliDynamic']['Intervals'])))
 async def update_scheduled(app: GraiaMiraiApplication):
 
@@ -130,7 +134,7 @@ async def update_scheduled(app: GraiaMiraiApplication):
         return
 
     app.logger.info("[BiliBili推送] 正在检测动态更新")
-    sub_list = dynamic_list["subscription"]
+    sub_list = get_sub_dict()
     for up_id in sub_list:
         async with httpx.AsyncClient() as client:
             r = await client.get(f"https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/space_history?host_uid={up_id}")
@@ -143,7 +147,7 @@ async def update_scheduled(app: GraiaMiraiApplication):
                 app.logger.info(f"   > 更新了动态 {up_last_dynid}")
                 OFFSET[up_id] = up_last_dynid
                 shot_image = await get_dynamic_screenshot(r["data"]["cards"][0]["desc"]["dynamic_id_str"])
-                for groupid in dynamic_list["subscription"][up_id]:
+                for groupid in sub_list[up_id]:
                     await app.sendGroupMessage(groupid, MessageChain.create([
                         Plain(f"本群订阅的UP {up_name}（{up_id}）更新啦！"),
                         Image_UnsafeBytes(shot_image)
