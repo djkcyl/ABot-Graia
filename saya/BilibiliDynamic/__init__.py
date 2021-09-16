@@ -110,7 +110,8 @@ async def init(app: GraiaMiraiApplication):
                 si = f" {i}"
             else:
                 si = i
-            info_msg.append(f"  ● {si}  ---->  {up_name}({up_id}) > {last_dynid}")
+            sub_count = len(dynamic_list["subscription"][up_id])
+            info_msg.append(f"  ● {si}  ---->  {up_name}({up_id}) > {sub_count} > {last_dynid}")
             i += 1
         else:
             delete_uid(up_id)
@@ -128,7 +129,8 @@ async def update_scheduled(app: GraiaMiraiApplication):
         return
 
     app.logger.info("[BiliBili推送] 正在检测动态更新")
-    for up_id in dynamic_list["subscription"]:
+    sub_list = dynamic_list["subscription"]
+    for up_id in sub_list:
         async with httpx.AsyncClient() as client:
             r = await client.get(f"https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/space_history?host_uid={up_id}")
             r = r.json()
