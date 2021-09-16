@@ -115,6 +115,7 @@ async def init(app: GraiaMiraiApplication):
             i += 1
         else:
             delete_uid(up_id)
+        await asyncio.sleep(1)
     await asyncio.sleep(1)
     if i-1 != sub_num:
         info_msg.append(f"[BiliBili推送] 共有 {sub_num-i+1} 个账号无法获取信息，暂不可进行监控，已从列表中移除")
@@ -137,8 +138,9 @@ async def update_scheduled(app: GraiaMiraiApplication):
         if "cards" in r["data"]:
             up_name = r["data"]["cards"][0]["desc"]["user_profile"]["info"]["uname"]
             up_last_dynid = r["data"]["cards"][0]["desc"]["dynamic_id"]
+            app.logger.info(f"[BiliBili推送] 正在检测{up_name}（{up_id}）")
             if up_last_dynid > OFFSET[up_id]:
-                app.logger.info(f"[BiliBili推送] {up_name}（{up_id}） 更新了动态")
+                app.logger.info(f"   > 更新了动态 {up_last_dynid}")
                 OFFSET[up_id] = up_last_dynid
                 shot_image = await get_dynamic_screenshot(r["data"]["cards"][0]["desc"]["dynamic_id_str"])
                 for groupid in dynamic_list["subscription"][up_id]:
@@ -146,11 +148,11 @@ async def update_scheduled(app: GraiaMiraiApplication):
                         Plain(f"本群订阅的UP {up_name}（{up_id}）更新啦！"),
                         Image_UnsafeBytes(shot_image)
                     ]))
-                    await asyncio.sleep(0.2)
+                    await asyncio.sleep(0.3)
         else:
             delete_uid(up_id)
             app.logger.info(f"{up_id} 暂时无法监控，已从列表中移除")
-        await asyncio.sleep(2)
+        await asyncio.sleep(5)
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],

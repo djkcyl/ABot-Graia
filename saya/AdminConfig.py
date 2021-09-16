@@ -407,7 +407,7 @@ async def Announcement(app: GraiaMiraiApplication, friend: Friend, message: Mess
 
 
 @channel.use(ListenerSchema(listening_events=[FriendMessage],
-                            inline_dispatchers=[Literature("添加群白名单群")]))
+                            inline_dispatchers=[Literature("添加群白名单")]))
 async def add_white_group(app: GraiaMiraiApplication, friend: Friend, message: MessageChain):
     if friend.id == yaml_data['Basic']['Permission']['Master']:
         saying = message.asDisplay().split()
@@ -423,7 +423,7 @@ async def add_white_group(app: GraiaMiraiApplication, friend: Friend, message: M
 
 
 @channel.use(ListenerSchema(listening_events=[FriendMessage],
-                            inline_dispatchers=[Literature("取消白名单群")]))
+                            inline_dispatchers=[Literature("取消群白名单")]))
 async def remove_white_group(app: GraiaMiraiApplication, friend: Friend, message: MessageChain):
     if friend.id == yaml_data['Basic']['Permission']['Master']:
         saying = message.asDisplay().split()
