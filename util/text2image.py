@@ -15,5 +15,4 @@ async def create_image(text: str, cut=64):
     draw = ImageDraw.Draw(image)
     draw.text((20, 20), cut_str, font=font, fill=(31, 31, 33))
     image.save(imageio, format="JPEG", quality=90, subsampling=2, qtables="web_high")
-    # print(imageio.tell())
     return imageio
