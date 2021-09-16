@@ -6,10 +6,10 @@ from graia.saya import Saya, Channel
 from graia.application.friend import Friend
 from graia.application import GraiaMiraiApplication
 from graia.application.exceptions import UnknownTarget
-from graia.application.group import Group, Member, MemberInfo, MemberPerm
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.parser.literature import Literature
 from graia.application.event.messages import GroupMessage, FriendMessage
+from graia.application.group import Group, Member, MemberInfo, MemberPerm
 from graia.application.message.elements.internal import MessageChain, Quote, At, Plain, Image_UnsafeBytes
 
 
@@ -24,31 +24,32 @@ channel = Channel.current()
 
 
 funcList = [
-    {"name": "微软文字转语音", "key": "AzureTTS"},
-    {"name": "小鸡词典查梗", "key": "ChickDict"},
-    {"name": "小鸡词典emoji转换", "key": "ChickEmoji"},
-    {"name": "汉语词典查询", "key": "ChineseDict"},
-    {"name": "网易云音乐点歌", "key": "CloudMusic"},
-    {"name": "网络黑话翻译", "key": "CyberBlacktalk"},
-    {"name": "词云", "key": "WordCloud"},
-    {"name": "禁言套餐", "key": "MutePack"},
-    {"name": "兽语转换", "key": "Beast"},
-    {"name": "我的世界服务器Ping", "key": "MinecraftPing"},
-    {"name": "摸头", "key": "PetPet"},
-    {"name": "风格logo生成", "key": "StyleLogoGenerator"},
-    {"name": "复读姬", "key": "Repeater"},
-    {"name": "涩图", "key": "Pixiv"},
-    {"name": "有点涩的聊天", "key": "ChatMS"},
-    {"name": "没啥用的回复", "key": "Message"},
-    {"name": "每日早报", "key": "DailyNewspaper"},
-    {"name": "色图", "key": "Setu"},
-    {"name": "防撤回", "key": "AnitRecall"},
-    {"name": "娱乐功能", "key": "Entertainment"},
-    {"name": "骰娘", "key": "DiceMaid"},
-    {"name": "B站视频解析", "key": "BilibiliResolve"},
-    {"name": "听歌识曲 / 哼唱识曲", "key": "VoiceMusicRecognition"},
-    {"name": "淫文翻译机", "key": "Yinglish"},
-    {"name": "背单词", "key": "EnglishTest"}
+    {"name": "微软文字转语音", "key": "AzureTTS", "can_disabled": True},
+    {"name": "小鸡词典查梗", "key": "ChickDict", "can_disabled": True},
+    {"name": "小鸡词典emoji转换", "key": "ChickEmoji", "can_disabled": True},
+    {"name": "汉语词典查询", "key": "ChineseDict", "can_disabled": True},
+    {"name": "网易云音乐点歌", "key": "CloudMusic", "can_disabled": True},
+    {"name": "网络黑话翻译", "key": "CyberBlacktalk", "can_disabled": True},
+    {"name": "词云", "key": "WordCloud", "can_disabled": True},
+    {"name": "禁言套餐", "key": "MutePack", "can_disabled": True},
+    {"name": "兽语转换", "key": "Beast", "can_disabled": True},
+    {"name": "我的世界服务器Ping", "key": "MinecraftPing", "can_disabled": True},
+    {"name": "摸头", "key": "PetPet", "can_disabled": True},
+    {"name": "风格logo生成", "key": "StyleLogoGenerator", "can_disabled": True},
+    {"name": "复读姬", "key": "Repeater", "can_disabled": True},
+    {"name": "涩图", "key": "Pixiv", "can_disabled": True},
+    {"name": "有点涩的聊天", "key": "ChatMS", "can_disabled": True},
+    {"name": "没啥用的回复", "key": "Message", "can_disabled": True},
+    {"name": "每日早报", "key": "DailyNewspaper", "can_disabled": True},
+    {"name": "色图", "key": "Setu", "can_disabled": True},
+    {"name": "防撤回", "key": "AnitRecall", "can_disabled": True},
+    {"name": "娱乐功能", "key": "Entertainment", "can_disabled": True},
+    {"name": "骰娘", "key": "DiceMaid", "can_disabled": True},
+    {"name": "B站视频解析", "key": "BilibiliResolve", "can_disabled": True},
+    {"name": "听歌识曲 / 哼唱识曲", "key": "VoiceMusicRecognition", "can_disabled": True},
+    {"name": "淫文翻译机", "key": "Yinglish", "can_disabled": True},
+    {"name": "背单词", "key": "EnglishTest", "can_disabled": True},
+    {"name": "BiliBili订阅推送", "key": "BilibiliDynamic", "can_disabled": False}
 ]
 
 configList = [
@@ -214,6 +215,12 @@ funcHelp = {
         "usage": "发送指令：\n背单词",
         "options": "发送背单词后选择想要学习的词库，机器人将会发题，请根据题目作答，15秒后未作答将提供三次提示，答题系统为全群共享，即“一人开启，全群皆可作答”，如果不想学或者想更换题库可发送取消来终止进程。",
         "example": "（这也需要示例吗？"
+    },
+    "BiliBili订阅推送": {
+        "instruction": "自动推送b站的动态更新",
+        "usage": "发送指令：\n订阅 <uid>\n退订 <uid>",
+        "options": "如果不知道uid怎么获得，请去百度！订阅和退订的指令仅有群管理及以上权限可用",
+        "example": "订阅 161775300"
     }
 }
 
@@ -357,9 +364,12 @@ async def onAoff(app: GraiaMiraiApplication, group: Group, member: Member, messa
         func = funcList[sayfunc]
         funcname = func["name"]
         funckey = func["key"]
+        funcCanDisabled = func["can_disabled"]
         funcDisabledList = group_data[group.id]["DisabledFunc"]
         funcGroupDisabled = func["key"] in funcDisabledList
-        if not funcGroupDisabled:
+        if not funcCanDisabled:
+            await app.sendGroupMessage(group, MessageChain.create([Plain(f"{funcname}无法被关闭")]))
+        elif not funcGroupDisabled:
             funcDisabledList.append(funckey)
             group_data[group.id]["DisabledFunc"] = funcDisabledList
             save_config()
