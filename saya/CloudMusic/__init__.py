@@ -35,6 +35,9 @@ if not os.path.exists("./saya/CloudMusic/temp/"):
 
 MIRAI_PATH = "/A60/bot/"
 
+if MIRAI_PATH[-1] != "/":
+    MIRAI_PATH += "/"
+
 if not os.path.exists(f"{MIRAI_PATH}data/net.mamoe.mirai-api-http/voices/"):
     print("请打开./saya/CloudMusic/__init__.py 并修改变量 MIRAI_PATH 的内容为Mirai的根目录")
     exit()
@@ -53,7 +56,7 @@ WAITING = []
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("点歌")],
                             headless_decorators=[rest_control(), member_limit_check(300), black_list_block()]))
-async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain, source: Source):
+async def sing(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['CloudMusic']['Disabled']:
         return await sendmsg(app=app, group=group)

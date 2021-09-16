@@ -131,7 +131,11 @@ Saya: # saya 插件配置
 
   EnglishTest: # 背单词
     Disabled: false
-    
+
+  BilibiliDynamic:
+    Disabled: false
+    Intervals: 15 # 间隔时间（秒）
+
 Final: false
 # 配置完成后请调整为 true
 # 配置完成后请调整为 true

@@ -5,7 +5,7 @@ description = ""
 authors = ["djkcyl <cyl@cyllive.cn>"]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = ">=3.8,<3.10"
 graia-application-mirai = "0.19.2"
 graia-broadcast = "0.8.11"
 graia-saya = "0.0.9"
@@ -40,6 +40,7 @@ prettytable = "^2.1.0"
 jieba = "^0.42.1"
 psutil = "^5.8.0"
 markdown = "^3.3.4"
+scipy = "^1.7.1"
 
 [tool.poetry.dev-dependencies]
 autopep8 = "^1.5.7"
