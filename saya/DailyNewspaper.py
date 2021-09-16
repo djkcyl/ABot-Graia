@@ -1,4 +1,3 @@
-import requests
 import asyncio
 import random
 import time
