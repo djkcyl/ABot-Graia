@@ -38,7 +38,6 @@ else:
         pass
     group_data = json.loads("{}")
 
-
 if os.path.exists('grouplist.yaml'):
     with open('grouplist.yaml', 'r', encoding="utf-8") as f:
         file_data = f.read()
@@ -49,7 +48,6 @@ else:
             "white": [1]
         }
         yaml.dump(group_list, f, allow_unicode=True, Dumper=NoAliasDumper)
-
 
 if os.path.exists('userlist.json'):
     with open('userlist.json', 'r', encoding="utf-8") as f:
@@ -72,6 +70,8 @@ if yaml_data['Basic']['Permission']['Master'] not in yaml_data['Basic']['Permiss
     with open("config.yaml", 'w', encoding="utf-8") as f:
         yaml.dump(yaml_data, f, allow_unicode=True)
     print("管理员内未包含主人，已自动添加")
+
+save_config()
 
 
 def save_config():

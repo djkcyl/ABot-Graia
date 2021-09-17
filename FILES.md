@@ -1,35 +1,32 @@
 
 ```
-ABot
+ABot  根目录
 ├── FILE.md
 ├── README.md
-├── config.exp.yaml
-├── config.py
-├── datebase
+├── config.exp.yaml  配置文件示例
+├── config.py  配置管理
+├── datebase  用户数据管理
 │   ├── db.py
-│   ├── talkData.db
-│   ├── userData.db
+│   ├── talkData.db  聊天记录
+│   ├── userData.db  用户数据
 │   └── usertalk.py
-├── font
-│   ├── FZDBSJW.TTF
-│   ├── sarasa-mono-sc-bold.ttf
+├── font  字体
+│   ├── FZDBSJW.TTF  方正大标宋
+│   ├── sarasa-mono-sc-bold.ttf  更纱**
 │   ├── sarasa-mono-sc-extralight.ttf
 │   ├── sarasa-mono-sc-light.ttf
 │   ├── sarasa-mono-sc-regular.ttf
 │   ├── sarasa-mono-sc-semibold.ttf
-│   └── vanfont.ttf
-├── groupdata.yaml
-├── grouplist.yaml
-├── main.py
+│   └── vanfont.ttf  哔哩哔哩符号
+├── groupdata.yaml  群配置
+├── grouplist.yaml  群黑白名单
+├── main.py  
 ├── poetry.lock
 ├── pyproject.toml
-├── userlist.json
-├── saya
-│   ├── 2048
-│   │   ├── 2048.py
-│   │   ├── __init__.py
-│   ├── AdminConfig.py
-│   ├── AdminMSG.py
+├── userlist.json  用户黑名单
+├── saya  插件目录
+│   ├── AdminConfig.py  用于进行一些配置的操作
+│   ├── AdminMSG.py  机器人管理员可用的指令
 │   ├── AliTTS
 │   │   ├── __init__.py
 │   │   ├── get_token.py
