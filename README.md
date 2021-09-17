@@ -123,7 +123,8 @@
 > 其他发行版怎么用就不多说了，自己查吧
 > [Screen 基础用法](https://www.runoob.com/linux/linux-comm-screen.html)
 
-<details><summary>## 目录结构</summary>
+<details><summary>目录结构</summary>
+```
 ABot
 ├── FILE.md
 ├── README.md
@@ -279,6 +280,7 @@ ABot
 │   │   ├── default.css
 │   │   └── test.py
 │   └── text2image.py
+```
 </details>
 
 > 如果有什么需要的，可以发issue或者加我的QQ：`2948531755`。
