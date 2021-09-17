@@ -16,7 +16,8 @@ from graia.application.event.lifecycle import ApplicationLaunched
 from graia.application.message.parser.literature import Literature
 from graia.application.message.elements.internal import MessageChain, Plain, Image_UnsafeBytes
 
-from config import yaml_data, group_data
+from config import yaml_data
+from util.text2image import create_image
 from util.limit import group_limit_check
 from util.UserBlock import black_list_block
 
@@ -115,12 +116,17 @@ async def init(app: GraiaMiraiApplication):
             i += 1
         else:
             delete_uid(up_id)
-        await asyncio.sleep(1)
+        await asyncio.sleep(0.2)
     await asyncio.sleep(1)
     if i-1 != sub_num:
         info_msg.append(f"[BiliBili推送] 共有 {sub_num-i+1} 个账号无法获取信息，暂不可进行监控，已从列表中移除")
     for msg in info_msg:
         app.logger.info(msg)
+
+    image = await create_image("\n".join(info_msg), 100)
+    await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
+        Image_UnsafeBytes(image.getvalue())
+    ]))
 
 
 @channel.use(SchedulerSchema(every_custom_seconds(yaml_data['Saya']['BilibiliDynamic']['Intervals'])))
@@ -152,7 +158,7 @@ async def update_scheduled(app: GraiaMiraiApplication):
         else:
             delete_uid(up_id)
             app.logger.info(f"{up_id} 暂时无法监控，已从列表中移除")
-        await asyncio.sleep(5)
+        await asyncio.sleep(3)
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
