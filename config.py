@@ -71,8 +71,6 @@ if yaml_data['Basic']['Permission']['Master'] not in yaml_data['Basic']['Permiss
         yaml.dump(yaml_data, f, allow_unicode=True)
     print("管理员内未包含主人，已自动添加")
 
-save_config()
-
 
 def save_config():
     print("正在保存配置文件")
@@ -84,3 +82,6 @@ def save_config():
         yaml.dump(group_list, f, allow_unicode=True, Dumper=NoAliasDumper)
     with open('userlist.json', 'w', encoding="utf-8") as f:
         json.dump(user_list, f, indent=2)
+
+
+save_config()
