@@ -66,6 +66,7 @@ async def repeateron(app: GraiaMiraiApplication, group: Group, message: MessageC
         ifat = not message.has(At)
         if ifpic & ifface & ifat:
             print('已触发随机复读')
+            repdict[group.id] = {'msg': saying, 'times': 1, 'last': saying}
             res = await text_moderation(saying)
             if res['Suggestion'] == "Pass":
                 await app.sendGroupMessage(group, MessageChain.create([Plain(saying)]))

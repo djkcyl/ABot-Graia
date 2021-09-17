@@ -49,29 +49,31 @@ async def petpet_generator(app: GraiaMiraiApplication, message: MessageChain, gr
                             headless_decorators=[rest_control()]))
 async def get_nudge(app: GraiaMiraiApplication, nudge: NudgeEvent):
 
-    if yaml_data['Saya']['PetPet']['Disabled'] and not yaml_data['Saya']['PetPet']['CanNudge']:
-        return
-    elif 'PetPet' in group_data[nudge.group_id]['DisabledFunc']:
-        return
+    if nudge.group_id:
 
-    manual_block(nudge.supplicant, nudge.group_id)
-    manual_limit(nudge.group_id, "petpet", 3)
+        if yaml_data['Saya']['PetPet']['Disabled'] and not yaml_data['Saya']['PetPet']['CanNudge']:
+            return
+        elif 'PetPet' in group_data[nudge.group_id]['DisabledFunc']:
+            return
 
-    app.logger.info(f"[{nudge.group_id}] 收到戳一戳事件 -> [{nudge.target}]")
-    if not os.path.exists("./saya/PetPet/temp"):
-        os.mkdir("./saya/PetPet/temp")
+        manual_block(nudge.supplicant, nudge.group_id)
+        manual_limit(nudge.group_id, "petpet", 3)
 
-    await app.sendGroupMessage(nudge.group_id, MessageChain.create([
-        Plain("收到 "),
-        At(nudge.supplicant),
-        Plain(" 的戳一戳，正在制图")
-    ]))
+        app.logger.info(f"[{nudge.group_id}] 收到戳一戳事件 -> [{nudge.target}]")
+        if not os.path.exists("./saya/PetPet/temp"):
+            os.mkdir("./saya/PetPet/temp")
 
-    await petpet(nudge.target)
-    await app.sendGroupMessage(nudge.group_id, MessageChain.create([
-        Image.fromLocalFile(
-            f"./saya/PetPet/temp/tempPetPet-{nudge.target}.gif")
-    ]))
+        await app.sendGroupMessage(nudge.group_id, MessageChain.create([
+            Plain("收到 "),
+            At(nudge.supplicant),
+            Plain(" 的戳一戳，正在制图")
+        ]))
+
+        await petpet(nudge.target)
+        await app.sendGroupMessage(nudge.group_id, MessageChain.create([
+            Image.fromLocalFile(
+                f"./saya/PetPet/temp/tempPetPet-{nudge.target}.gif")
+        ]))
 
 
 frame_spec = [
