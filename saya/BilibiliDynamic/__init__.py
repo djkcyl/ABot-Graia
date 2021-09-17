@@ -4,9 +4,7 @@ import httpx
 import asyncio
 
 from graia.saya import Saya, Channel
-from graia.broadcast.interrupt.waiter import Waiter
 from graia.application import GraiaMiraiApplication
-from graia.broadcast.interrupt import InterruptControl
 from graia.scheduler.timers import every_custom_seconds
 from graia.scheduler.saya.schema import SchedulerSchema
 from graia.application.event.messages import GroupMessage
@@ -25,15 +23,16 @@ from .dynamic_shot import get_dynamic_screenshot
 
 saya = Saya.current()
 channel = Channel.current()
-bcc = saya.broadcast
-inc = InterruptControl(bcc)
 
 OFFSET = {}
+NONE = False
 
 proxy = {
     "all://": yaml_data['Saya']['BilibiliDynamic']['Proxy']
 }
-
+head = {
+    'user-agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36'
+}
 
 if os.path.exists('./saya/BilibiliDynamic/dynamic_list.json'):
     with open('./saya/BilibiliDynamic/dynamic_list.json', 'r', encoding="utf-8") as f:
@@ -100,35 +99,54 @@ def delete_uid(uid):
 @channel.use(ListenerSchema(listening_events=[ApplicationLaunched]))
 async def init(app: GraiaMiraiApplication):
 
+    global NONE
+
     if yaml_data['Saya']['BilibiliDynamic']['Disabled']:
         return
 
     sub_num = len(dynamic_list["subscription"])
     info_msg = [f"[BiliBili推送] 将对 {sub_num} 个账号进行监控"]
     i = 1
-    async with httpx.AsyncClient(proxies=proxy) as client:
-        proxy_ip = await client.get("https://api.ipify.org/?format=json")
-        proxy_ip = proxy_ip.json()["ip"]
-        info_msg.append(f"[BiliBili推送] 本次代理IP为：{proxy_ip}")
-        app.logger.info(f"[BiliBili推送] 本次代理IP为：{proxy_ip}")
+    async with httpx.AsyncClient(proxies=proxy, headers=head) as client:
+        try:
+            proxy_ip = await client.get("https://api.ipify.org/?format=json")
+            proxy_ip = proxy_ip.json()["ip"]
+            info_msg.append(f"[BiliBili推送] 本次代理IP为：{proxy_ip}")
+            app.logger.info(f"[BiliBili推送] 本次代理IP为：{proxy_ip}")
+        except:
+            proxy_ip = await client.get("https://www.baidu.com")
+            proxy_ip = proxy_ip.status_code
+            if proxy_ip == 200:
+                info_msg.append(f"[BiliBili推送] 本次代理IP检测失败，但该ip可用")
+                app.logger.info(f"[BiliBili推送] 本次代理IP检测失败，但该ip可用")
         for up_id in dynamic_list["subscription"]:
-            r = await client.get(f"https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/space_history?host_uid={up_id}")
-            r = r.json()
-            if "cards" in r["data"]:
-                last_dynid = r["data"]["cards"][0]["desc"]["dynamic_id"]
-                OFFSET[up_id] = last_dynid
-                up_name = r["data"]["cards"][0]["desc"]["user_profile"]["info"]["uname"]
-                if len(str(i)) == 1:
-                    si = f"  {i}"
-                elif len(str(i)) == 2:
-                    si = f" {i}"
+            for _ in range(5):
+                try:
+                    r = await client.get(f"https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/space_history?host_uid={up_id}")
+                    res = r.json()
+                    if "cards" in res["data"]:
+                        last_dynid = res["data"]["cards"][0]["desc"]["dynamic_id"]
+                        OFFSET[up_id] = last_dynid
+                        up_name = res["data"]["cards"][0]["desc"]["user_profile"]["info"]["uname"]
+                        if len(str(i)) == 1:
+                            si = f"  {i}"
+                        elif len(str(i)) == 2:
+                            si = f" {i}"
+                        else:
+                            si = i
+                        sub_count = len(dynamic_list["subscription"][up_id])
+                        info_msg.append(f"  ● {si}  ---->  {up_name}({up_id}) > {sub_count} > {last_dynid}")
+                        i += 1
+                    else:
+                        delete_uid(up_id)
+                except:
+                    pass
                 else:
-                    si = i
-                sub_count = len(dynamic_list["subscription"][up_id])
-                info_msg.append(f"  ● {si}  ---->  {up_name}({up_id}) > {sub_count} > {last_dynid}")
-                i += 1
+                    if r.status_code == 200:
+                        break
             else:
-                delete_uid(up_id)
+                return
+    NONE = True
     await asyncio.sleep(1)
     if i-1 != sub_num:
         info_msg.append(f"[BiliBili推送] 共有 {sub_num-i+1} 个账号无法获取信息，暂不可进行监控，已从列表中移除")
@@ -146,17 +164,19 @@ async def update_scheduled(app: GraiaMiraiApplication):
 
     if yaml_data['Saya']['BilibiliDynamic']['Disabled']:
         return
+    elif not NONE:
+        return
 
     app.logger.info("[BiliBili推送] 正在检测动态更新")
     sub_list = dynamic_list["subscription"].copy()
-    async with httpx.AsyncClient(proxies=proxy) as client:
+    async with httpx.AsyncClient(proxies=proxy, headers=head) as client:
         try:
             proxy_ip = await client.get("https://api.ipify.org/?format=json")
             proxy_ip = proxy_ip.json()["ip"]
             app.logger.info(f"[BiliBili推送] 本次代理IP为：{proxy_ip}")
         except httpx.ProxyError:
             app.logger.info(f"[BiliBili推送] 本次代理IP检测失败")
-            can_use = await client.get("https://www.bilibili.com")
+            can_use = await client.get("https://www.baidu.com")
             if can_use.status_code != 200:
                 app.logger.info(f"[BiliBili推送] 本次代理IP不可用，已退出")
                 return
@@ -168,11 +188,11 @@ async def update_scheduled(app: GraiaMiraiApplication):
                         break
                 except Exception as e:
                     app.logger.info(f"[BiliBili推送] 更新失败，正在重试")
-                    image = await create_image(e, 120)
-                    await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
-                        Plain(f"BiliBili 动态检测失败 {retry + 1} 次\n"),
-                        Image_UnsafeBytes(image.getvalue())
-                    ]))
+                    # image = await create_image(e, 120)
+                    # await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
+                    #     Plain(f"BiliBili 动态检测失败 {retry + 1} 次 {type(e)}\n"),
+                    #     # Image_UnsafeBytes(image.getvalue())
+                    # ]))
             else:
                 app.logger.info(f"[BiliBili推送] 更新失败超过 {retry + 1} 次，已终止本次更新")
                 await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
