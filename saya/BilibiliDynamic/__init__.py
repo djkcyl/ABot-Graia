@@ -106,7 +106,7 @@ async def init(app: GraiaMiraiApplication):
     info_msg = [f"[BiliBili推送] 将对 {sub_num} 个账号进行监控"]
     i = 1
     for up_id in dynamic_list["subscription"]:
-        for _ in range(5):
+        for ri in range(5):
             try:
                 async with httpx.AsyncClient(proxies=get_proxy(), headers=head) as client:
                     r = await client.get(f"https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/space_history?host_uid={up_id}")
@@ -128,7 +128,7 @@ async def init(app: GraiaMiraiApplication):
                 else:
                     delete_uid(up_id)
             except:
-                app.logger.info("更新失败")
+                app.logger.error(f"{up_id} 更新失败，正在第 {ri + 1} 重试")
                 pass
             else:
                 if r.status_code == 200:
@@ -167,21 +167,23 @@ async def update_scheduled(app: GraiaMiraiApplication):
                     if r.status_code == 200:
                         break
             except httpx.HTTPError as e:
-                app.logger.info(f"[BiliBili推送] 更新失败，正在重试")
-                image = await create_image(f"{str(type(e))}\n{str(e.request)}\n{str(e)}", 400)
-                await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
-                    Plain(f"BiliBili 动态检测失败 {retry + 1} 次\n"),
-                    Image_UnsafeBytes(image.getvalue())
-                ]))
+                app.logger.error(f"[BiliBili推送] 更新失败，正在重试")
+                app.logger.error(f"{str(type(e))}\n{str(e.request)}\n{str(e)}")
+                # image = await create_image(f"{str(type(e))}\n{str(e.request)}\n{str(e)}", 400)
+                # await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
+                #     Plain(f"BiliBili 动态检测失败 {retry + 1} 次\n"),
+                #     Image_UnsafeBytes(image.getvalue())
+                # ]))
             except Exception as e:
-                app.logger.info(f"[BiliBili推送] 更新失败，正在重试")
+                app.logger.error(f"[BiliBili推送] 更新失败，正在重试")
+                app.logger.error(f"{str(type(e))}\n{str(e)}")
                 image = await create_image(f"{str(type(e))}\n{str(e)}", 120)
                 await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
                     Plain(f"BiliBili 动态检测失败 {retry + 1} 次\n"),
                     Image_UnsafeBytes(image.getvalue())
                 ]))
         else:
-            app.logger.info(f"[BiliBili推送] 更新失败超过 {retry + 1} 次，已终止本次更新")
+            app.logger.error(f"[BiliBili推送] 更新失败超过 {retry + 1} 次，已终止本次更新")
             await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
                 Plain(f"BiliBili 动态检测失败超过 {retry + 1} 次，已终止本次检测")
             ]))
