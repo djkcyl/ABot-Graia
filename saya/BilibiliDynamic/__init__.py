@@ -15,6 +15,7 @@ from graia.application.message.parser.literature import Literature
 from graia.application.message.elements.internal import MessageChain, Plain, Image_UnsafeBytes
 
 from config import yaml_data
+from util.GetProxy import get_proxy
 from util.text2image import create_image
 from util.limit import group_limit_check
 from util.UserBlock import black_list_block
@@ -27,9 +28,6 @@ channel = Channel.current()
 OFFSET = {}
 NONE = False
 
-proxy = {
-    "all://": yaml_data['Saya']['BilibiliDynamic']['Proxy']
-}
 head = {
     'user-agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36'
 }
@@ -77,7 +75,7 @@ async def add_uid(uid, groupid):
         Plain(f"该UP（{uid}）未发布任何动态，订阅失败")
 
 
-async def remove_uid(uid, groupid):
+def remove_uid(uid, groupid):
     uid_sub_group = dynamic_list['subscription'].get(uid, [])
     if groupid in uid_sub_group:
         dynamic_list['subscription'][uid].remove(groupid)
@@ -107,45 +105,36 @@ async def init(app: GraiaMiraiApplication):
     sub_num = len(dynamic_list["subscription"])
     info_msg = [f"[BiliBili推送] 将对 {sub_num} 个账号进行监控"]
     i = 1
-    async with httpx.AsyncClient(proxies=proxy, headers=head) as client:
-        try:
-            proxy_ip = await client.get("https://api.ipify.org/?format=json")
-            proxy_ip = proxy_ip.json()["ip"]
-            info_msg.append(f"[BiliBili推送] 本次代理IP为：{proxy_ip}")
-            app.logger.info(f"[BiliBili推送] 本次代理IP为：{proxy_ip}")
-        except:
-            proxy_ip = await client.get("https://www.baidu.com")
-            proxy_ip = proxy_ip.status_code
-            if proxy_ip == 200:
-                info_msg.append(f"[BiliBili推送] 本次代理IP检测失败，但该ip可用")
-                app.logger.info(f"[BiliBili推送] 本次代理IP检测失败，但该ip可用")
-        for up_id in dynamic_list["subscription"]:
-            for _ in range(5):
-                try:
+    for up_id in dynamic_list["subscription"]:
+        for _ in range(5):
+            try:
+                async with httpx.AsyncClient(proxies=get_proxy(), headers=head) as client:
                     r = await client.get(f"https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/space_history?host_uid={up_id}")
                     res = r.json()
-                    if "cards" in res["data"]:
-                        last_dynid = res["data"]["cards"][0]["desc"]["dynamic_id"]
-                        OFFSET[up_id] = last_dynid
-                        up_name = res["data"]["cards"][0]["desc"]["user_profile"]["info"]["uname"]
-                        if len(str(i)) == 1:
-                            si = f"  {i}"
-                        elif len(str(i)) == 2:
-                            si = f" {i}"
-                        else:
-                            si = i
-                        sub_count = len(dynamic_list["subscription"][up_id])
-                        info_msg.append(f"  ● {si}  ---->  {up_name}({up_id}) > {sub_count} > {last_dynid}")
-                        i += 1
+                if "cards" in res["data"]:
+                    last_dynid = res["data"]["cards"][0]["desc"]["dynamic_id"]
+                    OFFSET[up_id] = last_dynid
+                    up_name = res["data"]["cards"][0]["desc"]["user_profile"]["info"]["uname"]
+                    if len(str(i)) == 1:
+                        si = f"  {i}"
+                    elif len(str(i)) == 2:
+                        si = f" {i}"
                     else:
-                        delete_uid(up_id)
-                except:
-                    pass
+                        si = i
+                    sub_count = len(dynamic_list["subscription"][up_id])
+                    info_msg.append(f"  ● {si}  ---->  {up_name}({up_id}) > {sub_count} > {last_dynid}")
+                    i += 1
+                    await asyncio.sleep(1)
                 else:
-                    if r.status_code == 200:
-                        break
+                    delete_uid(up_id)
+            except:
+                app.logger.info("更新失败")
+                pass
             else:
-                return
+                if r.status_code == 200:
+                    break
+        else:
+            return
     NONE = True
     await asyncio.sleep(1)
     if i-1 != sub_num:
@@ -164,60 +153,62 @@ async def update_scheduled(app: GraiaMiraiApplication):
 
     if yaml_data['Saya']['BilibiliDynamic']['Disabled']:
         return
-    elif not NONE:
-        return
 
     app.logger.info("[BiliBili推送] 正在检测动态更新")
+    if not NONE:
+        app.logger.info("[BiliBili推送] 初始化未完成，终止本次更新")
+        return
     sub_list = dynamic_list["subscription"].copy()
-    async with httpx.AsyncClient(proxies=proxy, headers=head) as client:
-        try:
-            proxy_ip = await client.get("https://api.ipify.org/?format=json")
-            proxy_ip = proxy_ip.json()["ip"]
-            app.logger.info(f"[BiliBili推送] 本次代理IP为：{proxy_ip}")
-        except httpx.ProxyError:
-            app.logger.info(f"[BiliBili推送] 本次代理IP检测失败")
-            can_use = await client.get("https://www.baidu.com")
-            if can_use.status_code != 200:
-                app.logger.info(f"[BiliBili推送] 本次代理IP不可用，已退出")
-                return
-        for up_id in sub_list:
-            for retry in range(3):
-                try:
+    for up_id in sub_list:
+        for retry in range(3):
+            try:
+                async with httpx.AsyncClient(proxies=get_proxy(), headers=head) as client:
                     r = await client.get(f"https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/space_history?host_uid={up_id}")
                     if r.status_code == 200:
                         break
-                except Exception as e:
-                    app.logger.info(f"[BiliBili推送] 更新失败，正在重试")
-                    # image = await create_image(e, 120)
-                    # await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
-                    #     Plain(f"BiliBili 动态检测失败 {retry + 1} 次 {type(e)}\n"),
-                    #     # Image_UnsafeBytes(image.getvalue())
-                    # ]))
-            else:
-                app.logger.info(f"[BiliBili推送] 更新失败超过 {retry + 1} 次，已终止本次更新")
+            except httpx.HTTPError as e:
+                app.logger.info(f"[BiliBili推送] 更新失败，正在重试")
+                image = await create_image(f"{str(type(e))}\n{str(e.request)}\n{str(e)}", 400)
                 await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
-                    Plain(f"BiliBili 动态检测失败超过 {retry + 1} 次，已终止本次检测")
+                    Plain(f"BiliBili 动态检测失败 {retry + 1} 次\n"),
+                    Image_UnsafeBytes(image.getvalue())
                 ]))
-                break
-            r = r.json()
-            if "cards" in r["data"]:
-                up_name = r["data"]["cards"][0]["desc"]["user_profile"]["info"]["uname"]
-                up_last_dynid = r["data"]["cards"][0]["desc"]["dynamic_id"]
-                app.logger.debug(f"[BiliBili推送] 正在检测{up_name}（{up_id}）")
-                if up_last_dynid > OFFSET[up_id]:
-                    app.logger.info(f"   > 更新了动态 {up_last_dynid}")
-                    OFFSET[up_id] = up_last_dynid
-                    shot_image = await get_dynamic_screenshot(r["data"]["cards"][0]["desc"]["dynamic_id_str"])
-                    for groupid in sub_list[up_id]:
-                        await app.sendGroupMessage(groupid, MessageChain.create([
-                            Plain(f"本群订阅的UP {up_name}（{up_id}）更新啦！"),
-                            Image_UnsafeBytes(shot_image)
-                        ]))
-                        await asyncio.sleep(0.3)
-            else:
-                delete_uid(up_id)
-                app.logger.info(f"{up_id} 暂时无法监控，已从列表中移除")
-        app.logger.info("[BiliBili推送] 本轮动态检测完成")
+            except Exception as e:
+                app.logger.info(f"[BiliBili推送] 更新失败，正在重试")
+                image = await create_image(f"{str(type(e))}\n{str(e)}", 120)
+                await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
+                    Plain(f"BiliBili 动态检测失败 {retry + 1} 次\n"),
+                    Image_UnsafeBytes(image.getvalue())
+                ]))
+        else:
+            app.logger.info(f"[BiliBili推送] 更新失败超过 {retry + 1} 次，已终止本次更新")
+            await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
+                Plain(f"BiliBili 动态检测失败超过 {retry + 1} 次，已终止本次检测")
+            ]))
+            break
+        r = r.json()
+        if "cards" in r["data"]:
+            up_name = r["data"]["cards"][0]["desc"]["user_profile"]["info"]["uname"]
+            up_last_dynid = r["data"]["cards"][0]["desc"]["dynamic_id"]
+            app.logger.debug(f"[BiliBili推送] 正在检测{up_name}（{up_id}）")
+            if up_last_dynid > OFFSET[up_id]:
+                app.logger.info(f"[BiliBili推送] {up_name} 更新了动态 {up_last_dynid}")
+                OFFSET[up_id] = up_last_dynid
+                shot_image = await get_dynamic_screenshot(r["data"]["cards"][0]["desc"]["dynamic_id_str"])
+                for groupid in sub_list[up_id]:
+                    await app.sendGroupMessage(groupid, MessageChain.create([
+                        Plain(f"本群订阅的UP {up_name}（{up_id}）更新啦！"),
+                        Image_UnsafeBytes(shot_image)
+                    ]))
+                    await asyncio.sleep(0.3)
+            await asyncio.sleep(1)
+        else:
+            delete_uid(up_id)
+            app.logger.info(f"{up_id} 暂时无法监控，已从列表中移除")
+            await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
+                Plain(f"{up_id} 暂时无法监控，已从列表中移除")
+            ]))
+    app.logger.info("[BiliBili推送] 本轮动态检测完成")
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
@@ -243,7 +234,7 @@ async def atrep(app: GraiaMiraiApplication, group: Group, member: Member, messag
     if member.permission in [MemberPerm.Administrator, MemberPerm.Owner] or member.id in yaml_data['Basic']['Permission']['Admin']:
         saying = message.asDisplay().split(" ", 1)
         if len(saying) == 2:
-            await app.sendGroupMessage(group, MessageChain.create([await remove_uid(saying[1], group.id)]))
+            await app.sendGroupMessage(group, MessageChain.create([remove_uid(saying[1], group.id)]))
     else:
         await app.sendGroupMessage(group, MessageChain.create([
             Plain("你没有权限使用该功能！")
