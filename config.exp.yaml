@@ -136,7 +136,8 @@ Saya: # saya 插件配置
     Disabled: false
     Intervals: 15 # 间隔时间（秒）
     EnabledProxy: false # 启用代理
-    Proxy: null # 代理地址
+    Proxy: # 代理地址
+      - http://127.0.0.1:1080
 
 Final: false
 # 配置完成后请调整为 true
