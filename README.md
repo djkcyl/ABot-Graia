@@ -1,14 +1,9 @@
 <div align="center">
 
 # ABot for Graia
+  <center>ABot 是一个使用 Graia 搭建的 QQ 功能性<del>究极缝合怪</del>机器人</center>
 
 </div>
-
-### 由于不可抗力 ABot 暂时停更（
-
-![7L4P%)_QA6_B3QPS0$74@49](https://user-images.githubusercontent.com/59153990/131785951-2d093dac-6d72-489b-a05d-0cbeab710c04.jpg)
-
-![DT% IQ$B@{AGT_9J`}VIPQ3](https://user-images.githubusercontent.com/59153990/131631980-74f08a13-e638-4e7f-a42a-bceb33d75b3b.jpg)
 
 ## ABot 现在能干什么
 
@@ -65,63 +60,8 @@
 >   - 大清扫（如果 ABot 是管理员的情况下）`/viveall` and `/kickall`
 > - （待开发中）
 
-## 部署 ABot
-
-### 环境要求
-
-- [Python](https://www.python.org/) `^3.8`
-  - [Poetry](https://python-poetry.org/)
-- [Mirai HTTP API](https://github.com/project-mirai/mirai-api-http) `1.12.0`
-- [Redis](https://redis.io/)
-- [Netease Cloud Music Api](https://github.com/Binaryify/NeteaseCloudMusicApi) `如果你需要点歌姬功能的话需要自行搭建`
-- [QQ Music API](https://github.com/Rain120/qq-music-api) `如果你需要点歌姬功能的话需要自行搭建`
-
-### 安装
-
-1. 克隆 ABot 到本地
-   ```shell
-   git clone https://github.com/djkcyl/ABot-Graia
-   ```
-2. 使用虚拟容器安装依赖
-   ```shell
-   poetry install
-   ```
-3. 进入虚拟容器`每次运行前都需要进行`
-   ```shell
-   poetry shell
-   ```
-4. 修改 ABot 配置文件 `config.exp.yaml` 后**并重命名**为 `config.yaml`
-5. 启动 ABot
-   ```shell
-   python main.py
-   ```
-
-> 你可能还需要执行下面这条命令才能正常使用词典功能
->
-> ```shell
-> npx playwright install-deps
-> ```
-
-**尽情享用吧~**
-
-## 保持在后台运行
-
-### **Windows**
-
-> ~~Windows 系统也需要问吗？~~
-
-### **Linux**
-
-> **Centos**
->
-> ```shell
-> yum install screen
-> screen -R ABot
-> ...
-> ```
->
-> 其他发行版怎么用就不多说了，自己查吧
-> [Screen 基础用法](https://www.runoob.com/linux/linux-comm-screen.html)
+## 部署
+- 详见[部署](_doc/deploy.md)
 
 [**文件目录结构**](https://github.com/djkcyl/ABot-Graia/blob/master/FILES.md)
 
