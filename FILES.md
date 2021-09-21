@@ -20,7 +20,7 @@ ABot  根目录
 │   └── vanfont.ttf  哔哩哔哩符号
 ├── groupdata.yaml  群配置
 ├── grouplist.yaml  群黑白名单
-├── main.py  
+├── main.py  Bot 总入口
 ├── poetry.lock
 ├── pyproject.toml
 ├── userlist.json  用户黑名单
