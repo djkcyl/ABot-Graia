@@ -61,7 +61,7 @@
 > - （待开发中）
 
 ## 部署
-- 详见[部署](_doc/deploy.md)
+- 详见[部署](_docs/deploy.md)
 
 [**文件目录结构**](https://github.com/djkcyl/ABot-Graia/blob/master/FILES.md)
 
