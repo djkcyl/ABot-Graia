@@ -1,7 +1,7 @@
 <div align="center">
 
 # ABot for Graia
-  ABot 是一个使用 Graia 搭建的 QQ 功能性<del>究极缝合怪</del>机器人
+ABot 是一个使用 Graia 搭建的 QQ 功能性<del>究极缝合怪</del>机器人
 
 </div>
 
