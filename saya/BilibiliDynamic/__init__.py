@@ -7,12 +7,13 @@ from graia.saya import Saya, Channel
 from graia.application import GraiaMiraiApplication
 from graia.scheduler.timers import every_custom_seconds
 from graia.scheduler.saya.schema import SchedulerSchema
-from graia.application.event.messages import GroupMessage
+from graia.application.event.messages import FriendMessage, GroupMessage
 from graia.application.group import Group, Member, MemberPerm
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.event.lifecycle import ApplicationLaunched
 from graia.application.message.parser.literature import Literature
 from graia.application.message.elements.internal import MessageChain, Plain, Image_UnsafeBytes
+from graia.application.event.mirai import BotLeaveEventKick, BotLeaveEventActive
 
 from config import yaml_data
 from util.GetProxy import get_proxy
@@ -51,6 +52,14 @@ def get_group_sub(groupid):
         if groupid in dynamic_list['subscription'][subuid]:
             num += 1
     return num
+
+
+def get_group_sublist(groupid):
+    sublist = []
+    for subuid in dynamic_list['subscription']:
+        if groupid in dynamic_list['subscription'][subuid]:
+            sublist.append(subuid)
+    return sublist
 
 
 def get_subid_list():
@@ -114,6 +123,7 @@ async def init(app: GraiaMiraiApplication):
     subid_list = get_subid_list()
     sub_num = len(subid_list)
     if sub_num == 0:
+        NONE = True
         return app.logger.info(f"[BiliBili推送] 由于未订阅任何账号，本次初始化结束")
     info_msg = [f"[BiliBili推送] 将对 {sub_num} 个账号进行监控"]
 
@@ -149,7 +159,12 @@ async def init(app: GraiaMiraiApplication):
                     else:
                         live_status = "未开播"
                     sub_count = len(dynamic_list["subscription"][up_id])
-                    info_msg.append(f"  ● {si}  ---->  {up_name}({up_id}) > {sub_count} > {last_dynid} > 当前{live_status}")
+                    info_msg.append(f"    ● {si}  ---->  {up_name}({up_id}) > 当前{live_status}")
+                    info_msg.append(f"                       最新动态：{last_dynid}")
+                    info_msg.append(f"                       共有 {sub_count} 个群订阅了该 UP")
+                    for groupid in dynamic_list["subscription"][up_id]:
+                        group_info = await app.getGroup(groupid)
+                        info_msg.append(f"                           > {group_info.name}({groupid})")
                     i += 1
                     await asyncio.sleep(1)
                 else:
@@ -182,8 +197,9 @@ async def update_scheduled(app: GraiaMiraiApplication):
         return
 
     if not NONE:
-        app.logger.info("[BiliBili推送] 初始化未完成，终止本次更新")
-        return
+        return app.logger.info("[BiliBili推送] 初始化未完成，终止本次更新")
+    elif len(dynamic_list["subscription"]) == 0:
+        return app.logger.info(f"[BiliBili推送] 由于未订阅任何账号，本次更新已终止")
 
     sub_list = dynamic_list["subscription"].copy()
     subid_list = get_subid_list()
@@ -315,3 +331,12 @@ async def atrep(app: GraiaMiraiApplication, group: Group, member: Member, messag
         await app.sendGroupMessage(group, MessageChain.create([
             Plain("你没有权限使用该功能！")
         ]))
+
+
+@channel.use(ListenerSchema(listening_events=[BotLeaveEventActive, BotLeaveEventKick]))
+async def bot_leave(app: GraiaMiraiApplication, group: Group):
+    remove_list = []
+    for subid in get_group_sublist(group.id):
+        remove_uid(subid, group.id)
+        remove_list.append(subid)
+    app.logger.info(f"[BiliBili推送] 检测到退群事件 > {group.name}({group.id})，已删除该群订阅的 {len(remove_list)} 个UP")
