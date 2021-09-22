@@ -72,8 +72,14 @@ def get_subid_list():
 
 async def add_uid(uid, groupid):
 
-    pattern = re.compile('^[0-9]*$')
-    if not pattern.search(uid):
+    pattern = re.compile('^[0-9]*$|com/([0-9]*)')
+    match = pattern.search(uid)
+    if match:
+        if match.group(1):
+            uid = match.group(1)
+        else:
+            uid = match.group(0)
+    else:
         return Plain(f"请输入正确的数字")
 
     async with httpx.AsyncClient(proxies=get_proxy(), headers=head) as client:
