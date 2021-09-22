@@ -1,4 +1,5 @@
 import os
+import re
 import json
 import httpx
 import asyncio
@@ -70,6 +71,11 @@ def get_subid_list():
 
 
 async def add_uid(uid, groupid):
+
+    pattern = re.compile('^[0-9]*$')
+    if not pattern.search(uid):
+        return Plain(f"请输入正确的数字")
+
     async with httpx.AsyncClient(proxies=get_proxy(), headers=head) as client:
         r = await client.get(f"https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/space_history?host_uid={uid}")
         r = r.json()
