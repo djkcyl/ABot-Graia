@@ -1,5 +1,6 @@
 Basic: # 基础配置
   BotName: "xxxx" # 机器人在群里的名字
+  MiraiPath: "/xxx/xxx/"  # Mirai根目录
 
   MAH: # Mirai HTTP API配置
     BotQQ: 123456 # 机器人QQ号
