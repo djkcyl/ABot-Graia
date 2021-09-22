@@ -38,7 +38,7 @@ async def dice(app: GraiaMiraiApplication, group: Group, message: MessageChain):
 
         if not r:
             dr = 1
-        elif 1 < int(r) < 100:
+        elif 0 < int(r) < 101:
             dr = int(r)
         else:
             return await app.sendGroupMessage(group, MessageChain.create([
@@ -47,7 +47,7 @@ async def dice(app: GraiaMiraiApplication, group: Group, message: MessageChain):
 
         if not d:
             dd = 100
-        elif 0 < int(d) < 1000:
+        elif 0 < int(d) < 1001:
             dd = int(d)
         else:
             return await app.sendGroupMessage(group, MessageChain.create([
@@ -56,12 +56,12 @@ async def dice(app: GraiaMiraiApplication, group: Group, message: MessageChain):
 
         if not k:
             dk = 0
-        elif int(k) > dr:
-            return await app.sendGroupMessage(group, MessageChain.create([
-                Plain(f"你输入的值有误，取最大数（k）不可大于总骰子数（r）")
-            ]))
-        else:
+        elif 1 < int(k) < dr:
             dk = int(k)
+        else:
+            return await app.sendGroupMessage(group, MessageChain.create([
+                Plain(f"你输入的值有误，取最大数（k）不可大于总骰子数（r）或小于 2")
+            ]))
 
         dice_list = []
         for _ in range(dr):
