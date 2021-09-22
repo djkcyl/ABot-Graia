@@ -40,6 +40,8 @@ async def dice(app: GraiaMiraiApplication, group: Group, message: MessageChain):
             dr = 1
         elif 0 < int(r) < 101:
             dr = int(r)
+        elif int(r) == 300 and int(k) == 10:
+            dr = 300
         else:
             return await app.sendGroupMessage(group, MessageChain.create([
                 Plain(f"一次仅可投掷 1 - 100 个骰子")
