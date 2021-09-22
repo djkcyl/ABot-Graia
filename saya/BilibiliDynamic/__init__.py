@@ -80,6 +80,7 @@ async def add_uid(uid, groupid):
             return Plain(f"本群已订阅 {up_name}（{uid}）")
         else:
             if uid not in dynamic_list['subscription']:
+                LIVE_STATUS[uid] = False
                 dynamic_list['subscription'][uid] = []
                 last_dynid = r["data"]["cards"][0]["desc"]["dynamic_id"]
                 DYNAMIC_OFFSET[uid] = last_dynid
@@ -214,10 +215,12 @@ async def update_scheduled(app: GraiaMiraiApplication):
                     break
         except httpx.HTTPError as e:
             app.logger.error(f"[BiliBili推送] 直播更新失败，正在重试")
-            app.logger.error(f"{str(type(e))}\n{str(e.request)}\n{str(e)}")
+            app.logger.error(str(type(e)))
+            app.logger.error(str(e.request))
         except Exception as e:
             app.logger.error(f"[BiliBili推送] 直播更新失败，正在重试")
-            app.logger.error(f"{str(type(e))}\n{str(e)}")
+            app.logger.error(str(type(e)))
+            app.logger.error(str(e))
             image = await create_image(f"{str(type(e))}\n{str(e)}", 120)
             await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
                 Plain(f"BiliBili 直播检测失败 {retry + 1} 次\n"),
