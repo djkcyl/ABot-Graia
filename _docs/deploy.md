@@ -20,11 +20,11 @@
    ```shell
    git clone https://github.com/djkcyl/ABot-Graia
    ```
-2*. 使用虚拟容器安装依赖
+2. *使用虚拟容器安装依赖
    ```shell
    poetry install
    ```
-3*. 进入虚拟容器<br>
+3. *进入虚拟容器<br>
 注：**每次运行前都需要进行**
    ```shell
    poetry shell
