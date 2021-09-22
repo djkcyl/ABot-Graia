@@ -212,7 +212,7 @@ funcHelp = {
         "example": "（这也需要示例吗？"
     },
     "BiliBili订阅推送": {
-        "instruction": "自动推送b站的动态更新",
+        "instruction": "自动推送b站的动态及直播间更新",
         "usage": "发送指令：\n订阅 <uid>\n退订 <uid>",
         "options": "如果不知道uid怎么获得，请去百度！订阅和退订的指令仅有群管理及以上权限可用",
         "example": "订阅 161775300"
