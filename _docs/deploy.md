@@ -14,23 +14,22 @@
 
 ### 安装
 
-带星号的是安装了可选组件 `Poetry` 的步骤。
-
 1. 克隆 ABot 到本地
    ```shell
    git clone https://github.com/djkcyl/ABot-Graia
    ```
-2. *使用虚拟容器安装依赖
-   ```shell
-   poetry install
-   ```
-3. *进入虚拟容器<br>
-注：**每次运行前都需要进行**
-   ```shell
-   poetry shell
-   ```
-4. 修改 ABot 配置文件 `config.exp.yaml` 后**并重命名**为 `config.yaml`
-5. 启动 ABot
+> 以下步骤仅用于安装了可选组件`Poetry`。
+> 1. 使用虚拟容器安装依赖
+>    ```shell
+>    poetry install
+>    ```
+> 2. 进入虚拟容器<br>
+> 注：**每次运行前都需要进行**
+>    ```shell
+>    poetry shell
+>    ```
+2. 修改 ABot 配置文件 `config.exp.yaml` 后**并重命名**为 `config.yaml`
+3. 启动 ABot
    ```shell
    python main.py
    ```
@@ -47,9 +46,9 @@
 
 ### **Windows**
 
-> ~~Windows 系统也需要问吗？彳亍~~
-> 按下最小化即可。
-> ~~为什么会有人这个也要教啊（恼）~~
+> ~~Windows 系统也需要问吗？彳亍~~<br>
+> 按下最小化即可。<br>
+> ~~为什么会有人这个也要教啊（恼）~~<br>
 
 ### **Linux**
 
