@@ -60,11 +60,14 @@ ABot 是一个使用 Graia 搭建的 QQ 功能性<del>究极缝合怪</del>机�
 >   - 大清扫（如果 ABot 是管理员的情况下）`/viveall` and `/kickall`
 > - （待开发中）
 
-## 部署
+### 部署
 - 详见[部署](_docs/deploy.md)
+### 
 
-[**文件目录结构**](https://github.com/djkcyl/ABot-Graia/blob/master/FILES.md)
+[**文件目录结构**](FILES.md)
 
 > 如果有什么需要的，可以发issue或者加我的QQ：`2948531755`。
 
-感谢[SAGIRI-kawaii](https://github.com/SAGIRI-kawaii)的一堆功能
+感谢[SAGIRI-BOT](https://github.com/SAGIRI-kawaii/sagiri-bot)的一堆功能以及saya转型启发
+
+感谢[HarukaBot](https://github.com/SK-415/HarukaBot)提供的哔哩哔哩推送灵感及部分实现思路

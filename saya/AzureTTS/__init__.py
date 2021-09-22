@@ -27,7 +27,7 @@ saya = Saya.current()
 channel = Channel.current()
 
 TTSRUNING = False
-MIRAI_PATH = "/A60/bot/"
+MIRAI_PATH = yaml_data["Basic"]["MiraiPath"]
 
 if not os.path.exists(f"{MIRAI_PATH}data/net.mamoe.mirai-api-http/voices/"):
     print("请打开./saya/AzureTTS/__init__.py 并修改第 31 行的地址为Mirai的根目录")

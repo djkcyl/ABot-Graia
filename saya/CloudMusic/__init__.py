@@ -33,7 +33,7 @@ if not os.path.exists("./saya/CloudMusic/temp/"):
     print("正在创建音乐缓存文件夹")
     os.mkdir("./saya/CloudMusic/temp/")
 
-MIRAI_PATH = "/A60/bot/"
+MIRAI_PATH = yaml_data["Basic"]["MiraiPath"]
 
 if MIRAI_PATH[-1] != "/":
     MIRAI_PATH += "/"
