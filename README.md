@@ -1,7 +1,7 @@
 <div align="center">
 
 # ABot for Graia
-  <center>ABot 是一个使用 Graia 搭建的 QQ 功能性<del>究极缝合怪</del>机器人</center>
+  ABot 是一个使用 Graia 搭建的 QQ 功能性<del>究极缝合怪</del>机器人
 
 </div>
 
@@ -47,7 +47,7 @@
 > - **背单词**
 > - 全局黑名单控制
 > - 消息量统计 `查看消息量统计`
-> - **BiliBili 动态订阅推送**
+> - **BiliBili 动态/直播 订阅推送**
 > - 亿些杂七杂八没整理的小功能
 >   - @bot 后的反馈
 >   - 草
