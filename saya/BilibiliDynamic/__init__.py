@@ -8,13 +8,13 @@ from graia.saya import Saya, Channel
 from graia.application import GraiaMiraiApplication
 from graia.scheduler.timers import every_custom_seconds
 from graia.scheduler.saya.schema import SchedulerSchema
-from graia.application.event.messages import FriendMessage, GroupMessage
 from graia.application.group import Group, Member, MemberPerm
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.event.lifecycle import ApplicationLaunched
 from graia.application.message.parser.literature import Literature
-from graia.application.message.elements.internal import MessageChain, Plain, Image_UnsafeBytes
+from graia.application.event.messages import FriendMessage, GroupMessage
 from graia.application.event.mirai import BotLeaveEventKick, BotLeaveEventActive
+from graia.application.message.elements.internal import MessageChain, Plain, Image_UnsafeBytes
 
 from config import yaml_data
 from util.GetProxy import get_proxy
@@ -80,7 +80,7 @@ async def add_uid(uid, groupid):
         else:
             uid = match.group(0)
     else:
-        return Plain(f"请输入正确的数字")
+        return Plain(f"请输入正确的 UP UID 或 首页链接")
 
     async with httpx.AsyncClient(proxies=get_proxy(), headers=head) as client:
         r = await client.get(f"https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/space_history?host_uid={uid}")
@@ -107,6 +107,17 @@ async def add_uid(uid, groupid):
 
 
 def remove_uid(uid, groupid):
+
+    pattern = re.compile('^[0-9]*$|com/([0-9]*)')
+    match = pattern.search(uid)
+    if match:
+        if match.group(1):
+            uid = match.group(1)
+        else:
+            uid = match.group(0)
+    else:
+        return Plain(f"请输入正确的 UP UID 或 首页链接")
+
     uid_sub_group = dynamic_list['subscription'].get(uid, [])
     if groupid in uid_sub_group:
         dynamic_list['subscription'][uid].remove(groupid)
@@ -157,6 +168,7 @@ async def init(app: GraiaMiraiApplication):
                 async with httpx.AsyncClient(proxies=get_proxy(), headers=head) as client:
                     r = await client.get(f"https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/space_history?host_uid={up_id}")
                     res = r.json()
+                    # print(res)
                 if "cards" in res["data"]:
                     last_dynid = res["data"]["cards"][0]["desc"]["dynamic_id"]
                     DYNAMIC_OFFSET[up_id] = last_dynid
@@ -182,14 +194,15 @@ async def init(app: GraiaMiraiApplication):
                     await asyncio.sleep(1)
                 else:
                     delete_uid(up_id)
-            except:
-                app.logger.error(f"{up_id} 更新失败，正在第 {ri + 1} 重试")
+            except Exception as e:
+                app.logger.error(f"{up_id} 更新失败，正在第 {ri + 1} 重试 {e}")
                 pass
             else:
                 if r.status_code == 200:
                     break
         else:
             return
+        await asyncio.sleep(1)
     NONE = True
     await asyncio.sleep(1)
     if i-1 != sub_num:
@@ -355,3 +368,36 @@ async def bot_leave(app: GraiaMiraiApplication, group: Group):
         remove_uid(subid, group.id)
         remove_list.append(subid)
     app.logger.info(f"[BiliBili推送] 检测到退群事件 > {group.name}({group.id})，已删除该群订阅的 {len(remove_list)} 个UP")
+
+
+@channel.use(ListenerSchema(listening_events=[GroupMessage],
+                            inline_dispatchers=[Literature("查看动态")],
+                            headless_decorators=[group_limit_check(30), black_list_block()]))
+async def atrep(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain):
+
+    saying = message.asDisplay().split(" ", 1)
+    if len(saying) == 2:
+        pattern = re.compile('^[0-9]*$|com/([0-9]*)')
+        match = pattern.search(saying[1])
+        if match:
+            if match.group(1):
+                uid = match.group(1)
+            else:
+                uid = match.group(0)
+        else:
+            return await app.sendGroupMessage(group, MessageChain.create([
+                Plain(f"请输入正确的 UP UID 或 首页链接")
+            ]))
+        async with httpx.AsyncClient(proxies=get_proxy(), headers=head) as client:
+            r = await client.get(f"https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/space_history?host_uid={uid}")
+            res = r.json()
+            if "cards" in res["data"]:
+                last_dyn = res["data"]["cards"][0]["desc"]["dynamic_id"]
+                shot_image = await get_dynamic_screenshot(res["data"]["cards"][0]["desc"]["dynamic_id_str"])
+                await app.sendGroupMessage(group, MessageChain.create([
+                    Image_UnsafeBytes(shot_image)
+                ]))
+            else:
+                await app.sendGroupMessage(group, MessageChain.create([
+                    Plain(f"该UP未发布任何动态")
+                ]))
