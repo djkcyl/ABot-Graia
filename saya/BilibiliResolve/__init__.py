@@ -1,4 +1,5 @@
 import re
+import httpx
 import asyncio
 
 from graia.saya import Saya, Channel
@@ -11,7 +12,6 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.elements.internal import MessageChain, Image_UnsafeBytes, Plain
 
 from util.limit import manual_limit
-from util.aiorequests import aiorequests
 from config import yaml_data, group_data
 from util.UserBlock import black_list_block
 
@@ -65,16 +65,18 @@ async def b23_extract(text):
         url = f'https://b23.tv/{b23[1]}'
     except TypeError:
         raise ExecutionStop()
-    resp = await aiorequests.get(url)
+    async with httpx.AsyncClient() as client:
+        resp = await client.get(url)
     r = str(resp.url)
     return r
 
 
 async def video_info_get(id):
-    if id[:2] == "av":
-        video_info = await aiorequests.get(f"http://api.bilibili.com/x/web-interface/view?aid={id[2:]}")
-        video_info = await video_info.json()
-    elif id[:2] == "BV":
-        video_info = await aiorequests.get(f"http://api.bilibili.com/x/web-interface/view?bvid={id}")
-        video_info = await video_info.json()
-    return video_info
+    async with httpx.AsyncClient() as client:
+        if id[:2] == "av":
+            video_info = await client.get(f"http://api.bilibili.com/x/web-interface/view?aid={id[2:]}")
+            video_info = video_info.json()
+        elif id[:2] == "BV":
+            video_info = await client.get(f"http://api.bilibili.com/x/web-interface/view?bvid={id}")
+            video_info = video_info.json()
+        return video_info

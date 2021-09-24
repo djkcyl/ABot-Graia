@@ -1,6 +1,7 @@
-import asyncio
-import random
 import time
+import httpx
+import random
+import asyncio
 
 from io import BytesIO
 from graia.saya import Saya, Channel
@@ -14,7 +15,6 @@ from graia.application.message.parser.literature import Literature
 from graia.application.message.elements.internal import MessageChain, Plain, Image_UnsafeBytes
 
 from config import yaml_data, group_data
-from util.aiorequests import aiorequests
 
 saya = Saya.current()
 channel = Channel.current()
@@ -42,11 +42,11 @@ async def send(app):
     ]))
     for i in range(3):
         try:
-            paperurl = await aiorequests.get("http://api.2xb.cn/zaob")
-            paperurl = await paperurl.json()
-            paperurl = paperurl['imageUrl']
-            paperimg = await aiorequests.get(paperurl)
-            paperimg = await paperimg.content
+            async with httpx.AsyncClient() as client:
+                r = await client.get("http://api.2xb.cn/zaob")
+                paperurl = r.json()['imageUrl']
+                r2 = await client.get(paperurl)
+                paperimg = r2.content
             paperimgbio = BytesIO()
             paperimgbio.write(paperimg) 
             break

@@ -1,5 +1,6 @@
-import asyncio
 import json
+import httpx
+import asyncio
 
 from graiax import silkcoder
 from graia.saya import Saya, Channel
@@ -15,7 +16,6 @@ from graia.application.message.elements.internal import Image_UnsafeBytes, Messa
 
 from datebase.db import reduce_gold
 from config import yaml_data, group_data
-from util.aiorequests import aiorequests
 from util.text2image import create_image
 from util.limit import member_limit_check
 from util.UserBlock import black_list_block
@@ -98,7 +98,8 @@ async def main(app: GraiaMiraiApplication, group: Group, member: Member, message
             ]), quote=source)
 
         if await reduce_gold((member.id), 2):
-            voice_resp = await aiorequests.get(voice_url)
+            async with httpx.AsyncClient() as client:
+                voice_resp = await client.get(voice_url)
             voice = await voice_resp.content
             voice = await silkcoder.decode(voice)
             voice_info = acr.recognize_by_filebuffer(voice, 0)
