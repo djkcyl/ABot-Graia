@@ -1,5 +1,6 @@
 import os
 import time
+import httpx
 import asyncio
 import requests
 
@@ -17,7 +18,6 @@ from graia.application.event.messages import FriendMessage, GroupMessage
 from graia.application.message.elements.internal import Image_UnsafeBytes, MessageChain, Plain, Image_NetworkAddress, Voice, Source
 
 from datebase.db import reduce_gold
-from util.aiorequests import aiorequests
 from util.text2image import create_image
 from util.limit import member_limit_check
 from util.RestControl import rest_control
@@ -213,8 +213,9 @@ async def sing(app: GraiaMiraiApplication, group: Group, member: Member, message
             headers = {
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36 Edg/92.0.902.73"
             }
-            r = await aiorequests.get(musicurl, headers=headers)
-            music_fcontent = await r.content
+            async with httpx.AsyncClient() as client:
+                r = await client.get(musicurl, headers=headers)
+                music_fcontent = r.content
 
             with open(f'./saya/CloudMusic/temp/{musicid[1]}.mp3', 'wb') as f:
                 f.write(music_fcontent)
