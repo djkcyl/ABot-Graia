@@ -17,6 +17,9 @@ try:
 except ConnectionError:
     print("Redis 服务器（localhost:6379）连接失败，请检查 Redis 服务器是否正常运行")
     exit()
+except Exception as e:
+    print(f"Redis 遇到未知错误，请检查。\n{e}")
+    exit()
 
 BLOCK_LIST = []
 
