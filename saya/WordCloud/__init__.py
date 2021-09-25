@@ -2,10 +2,10 @@ import re
 import numpy
 import asyncio
 import jieba.analyse
-import matplotlib.pyplot as pyplot
 
 from PIL import Image
 from io import BytesIO
+from matplotlib import pyplot
 from graia.saya import Saya, Channel
 from graia.application.group import Group, Member
 from concurrent.futures import ThreadPoolExecutor
