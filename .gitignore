@@ -5,12 +5,11 @@ voice_file
 config.json
 *.db
 !WordData.db
-tempWordCloud.png
 test.py
 config.yaml
 groupdata.yaml
-grouplist.yaml
 userlist.json
+grouplist.json
 qr.jpg
 data.json
 *.pem

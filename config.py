@@ -2,8 +2,8 @@ import os
 import yaml
 import json
 
-from graia.application import GraiaMiraiApplication
 from graia.application.event.messages import Group
+from graia.application import GraiaMiraiApplication
 from graia.application.message.elements.internal import MessageChain, Plain
 
 
@@ -24,10 +24,10 @@ if not os.path.exists('config.yaml') and os.path.exists('config.exp.yaml'):
 elif not os.path.exists('config.yaml') and not os.path.exists('config.exp.yaml'):
     print('在？宁的配置文件呢?¿?¿')
     exit()
-
-with open('config.yaml', 'r', encoding="utf-8") as f:
-    file_data = f.read()
-yaml_data = yaml.load(file_data, Loader=yaml.FullLoader)
+else:
+    with open('config.yaml', 'r', encoding="utf-8") as f:
+        file_data = f.read()
+    yaml_data = yaml.load(file_data, Loader=yaml.FullLoader)
 
 if os.path.exists('groupdata.yaml'):
     with open('groupdata.yaml', 'r', encoding="utf-8") as f:
@@ -35,19 +35,18 @@ if os.path.exists('groupdata.yaml'):
     group_data = yaml.load(file_data, Loader=yaml.FullLoader)
 else:
     with open('groupdata.yaml', 'w', encoding="utf-8") as f:
-        pass
-    group_data = json.loads("{}")
+        group_data = json.loads("{}")
+        yaml.dump(group_data, f, allow_unicode=True, Dumper=NoAliasDumper)
 
-if os.path.exists('grouplist.yaml'):
-    with open('grouplist.yaml', 'r', encoding="utf-8") as f:
-        file_data = f.read()
-    group_list = yaml.load(file_data, Loader=yaml.FullLoader)
+if os.path.exists('grouplist.json'):
+    with open('grouplist.json', 'r', encoding="utf-8") as f:
+        group_list = json.load(f)
 else:
-    with open('grouplist.yaml', 'w', encoding="utf-8") as f:
+    with open('grouplist.json', 'w', encoding="utf-8") as f:
         group_list = {
-            "white": [1]
+            "white": []
         }
-        yaml.dump(group_list, f, allow_unicode=True, Dumper=NoAliasDumper)
+        json.dump(group_list, f, indent=2)
 
 if os.path.exists('userlist.json'):
     with open('userlist.json', 'r', encoding="utf-8") as f:
@@ -78,8 +77,8 @@ def save_config():
         yaml.dump(group_data, f, allow_unicode=True, Dumper=NoAliasDumper)
     with open("config.yaml", 'w', encoding="utf-8") as f:
         yaml.dump(yaml_data, f, allow_unicode=True, Dumper=NoAliasDumper)
-    with open("grouplist.yaml", 'w', encoding="utf-8") as f:
-        yaml.dump(group_list, f, allow_unicode=True, Dumper=NoAliasDumper)
+    with open("grouplist.json", 'w', encoding="utf-8") as f:
+        json.dump(group_list, f, indent=2)
     with open('userlist.json', 'w', encoding="utf-8") as f:
         json.dump(user_list, f, indent=2)
 
