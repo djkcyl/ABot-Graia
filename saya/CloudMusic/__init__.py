@@ -188,7 +188,7 @@ async def sing(app: GraiaMiraiApplication, group: Group, member: Member, message
                 music_ar = "/".join(music_ar)
                 music_al = musicinfo['songs'][0]['al']['picUrl']+"?param=300x300"
             musiclyric = requests.get(f"{CLOUD_HOST}/lyric?id={musicid[1]}&timestamp={times}").json()
-            music_lyric = musiclyric.get("lrc", False).get("lyric", None)
+            music_lyric = musiclyric.get("lrc", {}).get("lyric", None)
         elif musicid[0] == 2:
             musicinfo = requests.get(f"{QQ_HOST}/getSongInfo?songmid={musicid[1]}").json()["response"]["songinfo"]["data"]["track_info"]
             musicurl = requests.get(f"{QQ_HOST}/getMusicPlay?songmid={musicid[1]}").json()["data"]["playUrl"][musicid[1]]["url"]
