@@ -1,5 +1,5 @@
-import asyncio
 import os
+import asyncio
 
 from graia.saya import Saya
 from graia.broadcast import Broadcast
@@ -42,6 +42,44 @@ with saya.module_context():
             saya.require(f"saya.{module}")
         else:
             saya.require(f"saya.{module.split('.')[0]}")
+    app.logger.info("saya 加载完成")
+
+
+# class DumpedWriter:
+#     def __init__(self):
+#         pass
+
+#     def write(self, q):
+#         pass
+#         # print(app.connect_info.sessionKey)
+#         # if app.connect_info.sessionKey:
+#         #     print("报错")
+#         #     asyncio.run(app.sendFriendMessage(2948531755, MessageChain.create([Plain(q)])))
+
+#     def flush(self, q):
+#         pass
+
+
+# class StdOutBinder:
+#     def __init__(self, real, *binder):
+#         self.real = real
+#         self.binders = binder
+
+#     def __getattr__(self, item):
+#         return self.awk_callable(item)
+
+#     def awk_callable(self, value):
+#         def cb(*args, **kwargs):
+#             getattr(self.real, value)(*args, **kwargs)
+#             for _ in self.binders:
+#                 try:
+#                     getattr(_, value)(*args, **kwargs)
+#                 except:
+#                     pass
+#         return cb
+
+
+# sys.stderr = StdOutBinder(sys.stderr, DumpedWriter())
 
 try:
     app.launch_blocking()

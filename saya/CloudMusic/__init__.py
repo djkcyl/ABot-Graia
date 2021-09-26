@@ -108,9 +108,13 @@ async def sing(app: GraiaMiraiApplication, group: Group, member: Member, message
                 return await app.sendGroupMessage(group, MessageChain.create([Plain("歌名输入有误")]))
         times = str(int(time.time()))
         search = requests.get(f"{CLOUD_HOST}/cloudsearch?keywords={musicname}&timestamp={times}", cookies=login).json()
-        if search["result"]["songCount"] == 0:
+        try:
+            if search["result"]["songCount"] == 0:
+                WAITING.remove(member.id)
+                return await app.sendGroupMessage(group, MessageChain.create([Plain("未找到此歌曲")]))
+        except KeyError:
             WAITING.remove(member.id)
-            return await app.sendGroupMessage(group, MessageChain.create([Plain("未找到此歌曲")]))
+            return await app.sendGroupMessage(group, MessageChain.create([Plain("内部错误，本次点歌已终止")]))
         musiclist = search["result"]["songs"]
         musicIdList = []
         num = 1
