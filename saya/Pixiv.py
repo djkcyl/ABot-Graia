@@ -19,7 +19,8 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            inline_dispatchers=[Kanata([RegexMatch("色图|涩图|瑟图|setu"), OptionalParam(name="message")])],
+                            inline_dispatchers=[Kanata([RegexMatch("色图|涩图|瑟图|setu"),
+                                                        OptionalParam(name="message")])],
                             headless_decorators=[group_limit_check(5), rest_control(), black_list_block()]))
 async def main(app: GraiaMiraiApplication, group: Group, message: MessageChain):
 
