@@ -14,7 +14,7 @@ from graia.application.event.lifecycle import ApplicationLaunched
 from graia.application.message.parser.literature import Literature
 from graia.application.event.messages import FriendMessage, GroupMessage
 from graia.application.event.mirai import BotLeaveEventKick, BotLeaveEventActive
-from graia.application.message.elements.internal import MessageChain, Plain, Image_UnsafeBytes
+from graia.application.message.elements.internal import Image_NetworkAddress, MessageChain, Plain, Image_UnsafeBytes
 
 from config import yaml_data
 from util.GetProxy import get_proxy
@@ -185,7 +185,7 @@ async def init(app: GraiaMiraiApplication):
                         live_status = "未开播"
                     sub_count = len(dynamic_list["subscription"][up_id])
                     info_msg.append(f"    ● {si}  ---->  {up_name}({up_id}) > 当前{live_status}")
-                    info_msg.append(f"                       最新动态：{last_dynid}")
+                    # info_msg.append(f"                       最新动态：{last_dynid}")
                     info_msg.append(f"                       共有 {sub_count} 个群订阅了该 UP")
                     for groupid in dynamic_list["subscription"][up_id]:
                         group_info = await app.getGroup(groupid)
@@ -262,6 +262,7 @@ async def update_scheduled(app: GraiaMiraiApplication):
         room_id = live_statu["data"][up_id]["room_id"]
         room_area = live_statu["data"][up_id]["area_v2_parent_name"] + " / " + live_statu["data"][up_id]["area_v2_name"]
         up_name = live_statu["data"][up_id]["uname"]
+        cover_from_user = live_statu["data"][up_id]["cover_from_user"]
 
         if live_statu["data"][up_id]["live_status"] == 1:
             if LIVE_STATUS[up_id]:
@@ -273,6 +274,7 @@ async def update_scheduled(app: GraiaMiraiApplication):
                     await app.sendGroupMessage(groupid, MessageChain.create([
                         Plain(f"本群订阅的UP {up_name}（{up_id}）在 {room_area} 开播啦 ！\n"),
                         Plain(title),
+                        Image_NetworkAddress(cover_from_user),
                         Plain(f"\nhttps://live.bilibili.com/{room_id}")
                     ]))
                     await asyncio.sleep(0.3)
