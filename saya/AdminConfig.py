@@ -11,7 +11,7 @@ from graia.application.message.elements.internal import MessageChain, Quote, At,
 
 from util.limit import manual_limit
 from util.text2image import create_image
-from util.UserBlock import black_list_block
+from util.UserBlock import group_black_list_block
 from config import save_config, yaml_data, group_data
 
 saya = Saya.current()
@@ -208,7 +208,7 @@ funcHelp = {
     "背单词": {
         "instruction": "字面意思",
         "usage": "发送指令：\n背单词",
-        "options": "发送背单词后选择想要学习的词库，机器人将会发题，请根据题目作答，15秒后未作答将提供三次提示，答题系统为全群共享，即“一人开启，全群皆可作答”，如果不想学或者想更换题库可发送取消来终止进程。",
+        "options": "发送背单词后选择想要学习的词库，机器人将会发题，请根据题目作答，15秒后未作答将提供三次提示，答题系统为全群共享，即“一人开启，全群皆可作答”，如果不想学或者想更换题库可发送取消来终止进程。\n（本功能支持私聊使用）",
         "example": "（这也需要示例吗？"
     },
     "BiliBili订阅推送": {
@@ -221,7 +221,7 @@ funcHelp = {
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            headless_decorators=[black_list_block()]))
+                            headless_decorators=[group_black_list_block()]))
 async def atrep(app: GraiaMiraiApplication, group: Group, message: MessageChain):
     if message.has(At):
         ifa = message.get(At)[0].target == yaml_data['Basic']['MAH']['BotQQ']
@@ -256,7 +256,7 @@ async def atrep(app: GraiaMiraiApplication, group: Group, message: MessageChain)
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("功能")],
-                            headless_decorators=[black_list_block()]))
+                            headless_decorators=[group_black_list_block()]))
 async def adminmain(app: GraiaMiraiApplication, group: Group, message: MessageChain):
     saying = message.asDisplay().split()
     manual_limit(group.id, "Help", 3)
@@ -284,7 +284,7 @@ async def adminmain(app: GraiaMiraiApplication, group: Group, message: MessageCh
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            headless_decorators=[black_list_block()]))
+                            headless_decorators=[group_black_list_block()]))
 async def adminmain(app: GraiaMiraiApplication, group: Group, message: MessageChain):
     if message.asDisplay() in [".help", "/help", "help", "帮助", "菜单"]:
         manual_limit(group.id, "Help", 3)
@@ -323,7 +323,7 @@ async def adminmain(app: GraiaMiraiApplication, group: Group, message: MessageCh
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("开启功能")],
-                            headless_decorators=[black_list_block()]))
+                            headless_decorators=[group_black_list_block()]))
 async def onAoff(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain):
     manual_limit(group.id, "FuncConfig", 2)
     if member.permission in [MemberPerm.Administrator, MemberPerm.Owner] or member.id in yaml_data['Basic']['Permission']['Admin']:
@@ -350,7 +350,7 @@ async def onAoff(app: GraiaMiraiApplication, group: Group, member: Member, messa
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("关闭功能")],
-                            headless_decorators=[black_list_block()]))
+                            headless_decorators=[group_black_list_block()]))
 async def onAoff(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain):
     manual_limit(group.id, "FuncConfig", 2)
     if member.permission in [MemberPerm.Administrator, MemberPerm.Owner] or member.id in yaml_data['Basic']['Permission']['Admin']:
