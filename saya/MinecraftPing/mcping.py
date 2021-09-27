@@ -55,11 +55,12 @@ async def mcping(say):
     msg_send.append(Plain(f"延迟：" + str(get_status["ping"]) + "ms\n"))
 
     # 描述
-    # print(get_status["description"])
-    if get_status["description"]["text"] != "" and "text" in get_status["description"]:
-        sMotd = get_status["description"]["text"]
-        msg_send.append(Plain(f"描述：" + sMotd + "\n"))
-        # print(sMotd)
+    print(get_status["description"])
+    if "text" in get_status["description"]:
+        if get_status["description"]["text"] != "":
+            sMotd = get_status["description"]["text"]
+            msg_send.append(Plain(f"描述：" + sMotd + "\n"))
+            # print(sMotd)
     elif "extra" in get_status["description"]:
         sMotd = ""
         for extra in get_status["description"]["extra"]:
@@ -70,6 +71,9 @@ async def mcping(say):
         sMotd = get_status["description"]["translate"]
         msg_send.append(Plain(f"描述：" + sMotd + "\n"))
         # print(sMotd)
+    else:
+        sMotd = get_status["description"]
+        msg_send.append(Plain(f"描述：" + sMotd + "\n"))
 
     # 服务端版本判断
     if "Requires" in get_status["version"]["name"]:
