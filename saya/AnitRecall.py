@@ -20,7 +20,7 @@ async def anitRecall(app: GraiaMiraiApplication, events: GroupRecallEvent):
 
     if events.authorId != yaml_data["Basic"]["MAH"]["BotQQ"] or events.operator.id == yaml_data["Basic"]["MAH"]["BotQQ"]:
         try:
-            print(f"防撤回触发：[{events.group.name}({str(events.group.id)})]")
+            app.logger.info(f"防撤回触发：[{events.group.name}({str(events.group.id)})]")
             recallEvents = await app.messageFromId(events.messageId)
             recallMsg = recallEvents.messageChain
             authorMember = await app.getMember(events.group.id, events.authorId)

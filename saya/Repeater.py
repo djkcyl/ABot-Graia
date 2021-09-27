@@ -65,7 +65,7 @@ async def repeateron(app: GraiaMiraiApplication, group: Group, message: MessageC
         ifface = "[表情]" not in saying
         ifat = not message.has(At)
         if ifpic & ifface & ifat:
-            print('已触发随机复读')
+            app.logger.info('已触发随机复读')
             repdict[group.id] = {'msg': saying, 'times': 1, 'last': saying}
             res = await text_moderation(saying)
             if res['Suggestion'] == "Pass":

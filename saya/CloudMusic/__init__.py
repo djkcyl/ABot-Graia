@@ -12,9 +12,11 @@ from graia.application.group import Group, Member
 from graia.broadcast.interrupt.waiter import Waiter
 from graia.application import GraiaMiraiApplication
 from graia.broadcast.interrupt import InterruptControl
+from graia.application.message.parser.kanata import Kanata
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.parser.literature import Literature
 from graia.application.event.messages import FriendMessage, GroupMessage
+from graia.application.message.parser.signature import FullMatch, OptionalParam
 from graia.application.message.elements.internal import Image_UnsafeBytes, MessageChain, Plain, Image_NetworkAddress, Voice, Source
 
 from datebase.db import reduce_gold
@@ -54,7 +56,7 @@ WAITING = []
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            inline_dispatchers=[Literature("点歌")],
+                            inline_dispatchers=[Kanata([FullMatch("点歌"), OptionalParam("message")])],
                             headless_decorators=[rest_control(), member_limit_check(300), group_black_list_block()]))
 async def sing(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain, source: Source):
 
@@ -86,10 +88,15 @@ async def sing(app: GraiaMiraiApplication, group: Group, member: Member, message
                 await app.sendGroupMessage(group, MessageChain.create([Plain("请发送歌曲 id<1-10> 来点歌，发送取消可终止本次点歌")]))
 
     if member.id not in WAITING:
-        saying = message.asDisplay().split(" ", 1)
+        saying = message.asDisplay().strip()
         WAITING.append(member.id)
 
-        if len(saying) == 1:
+        if message:
+            musicname = saying[1]
+            if musicname == None or musicname.replace(" ", "") == "":
+                WAITING.remove(member.id)
+                return await app.sendGroupMessage(group, MessageChain.create([Plain("歌名输入有误")]))
+        else:
             waite_musicmessageId = await app.sendGroupMessage(group, MessageChain.create([Plain(f"请发送歌曲名，发送取消即可终止点歌")]))
             try:
                 musicname = await asyncio.wait_for(inc.wait(waiter1), timeout=15)
@@ -101,11 +108,6 @@ async def sing(app: GraiaMiraiApplication, group: Group, member: Member, message
                 return await app.sendGroupMessage(group, MessageChain.create([
                     Plain("点歌超时")
                 ]), quote=waite_musicmessageId.messageId)
-        else:
-            musicname = saying[1]
-            if musicname == None or musicname.replace(" ", "") == "":
-                WAITING.remove(member.id)
-                return await app.sendGroupMessage(group, MessageChain.create([Plain("歌名输入有误")]))
         times = str(int(time.time()))
         search = requests.get(f"{CLOUD_HOST}/cloudsearch?keywords={musicname}&timestamp={times}", cookies=login).json()
         try:
@@ -210,7 +212,7 @@ async def sing(app: GraiaMiraiApplication, group: Group, member: Member, message
                 music_lyric = None
 
         if not os.path.exists(f"./saya/CloudMusic/temp/{musicid[1]}.mp3"):
-            print(f"正在缓存歌曲：{music_name}")
+            app.logger.info(f"正在缓存歌曲：{music_name}")
             if musicurl == None or musicurl == "":
                 WAITING.remove(member.id)
                 return await app.sendGroupMessage(group, MessageChain.create([Plain(f"该歌曲（{music_name}）由于版权问题无法点歌，请使用客户端播放")]))

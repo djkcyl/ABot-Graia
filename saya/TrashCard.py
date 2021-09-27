@@ -32,7 +32,7 @@ async def trashCard(app: GraiaMiraiApplication, group: Group, member: Member, me
         }
 
         card = requests.post(url, json=data).json()
-        print(card)
+        app.logger.info(card)
 
         if "code" in card:
             await app.sendGroupMessage(group, MessageChain.create([
