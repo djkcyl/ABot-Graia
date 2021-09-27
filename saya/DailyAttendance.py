@@ -15,7 +15,7 @@ from graia.application.message.elements.internal import Plain, MessageChain
 
 from config import yaml_data, group_data
 from util.limit import member_limit_check
-from util.UserBlock import black_list_block
+from util.UserBlock import group_black_list_block
 from datebase.db import sign, add_gold, get_info, add_talk, reset_sign, all_sign_num
 
 saya = Saya.current()
@@ -24,7 +24,7 @@ channel = Channel.current()
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("签到")],
-                            headless_decorators=[member_limit_check(10), black_list_block()]))
+                            headless_decorators=[member_limit_check(10), group_black_list_block()]))
 async def main(app: GraiaMiraiApplication, group: Group, member: Member):
     if await sign(str(member.id)):
         i = random.randint(1, 10)

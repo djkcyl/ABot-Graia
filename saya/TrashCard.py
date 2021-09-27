@@ -9,14 +9,14 @@ from graia.application.message.elements.internal import MessageChain, Source, Pl
 
 from util.limit import manual_limit
 from config import sendmsg, yaml_data
-from util.UserBlock import black_list_block
+from util.UserBlock import group_black_list_block
 
 saya = Saya.current()
 channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            headless_decorators=[black_list_block()]))
+                            headless_decorators=[group_black_list_block()]))
 async def trashCard(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain, source: Source):
     saying = message.asDisplay()
     key = ["废物证申请", "我是废物"]

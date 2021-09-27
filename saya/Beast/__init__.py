@@ -7,7 +7,7 @@ from graia.application.message.elements.internal import MessageChain, Source, Pl
 
 from util.RestControl import rest_control
 from util.limit import member_limit_check
-from util.UserBlock import black_list_block
+from util.UserBlock import group_black_list_block
 from util.TextModeration import text_moderation
 from config import yaml_data, group_data, sendmsg
 
@@ -20,7 +20,7 @@ channel = Channel.current()
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("嗷")],
-                            headless_decorators=[rest_control(), member_limit_check(15), black_list_block()]))
+                            headless_decorators=[rest_control(), member_limit_check(15), group_black_list_block()]))
 async def main(app: GraiaMiraiApplication, group: Group, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['Beast']['Disabled']:
@@ -41,7 +41,7 @@ async def main(app: GraiaMiraiApplication, group: Group, message: MessageChain, 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("呜")],
-                            headless_decorators=[rest_control(), member_limit_check(15), black_list_block()]))
+                            headless_decorators=[rest_control(), member_limit_check(15), group_black_list_block()]))
 async def main(app: GraiaMiraiApplication, group: Group, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['Beast']['Disabled']:

@@ -11,7 +11,7 @@ from graia.application.message.elements.internal import Image_NetworkAddress, Me
 
 from util.limit import group_limit_check
 from util.RestControl import rest_control
-from util.UserBlock import black_list_block
+from util.UserBlock import group_black_list_block
 from config import yaml_data, group_data, sendmsg
 
 saya = Saya.current()
@@ -21,7 +21,7 @@ channel = Channel.current()
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Kanata([RegexMatch("色图|涩图|瑟图|setu"),
                                                         OptionalParam(name="message")])],
-                            headless_decorators=[group_limit_check(5), rest_control(), black_list_block()]))
+                            headless_decorators=[group_limit_check(5), rest_control(), group_black_list_block()]))
 async def main(app: GraiaMiraiApplication, group: Group, message: MessageChain):
 
     if yaml_data['Saya']['Pixiv']['Disabled']:

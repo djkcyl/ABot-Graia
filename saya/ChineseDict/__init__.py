@@ -12,7 +12,7 @@ from graia.application.message.elements.internal import MessageChain, Plain, Ima
 
 from util.RestControl import rest_control
 from util.limit import member_limit_check
-from util.UserBlock import black_list_block
+from util.UserBlock import group_black_list_block
 from config import yaml_data, group_data, sendmsg
 
 from .page_screenshot import get_hans_screenshot
@@ -33,7 +33,7 @@ channel = Channel.current()
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("词典")],
-                            headless_decorators=[rest_control(), member_limit_check(15), black_list_block()]))
+                            headless_decorators=[rest_control(), member_limit_check(15), group_black_list_block()]))
 async def fun_dict(app: GraiaMiraiApplication, group: Group, message: MessageChain):
 
     if yaml_data['Saya']['ChineseDict']['Disabled']:

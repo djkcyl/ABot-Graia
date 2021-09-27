@@ -9,7 +9,7 @@ from graia.application.message.elements.internal import MessageChain, Plain, At
 
 from config import yaml_data, group_data
 from util.RestControl import rest_control
-from util.UserBlock import black_list_block
+from util.UserBlock import group_black_list_block
 from util.TextModeration import text_moderation
 
 saya = Saya.current()
@@ -20,7 +20,7 @@ repdict = {}
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            headless_decorators=[rest_control(), black_list_block()]))
+                            headless_decorators=[rest_control(), group_black_list_block()]))
 async def repeater(app: GraiaMiraiApplication, group: Group, message: MessageChain):
 
     if yaml_data['Saya']['Repeater']['Disabled']:
@@ -49,7 +49,7 @@ async def repeater(app: GraiaMiraiApplication, group: Group, message: MessageCha
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            headless_decorators=[rest_control(), black_list_block()]))
+                            headless_decorators=[rest_control(), group_black_list_block()]))
 async def repeateron(app: GraiaMiraiApplication, group: Group, message: MessageChain):
     if yaml_data['Saya']['Repeater']['Disabled']:
         return

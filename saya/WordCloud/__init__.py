@@ -18,7 +18,7 @@ from graia.application.message.parser.signature import RegexMatch
 from graia.application.message.elements.internal import MessageChain, At, Plain, Image_UnsafeBytes
 
 from util.limit import member_limit_check
-from util.UserBlock import black_list_block
+from util.UserBlock import group_black_list_block
 from config import yaml_data, group_data, sendmsg
 from datebase.usertalk import get_user_talk, get_group_talk, add_talk
 
@@ -37,7 +37,7 @@ RUNNING = 0
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Kanata([RegexMatch("查看(个人|本群)词云")])],
-                            headless_decorators=[member_limit_check(300), black_list_block()]))
+                            headless_decorators=[member_limit_check(300), group_black_list_block()]))
 async def wordcloud(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain):
 
     global RUNNING
@@ -76,7 +76,7 @@ async def wordcloud(app: GraiaMiraiApplication, group: Group, member: Member, me
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            headless_decorators=[black_list_block()]))
+                            headless_decorators=[group_black_list_block()]))
 async def add_talk_word(group: Group, member: Member, message: MessageChain):
     if message.has(Plain):
         plain_list = message.get(Plain)

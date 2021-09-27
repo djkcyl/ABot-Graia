@@ -11,7 +11,7 @@ from graia.application.message.elements.internal import Image_UnsafeBytes
 from util.limit import group_limit_check
 from config import yaml_data, group_data
 from util.RestControl import rest_control
-from util.UserBlock import black_list_block
+from util.UserBlock import group_black_list_block
 
 from .setu import create_setu
 
@@ -21,7 +21,7 @@ channel = Channel.current()
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Kanata([FullMatch("色图|涩图|瑟图|setu")])],
-                            headless_decorators=[group_limit_check(5), rest_control(), black_list_block()]))
+                            headless_decorators=[group_limit_check(5), rest_control(), group_black_list_block()]))
 async def main(app: GraiaMiraiApplication, group: Group):
 
     if yaml_data['Saya']['Setu']['Disabled']:
