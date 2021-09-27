@@ -1,18 +1,19 @@
 import asyncio
 
 from graia.saya import Saya, Channel
+from graia.application.friend import Friend
 from graia.application.group import Group, Member
 from graia.broadcast.interrupt.waiter import Waiter
 from graia.application import GraiaMiraiApplication
 from graia.broadcast.interrupt import InterruptControl
-from graia.application.event.messages import GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.parser.literature import Literature
+from graia.application.event.messages import GroupMessage, FriendMessage
 from graia.application.message.elements.internal import At, Image_UnsafeBytes, MessageChain, Plain
 
 from datebase.db import add_answer
 from util.text2image import create_image
-from util.UserBlock import black_list_block
+from util.UserBlock import group_black_list_block, friend_black_list_block
 
 from .database.database import random_word
 
@@ -53,8 +54,8 @@ RUNNING = {}
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("背单词")],
-                            headless_decorators=[black_list_block()]))
-async def learn(app: GraiaMiraiApplication, group: Group, member: Member):
+                            headless_decorators=[group_black_list_block()]))
+async def group_learn(app: GraiaMiraiApplication, group: Group, member: Member):
 
     @Waiter.create_using_function([GroupMessage])
     async def confirm(waiter_group: Group, waiter_member: Member, waiter_message: MessageChain):
@@ -151,5 +152,109 @@ async def learn(app: GraiaMiraiApplication, group: Group, member: Member):
                 elif process == 4:
                     del RUNNING[group.id]
                     return await app.sendGroupMessage(group, MessageChain.create([
+                        Plain(f"本次答案为：{word_data[0]}\n答题已结束，请重新开启")
+                    ]))
+
+
+@channel.use(ListenerSchema(listening_events=[FriendMessage],
+                            inline_dispatchers=[Literature("背单词")],
+                            headless_decorators=[friend_black_list_block()]))
+async def friend_learn(app: GraiaMiraiApplication, friend: Friend):
+
+    @Waiter.create_using_function([FriendMessage])
+    async def confirm(waiter_friend: Friend, waiter_message: MessageChain):
+        if all([waiter_friend.id == friend.id]):
+            waiter_saying = waiter_message.asDisplay()
+            if waiter_saying == "取消":
+                return False
+            else:
+                try:
+                    bookid = int(waiter_saying)
+                    if 1 <= bookid <= 15:
+                        return bookid
+                except:
+                    await app.sendFriendMessage(friend, MessageChain.create([
+                        Plain("请输入1-15以内的数字")
+                    ]))
+
+    @Waiter.create_using_function([FriendMessage])
+    async def waiter(waiter_friend: Friend, waiter_message: MessageChain):
+        waiter_saying = waiter_message.asDisplay()
+        if waiter_saying == "取消":
+            return False
+        elif waiter_saying == RUNNING[friend.id]:
+            return waiter_friend.id
+
+    if friend.id in RUNNING:
+        return
+
+    RUNNING[friend.id] = None
+    bookid_image = await create_image("\n".join(booklist))
+    await app.sendFriendMessage(friend, MessageChain.create([
+        Plain("请输入你想要选择的词库ID"),
+        Image_UnsafeBytes(bookid_image.getvalue())
+    ]))
+
+    try:
+        bookid = await asyncio.wait_for(inc.wait(confirm), timeout=30)
+        if not bookid:
+            del RUNNING[friend.id]
+            return await app.sendFriendMessage(friend, MessageChain.create([Plain("已取消")]))
+    except asyncio.TimeoutError:
+        del RUNNING[friend.id]
+        return await app.sendFriendMessage(friend, MessageChain.create([Plain("等待超时")]))
+
+    await app.sendFriendMessage(friend, MessageChain.create([Plain("已开启本次答题，可随时发送“取消”以终止进程")]))
+
+    while True:
+        word_data = await random_word(bookid)
+        RUNNING[friend.id] = word_data[0]
+        pop = word_data[1].split("&")
+        if pop == "":
+            pop = ["/"]
+        tran = word_data[2].split("&")
+        word_len = len(word_data[0])
+        wordinfo = []
+        tran_num = 0
+        for p in pop:
+            wordinfo.append(f"[ {p} ] {tran[tran_num]}")
+            tran_num += 1
+        await app.sendFriendMessage(friend, MessageChain.create([
+            Plain("本回合题目：\n"),
+            Plain("\n".join(wordinfo))
+        ]))
+        for process in Process:
+            try:
+                answer_qq = await asyncio.wait_for(inc.wait(waiter), timeout=15)
+                if answer_qq:
+                    await add_answer(str(answer_qq))
+                    await app.sendFriendMessage(friend, MessageChain.create([
+                        Plain("恭喜你"),
+                        Plain(f"回答正确 {word_data[0]}")
+                    ]))
+                    await asyncio.sleep(2)
+                    break
+                else:
+                    del RUNNING[friend.id]
+                    return await app.sendFriendMessage(friend, MessageChain.create([
+                        Plain("已结束本次答题")
+                    ]))
+
+            except asyncio.TimeoutError:
+                if process == 1:
+                    await app.sendFriendMessage(friend, MessageChain.create([
+                        Plain(f"提示1\n这个单词由 {word_len} 个字母构成")
+                    ]))
+                elif process == 2:
+                    await app.sendFriendMessage(friend, MessageChain.create([
+                        Plain(f"提示2\n这个单词的首字母是 {word_data[0][0]}")
+                    ]))
+                elif process == 3:
+                    half = int(word_len / 2)
+                    await app.sendFriendMessage(friend, MessageChain.create([
+                        Plain(f"提示3\n这个单词的前半部分为\n{word_data[0][:half]}")]))
+                elif process == 4:
+                    del RUNNING[friend.id]
+                    return await app.sendFriendMessage(friend, MessageChain.create([
                         Plain(f"本次答案为：{word_data[0]}\n答题已结束，请重新开启")
                     ]))
