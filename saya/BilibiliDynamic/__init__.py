@@ -20,7 +20,7 @@ from config import yaml_data
 from util.GetProxy import get_proxy
 from util.text2image import create_image
 from util.limit import group_limit_check
-from util.UserBlock import black_list_block
+from util.UserBlock import group_black_list_block
 
 from .dynamic_shot import get_dynamic_screenshot
 
@@ -335,7 +335,7 @@ async def update_scheduled(app: GraiaMiraiApplication):
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("订阅")],
-                            headless_decorators=[group_limit_check(10), black_list_block()]))
+                            headless_decorators=[group_limit_check(10), group_black_list_block()]))
 async def atrep(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain):
 
     if member.permission in [MemberPerm.Administrator, MemberPerm.Owner] or member.id in yaml_data['Basic']['Permission']['Admin']:
@@ -350,7 +350,7 @@ async def atrep(app: GraiaMiraiApplication, group: Group, member: Member, messag
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("退订")],
-                            headless_decorators=[group_limit_check(10), black_list_block()]))
+                            headless_decorators=[group_limit_check(10), group_black_list_block()]))
 async def atrep(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain):
 
     if member.permission in [MemberPerm.Administrator, MemberPerm.Owner] or member.id in yaml_data['Basic']['Permission']['Admin']:
@@ -374,7 +374,7 @@ async def bot_leave(app: GraiaMiraiApplication, group: Group):
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("查看动态")],
-                            headless_decorators=[group_limit_check(30), black_list_block()]))
+                            headless_decorators=[group_limit_check(30), group_black_list_block()]))
 async def atrep(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain):
 
     saying = message.asDisplay().split(" ", 1)

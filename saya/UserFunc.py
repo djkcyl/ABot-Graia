@@ -12,7 +12,7 @@ from graia.application.message.elements.internal import Image_UnsafeBytes, Messa
 from datebase.db import get_ranking
 from util.text2image import create_image
 from util.limit import member_limit_check
-from util.UserBlock import black_list_block
+from util.UserBlock import group_black_list_block
 
 saya = Saya.current()
 channel = Channel.current()
@@ -22,7 +22,7 @@ RANK_LIST = None
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("查看排行榜")],
-                            headless_decorators=[member_limit_check(5), black_list_block()]))
+                            headless_decorators=[member_limit_check(5), group_black_list_block()]))
 async def main(app: GraiaMiraiApplication, group: Group):
     await app.sendGroupMessage(group, MessageChain.create([Image_UnsafeBytes(RANK_LIST.getvalue())]))
 

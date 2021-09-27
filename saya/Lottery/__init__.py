@@ -19,7 +19,7 @@ from graia.application.message.parser.literature import Literature
 from graia.application.event.messages import FriendMessage, GroupMessage
 from graia.application.message.elements.internal import At, Image_UnsafeBytes, Plain, MessageChain, Source, Image
 
-from util.UserBlock import black_list_block
+from util.UserBlock import group_black_list_block
 from datebase.db import add_gold, reduce_gold
 from config import sendmsg, yaml_data, group_data
 
@@ -54,7 +54,7 @@ else:
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("购买奖券")],
-                            headless_decorators=[black_list_block()]))
+                            headless_decorators=[group_black_list_block()]))
 async def buy_lottery(app: GraiaMiraiApplication, group: Group, member: Member, source: Source):
 
     if not yaml_data['Saya']['Entertainment']['Lottery']:
@@ -90,7 +90,7 @@ async def buy_lottery(app: GraiaMiraiApplication, group: Group, member: Member, 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("兑换奖券")],
-                            headless_decorators=[black_list_block()]))
+                            headless_decorators=[group_black_list_block()]))
 async def redeem_lottery(app: GraiaMiraiApplication, group: Group, member: Member, source: Source):
 
     if member.id in WAITING:
@@ -205,7 +205,7 @@ async def something_scheduled(app: GraiaMiraiApplication, friend: Friend):
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("开奖查询")],
-                            headless_decorators=[black_list_block()]))
+                            headless_decorators=[group_black_list_block()]))
 async def redeem_lottery(app: GraiaMiraiApplication, group: Group):
 
     if not yaml_data['Saya']['Entertainment']['Lottery']:

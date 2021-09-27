@@ -21,7 +21,7 @@ from datebase.db import reduce_gold
 from config import sendmsg, yaml_data, group_data
 from util.limit import member_limit_check
 from util.RestControl import rest_control
-from util.UserBlock import black_list_block
+from util.UserBlock import group_black_list_block
 
 saya = Saya.current()
 channel = Channel.current()
@@ -36,7 +36,7 @@ if not os.path.exists(f"{MIRAI_PATH}data/net.mamoe.mirai-api-http/voices/"):
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("/tts")],
-                            headless_decorators=[rest_control(), member_limit_check(40), black_list_block()]))
+                            headless_decorators=[rest_control(), member_limit_check(40), group_black_list_block()]))
 async def azuretts(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['AzureTTS']['Disabled']:

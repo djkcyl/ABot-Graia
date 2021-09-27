@@ -15,7 +15,7 @@ from graia.application.message.elements.internal import Plain, Image
 from util.limit import manual_limit
 from config import yaml_data, group_data
 from util.RestControl import rest_control
-from util.UserBlock import black_list_block
+from util.UserBlock import group_black_list_block
 
 
 def _round(f, r=ROUND_HALF_UP): return int(Decimal(str(f)).quantize(Decimal("0"), rounding=r))
@@ -38,7 +38,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            headless_decorators=[rest_control(), black_list_block()]))
+                            headless_decorators=[rest_control(), group_black_list_block()]))
 async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group):
     msg = await StylePictureGeneraterHandler.handle(group, message)
     if msg:

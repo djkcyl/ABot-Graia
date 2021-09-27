@@ -9,7 +9,7 @@ from graia.application.message.parser.literature import Literature
 from graia.application.message.elements.internal import Image_UnsafeBytes, MessageChain
 
 from util.limit import member_limit_check
-from util.UserBlock import black_list_block
+from util.UserBlock import group_black_list_block
 from datebase.usertalk import get_message_analysis
 
 from .mapping import get_mapping
@@ -20,7 +20,7 @@ channel = Channel.current()
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("查看消息量统计")],
-                            headless_decorators=[member_limit_check(15), black_list_block()]))
+                            headless_decorators=[member_limit_check(15), group_black_list_block()]))
 async def get_image(app: GraiaMiraiApplication, group: Group):
 
     talk_num, time = await get_message_analysis()

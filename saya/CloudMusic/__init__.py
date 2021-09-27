@@ -21,7 +21,7 @@ from datebase.db import reduce_gold
 from util.text2image import create_image
 from util.limit import member_limit_check
 from util.RestControl import rest_control
-from util.UserBlock import black_list_block
+from util.UserBlock import group_black_list_block
 from config import yaml_data, group_data, sendmsg
 
 saya = Saya.current()
@@ -55,7 +55,7 @@ WAITING = []
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("点歌")],
-                            headless_decorators=[rest_control(), member_limit_check(300), black_list_block()]))
+                            headless_decorators=[rest_control(), member_limit_check(300), group_black_list_block()]))
 async def sing(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['CloudMusic']['Disabled']:
