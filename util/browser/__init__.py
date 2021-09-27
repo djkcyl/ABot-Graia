@@ -18,6 +18,7 @@ async def init() -> Browser:
             f"--disable-extensions-except={path_to_extension}",
             f"--load-extension={path_to_extension}",
         ],
+        device_scale_factor=1.5
     )
     return _browser
 
