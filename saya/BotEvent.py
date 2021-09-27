@@ -1,4 +1,3 @@
-import time
 import asyncio
 
 from typing import Optional
@@ -41,20 +40,14 @@ async def groupDataInit(app: GraiaMiraiApplication):
     for group in groupList:
         if group.id not in group_data:
             group_data[group.id] = groupInitData
-            print(group_data[group.id])
-            print(f"已为 {group.id} 进行初始化配置")
+            app.logger.info(group_data[group.id])
+            app.logger.info(f"已为 {group.id} 进行初始化配置")
             i += 1
     save_config()
     msg = [Plain(f"初始化结束")]
     if i > 0:
         msg.append(Plain(f"\n已为 {i} 个群进行了初始化配置"))
     await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create(msg))
-    now_localtime = time.strftime("%H:%M:%S", time.localtime())
-    if "00:00:00" < now_localtime < "07:30:00":
-        set_sleep(1)
-        await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
-            Plain("当前为休息时间，已进入休息状态")
-        ]))
 
 
 @channel.use(ListenerSchema(listening_events=[ApplicationShutdowned]))

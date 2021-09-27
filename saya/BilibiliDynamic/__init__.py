@@ -8,11 +8,11 @@ from graia.saya import Saya, Channel
 from graia.application import GraiaMiraiApplication
 from graia.scheduler.timers import every_custom_seconds
 from graia.scheduler.saya.schema import SchedulerSchema
+from graia.application.event.messages import GroupMessage
 from graia.application.group import Group, Member, MemberPerm
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.event.lifecycle import ApplicationLaunched
 from graia.application.message.parser.literature import Literature
-from graia.application.event.messages import FriendMessage, GroupMessage
 from graia.application.event.mirai import BotLeaveEventKick, BotLeaveEventActive
 from graia.application.message.elements.internal import Image_NetworkAddress, MessageChain, Plain, Image_UnsafeBytes
 
@@ -64,6 +64,7 @@ def get_group_sublist(groupid):
 
 
 def get_subid_list():
+    '''获取所有的订阅'''
     subid_list = []
     for subid in dynamic_list['subscription']:
         subid_list.append(subid)
@@ -375,7 +376,7 @@ async def bot_leave(app: GraiaMiraiApplication, group: Group):
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("查看动态")],
                             headless_decorators=[group_limit_check(30), group_black_list_block()]))
-async def atrep(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain):
+async def atrep(app: GraiaMiraiApplication, group: Group, message: MessageChain):
 
     saying = message.asDisplay().split(" ", 1)
     if len(saying) == 2:
@@ -394,7 +395,6 @@ async def atrep(app: GraiaMiraiApplication, group: Group, member: Member, messag
             r = await client.get(f"https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/space_history?host_uid={uid}")
             res = r.json()
             if "cards" in res["data"]:
-                last_dyn = res["data"]["cards"][0]["desc"]["dynamic_id"]
                 shot_image = await get_dynamic_screenshot(res["data"]["cards"][0]["desc"]["dynamic_id_str"])
                 await app.sendGroupMessage(group, MessageChain.create([
                     Image_UnsafeBytes(shot_image)
