@@ -317,11 +317,13 @@ async def update_scheduled(app: GraiaMiraiApplication):
             if up_last_dynid > DYNAMIC_OFFSET[up_id]:
                 app.logger.info(f"[BiliBili推送] {up_name} 更新了动态 {up_last_dynid}")
                 DYNAMIC_OFFSET[up_id] = up_last_dynid
+                dyn_url_str = r["data"]["cards"][0]["desc"]["dynamic_id_str"]
                 shot_image = await get_dynamic_screenshot(r["data"]["cards"][0]["desc"]["dynamic_id_str"])
                 for groupid in sub_list[up_id]:
                     await app.sendGroupMessage(groupid, MessageChain.create([
                         Plain(f"本群订阅的UP {up_name}（{up_id}）更新动态啦！"),
-                        Image_UnsafeBytes(shot_image)
+                        Image_UnsafeBytes(shot_image),
+                        Plain(f"https://t.bilibili.com/{dyn_url_str}")
                     ]))
                     await asyncio.sleep(0.3)
             await asyncio.sleep(1)
