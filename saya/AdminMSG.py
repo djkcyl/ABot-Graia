@@ -8,9 +8,11 @@ from graia.application.group import MemberInfo
 from graia.application.group import Group, Member
 from graia.application import GraiaMiraiApplication
 from graia.application.exceptions import UnknownTarget
+from graia.application.message.parser.kanata import Kanata
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.parser.literature import Literature
 from graia.application.event.messages import GroupMessage, FriendMessage
+from graia.application.message.parser.signature import FullMatch, RequireParam
 from graia.application.message.elements.internal import MessageChain, Plain, Source, Quote, At, Image_UnsafeBytes
 
 from util.RestControl import set_sleep
@@ -247,3 +249,10 @@ async def mute(app: GraiaMiraiApplication, friend: Friend):
         await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
             Plain(f"共完成 {i} 个群的名片修改。")
         ]))
+
+
+@channel.use(ListenerSchema(listening_events=[GroupMessage],
+                            inline_dispatchers=[Kanata([FullMatch("/echo"), RequireParam("message")])]))
+async def mute(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain):
+    if member.id == yaml_data['Basic']['Permission']['Master']:
+        await app.sendGroupMessage(group, MessageChain.create([Plain(str(message.asDisplay().strip()))]))
