@@ -1,6 +1,6 @@
+import httpx
 import random
 import asyncio
-import requests
 
 from graia.saya import Saya, Channel
 from graia.application.group import Group
@@ -20,7 +20,7 @@ saya = Saya.current()
 channel = Channel.current()
 
 print("正在下载词库")
-root = requests.get("https://raw.staticdn.net/Kyomotoi/AnimeThesaurus/main/data.json").json()
+root = httpx.get("https://raw.staticdn.net/Kyomotoi/AnimeThesaurus/main/data.json").json()
 
 
 @channel.use(SchedulerSchema(crontabify("0 0 * * *")))
