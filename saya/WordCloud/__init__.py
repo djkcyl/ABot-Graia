@@ -24,7 +24,7 @@ from datebase.usertalk import get_user_talk, get_group_talk, add_talk
 
 saya = Saya.current()
 channel = Channel.current()
-loop = asyncio.get_running_loop()
+loop = asyncio.get_event_loop()
 pool = ThreadPoolExecutor()
 
 BAST_PATH = "./saya/WordCloud"
