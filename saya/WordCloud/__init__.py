@@ -24,8 +24,8 @@ from datebase.usertalk import get_user_talk, get_group_talk, add_talk
 
 saya = Saya.current()
 channel = Channel.current()
-loop = asyncio.get_event_loop()
-pool = ThreadPoolExecutor(4)
+loop = asyncio.get_running_loop()
+pool = ThreadPoolExecutor()
 
 BAST_PATH = "./saya/WordCloud"
 MASK_FILE = f'{BAST_PATH}/bgg.jpg'
@@ -33,6 +33,7 @@ FONT_PATH = './font/sarasa-mono-sc-regular.ttf'
 
 
 RUNNING = 0
+RUNNING_LIST = []
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
@@ -40,7 +41,7 @@ RUNNING = 0
                             headless_decorators=[member_limit_check(300), group_black_list_block()]))
 async def wordcloud(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain):
 
-    global RUNNING
+    global RUNNING, RUNNING_LIST
     pattern = re.compile("^查看(个人|本群)词云")
     match = pattern.match(message.asDisplay())
 
@@ -53,11 +54,18 @@ async def wordcloud(app: GraiaMiraiApplication, group: Group, member: Member, me
 
         if RUNNING < 5:
             RUNNING += 1
+            RUNNING_LIST.append(member.id)
             mode = match.group(1)
             if mode == "个人":
                 talk_list = await get_user_talk(str(member.id), str(group.id))
             elif mode == "本群":
                 talk_list = await get_group_talk(str(group.id))
+            if len(talk_list) < 10:
+                await app.sendGroupMessage(group, MessageChain.create([
+                    Plain("当前样本量较少，无法制作")
+                ]))
+                RUNNING -= 1
+                return RUNNING_LIST.remove(member.id)
             app.logger.info(f"正在制作词云，共 {len(talk_list)} 条记录")
             await app.sendGroupMessage(group, MessageChain.create([
                 At(member.id),
@@ -71,8 +79,11 @@ async def wordcloud(app: GraiaMiraiApplication, group: Group, member: Member, me
                 Image_UnsafeBytes(image)
             ]))
             RUNNING -= 1
+            RUNNING_LIST.remove(member.id)
         else:
-            await app.sendGroupMessage(group, MessageChain.create([Plain("词云生成进程正忙，请稍后")]))
+            await app.sendGroupMessage(group, MessageChain.create([
+                Plain("词云生成进程正忙，请稍后")
+            ]))
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
