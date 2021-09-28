@@ -1,4 +1,4 @@
-import requests
+import httpx
 
 from graia.saya import Saya, Channel
 from graia.application.group import Group, Member
@@ -54,10 +54,9 @@ async def fun_dict(app: GraiaMiraiApplication, group: Group, message: MessageCha
         "Content-Type": "application/json;charset=UTF-8",
         "Origin": "https://jikipedia.com"
     }
-    r_fun = requests.post(
-        api_url,
-        json=api_data,
-        headers=api_headers).json()
+    async with httpx.AsyncClient() as client:
+        r = client.post(api_url, json=api_data, headers=api_headers)
+    r_fun = r.json()
 
     # 数据处理
     # 如果列表为空

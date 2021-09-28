@@ -1,4 +1,4 @@
-import requests
+import httpx
 
 from graia.saya import Saya, Channel
 from graia.application.group import Group, Member
@@ -31,7 +31,9 @@ async def trashCard(app: GraiaMiraiApplication, group: Group, member: Member, me
             "groupname": group.name
         }
 
-        card = requests.post(url, json=data).json()
+        async with httpx.AsyncClient() as client:
+            r = await client.post(url, json=data)
+        card = r.json()
         app.logger.info(card)
 
         if "code" in card:
