@@ -1,6 +1,6 @@
 import time
 
-from peewee import *
+from peewee import IntegerField, SqliteDatabase, Model, CharField, TextField, BigIntegerField
 
 db = SqliteDatabase('./datebase/talkData.db')
 
@@ -13,8 +13,10 @@ class BaseModel(Model):
 class UserTalk(BaseModel):
     qq = CharField()
     group = CharField()
-    msg = TextField()
+    msg = CharField()
     time = BigIntegerField()
+    type = IntegerField()
+    url = CharField(default=None)
 
     class Meta:
         table_name = 'user_talk'
@@ -23,8 +25,15 @@ class UserTalk(BaseModel):
 db.create_tables([UserTalk], safe=True)
 
 
-async def add_talk(qq, group, msg):
-    p = UserTalk(qq=qq, group=group, msg=msg, time=int(time.time()))
+async def add_talk(qq, group, type, msg, url=None):
+    '''
+    type 
+    >>> 1 为文字
+    >>> 2 为图片
+    >>> 3 为闪照
+    >>> 4 为语音
+    '''
+    p = UserTalk(qq=qq, group=group, type=type, url=url, msg=msg, time=int(time.time()))
     p.save()
 
 

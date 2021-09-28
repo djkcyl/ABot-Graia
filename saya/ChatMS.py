@@ -19,14 +19,13 @@ from config import yaml_data, group_data
 saya = Saya.current()
 channel = Channel.current()
 
-root = {}
+print("正在下载词库")
+root = requests.get("https://raw.staticdn.net/Kyomotoi/AnimeThesaurus/main/data.json").json()
 
 
 @channel.use(SchedulerSchema(crontabify("0 0 * * *")))
-@channel.use(ListenerSchema(listening_events=[ApplicationLaunched]))
 async def updateDict(app: GraiaMiraiApplication):
     global root
-    root = requests.get("https://raw.fastgit.org/Kyomotoi/AnimeThesaurus/main/data.json").json()
     await asyncio.sleep(1)
     app.logger.info(msg=f"已更新完成聊天词库，共计：{len(root)}条")
 
