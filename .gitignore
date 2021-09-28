@@ -4,7 +4,6 @@ temp/
 voice_file
 config.json
 *.db
-!WordData.db
 test.py
 config.yaml
 groupdata.yaml
@@ -27,3 +26,4 @@ data.json
 .gitignore
 util/UpImage.py
 saya/BilibiliDynamic/dynamic_list.json
+archive/

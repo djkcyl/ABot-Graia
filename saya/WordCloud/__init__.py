@@ -20,7 +20,7 @@ from graia.application.message.elements.internal import MessageChain, At, Plain,
 from util.limit import member_limit_check
 from util.UserBlock import group_black_list_block
 from config import yaml_data, group_data, sendmsg
-from datebase.usertalk import get_user_talk, get_group_talk, add_talk
+from datebase.usertalk import get_user_talk, get_group_talk
 
 saya = Saya.current()
 channel = Channel.current()
@@ -84,15 +84,6 @@ async def wordcloud(app: GraiaMiraiApplication, group: Group, member: Member, me
             await app.sendGroupMessage(group, MessageChain.create([
                 Plain("词云生成进程正忙，请稍后")
             ]))
-
-
-@channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            headless_decorators=[group_black_list_block()]))
-async def add_talk_word(group: Group, member: Member, message: MessageChain):
-    if message.has(Plain):
-        plain_list = message.get(Plain)
-        plain = MessageChain.create(plain_list).asDisplay()
-        await add_talk(str(member.id), str(group.id), plain)
 
 
 async def get_frequencies(msg_list):

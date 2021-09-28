@@ -1,21 +1,30 @@
+import httpx
 
-
+from pathlib import Path
 from graia.saya import Saya, Channel
 from graia.application.group import Group, Member
 from graia.application import GraiaMiraiApplication
 from graia.application.event.messages import GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.parser.literature import Literature
-from graia.application.message.elements.internal import Image_UnsafeBytes, MessageChain
+from graia.application.message.elements.internal import FlashImage, Image, Image_UnsafeBytes, MessageChain, Plain, Voice
 
 from util.limit import member_limit_check
 from util.UserBlock import group_black_list_block
-from datebase.usertalk import get_message_analysis
+from datebase.usertalk import get_message_analysis, add_talk
 
 from .mapping import get_mapping
 
 saya = Saya.current()
 channel = Channel.current()
+data_path = Path("archive")
+
+if not data_path.exists():
+    print("存档目录不存在，正在创建")
+    data_path.mkdir()
+    image = data_path.joinpath("image").mkdir()
+    flashimage = data_path.joinpath("flashimage").mkdir()
+    voice = data_path.joinpath("voice").mkdir()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
@@ -29,3 +38,35 @@ async def get_image(app: GraiaMiraiApplication, group: Group):
     image = await get_mapping(talk_num, time)
 
     await app.sendGroupMessage(group, MessageChain.create([Image_UnsafeBytes(image.getvalue())]))
+
+
+@channel.use(ListenerSchema(listening_events=[GroupMessage],
+                            headless_decorators=[group_black_list_block()]))
+async def add_talk_word(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain):
+    if message.has(Plain):
+        plain_list = message.get(Plain)
+        plain = MessageChain.create(plain_list).asDisplay()
+        await add_talk(str(member.id), str(group.id), 1, plain)
+    elif message.has(Image):
+        image_list = message.get(Image)
+        for image in image_list:
+            await download(app, image.url, image.imageId, "image")
+            await add_talk(str(member.id), str(group.id), 2, image.imageId, image.url)
+    elif message.has(FlashImage):
+        flash_image = message.getFirst(FlashImage)
+        await download(app, flash_image.url, flash_image.imageId, "flashimage")
+        await add_talk(str(member.id), str(group.id), 3, flash_image.imageId, flash_image.url)
+    elif message.has(Voice):
+        voice = message.getFirst(Voice)
+        await download(app, voice.url, voice.imageId, "voice")
+        await add_talk(str(member.id), str(group.id), 4, voice.voiceId, voice.url)
+
+
+async def download(app: GraiaMiraiApplication, url, name, path):
+    if not data_path.joinpath(path, name).exists():
+        async with httpx.AsyncClient() as client:
+            r = await client.get(url)
+            with open(data_path.joinpath(path, name), "wb") as f:
+                f.write(r.content)
+    else:
+        app.logger.info(f"已存在的文件 - {name}")

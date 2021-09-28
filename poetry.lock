@@ -1095,7 +1095,7 @@ reference = "douban"
 
 [[package]]
 name = "tencentcloud-sdk-python"
-version = "3.0.490"
+version = "3.0.493"
 description = "Tencent Cloud SDK for Python"
 category = "main"
 optional = false
@@ -1264,7 +1264,7 @@ reference = "douban"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<3.10"
-content-hash = "9f801a2af922e21ebf03cc2c8ef4a58e1387aaa6e5890bbbb3788a780b08f14b"
+content-hash = "9dceec30cc62f9fe48cb3f5db8ce5aa24a148a81f31eaec633ee224322b3aade"
 
 [metadata.files]
 aiohttp = [
@@ -1970,8 +1970,8 @@ sniffio = [
     {file = "sniffio-1.2.0.tar.gz", hash = "sha256:c4666eecec1d3f50960c6bdf61ab7bc350648da6c126e3cf6898d8cd4ddcd3de"},
 ]
 tencentcloud-sdk-python = [
-    {file = "tencentcloud-sdk-python-3.0.490.tar.gz", hash = "sha256:24cb6c580db3aeb7df86ed1c7896a67e2b97bc3f4c9d42a0adc33a077b613026"},
-    {file = "tencentcloud_sdk_python-3.0.490-py2.py3-none-any.whl", hash = "sha256:1f5aee840e78317a04f044d2f610b620fd35aa2cc3e7ce9993efe77498a98530"},
+    {file = "tencentcloud-sdk-python-3.0.493.tar.gz", hash = "sha256:a1ff284547a7164baffe70d34647d241c857fea9f8832183e14c2216c989c726"},
+    {file = "tencentcloud_sdk_python-3.0.493-py2.py3-none-any.whl", hash = "sha256:9d1d03ffb81d36860b615606bb7c29cc15308a6c7914bd98511eec47907607c7"},
 ]
 toml = [
     {file = "toml-0.10.2-py2.py3-none-any.whl", hash = "sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b"},
