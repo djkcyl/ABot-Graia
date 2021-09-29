@@ -31,17 +31,13 @@ channel = Channel.current()
 bcc = saya.broadcast
 inc = InterruptControl(bcc)
 
-if not os.path.exists("./saya/CloudMusic/temp/"):
-    print("正在创建音乐缓存文件夹")
-    os.mkdir("./saya/CloudMusic/temp/")
+BASEPATH = Path(__file__).parent.joinpath("temp")
+BASEPATH.mkdir(exist_ok=True)
 
-MIRAI_PATH = yaml_data["Basic"]["MiraiPath"]
-
-if MIRAI_PATH[-1] != "/":
-    MIRAI_PATH += "/"
-
-if not os.path.exists(f"{MIRAI_PATH}data/net.mamoe.mirai-api-http/voices/"):
-    print("请打开./saya/CloudMusic/__init__.py 并修改变量 MIRAI_PATH 的内容为Mirai的根目录")
+MIRAI_PATH = Path(yaml_data["Basic"]["MiraiPath"])
+VIOCE_PATH = MIRAI_PATH.joinpath("data", "net.mamoe.mirai-api-http", "voices")
+if not VIOCE_PATH.exists():
+    print(f"{VIOCE_PATH} 不存在，请修改配置文件中的 Basic-MiraiPath 为Mirai的根目录")
     exit()
 
 CLOUD_HOST = "http://127.0.0.1:3000"
@@ -92,7 +88,7 @@ async def sing(app: GraiaMiraiApplication, group: Group, member: Member, message
         WAITING.append(member.id)
 
         if message:
-            musicname = saying[1]
+            musicname = saying
             if musicname == None or musicname.replace(" ", "") == "":
                 WAITING.remove(member.id)
                 return await app.sendGroupMessage(group, MessageChain.create([Plain("歌名输入有误")]))
@@ -211,7 +207,8 @@ async def sing(app: GraiaMiraiApplication, group: Group, member: Member, message
             if music_lyric == "[00:00:00]此歌曲为没有填词的纯音乐，请您欣赏":
                 music_lyric = None
 
-        if not os.path.exists(f"./saya/CloudMusic/temp/{musicid[1]}.mp3"):
+        MUSIC_PATH = BASEPATH.joinpath(f"{musicid[1]}.mp3")
+        if not MUSIC_PATH.exists():
             app.logger.info(f"正在缓存歌曲：{music_name}")
             if musicurl == None or musicurl == "":
                 WAITING.remove(member.id)
@@ -221,10 +218,7 @@ async def sing(app: GraiaMiraiApplication, group: Group, member: Member, message
             }
             async with httpx.AsyncClient() as client:
                 r = await client.get(musicurl, headers=headers)
-                music_fcontent = r.content
-
-            with open(f'./saya/CloudMusic/temp/{musicid[1]}.mp3', 'wb') as f:
-                f.write(music_fcontent)
+                MUSIC_PATH.write_bytes(r.content)
 
         try:
             await app.sendGroupMessage(group, MessageChain.create([
@@ -246,10 +240,10 @@ async def sing(app: GraiaMiraiApplication, group: Group, member: Member, message
             WAITING.remove(member.id)
             return await app.sendGroupMessage(group, MessageChain.create([Plain("你的游戏币不足，无法使用")]), quote=source)
 
-        cache = Path(f'{MIRAI_PATH}data/net.mamoe.mirai-api-http/voices/{musicid[1]}')
-        cache.write_bytes(await silkcoder.encode(f'./saya/CloudMusic/temp/{musicid[1]}.mp3', t=540))
+        cache = VIOCE_PATH.joinpath(str(musicid[1]))
+        cache.write_bytes(await silkcoder.encode(MUSIC_PATH.read_bytes(), t=540))
         await app.sendGroupMessage(group, MessageChain.create([Voice(path=musicid[1])]))
-        # os.remove(f'{MIRAI_PATH}data/net.mamoe.mirai-api-http/voices/{musicid[1]}')
+        cache.unlink()
         return WAITING.remove(member.id)
 
 
