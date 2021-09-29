@@ -79,7 +79,7 @@ class PornhubStyleUtils:
         bg_img.paste(left_img, (blank, 0))
         bg_img.paste(right_img, (blank + left_img.width, int((bg_img_height - right_img.height) / 2)), mask=right_img)
         byte_io = BytesIO()
-        bg_img.save(byte_io, format="PNG")
+        bg_img.save(byte_io, format="JPEG")
         return byte_io.getvalue()
 
     @staticmethod

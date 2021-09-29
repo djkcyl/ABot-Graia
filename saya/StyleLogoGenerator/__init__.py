@@ -77,7 +77,7 @@ class StylePictureGeneraterHandler():
             _, left_text, right_text = message.asDisplay().split(" ")
             try:
                 img_byte = BytesIO()
-                gsGenImage(word_a=left_text, word_b=right_text).save(img_byte, format='PNG')
+                gsGenImage(word_a=left_text, word_b=right_text).save(img_byte, format='JPEG')
                 return MessageChain.create([Image.fromUnsafeBytes(img_byte.getvalue())])
             except TypeError:
                 return MessageChain.create([Plain(text="不支持的内容！不要给我一些稀奇古怪的东西！")])
