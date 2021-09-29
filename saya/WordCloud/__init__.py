@@ -5,6 +5,7 @@ import jieba.analyse
 
 from PIL import Image
 from io import BytesIO
+from pathlib import Path
 from matplotlib import pyplot
 from graia.saya import Saya, Channel
 from graia.application.group import Group, Member
@@ -27,10 +28,10 @@ channel = Channel.current()
 loop = asyncio.get_event_loop()
 pool = ThreadPoolExecutor()
 
-BAST_PATH = "./saya/WordCloud"
-MASK_FILE = f'{BAST_PATH}/bgg.jpg'
-FONT_PATH = './font/sarasa-mono-sc-regular.ttf'
-
+BASEPATH = Path(__file__).parent
+MASK_FILE = BASEPATH.joinpath('bgg.jpg')
+FONT_PATH = Path("font").joinpath("sarasa-mono-sc-regular.ttf")
+STOPWORDS = BASEPATH.joinpath('stopwords')
 
 RUNNING = 0
 RUNNING_LIST = []
@@ -96,6 +97,7 @@ def make_wordcloud(words):
     image = Image.open(MASK_FILE)
     mask = numpy.array(image)
     wordcloud = WordCloud(
+        # stopwords=STOPWORDS,
         font_path=FONT_PATH,
         background_color='white',
         mask=mask,
