@@ -2,7 +2,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from io import BytesIO
+from pathlib import Path
 from scipy import interpolate
+from matplotlib.font_manager import FontProperties
+
+font = Path().joinpath("font", "sarasa-mono-sc-regular.ttf")
+zhfont1 = FontProperties(fname=font)
 
 
 async def get_mapping(talk_num, time):
@@ -24,12 +29,9 @@ async def get_mapping(talk_num, time):
     plt.xticks(x_range, labels=time)
 
     for a, b in zip(x, y):
-        plt.text(a, b + 5, '%.0f' % b, ha='center', va='bottom', fontsize=18)
+        plt.text(a, b + 5, '%.0f' % b, ha='center', va='bottom', fontsize=12)
 
-    # plt.rcParams['font.sans-serif'] = ['./font/sarasa-mono-sc-regular.ttf']
-    # plt.rcParams['axes.unicode_minus'] = False
-
-    plt.title('Message Analysis', fontsize=36, y=1.04)
+    plt.title('信息量统计', fontsize=36, fontproperties=zhfont1)
     plt.tick_params(axis='both', labelsize=12)
 
     bio = BytesIO()
