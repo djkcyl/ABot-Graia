@@ -366,6 +366,30 @@ async def atrep(app: GraiaMiraiApplication, group: Group, member: Member, messag
         ]))
 
 
+@channel.use(ListenerSchema(listening_events=[GroupMessage],
+                            inline_dispatchers=[Literature("本群订阅列表")],
+                            headless_decorators=[group_limit_check(10), group_black_list_block()]))
+async def atrep(app: GraiaMiraiApplication, group: Group, member: Member):
+
+    if member.permission in [MemberPerm.Administrator, MemberPerm.Owner] or member.id in yaml_data['Basic']['Permission']['Admin']:
+        sublist = []
+        for subid in get_group_sublist(group.id):
+            remove_uid(subid, group.id)
+            sublist.append(subid)
+        sublist_count = len(sublist)
+        if sublist_count == 0:
+            await app.sendGroupMessage(group, MessageChain.create([Plain(f"本群未订阅任何 UP")]))
+        else:
+            await app.sendGroupMessage(group, MessageChain.create([
+                Plain(f"本群共订阅 {sublist_count} 个 UP\n"),
+                Plain("\n".join(sublist))
+            ]))
+    else:
+        await app.sendGroupMessage(group, MessageChain.create([
+            Plain("你没有权限使用该功能！")
+        ]))
+
+
 @channel.use(ListenerSchema(listening_events=[BotLeaveEventActive, BotLeaveEventKick]))
 async def bot_leave(app: GraiaMiraiApplication, group: Group):
     remove_list = []
