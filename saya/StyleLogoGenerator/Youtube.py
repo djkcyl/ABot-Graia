@@ -71,20 +71,27 @@ class YoutubeStyleUtils:
 
     @staticmethod
     async def combine_img(left_text: str, right_text, font_size: int) -> bytes:
+        print(2)
         left_img = await YoutubeStyleUtils.create_left_part_img(left_text, font_size)
         right_img = await YoutubeStyleUtils.create_right_part_img(right_text, font_size)
         blank = 30
+        print(3)
         bg_img_width = left_img.width + right_img.width + blank * 2
         bg_img_height = left_img.height
         bg_img = IMG.new('RGBA', (bg_img_width, bg_img_height), YoutubeStyleUtils.BG_COLOR)
+        print(4)
         bg_img.paste(left_img, (blank, 0))
         bg_img.paste(right_img, (blank + left_img.width, int((bg_img_height - right_img.height) / 2)), mask=right_img)
+        print(5)
         byte_io = BytesIO()
-        bg_img.save(byte_io, format="JPEG")
+        print(6)
+        bg_img.save(byte_io, format="PNG")
+        print(2)
         return byte_io.getvalue()
 
     @staticmethod
     async def make_yt_style_logo(left_text: str, right_text: str) -> MessageChain:
+        print(1)
         return MessageChain.create([
             Image.fromUnsafeBytes(await YoutubeStyleUtils.combine_img(left_text, right_text, FONT_SIZE))
         ])
