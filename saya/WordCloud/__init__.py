@@ -26,11 +26,11 @@ from datebase.usertalk import get_user_talk, get_group_talk
 saya = Saya.current()
 channel = Channel.current()
 loop = asyncio.get_event_loop()
-pool = ThreadPoolExecutor()
+pool = ThreadPoolExecutor(4)
 
 BASEPATH = Path(__file__).parent
-MASK_FILE = BASEPATH.joinpath('bgg.jpg')
-FONT_PATH = Path("font").joinpath("sarasa-mono-sc-regular.ttf")
+MASK = numpy.array(Image.open(BASEPATH.joinpath('bgg.jpg')))
+FONT_PATH = Path("font").joinpath("sarasa-mono-sc-regular.ttf").__str__()
 STOPWORDS = BASEPATH.joinpath('stopwords')
 
 RUNNING = 0
@@ -94,18 +94,16 @@ async def get_frequencies(msg_list):
 
 
 def make_wordcloud(words):
-    image = Image.open(MASK_FILE)
-    mask = numpy.array(image)
+    
     wordcloud = WordCloud(
-        # stopwords=STOPWORDS,
         font_path=FONT_PATH,
         background_color='white',
-        mask=mask,
+        mask=MASK,
         max_words=800,
         scale=2
     )
     wordcloud.generate_from_frequencies(words)
-    image_colors = ImageColorGenerator(mask, default_color=(255, 255, 255))
+    image_colors = ImageColorGenerator(MASK, default_color=(255, 255, 255))
     wordcloud.recolor(color_func=image_colors)
     pyplot.imshow(wordcloud.recolor(color_func=image_colors), interpolation="bilinear")
     pyplot.axis("off")

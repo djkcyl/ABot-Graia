@@ -84,11 +84,10 @@ async def sing(app: GraiaMiraiApplication, group: Group, member: Member, message
                 await app.sendGroupMessage(group, MessageChain.create([Plain("请发送歌曲 id<1-10> 来点歌，发送取消可终止本次点歌")]))
 
     if member.id not in WAITING:
-        saying = message.asDisplay().strip()
         WAITING.append(member.id)
 
         if message:
-            musicname = saying
+            musicname = message.asDisplay().strip()
             if musicname == None or musicname.replace(" ", "") == "":
                 WAITING.remove(member.id)
                 return await app.sendGroupMessage(group, MessageChain.create([Plain("歌名输入有误")]))
