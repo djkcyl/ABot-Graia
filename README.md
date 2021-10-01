@@ -3,6 +3,8 @@
 # ABot for Graia
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fdjkcyl%2FABot-Graia.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fdjkcyl%2FABot-Graia?ref=badge_shield)
 
+![!](https://count.getloli.com/get/@ABot-Graia?theme=rule34)
+
 ABot 是一个使用 [Graia](https://github.com/GraiaProject/Application) 搭建的 QQ 功能性<del>究极缝合怪</del>机器人
 
 </div>
