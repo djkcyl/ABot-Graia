@@ -1,6 +1,8 @@
 <div align="center">
 
 # ABot for Graia
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fdjkcyl%2FABot-Graia.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fdjkcyl%2FABot-Graia?ref=badge_shield)
+
 ABot 是一个使用 [Graia](https://github.com/GraiaProject/Application) 搭建的 QQ 功能性<del>究极缝合怪</del>机器人
 
 </div>
@@ -67,3 +69,7 @@ ABot 是一个使用 [Graia](https://github.com/GraiaProject/Application) 搭建
 感谢[SAGIRI-BOT](https://github.com/SAGIRI-kawaii/sagiri-bot)的一堆功能以及saya转型启发
 
 感谢[HarukaBot](https://github.com/SK-415/HarukaBot)提供的哔哩哔哩推送灵感及部分实现思路
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fdjkcyl%2FABot-Graia.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fdjkcyl%2FABot-Graia?ref=badge_large)
