@@ -178,8 +178,8 @@ funcHelp = {
     "娱乐功能": {
         "instruction": "提供一些群内互动娱乐功能",
         "usage": "发送指令：\n签到\n你画我猜\n赠送游戏币\n查看排行榜",
-        "options": "签到：每日凌晨四点重置签到，每次签到可获得 5-21 个游戏币\n你画我猜：每次消耗 4 个游戏币\n    赠送游戏币：可以向他人赠送自己的游戏币，限值 1-1000以内\n排行榜可同时查看游戏币榜和发言榜，一般情况下排行榜每十分钟更新一次",
-        "example": "赠送游戏币 @ABot 15"
+        "options": "签到：每日凌晨四点重置签到，每次签到可获得 5-21 个游戏币\n你画我猜：每次消耗 4 个游戏币\n  赠送游戏币：可以向他人赠送自己的游戏币，限值 1-1000以内\n排行榜可同时查看游戏币榜和发言榜，一般情况下排行榜每十分钟更新一次",
+        "example": "  赠送游戏币 @ABot 15"
     },
     "骰娘": {
         "instruction": "一个简易骰娘",
@@ -243,7 +243,6 @@ async def atrep(app: GraiaMiraiApplication, group: Group, message: MessageChain)
                 f"\n邀请 {yaml_data['Basic']['BotName']} 加入其他群需先询问主人获得白名单" +
                 f"\n{yaml_data['Basic']['BotName']} 被群禁言后会自动退出该群。" +
                 f"\n发送 <菜单> 可以查看功能列表" +
-                f"\n如果用不明白菜单功能可以不用，建议去医院多看看\n" +
                 f"\n@不会触发任何功能　　　　@不会触发任何功能" +
                 f"\n@不会触发任何功能　　　　@不会触发任何功能" +
                 f"\n@不会触发任何功能　　　　@不会触发任何功能" +
@@ -315,7 +314,6 @@ async def adminmain(app: GraiaMiraiApplication, group: Group, message: MessageCh
                    "\n所有功能均无需@机器人本身" +
                    "\n方舟玩家可以加个好友，[官服 A60#6660]" +
                    "\n源码：github.com/djkcyl/ABot-Graia" +
-                   "\n如果用不明白菜单可以不用，建议去医院多看看" +
                    f"\n更多功能待开发，如有特殊需求可以向 {yaml_data['Basic']['Permission']['Master']} 询问")
         image = await create_image(msg)
         await app.sendGroupMessage(group, MessageChain.create([Image_UnsafeBytes(image.getvalue())]))
