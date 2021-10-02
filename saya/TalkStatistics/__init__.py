@@ -65,8 +65,8 @@ async def add_talk_word(app: GraiaMiraiApplication, group: Group, member: Member
 
 async def download(app: GraiaMiraiApplication, url, name, path):
     now_time = datetime.datetime.now()
-    now_path = data_path.joinpath(path, str(now_time.year), str(now_time.month), str(now_time.day))
-    now_path.mkdir(775, True, True)
+    now_path = data_path.joinpath(path, str(now_time.year), str(now_time.month))
+    now_path.mkdir(0o775, True, True)
     if not now_path.joinpath(name).exists():
         async with httpx.AsyncClient() as client:
             r = await client.get(url)
