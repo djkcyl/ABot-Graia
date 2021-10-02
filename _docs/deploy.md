@@ -40,6 +40,8 @@
 > npx playwright install-deps
 > ```
 
+> 你也可能在执行 `poetry install` 的时候出现装不上 `graiax-silkcoder` 的情况，请自行解决编译环境问题
+
 **尽情享用吧~**
 
 ## 保持在后台运行
