@@ -62,4 +62,4 @@
 > ...
 > ```
 >
-> 其他发行版怎么用请查阅[此处](https://www.runoob.com/linux/linux-comm-screen.html)
+> 其他发行版怎么用请查阅[此处](https://zhuanlan.zhihu.com/p/26683968)
