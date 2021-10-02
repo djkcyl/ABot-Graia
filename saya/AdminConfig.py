@@ -44,7 +44,8 @@ funcList = [
     {"name": "听歌识曲 / 哼唱识曲", "key": "VoiceMusicRecognition", "can_disabled": True},
     {"name": "淫文翻译机", "key": "Yinglish", "can_disabled": True},
     {"name": "背单词", "key": "EnglishTest", "can_disabled": True},
-    {"name": "BiliBili订阅推送", "key": "BilibiliDynamic", "can_disabled": False}
+    {"name": "BiliBili订阅推送", "key": "BilibiliDynamic", "can_disabled": False},
+    {"name": "查看人设", "key": "CharacterDesignGenerator", "can_disabled": True},
 ]
 
 configList = [
@@ -216,6 +217,12 @@ funcHelp = {
         "usage": "发送指令：\n订阅 <uid>\n退订 <uid>",
         "options": "如果不知道uid怎么获得，请去百度！订阅和退订的指令仅有群管理及以上权限可用",
         "example": "订阅 161775300"
+    },
+    "查看人设": {
+        "instruction": "通过seed随机出人设表",
+        "usage": "发送指令：\n查看人设",
+        "options": "发送查看人设之后会根据群号和qq号随机出一个人设表，在不同的群里随机到的数据都不一样哦",
+        "example": "（这也需要示例吗？"
     }
 }
 

@@ -139,6 +139,9 @@ Saya: # saya 插件配置
     EnabledProxy: false # 启用代理
     Proxy: # 代理地址
       - http://127.0.0.1:1080
+      
+  CharacterDesignGenerator:
+    Disabled: false
 
 Final: false
 # 配置完成后请调整为 true
