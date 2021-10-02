@@ -281,8 +281,13 @@ async def update_scheduled(app: GraiaMiraiApplication):
                     await asyncio.sleep(0.3)
         else:
             if LIVE_STATUS[up_id]:
-                app.logger.info(f"[BiliBili推送] {up_name} 已下播")
                 LIVE_STATUS[up_id] = False
+                app.logger.info(f"[BiliBili推送] {up_name} 已下播")
+                for groupid in sub_list[up_id]:
+                    await app.sendGroupMessage(groupid, MessageChain.create([
+                        Plain(f"本群订阅的UP {up_name}（{up_id}）已下播！\n")
+                    ]))
+                    await asyncio.sleep(0.3)
 
     app.logger.info("[BiliBili推送] 正在检测动态更新")
     for up_id in sub_list:
