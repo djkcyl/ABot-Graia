@@ -38,7 +38,7 @@ async def add_talk(qq, group, type, msg, url=None):
 
 
 async def get_user_talk(qq, group):
-    talklist = UserTalk.select().where(UserTalk.qq == qq, UserTalk.group == group)
+    talklist = UserTalk.select().where(UserTalk.qq == qq, UserTalk.group == group, UserTalk.type == 1)
     talk_list = []
     for talk in talklist:
         talk_list.append(talk.msg)
@@ -46,7 +46,7 @@ async def get_user_talk(qq, group):
 
 
 async def get_group_talk(group):
-    talklist = UserTalk.select().where(UserTalk.group == group)
+    talklist = UserTalk.select().where(UserTalk.group == group, UserTalk.type == 1)
     talk_list = []
     for talk in talklist:
         talk_list.append(talk.msg)
