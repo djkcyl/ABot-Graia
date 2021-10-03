@@ -184,13 +184,13 @@ async def init(app: GraiaMiraiApplication):
                         live_status = "已开播"
                     else:
                         live_status = "未开播"
-                    sub_count = len(dynamic_list["subscription"][up_id])
+                    # sub_count = len(dynamic_list["subscription"][up_id])
                     info_msg.append(f"    ● {si}  ---->  {up_name}({up_id}) > 当前{live_status}")
                     # info_msg.append(f"                       最新动态：{last_dynid}")
-                    info_msg.append(f"                       共有 {sub_count} 个群订阅了该 UP")
-                    for groupid in dynamic_list["subscription"][up_id]:
-                        group_info = await app.getGroup(groupid)
-                        info_msg.append(f"                           > {group_info.name}({groupid})")
+                    # info_msg.append(f"                       共有 {sub_count} 个群订阅了该 UP")
+                    # for groupid in dynamic_list["subscription"][up_id]:
+                    #     group_info = await app.getGroup(groupid)
+                    #     info_msg.append(f"                           > {group_info.name}({groupid})")
                     i += 1
                     await asyncio.sleep(1)
                 else:

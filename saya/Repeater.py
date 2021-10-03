@@ -5,7 +5,7 @@ from graia.application.group import Group
 from graia.application import GraiaMiraiApplication
 from graia.application.event.messages import GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.message.elements.internal import MessageChain, Plain, At
+from graia.application.message.elements.internal import Face, Image, MessageChain, Plain, At
 
 from config import yaml_data, group_data
 from util.RestControl import rest_control
@@ -30,8 +30,8 @@ async def repeater(app: GraiaMiraiApplication, group: Group, message: MessageCha
 
     global repdict
     saying = message.asDisplay()
-    ifpic = "[图片]" not in saying
-    ifface = "[表情]" not in saying
+    ifpic = not message.has(Image)
+    ifface = not message.has(Face)
     ifat = not message.has(At)
     if ifpic & ifface & ifat:
         if group.id not in repdict:
@@ -51,6 +51,7 @@ async def repeater(app: GraiaMiraiApplication, group: Group, message: MessageCha
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             headless_decorators=[rest_control(), group_black_list_block()]))
 async def repeateron(app: GraiaMiraiApplication, group: Group, message: MessageChain):
+
     if yaml_data['Saya']['Repeater']['Disabled']:
         return
     elif 'Repeater' in group_data[group.id]['DisabledFunc']:
@@ -61,8 +62,8 @@ async def repeateron(app: GraiaMiraiApplication, group: Group, message: MessageC
     saying = message.asDisplay()
     randint = random.randint(1, yaml_data['Saya']['Repeater']['Random']['Probability'])
     if randint == yaml_data['Saya']['Repeater']['Random']['Probability']:
-        ifpic = "[图片]" not in saying
-        ifface = "[表情]" not in saying
+        ifpic = not message.has(Image)
+        ifface = not message.has(Face)
         ifat = not message.has(At)
         if ifpic & ifface & ifat:
             app.logger.info('已触发随机复读')
