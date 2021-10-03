@@ -199,7 +199,7 @@ async def sing(app: GraiaMiraiApplication, group: Group, member: Member, message
                 music_ar = []
                 for ar in musicinfo["singer"]:
                     music_ar.append(ar['name'])
-                    music_ar = "/".join(music_ar)
+                music_ar = "/".join(music_ar)
                 music_al = requests.get(f"{QQ_HOST}/getImageUrl?id={album_mid}").json()["response"]["data"]["imageUrl"]
             musiclyric = requests.get(f"{QQ_HOST}/getLyric?songmid={musicid[1]}").json()
             music_lyric = musiclyric["response"]["lyric"]
@@ -223,7 +223,7 @@ async def sing(app: GraiaMiraiApplication, group: Group, member: Member, message
             await app.sendGroupMessage(group, MessageChain.create([
                 Image_NetworkAddress(music_al),
                 Plain(f"\n曲名：{music_name}\n作者：{music_ar}"),
-                Plain(f"\n超过9:00的歌曲将被裁切前9:00\n歌曲时长越长音质越差\n超过4分钟的歌曲音质将受到较大程度的损伤\n发送语音需要一定时间，请耐心等待\n{musicurl}")
+                Plain(f"\n超过9:00的歌曲将被裁切前9:00\n歌曲时长越长音质越差\n超过4分钟的歌曲音质将受到较大程度的损伤\n发送语音需要一定时间，请耐心等待")
             ]))
         except:
             await app.sendGroupMessage(group, MessageChain.create([
