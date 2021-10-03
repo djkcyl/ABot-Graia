@@ -19,7 +19,7 @@
    git clone https://github.com/djkcyl/ABot-Graia
    ```
 > 以下步骤仅用于安装了可选组件`Poetry`。
-> 1. 使用虚拟容器安装依赖
+> 1. 使用虚拟容器安装依赖   `本步骤可能需要执行5分钟到5小时，请耐心等待（`
 >    ```shell
 >    poetry install
 >    ```
@@ -39,6 +39,8 @@
 > ```shell
 > npx playwright install-deps
 > ```
+
+> 你也可能在执行 `poetry install` 的时候出现装不上 `graiax-silkcoder` 的情况，请自行解决编译环境问题
 
 **尽情享用吧~**
 
@@ -60,4 +62,4 @@
 > ...
 > ```
 >
-> 其他发行版怎么用请查阅[此处](https://www.runoob.com/linux/linux-comm-screen.html)
+> 其他发行版怎么用请查阅[此处](https://zhuanlan.zhihu.com/p/26683968)
