@@ -338,7 +338,8 @@ async def update_scheduled(app: GraiaMiraiApplication):
             await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
                 Plain(f"{up_id} 暂时无法监控，已从列表中移除")
             ]))
-    app.logger.info("[BiliBili推送] 本轮检测完成")
+
+    return app.logger.info("[BiliBili推送] 本轮检测完成")
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
