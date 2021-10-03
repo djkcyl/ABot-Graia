@@ -8,7 +8,7 @@ from graia.application import GraiaMiraiApplication
 from graia.application.event.messages import GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.parser.literature import Literature
-from graia.application.message.elements.internal import Image_UnsafeBytes, MessageChain, Source
+from graia.application.message.elements.internal import Image_UnsafeBytes, MessageChain, Plain, Source
 
 from util.text2image import create_image
 from util.limit import member_limit_check
@@ -19,8 +19,7 @@ from config import yaml_data, sendmsg, group_data
 saya = Saya.current()
 channel = Channel.current()
 
-DesignsDICT = json.loads(Path(__file__).parent.joinpath("DesignsDICT.json").read_text("UTF-8"))
-Designs = DesignsDICT['Designs']
+Designs = json.loads(Path(__file__).parent.joinpath("DesignsDICT.json").read_text("UTF-8"))['Designs']
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
@@ -54,3 +53,13 @@ def get_rand(qid: int, gid: int):
         ])
         i += 1
     return designs_list
+
+
+@channel.use(ListenerSchema(listening_events=[GroupMessage],
+                            inline_dispatchers=[Literature("/reload", "人设")],
+                            headless_decorators=[member_limit_check(15), rest_control(), group_black_list_block()]))
+async def rand_designs(app: GraiaMiraiApplication, group: Group, member: Member):
+    global Designs
+    if member.id == yaml_data['Basic']['Permission']['Master']:
+        Designs = json.loads(Path(__file__).parent.joinpath("DesignsDICT.json").read_text("UTF-8"))['Designs']
+        await app.sendGroupMessage(group, MessageChain.create([Plain("重载完成")]))
