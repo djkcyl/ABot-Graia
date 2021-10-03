@@ -55,7 +55,7 @@ async def fun_dict(app: GraiaMiraiApplication, group: Group, message: MessageCha
         "Origin": "https://jikipedia.com"
     }
     async with httpx.AsyncClient() as client:
-        r = client.post(api_url, json=api_data, headers=api_headers)
+        r = await client.post(api_url, json=api_data, headers=api_headers)
     r_fun = r.json()
 
     # 数据处理
