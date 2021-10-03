@@ -44,9 +44,14 @@ async def rand_designs(app: GraiaMiraiApplication, group: Group, member: Member,
 
 def get_rand(qid: int, gid: int):
     i = 1
+    s = 1
     designs_list = []
+    for _i in Designs:
+        for _ in Designs[_i]:
+            s += 1
+
     for type in Designs:
-        random.seed((qid + gid + i))
+        random.seed(qid + gid + i + s)
         designs_list.append([
             type,
             random.choice(Designs[type])
