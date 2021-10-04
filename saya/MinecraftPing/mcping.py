@@ -56,11 +56,10 @@ async def mcping(say):
 
     # 描述
     print(get_status["description"])
-    if "text" in get_status["description"]:
-        if get_status["description"]["text"] != "":
-            sMotd = get_status["description"]["text"]
-            msg_send.append(Plain(f"描述：" + sMotd + "\n"))
-            # print(sMotd)
+    if get_status["description"].get("text", "") != "":
+        sMotd = get_status["description"]["text"]
+        msg_send.append(Plain(f"描述：" + sMotd + "\n"))
+        # print(sMotd)
     elif "extra" in get_status["description"]:
         sMotd = ""
         for extra in get_status["description"]["extra"]:
