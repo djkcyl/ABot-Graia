@@ -179,11 +179,18 @@ async def main(app: GraiaMiraiApplication, group: Group, member: Member, source:
                             await add_gold(str(result[0].id), 1)
                             GROUP_RUNING_LIST.remove(group.id)
                             del GROUP_GAME_PROCESS[group.id]
-                            await app.sendGroupMessage(group.id, MessageChain.create([
-                                Plain("恭喜 "),
-                                At(result[0].id),
-                                Plain(f" 成功猜出本次答案，你和创建者分别获得 1 个和 2 个游戏币，本次游戏结束")
-                            ]), quote=result[1])
+                            try:
+                                await app.sendGroupMessage(group.id, MessageChain.create([
+                                    Plain("恭喜 "),
+                                    At(result[0].id),
+                                    Plain(f" 成功猜出本次答案，你和创建者分别获得 1 个和 2 个游戏币，本次游戏结束")
+                                ]), quote=result[1])
+                            except UnknownTarget:
+                                await app.sendGroupMessage(group.id, MessageChain.create([
+                                    Plain("恭喜 "),
+                                    At(result[0].id),
+                                    Plain(f" 成功猜出本次答案，你和创建者分别获得 1 个和 2 个游戏币，本次游戏结束")
+                                ]))
                         else:
                             owner = str(GROUP_GAME_PROCESS[group.id]["owner"])
                             await add_gold(owner, 1)
