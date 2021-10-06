@@ -25,9 +25,9 @@ channel = Channel.current()
 async def main(app: GraiaMiraiApplication, group: Group, message: MessageChain):
 
     if yaml_data['Saya']['Pixiv']['Disabled']:
-        return await sendmsg(app=app, group=group)
+        return
     elif 'Pixiv' in group_data[group.id]['DisabledFunc']:
-        return await sendmsg(app=app, group=group)
+        return
 
     if message:
         async with httpx.AsyncClient() as client:

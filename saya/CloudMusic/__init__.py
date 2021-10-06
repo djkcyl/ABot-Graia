@@ -218,6 +218,10 @@ async def sing(app: GraiaMiraiApplication, group: Group, member: Member, message
                 r = await client.get(musicurl, headers=headers)
                 MUSIC_PATH.write_bytes(r.content)
 
+        if not await reduce_gold(str(member.id), 4):
+            WAITING.remove(member.id)
+            return await app.sendGroupMessage(group, MessageChain.create([Plain("你的游戏币不足，无法使用")]), quote=source)
+
         try:
             await app.sendGroupMessage(group, MessageChain.create([
                 Image_NetworkAddress(music_al),
@@ -233,10 +237,6 @@ async def sing(app: GraiaMiraiApplication, group: Group, member: Member, message
         if music_lyric:
             music_lyric_image = await create_image(music_lyric, 120)
             await app.sendGroupMessage(group, MessageChain.create([Image_UnsafeBytes(music_lyric_image.getvalue())]))
-
-        if not await reduce_gold(str(member.id), 4):
-            WAITING.remove(member.id)
-            return await app.sendGroupMessage(group, MessageChain.create([Plain("你的游戏币不足，无法使用")]), quote=source)
 
         cache = VIOCE_PATH.joinpath(str(musicid[1]))
         cache.write_bytes(await silkcoder.encode(MUSIC_PATH.read_bytes(), t=540))
