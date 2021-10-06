@@ -23,7 +23,7 @@ from util.text2image import create_image
 from util.limit import member_limit_check
 from util.RestControl import rest_control
 from util.UserBlock import group_black_list_block
-from config import yaml_data, group_data, sendmsg
+from config import yaml_data, group_data, sendmsg, VIOCE_PATH
 
 saya = Saya.current()
 channel = Channel.current()
@@ -33,11 +33,6 @@ inc = InterruptControl(bcc)
 BASEPATH = Path(__file__).parent.joinpath("temp")
 BASEPATH.mkdir(exist_ok=True)
 
-MIRAI_PATH = Path(yaml_data["Basic"]["MiraiPath"])
-VIOCE_PATH = MIRAI_PATH.joinpath("data", "net.mamoe.mirai-api-http", "voices")
-if not VIOCE_PATH.exists():
-    print(f"{VIOCE_PATH} 不存在，请修改配置文件中的 Basic-MiraiPath 为Mirai的根目录")
-    exit()
 
 CLOUD_HOST = "http://127.0.0.1:3000"
 if not yaml_data['Saya']['CloudMusic']['Disabled']:
