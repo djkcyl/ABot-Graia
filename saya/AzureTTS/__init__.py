@@ -18,7 +18,7 @@ from azure.cognitiveservices.speech import AudioDataStream, SpeechConfig, Speech
 
 
 from datebase.db import reduce_gold
-from config import sendmsg, yaml_data, group_data
+from config import sendmsg, yaml_data, group_data, VIOCE_PATH
 from util.limit import member_limit_check
 from util.RestControl import rest_control
 from util.UserBlock import group_black_list_block
@@ -27,12 +27,9 @@ saya = Saya.current()
 channel = Channel.current()
 
 TTSRUNING = False
-MIRAI_PATH = yaml_data["Basic"]["MiraiPath"]
 
-if not os.path.exists(f"{MIRAI_PATH}data/net.mamoe.mirai-api-http/voices/"):
-    print("请打开./saya/AzureTTS/__init__.py 并修改第 31 行的地址为Mirai的根目录")
-    exit()
-
+BASEPATH = Path(__file__).parent.joinpath("temp")
+BASEPATH.mkdir(exist_ok=True)
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("/tts")],
@@ -108,16 +105,16 @@ async def azuretts(app: GraiaMiraiApplication, group: Group, member: Member, mes
 
     if len(saying[3]) < 800:
         times = str(int(time.time() * 100))
+        voicefile = BASEPATH.joinpath(f"{times}.wav")
 
         loop = asyncio.get_event_loop()
         pool = ThreadPoolExecutor(5)
-        await loop.run_in_executor(pool, gettts, name, style, saying[3], times)
-
-        cache = Path(f'{MIRAI_PATH}data/net.mamoe.mirai-api-http/voices/{times}')
-        cache.write_bytes(await silkcoder.encode(f'./saya/AzureTTS/temp/{times}.wav', rate=100000))
+        await loop.run_in_executor(pool, gettts, name, style, saying[3], voicefile)
+        cache = VIOCE_PATH.joinpath(times)
+        cache.write_bytes(await silkcoder.encode(voicefile, rate=100000))
         await app.sendGroupMessage(group, MessageChain.create([Voice(path=times)]))
-        os.remove(f'./saya/AzureTTS/temp/{times}.wav')
-        os.remove(f'{MIRAI_PATH}data/net.mamoe.mirai-api-http/voices/{times}')
+        voicefile.unlink()
+        cache.unlink()
     else:
         await app.sendGroupMessage(group, MessageChain.create([Plain("文字过长，仅支持600字以内")]))
 
@@ -144,7 +141,7 @@ def dict2xml(name: str, style: str, text: str):
     return con
 
 
-def gettts(name, style, text, times):
+def gettts(name, style, text, voicefile):
     speech_config = SpeechConfig(subscription=yaml_data["Saya"]["AzureTTS"]["Subscription"],
                                  region=yaml_data["Saya"]["AzureTTS"]["Region"])
     synthesizer = SpeechSynthesizer(
@@ -152,4 +149,4 @@ def gettts(name, style, text, times):
     ssml_string = dict2xml(name, style, text)
     result = synthesizer.speak_ssml_async(ssml_string).get()
     stream = AudioDataStream(result)
-    stream.save_to_wav_file(f"./saya/AzureTTS/temp/{times}.wav")
+    stream.save_to_wav_file(voicefile)
