@@ -28,15 +28,16 @@ async def main(app: GraiaMiraiApplication, group: Group, message: MessageChain, 
     elif 'Beast' in group_data[group.id]['DisabledFunc']:
         return await sendmsg(app=app, group=group)
 
-    try:
-        saying = message.asDisplay().split(" ", 1)
-        msg = encode(saying[1])
-        if (len(msg)) < 500:
-            await app.sendGroupMessage(group, MessageChain.create([Plain(msg)]), quote=source.id)
-        else:
-            await app.sendGroupMessage(group, MessageChain.create([Plain(f"文字过长")]), quote=source.id)
-    except:
-        await app.sendGroupMessage(group, MessageChain.create([Plain("明文错误``")]), quote=source.id)
+    saying = message.asDisplay().split(" ", 1)
+    if len(saying) == 2:
+        try:
+            msg = encode(saying[1])
+            if (len(msg)) < 500:
+                await app.sendGroupMessage(group, MessageChain.create([Plain(msg)]), quote=source.id)
+            else:
+                await app.sendGroupMessage(group, MessageChain.create([Plain(f"文字过长")]), quote=source.id)
+        except:
+            await app.sendGroupMessage(group, MessageChain.create([Plain("明文错误``")]), quote=source.id)
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
@@ -49,11 +50,12 @@ async def main(app: GraiaMiraiApplication, group: Group, message: MessageChain, 
     elif 'Beast' in group_data[group.id]['DisabledFunc']:
         return await sendmsg(app=app, group=group)
 
-    try:
-        saying = message.asDisplay().split(" ", 1)
-        msg = decode(saying[1])
-        res = await text_moderation(msg)
-        if res['Suggestion'] == "Pass":
-            await app.sendGroupMessage(group, MessageChain.create([Plain(msg)]), quote=source.id)
-    except:
-        await app.sendGroupMessage(group, MessageChain.create([Plain("密文错误``")]), quote=source.id)
+    saying = message.asDisplay().split(" ", 1)
+    if len(saying) == 2:
+        try:
+            msg = decode(saying[1])
+            res = await text_moderation(msg)
+            if res['Suggestion'] == "Pass":
+                await app.sendGroupMessage(group, MessageChain.create([Plain(msg)]), quote=source.id)
+        except:
+            await app.sendGroupMessage(group, MessageChain.create([Plain("密文错误``")]), quote=source.id)
