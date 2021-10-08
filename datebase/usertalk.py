@@ -16,7 +16,7 @@ class UserTalk(BaseModel):
     msg = CharField()
     time = BigIntegerField()
     type = IntegerField()
-    url = CharField(default=None)
+    url = CharField(null=True)
 
     class Meta:
         table_name = 'user_talk'
