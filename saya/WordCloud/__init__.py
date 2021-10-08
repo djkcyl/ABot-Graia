@@ -1,4 +1,5 @@
 import re
+import time
 import numpy
 import asyncio
 import jieba.analyse
@@ -57,20 +58,21 @@ async def wordcloud(app: GraiaMiraiApplication, group: Group, member: Member, me
             RUNNING += 1
             RUNNING_LIST.append(member.id)
             mode = match.group(1)
+            before_week = int(time.time()- 604800)
             if mode == "个人":
-                talk_list = await get_user_talk(str(member.id), str(group.id))
+                talk_list = await get_user_talk(str(member.id), str(group.id), before_week)
             elif mode == "本群":
-                talk_list = await get_group_talk(str(group.id))
+                talk_list = await get_group_talk(str(group.id), before_week)
             if len(talk_list) < 10:
                 await app.sendGroupMessage(group, MessageChain.create([
                     Plain("当前样本量较少，无法制作")
                 ]))
                 RUNNING -= 1
                 return RUNNING_LIST.remove(member.id)
-            app.logger.info(f"正在制作词云，共 {len(talk_list)} 条记录")
+            app.logger.info(f"正在制作词云，一周内共 {len(talk_list)} 条记录")
             await app.sendGroupMessage(group, MessageChain.create([
                 At(member.id),
-                Plain(f" 正在制作词云，共 {len(talk_list)} 条记录")
+                Plain(f" 正在制作词云，一周内共 {len(talk_list)} 条记录")
             ]))
             words = await get_frequencies(talk_list)
             image = await loop.run_in_executor(pool, make_wordcloud, words)

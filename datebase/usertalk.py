@@ -1,6 +1,6 @@
 import time
 
-from peewee import IntegerField, SqliteDatabase, Model, CharField, TextField, BigIntegerField
+from peewee import IntegerField, SqliteDatabase, Model, CharField, BigIntegerField
 
 db = SqliteDatabase('./datebase/talkData.db')
 
@@ -16,7 +16,7 @@ class UserTalk(BaseModel):
     msg = CharField()
     time = BigIntegerField()
     type = IntegerField()
-    url = CharField(default=None)
+    url = CharField(null=True)
 
     class Meta:
         table_name = 'user_talk'
@@ -27,7 +27,7 @@ db.create_tables([UserTalk], safe=True)
 
 async def add_talk(qq, group, type, msg, url=None):
     '''
-    type 
+    type
     >>> 1 为文字
     >>> 2 为图片
     >>> 3 为闪照
@@ -37,16 +37,21 @@ async def add_talk(qq, group, type, msg, url=None):
     p.save()
 
 
-async def get_user_talk(qq, group):
-    talklist = UserTalk.select().where(UserTalk.qq == qq, UserTalk.group == group, UserTalk.type == 1)
+async def get_user_talk(qq, group, time=0):
+    talklist = UserTalk.select().where(UserTalk.qq == qq,
+                                       UserTalk.group == group,
+                                       UserTalk.type == 1,
+                                       UserTalk.time > time)
     talk_list = []
     for talk in talklist:
         talk_list.append(talk.msg)
     return talk_list
 
 
-async def get_group_talk(group):
-    talklist = UserTalk.select().where(UserTalk.group == group, UserTalk.type == 1)
+async def get_group_talk(group, time=0):
+    talklist = UserTalk.select().where(UserTalk.group == group,
+                                       UserTalk.type == 1,
+                                       UserTalk.time > time)
     talk_list = []
     for talk in talklist:
         talk_list.append(talk.msg)
