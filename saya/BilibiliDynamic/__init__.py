@@ -153,7 +153,7 @@ async def init(app: GraiaMiraiApplication):
     info_msg = [f"[BiliBili推送] 将对 {sub_num} 个账号进行监控"]
 
     data = {"uids": subid_list}
-    async with httpx.AsyncClient(proxies=get_proxy(), headers=head) as client:
+    async with httpx.AsyncClient(proxies=get_proxy(), headers=head, verify=False) as client:
         r = await client.post("https://api.live.bilibili.com/room/v1/Room/get_status_info_by_uids", json=data)
         r = r.json()
     for uid_statu in r["data"]:
@@ -166,7 +166,7 @@ async def init(app: GraiaMiraiApplication):
     for up_id in subid_list:
         for ri in range(5):
             try:
-                async with httpx.AsyncClient(proxies=get_proxy(), headers=head) as client:
+                async with httpx.AsyncClient(proxies=get_proxy(), headers=head, verify=False) as client:
                     r = await client.get(f"https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/space_history?host_uid={up_id}")
                     res = r.json()
                     # print(res)
@@ -181,22 +181,17 @@ async def init(app: GraiaMiraiApplication):
                     else:
                         si = i
                     if LIVE_STATUS.get(up_id, False):
-                        live_status = "已开播"
+                        live_status = " > 已开播"
                     else:
-                        live_status = "未开播"
+                        live_status = ""
                     # sub_count = len(dynamic_list["subscription"][up_id])
-                    info_msg.append(f"    ● {si}  ---->  {up_name}({up_id}) > 当前{live_status}")
-                    # info_msg.append(f"                       最新动态：{last_dynid}")
-                    # info_msg.append(f"                       共有 {sub_count} 个群订阅了该 UP")
-                    # for groupid in dynamic_list["subscription"][up_id]:
-                    #     group_info = await app.getGroup(groupid)
-                    #     info_msg.append(f"                           > {group_info.name}({groupid})")
+                    info_msg.append(f"    ● {si}  ---->  {up_name}({up_id}){live_status}")
                     i += 1
-                    await asyncio.sleep(1)
+                    await asyncio.sleep(3)
                 else:
                     delete_uid(up_id)
             except Exception as e:
-                app.logger.error(f"{up_id} 更新失败，正在第 {ri + 1} 重试 {e}")
+                app.logger.error(f"{up_id} 更新失败，正在第 {ri + 1} 重试 {str(type(e))}")
                 pass
             else:
                 if r.status_code == 200:
@@ -234,7 +229,7 @@ async def update_scheduled(app: GraiaMiraiApplication):
     app.logger.info("[BiliBili推送] 正在检测直播更新")
     for retry in range(3):
         try:
-            async with httpx.AsyncClient(proxies=get_proxy(), headers=head) as client:
+            async with httpx.AsyncClient(proxies=get_proxy(), headers=head, verify=False) as client:
                 r = await client.post(f"https://api.live.bilibili.com/room/v1/Room/get_status_info_by_uids", json=post_data)
                 live_statu = r.json()
                 if r.status_code == 200:
@@ -293,7 +288,7 @@ async def update_scheduled(app: GraiaMiraiApplication):
     for up_id in sub_list:
         for retry in range(3):
             try:
-                async with httpx.AsyncClient(proxies=get_proxy(), headers=head) as client:
+                async with httpx.AsyncClient(proxies=get_proxy(), headers=head, verify=False) as client:
                     r = await client.get(f"https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/space_history?host_uid={up_id}")
                     if r.status_code == 200:
                         break
@@ -331,7 +326,7 @@ async def update_scheduled(app: GraiaMiraiApplication):
                         Plain(f"https://t.bilibili.com/{dyn_url_str}")
                     ]))
                     await asyncio.sleep(0.3)
-            await asyncio.sleep(1)
+            await asyncio.sleep(3)
         else:
             delete_uid(up_id)
             app.logger.info(f"{up_id} 暂时无法监控，已从列表中移除")
@@ -423,7 +418,7 @@ async def atrep(app: GraiaMiraiApplication, group: Group, message: MessageChain)
             return await app.sendGroupMessage(group, MessageChain.create([
                 Plain(f"请输入正确的 UP UID 或 首页链接")
             ]))
-        async with httpx.AsyncClient(proxies=get_proxy(), headers=head) as client:
+        async with httpx.AsyncClient(proxies=get_proxy(), headers=head, verify=False) as client:
             r = await client.get(f"https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/space_history?host_uid={uid}")
             res = r.json()
             if "cards" in res["data"]:

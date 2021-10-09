@@ -20,7 +20,7 @@ saya = Saya.current()
 channel = Channel.current()
 
 print("正在下载词库")
-root = httpx.get("https://raw.staticdn.net/Kyomotoi/AnimeThesaurus/main/data.json").json()
+root = httpx.get("https://raw.githubusercontents.com/Kyomotoi/AnimeThesaurus/main/data.json").json()
 
 
 @channel.use(SchedulerSchema(crontabify("0 0 * * *")))
