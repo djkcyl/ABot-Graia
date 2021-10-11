@@ -149,7 +149,10 @@ async def init(app: GraiaMiraiApplication):
     sub_num = len(subid_list)
     if sub_num == 0:
         NONE = True
+        await asyncio.sleep(1)
         return app.logger.info(f"[BiliBili推送] 由于未订阅任何账号，本次初始化结束")
+    await asyncio.sleep(1)
+    app.logger.info(f"[BiliBili推送] 将对 {sub_num} 个账号进行监控")
     info_msg = [f"[BiliBili推送] 将对 {sub_num} 个账号进行监控"]
 
     data = {"uids": subid_list}
@@ -169,7 +172,6 @@ async def init(app: GraiaMiraiApplication):
                 async with httpx.AsyncClient(proxies=get_proxy(), headers=head, verify=False) as client:
                     r = await client.get(f"https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/space_history?host_uid={up_id}")
                     res = r.json()
-                    # print(res)
                 if "cards" in res["data"]:
                     last_dynid = res["data"]["cards"][0]["desc"]["dynamic_id"]
                     DYNAMIC_OFFSET[up_id] = last_dynid
@@ -186,8 +188,9 @@ async def init(app: GraiaMiraiApplication):
                         live_status = ""
                     # sub_count = len(dynamic_list["subscription"][up_id])
                     info_msg.append(f"    ● {si}  ---->  {up_name}({up_id}){live_status}")
+                    app.logger.info(f"[BiliBili推送] 正在初始化  ● {si}  ---->  {up_name}({up_id}){live_status}")
                     i += 1
-                    await asyncio.sleep(3)
+                    await asyncio.sleep(2)
                 else:
                     delete_uid(up_id)
             except Exception as e:
@@ -293,12 +296,13 @@ async def update_scheduled(app: GraiaMiraiApplication):
                     if r.status_code == 200:
                         break
             except httpx.HTTPError as e:
-                app.logger.error(f"[BiliBili推送] 动态更新失败，正在重试")
-                app.logger.error(f"{str(type(e))}\n{str(e.request)}\n{str(e)}")
+                app.logger.error(f"[BiliBili推送] 动态更新失败 {retry + 1} 次，正在重试")
+                app.logger.error(str(type(e)))
+                app.logger.error(str(e.request))
             except Exception as e:
-                app.logger.error(f"[BiliBili推送] 动态更新失败，正在重试")
-                app.logger.error(f"{str(type(e))}\n{str(e)}")
-                image = await create_image(f"{str(type(e))}\n{str(e)}", 120)
+                app.logger.error(f"[BiliBili推送] 动态更新失败 {retry + 1} 次，正在重试")
+                app.logger.error(str(type(e)))
+                image = await create_image(f"{str(type(e))}", 120)
                 await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
                     Plain(f"BiliBili 动态检测失败 {retry + 1} 次\n"),
                     Image_UnsafeBytes(image.getvalue())
@@ -326,7 +330,7 @@ async def update_scheduled(app: GraiaMiraiApplication):
                         Plain(f"https://t.bilibili.com/{dyn_url_str}")
                     ]))
                     await asyncio.sleep(0.3)
-            await asyncio.sleep(3)
+            await asyncio.sleep(2)
         else:
             delete_uid(up_id)
             app.logger.info(f"{up_id} 暂时无法监控，已从列表中移除")
