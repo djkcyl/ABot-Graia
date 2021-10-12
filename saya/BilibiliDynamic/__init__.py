@@ -4,6 +4,7 @@ import json
 import httpx
 import asyncio
 
+from pathlib import Path
 from graia.saya import Saya, Channel
 from graia.application import GraiaMiraiApplication
 from graia.scheduler.timers import every_custom_seconds
@@ -27,6 +28,20 @@ from .dynamic_shot import get_dynamic_screenshot
 saya = Saya.current()
 channel = Channel.current()
 
+if yaml_data['Saya']['BilibiliDynamic']['EnabledProxy']:
+    if yaml_data['Saya']['BilibiliDynamic']['Intervals'] < 30:
+        print("动态更新间隔时间过短（不得低于30秒），请重新设置")
+        exit()
+    else:
+        TIME_INTERVALS = 2
+else:
+    if yaml_data['Saya']['BilibiliDynamic']['Intervals'] < 100:
+        print("由于你未使用代理，动态更新间隔时间过短（不得低于120秒），请重新设置")
+        exit()
+    else:
+        TIME_INTERVALS = 6
+
+HOME = Path(__file__).parent
 DYNAMIC_OFFSET = {}
 LIVE_STATUS = {}
 NONE = False
@@ -35,12 +50,12 @@ head = {
     'user-agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36',
     'Referer': 'https://www.bilibili.com/'
 }
-
-if os.path.exists('./saya/BilibiliDynamic/dynamic_list.json'):
-    with open('./saya/BilibiliDynamic/dynamic_list.json', 'r', encoding="utf-8") as f:
+dynamic_list_json = HOME.joinpath('dynamic_list.json')
+if dynamic_list_json.exists():
+    with dynamic_list_json.open("r") as f:
         dynamic_list = json.load(f)
 else:
-    with open('./saya/BilibiliDynamic/dynamic_list.json', 'w', encoding="utf-8") as f:
+    with dynamic_list_json.open("w") as f:
         dynamic_list = {
             "subscription": {}
         }
@@ -190,7 +205,7 @@ async def init(app: GraiaMiraiApplication):
                     info_msg.append(f"    ● {si}  ---->  {up_name}({up_id}){live_status}")
                     app.logger.info(f"[BiliBili推送] 正在初始化  ● {si}  ---->  {up_name}({up_id}){live_status}")
                     i += 1
-                    await asyncio.sleep(2)
+                    await asyncio.sleep(TIME_INTERVALS)
                 else:
                     delete_uid(up_id)
             except Exception as e:
@@ -330,7 +345,7 @@ async def update_scheduled(app: GraiaMiraiApplication):
                         Plain(f"https://t.bilibili.com/{dyn_url_str}")
                     ]))
                     await asyncio.sleep(0.3)
-            await asyncio.sleep(2)
+            await asyncio.sleep(TIME_INTERVALS)
         else:
             delete_uid(up_id)
             app.logger.info(f"{up_id} 暂时无法监控，已从列表中移除")
