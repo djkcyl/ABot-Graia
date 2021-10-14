@@ -109,9 +109,7 @@ async def remove_white_group(app: GraiaMiraiApplication, friend: Friend, message
                     await app.quit(int(saying[1]))
                     await app.sendFriendMessage(friend, MessageChain.create([Plain(f"该群未在白名单中，但成功退出")]))
                 except:
-                    pass
-                else:
-                    await app.sendFriendMessage(friend, MessageChain.create([Plain(f"该群未在白名单中")]))
+                    await app.sendFriendMessage(friend, MessageChain.create([Plain(f"该群未在白名单中，且退出失败")]))
             else:
                 group_list['white'].remove(int(saying[1]))
                 save_config()

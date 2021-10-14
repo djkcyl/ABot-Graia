@@ -184,7 +184,7 @@ async def get_BotJoinGroup(app: GraiaMiraiApplication, kickgroup: BotLeaveEventK
             Plain("收到被踢出群聊事件"),
             Plain(f"\n群号：{kickgroup.group.id}"),
             Plain(f"\n群名：{kickgroup.group.name}"),
-            Plain(f"\n已添加至黑名单")
+            Plain(f"\n已移出白名单")
         ]))
 
 
@@ -215,7 +215,7 @@ async def get_BotJoinGroup(app: GraiaMiraiApplication, group: Group, mute: BotMu
 
     for qq in yaml_data['Basic']['Permission']['Admin']:
         await app.sendFriendMessage(qq, MessageChain.create([
-            Plain("收到禁言事件，已退出该群"),
+            Plain("收到禁言事件，已退出该群，并移出白名单"),
             Plain(f"\n群号：{group.id}"),
             Plain(f"\n群名：{group.name}"),
             Plain(f"\n操作者：{mute.operator.name} | {mute.operator.id}")
