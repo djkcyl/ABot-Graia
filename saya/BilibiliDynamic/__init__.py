@@ -1,12 +1,11 @@
-import os
 import re
 import json
-import httpx
 import asyncio
 
 from pathlib import Path
 from graia.saya import Saya, Channel
 from graia.application import GraiaMiraiApplication
+from graia.application.exceptions import UnknownTarget
 from graia.scheduler.timers import every_custom_seconds
 from graia.scheduler.saya.schema import SchedulerSchema
 from graia.application.event.messages import GroupMessage
@@ -18,12 +17,12 @@ from graia.application.event.mirai import BotLeaveEventKick, BotLeaveEventActive
 from graia.application.message.elements.internal import Image_NetworkAddress, MessageChain, Plain, Image_UnsafeBytes
 
 from config import yaml_data
-from util.GetProxy import get_proxy
 from util.text2image import create_image
 from util.limit import group_limit_check
 from util.UserBlock import group_black_list_block
 
 from .dynamic_shot import get_dynamic_screenshot
+from .bilibili_request import dynamic_svr, get_status_info_by_uids
 
 saya = Saya.current()
 channel = Channel.current()
@@ -33,13 +32,13 @@ if yaml_data['Saya']['BilibiliDynamic']['EnabledProxy']:
         print("动态更新间隔时间过短（不得低于30秒），请重新设置")
         exit()
     else:
-        TIME_INTERVALS = 2
+        TIME_INTERVALS = 1
 else:
-    if yaml_data['Saya']['BilibiliDynamic']['Intervals'] < 100:
-        print("由于你未使用代理，动态更新间隔时间过短（不得低于120秒），请重新设置")
+    if yaml_data['Saya']['BilibiliDynamic']['Intervals'] < 200:
+        print("由于你未使用代理，动态更新间隔时间过短（不得低于200秒），请重新设置")
         exit()
     else:
-        TIME_INTERVALS = 6
+        TIME_INTERVALS = 30
 
 HOME = Path(__file__).parent
 DYNAMIC_OFFSET = {}
@@ -98,9 +97,7 @@ async def add_uid(uid, groupid):
     else:
         return Plain(f"请输入正确的 UP UID 或 首页链接")
 
-    async with httpx.AsyncClient(proxies=get_proxy(), headers=head) as client:
-        r = await client.get(f"https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/space_history?host_uid={uid}")
-        r = r.json()
+    r = await dynamic_svr(uid, GraiaMiraiApplication)
     if "cards" in r["data"]:
         up_name = r["data"]["cards"][0]["desc"]["user_profile"]["info"]["uname"]
         uid_sub_group = dynamic_list['subscription'].get(uid, [])
@@ -169,11 +166,8 @@ async def init(app: GraiaMiraiApplication):
     await asyncio.sleep(1)
     app.logger.info(f"[BiliBili推送] 将对 {sub_num} 个账号进行监控")
     info_msg = [f"[BiliBili推送] 将对 {sub_num} 个账号进行监控"]
-
     data = {"uids": subid_list}
-    async with httpx.AsyncClient(proxies=get_proxy(), headers=head, verify=False) as client:
-        r = await client.post("https://api.live.bilibili.com/room/v1/Room/get_status_info_by_uids", json=data)
-        r = r.json()
+    r = await get_status_info_by_uids(data, app)
     for uid_statu in r["data"]:
         if r["data"][uid_statu]["live_status"] == 1:
             LIVE_STATUS[uid_statu] = True
@@ -182,45 +176,33 @@ async def init(app: GraiaMiraiApplication):
 
     i = 1
     for up_id in subid_list:
-        for ri in range(5):
-            try:
-                async with httpx.AsyncClient(proxies=get_proxy(), headers=head, verify=False) as client:
-                    r = await client.get(f"https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/space_history?host_uid={up_id}")
-                    res = r.json()
-                if "cards" in res["data"]:
-                    last_dynid = res["data"]["cards"][0]["desc"]["dynamic_id"]
-                    DYNAMIC_OFFSET[up_id] = last_dynid
-                    up_name = res["data"]["cards"][0]["desc"]["user_profile"]["info"]["uname"]
-                    if len(str(i)) == 1:
-                        si = f"  {i}"
-                    elif len(str(i)) == 2:
-                        si = f" {i}"
-                    else:
-                        si = i
-                    if LIVE_STATUS.get(up_id, False):
-                        live_status = " > 已开播"
-                    else:
-                        live_status = ""
-                    # sub_count = len(dynamic_list["subscription"][up_id])
-                    info_msg.append(f"    ● {si}  ---->  {up_name}({up_id}){live_status}")
-                    app.logger.info(f"[BiliBili推送] 正在初始化  ● {si}  ---->  {up_name}({up_id}){live_status}")
-                    i += 1
-                    await asyncio.sleep(TIME_INTERVALS)
-                else:
-                    delete_uid(up_id)
-            except Exception as e:
-                app.logger.error(f"{up_id} 更新失败，正在第 {ri + 1} 重试 {str(type(e))}")
-                pass
+        res = await dynamic_svr(up_id, app)
+        if "cards" in res["data"]:
+            last_dynid = res["data"]["cards"][0]["desc"]["dynamic_id"]
+            DYNAMIC_OFFSET[up_id] = last_dynid
+            up_name = res["data"]["cards"][0]["desc"]["user_profile"]["info"]["uname"]
+            if len(str(i)) == 1:
+                si = f"  {i}"
+            elif len(str(i)) == 2:
+                si = f" {i}"
             else:
-                if r.status_code == 200:
-                    break
+                si = i
+            if LIVE_STATUS.get(up_id, False):
+                live_status = " > 已开播"
+            else:
+                live_status = ""
+            info_msg.append(f"    ● {si}  ---->  {up_name}({up_id}){live_status}")
+            app.logger.info(f"[BiliBili推送] 正在初始化  ● {si}  ---->  {up_name}({up_id}){live_status}")
+            i += 1
         else:
-            return
-        await asyncio.sleep(1)
+            delete_uid(up_id)
+        await asyncio.sleep(TIME_INTERVALS)
+
     NONE = True
     await asyncio.sleep(1)
+
     if i-1 != sub_num:
-        info_msg.append(f"[BiliBili推送] 共有 {sub_num-i+1} 个账号无法获取信息，暂不可进行监控，已从列表中移除")
+        info_msg.append(f"[BiliBili推送] 共有 {sub_num-i+1} 个账号无法获取最近动态，暂不可进行监控，已从列表中移除")
     for msg in info_msg:
         app.logger.info(msg)
 
@@ -245,32 +227,8 @@ async def update_scheduled(app: GraiaMiraiApplication):
     subid_list = get_subid_list()
     post_data = {"uids": subid_list}
     app.logger.info("[BiliBili推送] 正在检测直播更新")
-    for retry in range(3):
-        try:
-            async with httpx.AsyncClient(proxies=get_proxy(), headers=head, verify=False) as client:
-                r = await client.post(f"https://api.live.bilibili.com/room/v1/Room/get_status_info_by_uids", json=post_data)
-                live_statu = r.json()
-                if r.status_code == 200:
-                    break
-        except httpx.HTTPError as e:
-            app.logger.error(f"[BiliBili推送] 直播更新失败，正在重试")
-            app.logger.error(str(type(e)))
-            app.logger.error(str(e.request))
-        except Exception as e:
-            app.logger.error(f"[BiliBili推送] 直播更新失败，正在重试")
-            app.logger.error(str(type(e)))
-            app.logger.error(str(e))
-            image = await create_image(f"{str(type(e))}\n{str(e)}", 120)
-            await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
-                Plain(f"BiliBili 直播检测失败 {retry + 1} 次\n"),
-                Image_UnsafeBytes(image.getvalue())
-            ]))
-    else:
-        app.logger.error(f"[BiliBili推送] 直播更新失败超过 {retry + 1} 次，已终止本次更新")
-        return await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
-            Plain(f"BiliBili 直播检测失败超过 {retry + 1} 次，已终止本次检测")
-        ]))
 
+    live_statu = await get_status_info_by_uids(post_data, app)
     for up_id in live_statu["data"]:
         title = live_statu["data"][up_id]["title"]
         room_id = live_statu["data"][up_id]["room_id"]
@@ -285,73 +243,78 @@ async def update_scheduled(app: GraiaMiraiApplication):
                 LIVE_STATUS[up_id] = True
                 app.logger.info(f"[BiliBili推送] {up_name} 开播了 - {room_area} - {title}")
                 for groupid in sub_list[up_id]:
-                    await app.sendGroupMessage(groupid, MessageChain.create([
-                        Plain(f"本群订阅的UP {up_name}（{up_id}）在 {room_area} 开播啦 ！\n"),
-                        Plain(title),
-                        Image_NetworkAddress(cover_from_user),
-                        Plain(f"\nhttps://live.bilibili.com/{room_id}")
-                    ]))
-                    await asyncio.sleep(0.3)
+                    try:
+                        await app.sendGroupMessage(groupid, MessageChain.create([
+                            Plain(f"本群订阅的UP {up_name}（{up_id}）在 {room_area} 开播啦 ！\n"),
+                            Plain(title),
+                            Image_NetworkAddress(cover_from_user),
+                            Plain(f"\nhttps://live.bilibili.com/{room_id}")
+                        ]))
+                        await asyncio.sleep(0.3)
+                    except UnknownTarget:
+                        remove_list = []
+                        for subid in get_group_sublist(groupid):
+                            remove_uid(subid, groupid)
+                            remove_list.append(subid)
+                        app.logger.info(f"[BiliBili推送] 推送失败，找不到该群 {groupid}，已删除该群订阅的 {len(remove_list)} 个UP")
         else:
             if LIVE_STATUS[up_id]:
                 LIVE_STATUS[up_id] = False
                 app.logger.info(f"[BiliBili推送] {up_name} 已下播")
-                for groupid in sub_list[up_id]:
-                    await app.sendGroupMessage(groupid, MessageChain.create([
-                        Plain(f"本群订阅的UP {up_name}（{up_id}）已下播！\n")
-                    ]))
-                    await asyncio.sleep(0.3)
+                try:
+                    for groupid in sub_list[up_id]:
+                        await app.sendGroupMessage(groupid, MessageChain.create([
+                            Plain(f"本群订阅的UP {up_name}（{up_id}）已下播！")
+                        ]))
+                        await asyncio.sleep(0.3)
+                except UnknownTarget:
+                    remove_list = []
+                    for subid in get_group_sublist(groupid):
+                        remove_uid(subid, groupid)
+                        remove_list.append(subid)
+                    app.logger.info(f"[BiliBili推送] 推送失败，找不到该群 {groupid}，已删除该群订阅的 {len(remove_list)} 个UP")
 
     app.logger.info("[BiliBili推送] 正在检测动态更新")
     for up_id in sub_list:
-        for retry in range(3):
-            try:
-                async with httpx.AsyncClient(proxies=get_proxy(), headers=head, verify=False) as client:
-                    r = await client.get(f"https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/space_history?host_uid={up_id}")
-                    if r.status_code == 200:
-                        break
-            except httpx.HTTPError as e:
-                app.logger.error(f"[BiliBili推送] 动态更新失败 {retry + 1} 次，正在重试")
-                app.logger.error(str(type(e)))
-                app.logger.error(str(e.request))
-            except Exception as e:
-                app.logger.error(f"[BiliBili推送] 动态更新失败 {retry + 1} 次，正在重试")
-                app.logger.error(str(type(e)))
-                image = await create_image(f"{str(type(e))}", 120)
+        r = await dynamic_svr(up_id, app)
+        if r:
+            if "cards" in r["data"]:
+                up_name = r["data"]["cards"][0]["desc"]["user_profile"]["info"]["uname"]
+                up_last_dynid = r["data"]["cards"][0]["desc"]["dynamic_id"]
+                app.logger.info(f"[BiliBili推送] 正在检测{up_name}（{up_id}）")
+                if up_last_dynid > DYNAMIC_OFFSET[up_id]:
+                    app.logger.info(f"[BiliBili推送] {up_name} 更新了动态 {up_last_dynid}")
+                    DYNAMIC_OFFSET[up_id] = up_last_dynid
+                    dyn_url_str = r["data"]["cards"][0]["desc"]["dynamic_id_str"]
+                    shot_image = await get_dynamic_screenshot(r["data"]["cards"][0]["desc"]["dynamic_id_str"])
+                    for groupid in sub_list[up_id]:
+                        try:
+                            await app.sendGroupMessage(groupid, MessageChain.create([
+                                Plain(f"本群订阅的UP {up_name}（{up_id}）更新动态啦！"),
+                                Image_UnsafeBytes(shot_image),
+                                Plain(f"https://t.bilibili.com/{dyn_url_str}")
+                            ]))
+                            await asyncio.sleep(0.3)
+                        except UnknownTarget:
+                            remove_list = []
+                            for subid in get_group_sublist(groupid):
+                                remove_uid(subid, groupid)
+                                remove_list.append(subid)
+                            app.logger.info(f"[BiliBili推送] 推送失败，找不到该群 {groupid}，已删除该群订阅的 {len(remove_list)} 个UP")
+                        except Exception as e:
+                            app.logger.info(f"[BiliBili推送] 推送失败，未知错误 {type(e)}")
+                await asyncio.sleep(TIME_INTERVALS)
+            else:
+                delete_uid(up_id)
+                app.logger.info(f"{up_id} 暂时无法监控，已从列表中移除")
                 await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
-                    Plain(f"BiliBili 动态检测失败 {retry + 1} 次\n"),
-                    Image_UnsafeBytes(image.getvalue())
+                    Plain(f"{up_id} 暂时无法监控，已从列表中移除")
                 ]))
         else:
-            app.logger.error(f"[BiliBili推送] 动态更新失败超过 {retry + 1} 次，已终止本次更新")
             await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
-                Plain(f"BiliBili 动态检测失败超过 {retry + 1} 次，已终止本次检测")
+                Plain(f"动态更新失败超过 3 次，已终止本次更新")
             ]))
             break
-        r = r.json()
-        if "cards" in r["data"]:
-            up_name = r["data"]["cards"][0]["desc"]["user_profile"]["info"]["uname"]
-            up_last_dynid = r["data"]["cards"][0]["desc"]["dynamic_id"]
-            app.logger.debug(f"[BiliBili推送] 正在检测{up_name}（{up_id}）")
-            if up_last_dynid > DYNAMIC_OFFSET[up_id]:
-                app.logger.info(f"[BiliBili推送] {up_name} 更新了动态 {up_last_dynid}")
-                DYNAMIC_OFFSET[up_id] = up_last_dynid
-                dyn_url_str = r["data"]["cards"][0]["desc"]["dynamic_id_str"]
-                shot_image = await get_dynamic_screenshot(r["data"]["cards"][0]["desc"]["dynamic_id_str"])
-                for groupid in sub_list[up_id]:
-                    await app.sendGroupMessage(groupid, MessageChain.create([
-                        Plain(f"本群订阅的UP {up_name}（{up_id}）更新动态啦！"),
-                        Image_UnsafeBytes(shot_image),
-                        Plain(f"https://t.bilibili.com/{dyn_url_str}")
-                    ]))
-                    await asyncio.sleep(0.3)
-            await asyncio.sleep(TIME_INTERVALS)
-        else:
-            delete_uid(up_id)
-            app.logger.info(f"{up_id} 暂时无法监控，已从列表中移除")
-            await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
-                Plain(f"{up_id} 暂时无法监控，已从列表中移除")
-            ]))
 
     return app.logger.info("[BiliBili推送] 本轮检测完成")
 
@@ -437,15 +400,14 @@ async def atrep(app: GraiaMiraiApplication, group: Group, message: MessageChain)
             return await app.sendGroupMessage(group, MessageChain.create([
                 Plain(f"请输入正确的 UP UID 或 首页链接")
             ]))
-        async with httpx.AsyncClient(proxies=get_proxy(), headers=head, verify=False) as client:
-            r = await client.get(f"https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/space_history?host_uid={uid}")
-            res = r.json()
-            if "cards" in res["data"]:
-                shot_image = await get_dynamic_screenshot(res["data"]["cards"][0]["desc"]["dynamic_id_str"])
-                await app.sendGroupMessage(group, MessageChain.create([
-                    Image_UnsafeBytes(shot_image)
-                ]))
-            else:
-                await app.sendGroupMessage(group, MessageChain.create([
-                    Plain(f"该UP未发布任何动态")
-                ]))
+
+        res = await dynamic_svr(uid, app)
+        if "cards" in res["data"]:
+            shot_image = await get_dynamic_screenshot(res["data"]["cards"][0]["desc"]["dynamic_id_str"])
+            await app.sendGroupMessage(group, MessageChain.create([
+                Image_UnsafeBytes(shot_image)
+            ]))
+        else:
+            await app.sendGroupMessage(group, MessageChain.create([
+                Plain(f"该UP未发布任何动态")
+            ]))
