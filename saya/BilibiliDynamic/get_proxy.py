@@ -9,20 +9,23 @@ if yaml_data["Saya"]["BilibiliDynamic"]["EnabledProxy"]:
         })
         print(proxy)
     proxy_count = len(yaml_data["Saya"]["BilibiliDynamic"]["Proxy"])
-    print(f"当前共有 {proxy_count} 个代理") 
+    print(f"当前共有 {proxy_count} 个代理")
 else:
     proxys = [None]
 
 proxy_index = 0
 
+
+def next_proxy():
+    global proxy_index
+    if proxy_index == proxy_count:
+        proxy_index = 0
+    proxy_index += 1
+    return proxys[proxy_index - 1]
+
+
 def get_proxy():
     if yaml_data["Saya"]["BilibiliDynamic"]["EnabledProxy"]:
-        global proxy_index
-        if proxy_index == proxy_count:
-            proxy_index = 0
-        proxy_index += 1
-        return proxys[proxy_index -1]
+        return proxys[proxy_index - 1]
     else:
         return
-
-
