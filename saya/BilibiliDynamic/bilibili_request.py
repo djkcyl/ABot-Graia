@@ -32,7 +32,6 @@ async def dynamic_svr(uid, app: GraiaMiraiApplication):
             else:
                 return r.json()
     else:
-        print(r.status_code, r.text)
         app.logger.error("[BiliBili推送] API 访问连续失败，请检查")
         return
 
@@ -55,6 +54,5 @@ async def get_status_info_by_uids(uids, app: GraiaMiraiApplication):
             else:
                 return r.json()
     else:
-        print(r.status_code, r.text)
         app.logger.error("[BiliBili推送] API 访问连续失败，请检查")
         return
