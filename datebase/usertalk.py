@@ -37,6 +37,11 @@ async def add_talk(qq, group, type, msg, url=None):
     p.save()
 
 
+async def archive_exists(msg, type):
+    exists = UserTalk.select().where(UserTalk.msg == msg, UserTalk.type == type).exists()
+    return exists
+
+
 async def get_user_talk(qq, group, time=0):
     talklist = UserTalk.select().where(UserTalk.qq == qq,
                                        UserTalk.group == group,
