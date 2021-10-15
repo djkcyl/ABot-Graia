@@ -12,7 +12,7 @@ from graia.application.message.elements.internal import FlashImage, Image, Image
 
 from util.limit import member_limit_check
 from util.UserBlock import group_black_list_block
-from datebase.usertalk import get_message_analysis, add_talk
+from datebase.usertalk import get_message_analysis, add_talk, archive_exists
 
 from .mapping import get_mapping
 
@@ -51,23 +51,23 @@ async def add_talk_word(app: GraiaMiraiApplication, group: Group, member: Member
     elif message.has(Image):
         image_list = message.get(Image)
         for image in image_list:
-            await download(app, image.url, image.imageId, "image")
             await add_talk(str(member.id), str(group.id), 2, image.imageId, image.url)
+            await download(app, image.url, image.imageId, "image", 2)
     elif message.has(FlashImage):
         flash_image = message.getFirst(FlashImage)
-        await download(app, flash_image.url, flash_image.imageId, "flashimage")
         await add_talk(str(member.id), str(group.id), 3, flash_image.imageId, flash_image.url)
+        await download(app, flash_image.url, flash_image.imageId, "flashimage", 3)
     elif message.has(Voice):
         voice = message.getFirst(Voice)
-        await download(app, voice.url, voice.imageId, "voice")
         await add_talk(str(member.id), str(group.id), 4, voice.voiceId, voice.url)
+        await download(app, voice.url, voice.imageId, "voice", 4)
 
 
-async def download(app: GraiaMiraiApplication, url, name, path):
+async def download(app: GraiaMiraiApplication, url, name, path, type):
     now_time = datetime.datetime.now()
-    now_path = data_path.joinpath(path, str(now_time.year), str(now_time.month))
+    now_path = data_path.joinpath(path, str(now_time.year), str(now_time.month), str(now_time.day))
     now_path.mkdir(0o775, True, True)
-    if not now_path.joinpath(name).exists():
+    if not await archive_exists(name, type):
         async with httpx.AsyncClient() as client:
             r = await client.get(url)
             now_path.joinpath(name).write_bytes(r.content)

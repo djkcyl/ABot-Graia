@@ -227,8 +227,8 @@ async def update_scheduled(app: GraiaMiraiApplication):
     subid_list = get_subid_list()
     post_data = {"uids": subid_list}
     app.logger.info("[BiliBili推送] 正在检测直播更新")
-
     live_statu = await get_status_info_by_uids(post_data, app)
+    app.logger.info("[BiliBili推送] 直播更新成功")
     for up_id in live_statu["data"]:
         title = live_statu["data"][up_id]["title"]
         room_id = live_statu["data"][up_id]["room_id"]
