@@ -51,16 +51,16 @@ async def add_talk_word(app: GraiaMiraiApplication, group: Group, member: Member
     elif message.has(Image):
         image_list = message.get(Image)
         for image in image_list:
-            await add_talk(str(member.id), str(group.id), 2, image.imageId, image.url)
             await download(app, image.url, image.imageId, "image", 2)
+            await add_talk(str(member.id), str(group.id), 2, image.imageId, image.url)
     elif message.has(FlashImage):
         flash_image = message.getFirst(FlashImage)
-        await add_talk(str(member.id), str(group.id), 3, flash_image.imageId, flash_image.url)
         await download(app, flash_image.url, flash_image.imageId, "flashimage", 3)
+        await add_talk(str(member.id), str(group.id), 3, flash_image.imageId, flash_image.url)
     elif message.has(Voice):
         voice = message.getFirst(Voice)
-        await add_talk(str(member.id), str(group.id), 4, voice.voiceId, voice.url)
         await download(app, voice.url, voice.imageId, "voice", 4)
+        await add_talk(str(member.id), str(group.id), 4, voice.voiceId, voice.url)
 
 
 async def download(app: GraiaMiraiApplication, url, name, path, type):
