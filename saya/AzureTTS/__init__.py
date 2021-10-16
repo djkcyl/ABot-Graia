@@ -109,9 +109,9 @@ async def azuretts(app: GraiaMiraiApplication, group: Group, member: Member, mes
 
         loop = asyncio.get_event_loop()
         pool = ThreadPoolExecutor(5)
-        await loop.run_in_executor(pool, gettts, name, style, saying[3], voicefile)
+        await loop.run_in_executor(pool, gettts, name, style, saying[3], voicefile.__str__())
         cache = VIOCE_PATH.joinpath(times)
-        cache.write_bytes(await silkcoder.encode(voicefile, rate=100000))
+        cache.write_bytes(await silkcoder.encode(voicefile.read_bytes(), rate=100000))
         await app.sendGroupMessage(group, MessageChain.create([Voice(path=times)]))
         voicefile.unlink()
         cache.unlink()
