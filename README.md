@@ -11,6 +11,8 @@ ABot 是一个使用 [Graia](https://github.com/GraiaProject/Application) 搭建
 
 ## ABot 现在能干什么
 
+**部分功能因为mirai-api-http的版本问题导致无法使用，项目正在将 [Graia](https://github.com/GraiaProject/Application) 更新至 [Argon](https://github.com/GraiaProject/Argon)**
+
 > - 菜单以及功能介绍
 > - 群名片修正 ~~`[被他人修改后自动触发]`~~ and 私聊`群名片修正`
 > - 微软文字转语音
