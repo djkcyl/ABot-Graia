@@ -38,8 +38,11 @@ async def add_talk(qq, group, type, msg, url=None):
 
 
 async def archive_exists(msg, type):
-    exists = UserTalk.select().where(UserTalk.msg == msg, UserTalk.type == type).exists()
-    return exists
+    msg_exists = UserTalk.select().where(UserTalk.msg == msg, UserTalk.type == type)
+    if msg_exists.exists():
+        return True
+    else:
+        return False
 
 
 async def get_user_talk(qq, group, time=0):
