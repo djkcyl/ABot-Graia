@@ -135,8 +135,8 @@ Saya: # saya 插件配置
 
   BilibiliDynamic:
     Disabled: false
-    Intervals: 15 # 间隔时间（秒）
-    EnabledProxy: false # 启用代理
+    Intervals: 60 # 间隔时间（秒）
+    EnabledProxy: true # 启用代理
     Proxy: # 代理地址
       - http://127.0.0.1:1080
       
