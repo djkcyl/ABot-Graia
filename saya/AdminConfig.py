@@ -46,6 +46,7 @@ funcList = [
     {"name": "背单词", "key": "EnglishTest", "can_disabled": True},
     {"name": "BiliBili订阅推送", "key": "BilibiliDynamic", "can_disabled": False},
     {"name": "查看人设", "key": "CharacterDesignGenerator", "can_disabled": True},
+    {"name": "以图搜番 / 以图搜图", "key": "AnimeSceneSearch", "can_disabled": True}
 ]
 
 configList = [
@@ -222,6 +223,12 @@ funcHelp = {
         "instruction": "通过seed随机出人设表",
         "usage": "发送指令：\n查看人设",
         "options": "发送查看人设之后会根据群号和qq号随机出一个人设表，在不同的群里随机到的数据都不一样哦",
+        "example": "（这也需要示例吗？"
+    },
+    "以图搜番 / 以图搜图": {
+        "instruction": "发送图片来搜索出处",
+        "usage": "发送指令：\n以图搜番\n以图搜图",
+        "options": "清晰度太低的图可能搜不到，无论成功与否均会扣除 4 个游戏币",
         "example": "（这也需要示例吗？"
     }
 }

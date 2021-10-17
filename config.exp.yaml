@@ -1,6 +1,6 @@
 Basic: # 基础配置
   BotName: "xxxx" # 机器人在群里的名字
-  MiraiPath: "/xxx/xxx/"  # Mirai根目录
+  MiraiPath: "/xxx/xxx/" # Mirai根目录
 
   MAH: # Mirai HTTP API配置
     BotQQ: 123456 # 机器人QQ号
@@ -139,9 +139,14 @@ Saya: # saya 插件配置
     EnabledProxy: false # 启用代理
     Proxy: # 代理地址
       - http://127.0.0.1:1080
-      
+
   CharacterDesignGenerator:
     Disabled: false
+
+  AnimeSceneSearch: # 以图搜图 / 以图搜番
+    Disabled: false
+    saucenao_key: "xxxxxxxxxxxxx" # API 获取地址：https://saucenao.com/user.php?page=search-api
+    tracemoe_key: "xxxxxxxxxxxxx" # API 获取地址：https://trace.moe/account
 
 Final: false
 # 配置完成后请调整为 true
