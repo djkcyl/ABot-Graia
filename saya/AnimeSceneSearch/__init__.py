@@ -95,6 +95,7 @@ async def anime_search(app: GraiaMiraiApplication, group: Group, member: Member,
         if message.has(Image):
             image_url = message.getFirst(Image).url
         else:
+            WAITING.append(member.id)
             waite = await app.sendGroupMessage(group, MessageChain.create([Plain(f"请发送图片以继续，发送取消可终止搜番")]))
             try:
                 image_url = await asyncio.wait_for(inc.wait(waiter1), timeout=20)
@@ -119,6 +120,11 @@ async def anime_search(app: GraiaMiraiApplication, group: Group, member: Member,
                 }
                 r = await client.get("https://api.trace.moe/search", params=params)
                 search_res = r.json()
+                if "result" not in search_res:
+                    V_RUNING = False
+                    return await app.sendGroupMessage(group, MessageChain.create([
+                        Plain("搜索失败")
+                    ]))
                 data = {
                     "query": query,
                     "variables": {
@@ -127,6 +133,7 @@ async def anime_search(app: GraiaMiraiApplication, group: Group, member: Member,
                 }
                 r = await client.post("https://trace.moe/anilist/", json=data)
                 media_res = r.json()
+                print(media_res)
 
             image = await draw_tracemoe(search_res["result"][0], media_res["data"]["Page"]["media"][0])
             await app.sendGroupMessage(group, MessageChain.create([Image_UnsafeBytes(image)]), quote=source)
@@ -167,6 +174,7 @@ async def anime_search_pic(app: GraiaMiraiApplication, group: Group, member: Mem
         if message.has(Image):
             image_url = message.getFirst(Image).url
         else:
+            WAITING.append(member.id)
             waite = await app.sendGroupMessage(group, MessageChain.create([Plain(f"请发送图片以继续，发送取消可终止搜图")]))
             try:
                 image_url = await asyncio.wait_for(inc.wait(waiter1), timeout=20)
@@ -178,15 +186,20 @@ async def anime_search_pic(app: GraiaMiraiApplication, group: Group, member: Mem
                 return await app.sendGroupMessage(group, MessageChain.create([
                     Plain("等待超时")
                 ]), quote=waite.messageId)
+        if await reduce_gold(str(member.id), 4):
+            I_RUNING = True
+            await app.sendGroupMessage(group, MessageChain.create([Plain("正在搜索，请稍后")]), quote=source)
+            async with AIOSauceNao(yaml_data['Saya']['AnimeSceneSearch']['saucenao_key'], db=DB.Pixiv_Images) as snao:
+                results = await snao.from_url(image_url)
 
-        I_RUNING = True
-        await app.sendGroupMessage(group, MessageChain.create([Plain("正在搜索，请稍后")]), quote=source)
-        async with AIOSauceNao(yaml_data['Saya']['AnimeSceneSearch']['saucenao_key'],db=DB.Pixiv_Images) as snao:
-            results = await snao.from_url(image_url)
-
-        await app.sendGroupMessage(group, MessageChain.create([
-            Plain(f"title：{results.results[0].title}"),
-            Plain(f"\nname：{results.results[0].index_name}"),
-            Plain(f"\nurl：{results.results[0].urls[0]}")
-        ]), quote=source)
-        I_RUNING = False
+            await app.sendGroupMessage(group, MessageChain.create([
+                Plain(f"title：{results.results[0].title}"),
+                Plain(f"\nname：{results.results[0].index_name}"),
+                Plain(f"\nurl：{results.results[0].urls[0]}")
+            ]), quote=source)
+            I_RUNING = False
+        else:
+            await app.sendGroupMessage(group, MessageChain.create([
+                At(member.id),
+                Plain(" 你的游戏币不足，无法使用")
+            ]))

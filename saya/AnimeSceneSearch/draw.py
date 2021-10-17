@@ -42,7 +42,10 @@ async def draw_tracemoe(search_data, media_data):
     startDate = '-'.join([str(media_data['startDate'][x]) for x in media_data['startDate']])
     endDate = '-'.join([str(media_data['endDate'][x]) for x in media_data['endDate']])
     airing = f"{startDate} 至 {endDate}"
-    transName = media_data['title']["chinese"] + "\n" + media_data['title']["english"]
+    try:
+        transName = media_data.get('title', {}).get("chinese", " ") + "\n" + media_data.get('title', {}).get("english", " ")
+    except:
+        transName = ""
     info = f"{media_data['episodes']} episodes {media_data['duration']}-minute {media_data['format']} {media_data['type']}\n播出于 {airing}"
     info_img = Image.new("RGB", (bg_x, 300), 'white')
     draw = ImageDraw.Draw(info_img)
