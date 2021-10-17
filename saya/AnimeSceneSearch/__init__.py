@@ -1,7 +1,6 @@
 import httpx
 import asyncio
 
-from saucenao_api.params import DB
 from saucenao_api import AIOSauceNao
 from graia.saya import Saya, Channel
 from graia.application.group import Group, Member
@@ -189,15 +188,35 @@ async def anime_search_pic(app: GraiaMiraiApplication, group: Group, member: Mem
         if await reduce_gold(str(member.id), 4):
             I_RUNING = True
             await app.sendGroupMessage(group, MessageChain.create([Plain("正在搜索，请稍后")]), quote=source)
-            async with AIOSauceNao(yaml_data['Saya']['AnimeSceneSearch']['saucenao_key'], db=DB.Pixiv_Images) as snao:
-                results = await snao.from_url(image_url)
+            async with AIOSauceNao(yaml_data['Saya']['AnimeSceneSearch']['saucenao_key'], numres=3) as snao:
+                try:
+                    results = await snao.from_url(image_url)
+                except:
+                    I_RUNING = False
+                    return await app.sendGroupMessage(group, MessageChain.create([
+                        Plain("搜索失败")
+                    ]))
+            results_list = []
+            for results in results.results:
+                print(results.urls)
+                url_list = []
+                for url in results.urls:
+                    url_list.append(url)
+                if len(url_list) == 0:
+                    continue
+                urls = '\n'.join(url_list)
+                results_list.append(f"相似度：{results.similarity}%\n标题：{results.title}\n节点名：{results.index_name}\n链接：{urls}")
 
-            await app.sendGroupMessage(group, MessageChain.create([
-                Plain(f"title：{results.results[0].title}"),
-                Plain(f"\nname：{results.results[0].index_name}"),
-                Plain(f"\nurl：{results.results[0].urls[0]}")
-            ]), quote=source)
-            I_RUNING = False
+            if len(results_list) == 0:
+                await app.sendGroupMessage(group, MessageChain.create([
+                    Plain("未找到有价值的数据")
+                ]), quote=source)
+                I_RUNING = False
+            else:
+                await app.sendGroupMessage(group, MessageChain.create([
+                    Plain("\n==================\n".join(results_list))
+                ]), quote=source)
+                I_RUNING = False
         else:
             await app.sendGroupMessage(group, MessageChain.create([
                 At(member.id),
