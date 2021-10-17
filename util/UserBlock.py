@@ -6,7 +6,7 @@ from graia.broadcast.builtin.decorators import Depend
 
 from config import user_black_list
 
-group_black_list = [579037216, 757689154]
+group_black_list = []
 
 
 def group_black_list_block():
