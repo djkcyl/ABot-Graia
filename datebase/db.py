@@ -116,7 +116,7 @@ async def get_ranking():
         user_id = user_info.id
         user_qq = user_info.qq
 
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(timeout=10) as client:
             r = await client.get(f"https://r.qzone.qq.com/fcg-bin/cgi_get_portrait.fcg?uins={user_qq}")
             r.encoding = 'GBK'
             qqdata = r.text
@@ -148,7 +148,7 @@ async def get_ranking():
         user_id = user_info.id
         user_qq = user_info.qq
 
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(timeout=10) as client:
             r = await client.get(f"https://r.qzone.qq.com/fcg-bin/cgi_get_portrait.fcg?uins={user_qq}")
             r.encoding = 'GBK'
             qqdata = r.text
@@ -180,7 +180,7 @@ async def get_ranking():
         user_id = user_info.id
         user_qq = user_info.qq
 
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(timeout=10) as client:
             r = await client.get(f"https://r.qzone.qq.com/fcg-bin/cgi_get_portrait.fcg?uins={user_qq}")
             r.encoding = 'GBK'
             qqdata = r.text
