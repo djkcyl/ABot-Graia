@@ -8,7 +8,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.elements.internal import MessageChain, Source, Plain, Image_NetworkAddress, At
 
 from util.limit import manual_limit
-from config import sendmsg, yaml_data
+from config import yaml_data
 from util.UserBlock import group_black_list_block
 
 saya = Saya.current()
@@ -23,7 +23,7 @@ async def trashCard(app: GraiaMiraiApplication, group: Group, member: Member, me
     if saying in key:
         manual_limit(group.id, "TrashCard", 5)
         if yaml_data['Saya']['TrashCard']['Disabled']:
-            return await sendmsg(app=app, group=group)
+            return
 
         url = 'http://a60.one:11451/getCard'
         data = {

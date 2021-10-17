@@ -23,7 +23,7 @@ from util.text2image import create_image
 from util.limit import member_limit_check
 from util.RestControl import rest_control
 from util.UserBlock import group_black_list_block
-from config import yaml_data, group_data, sendmsg, VIOCE_PATH
+from config import yaml_data, group_data, VIOCE_PATH
 
 saya = Saya.current()
 channel = Channel.current()
@@ -51,9 +51,9 @@ WAITING = []
 async def sing(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['CloudMusic']['Disabled']:
-        return await sendmsg(app=app, group=group)
+        return
     elif 'CloudMusic' in group_data[group.id]['DisabledFunc']:
-        return await sendmsg(app=app, group=group)
+        return
 
     @Waiter.create_using_function([GroupMessage])
     async def waiter1(waiter1_group: Group, waiter1_member: Member, waiter1_message: MessageChain):

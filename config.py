@@ -3,18 +3,11 @@ import yaml
 import json
 
 from pathlib import Path
-from graia.application.event.messages import Group
-from graia.application import GraiaMiraiApplication
-from graia.application.message.elements.internal import MessageChain, Plain
 
 
 class NoAliasDumper(yaml.SafeDumper):
     def ignore_aliases(self, data):
         return True
-
-
-async def sendmsg(app: GraiaMiraiApplication, group: Group):
-    await app.sendGroupMessage(group, MessageChain.create([Plain("该功能暂不开启")]))
 
 
 if not os.path.exists('config.yaml') and os.path.exists('config.exp.yaml'):

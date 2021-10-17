@@ -12,7 +12,7 @@
 # from graia.application.message.elements.internal import Source, Plain, MessageChain, Voice_LocalFile
 # # from google_trans_new import google_translator
 
-# from config import yaml_data, group_data, sendmsg
+# from config import yaml_data, group_data
 
 # from .post_tts_text import post_text
 
@@ -33,9 +33,9 @@
 # async def ali_tts(app: GraiaMiraiApplication, group: Group, message: MessageChain, source: Source):
 
 #     if yaml_data['Saya']['AliTTS']['Disabled']:
-#         return await sendmsg(app=app, group=group)
+#         return
 #     elif 'AliTTS' in group_data[group.id]['DisabledFunc']:
-#         return await sendmsg(app=app, group=group)
+#         return
 
 #     if len(message.asDisplay()) > 180:
 #         await app.sendGroupMessage(group, MessageChain.create([

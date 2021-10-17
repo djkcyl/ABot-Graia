@@ -10,11 +10,11 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.parser.literature import Literature
 from graia.application.message.elements.internal import Image_UnsafeBytes, MessageChain, Plain, Source
 
+from config import yaml_data, group_data
 from util.text2image import create_image
 from util.limit import member_limit_check
 from util.RestControl import rest_control
 from util.UserBlock import group_black_list_block
-from config import yaml_data, sendmsg, group_data
 
 saya = Saya.current()
 channel = Channel.current()
@@ -28,9 +28,9 @@ Designs = json.loads(Path(__file__).parent.joinpath("DesignsDICT.json").read_tex
 async def rand_designs(app: GraiaMiraiApplication, group: Group, member: Member, source: Source):
 
     if yaml_data['Saya']['CharacterDesignGenerator']['Disabled']:
-        return await sendmsg(app=app, group=group)
+        return
     elif 'CharacterDesignGenerator' in group_data[group.id]['DisabledFunc']:
-        return await sendmsg(app=app, group=group)
+        return
 
     msg = "你的人设：\n"
     for type in get_rand(member.id, group.id):
