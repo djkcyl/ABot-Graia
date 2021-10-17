@@ -39,9 +39,9 @@ async def petpet_generator(app: GraiaMiraiApplication, message: MessageChain, gr
         manual_limit(group.id, "petpet", 3)
         if not os.path.exists("./saya/PetPet/temp"):
             os.mkdir("./saya/PetPet/temp")
-        await petpet(message.getOne(At).target)
+        await petpet(message.getFirst(At).target)
         await app.sendGroupMessage(group, MessageChain.create([
-            Image.fromLocalFile(f"./saya/PetPet/temp/tempPetPet-{message.getOne(At).target}.gif")
+            Image.fromLocalFile(f"./saya/PetPet/temp/tempPetPet-{message.getFirst(At).target}.gif")
         ]))
 
 
