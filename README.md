@@ -56,6 +56,7 @@ ABot 是一个使用 [Graia](https://github.com/GraiaProject/Application) 搭建
 > - **BiliBili 动态/直播 订阅推送**
 > - 性能统计 `查看性能统计`
 > - 随机人设
+> - **以图搜图 / 以图搜番**
 > - 亿些杂七杂八没整理的小功能
 >   - ABot 事件提醒
 >   - ABot 被禁言后自动退群
