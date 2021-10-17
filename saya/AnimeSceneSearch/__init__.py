@@ -3,13 +3,14 @@ import asyncio
 
 from saucenao_api import AIOSauceNao
 from graia.saya import Saya, Channel
+from graia.application.friend import Friend
 from graia.application.group import Group, Member
 from graia.broadcast.interrupt.waiter import Waiter
 from graia.application import GraiaMiraiApplication
 from graia.broadcast.interrupt import InterruptControl
-from graia.application.event.messages import GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.parser.literature import Literature
+from graia.application.event.messages import FriendMessage, GroupMessage
 from graia.application.message.elements.internal import At, MessageChain, Plain, Image_UnsafeBytes, Image, Source
 
 from datebase.db import reduce_gold
@@ -63,6 +64,7 @@ query ($ids: [Int]) {
 V_RUNING = False
 I_RUNING = False
 WAITING = []
+saucenao_usage = None
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
@@ -109,7 +111,9 @@ async def anime_search(app: GraiaMiraiApplication, group: Group, member: Member,
 
         if await reduce_gold(str(member.id), 4):
             V_RUNING = True
-            await app.sendGroupMessage(group, MessageChain.create([Plain("正在搜索，请稍后")]), quote=source)
+            await app.sendGroupMessage(group, MessageChain.create([
+                Plain("正在搜索，请稍后\n仅可搜索日本番剧\n不支持有边框的截图，不支持裁切截图，不支持镜像截图，不支持滤色截图，不支持老动漫，不支持一切非动漫原画图\n详情请查看https://trace.moe/faq")
+            ]), quote=source)
 
             async with httpx.AsyncClient(timeout=45) as client:
 
@@ -132,7 +136,6 @@ async def anime_search(app: GraiaMiraiApplication, group: Group, member: Member,
                 }
                 r = await client.post("https://trace.moe/anilist/", json=data)
                 media_res = r.json()
-                print(media_res)
 
             image = await draw_tracemoe(search_res["result"][0], media_res["data"]["Page"]["media"][0])
             await app.sendGroupMessage(group, MessageChain.create([Image_UnsafeBytes(image)]), quote=source)
@@ -148,7 +151,7 @@ async def anime_search(app: GraiaMiraiApplication, group: Group, member: Member,
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("以图搜图")],
                             headless_decorators=[member_limit_check(30), group_black_list_block()]))
-async def anime_search_pic(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain, source: Source):
+async def saucenao(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain, source: Source):
     if yaml_data['Saya']['AnimeSceneSearch']['Disabled']:
         return
     elif 'AnimeSceneSearch' in group_data[group.id]['DisabledFunc']:
@@ -196,6 +199,12 @@ async def anime_search_pic(app: GraiaMiraiApplication, group: Group, member: Mem
                     return await app.sendGroupMessage(group, MessageChain.create([
                         Plain("搜索失败")
                     ]))
+            global saucenao_usage
+            saucenao_usage = {
+                "short": results.short_remaining,
+                "long": results.long_remaining
+            }
+
             results_list = []
             for results in results.results:
                 print(results.urls)
@@ -222,3 +231,20 @@ async def anime_search_pic(app: GraiaMiraiApplication, group: Group, member: Mem
                 At(member.id),
                 Plain(" 你的游戏币不足，无法使用")
             ]))
+
+
+@channel.use(ListenerSchema(listening_events=[FriendMessage],
+                            inline_dispatchers=[Literature("查看搜图用量")]))
+async def check_saucenao(app: GraiaMiraiApplication, friend: Friend):
+    if friend.id == yaml_data['Basic']['Permission']['Master']:
+        global saucenao_usage
+        if not saucenao_usage:
+            async with AIOSauceNao(yaml_data['Saya']['AnimeSceneSearch']['saucenao_key']) as snao:
+                results = await snao.from_url('https://i.imgur.com/oZjCxGo.jpg')
+            saucenao_usage = {
+                "short": results.short_remaining,
+                "long": results.long_remaining
+            }
+        await app.sendFriendMessage(friend, MessageChain.create([
+            Plain(f"当前用量：\n短期：{saucenao_usage['short']}\n长期：{saucenao_usage['long']}")
+        ]))
