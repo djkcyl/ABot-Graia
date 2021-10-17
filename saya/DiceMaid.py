@@ -10,7 +10,7 @@ from graia.application.message.elements.internal import Plain, MessageChain
 
 from util.limit import manual_limit
 from util.UserBlock import group_black_list_block
-from config import sendmsg, yaml_data, group_data
+from config import yaml_data, group_data
 
 saya = Saya.current()
 channel = Channel.current()
@@ -22,9 +22,9 @@ async def dice(app: GraiaMiraiApplication, group: Group, message: MessageChain):
 
     if message.asDisplay()[:2] == ".r":
         if yaml_data['Saya']['DiceMaid']['Disabled']:
-            return await sendmsg(app=app, group=group)
+            return
         elif 'DiceMaid' in group_data[group.id]['DisabledFunc']:
-            return await sendmsg(app=app, group=group)
+            return
         manual_limit(group.id, "DiceMaid", 3)
 
         saying = message.asDisplay()

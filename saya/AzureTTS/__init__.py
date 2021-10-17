@@ -18,10 +18,10 @@ from azure.cognitiveservices.speech import AudioDataStream, SpeechConfig, Speech
 
 
 from datebase.db import reduce_gold
-from config import sendmsg, yaml_data, group_data, VIOCE_PATH
 from util.limit import member_limit_check
 from util.RestControl import rest_control
 from util.UserBlock import group_black_list_block
+from config import yaml_data, group_data, VIOCE_PATH
 
 saya = Saya.current()
 channel = Channel.current()
@@ -37,9 +37,9 @@ BASEPATH.mkdir(exist_ok=True)
 async def azuretts(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['AzureTTS']['Disabled']:
-        return await sendmsg(app=app, group=group)
+        return
     elif 'AzureTTS' in group_data[group.id]['DisabledFunc']:
-        return await sendmsg(app=app, group=group)
+        return
 
     saying = message.asDisplay().split(" ", 3)
     if len(saying) != 4:

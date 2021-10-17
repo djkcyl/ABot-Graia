@@ -7,8 +7,8 @@ from graia.application.message.parser.literature import Literature
 from graia.application.message.elements.internal import MessageChain, Plain
 
 from util.limit import group_limit_check
+from config import yaml_data, group_data
 from util.UserBlock import group_black_list_block
-from config import yaml_data, group_data, sendmsg
 
 from .mcping import mcping
 
@@ -22,9 +22,9 @@ channel = Channel.current()
 async def minecraft_ping(app: GraiaMiraiApplication, group: Group, message: MessageChain):
 
     if yaml_data['Saya']['MinecraftPing']['Disabled']:
-        return await sendmsg(app=app, group=group)
+        return
     elif 'MinecraftPing' in group_data[group.id]['DisabledFunc']:
-        return await sendmsg(app=app, group=group)
+        return
 
     saying = message.asDisplay().split()
     if len(saying) == 2:

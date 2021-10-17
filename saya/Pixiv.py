@@ -9,10 +9,10 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.parser.signature import RegexMatch, OptionalParam
 from graia.application.message.elements.internal import Image_NetworkAddress, MessageChain, Plain
 
+from config import yaml_data, group_data
 from util.limit import group_limit_check
 from util.RestControl import rest_control
 from util.UserBlock import group_black_list_block
-from config import yaml_data, group_data, sendmsg
 
 saya = Saya.current()
 channel = Channel.current()

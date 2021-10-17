@@ -5,11 +5,11 @@ from graia.application.event.messages import GroupMessage, Group
 from graia.application.message.parser.literature import Literature
 from graia.application.message.elements.internal import MessageChain, Source, Plain
 
+from config import yaml_data, group_data
 from util.RestControl import rest_control
 from util.limit import member_limit_check
 from util.UserBlock import group_black_list_block
 from util.TextModeration import text_moderation
-from config import yaml_data, group_data, sendmsg
 
 from .beast import encode, decode
 
@@ -24,9 +24,9 @@ channel = Channel.current()
 async def main(app: GraiaMiraiApplication, group: Group, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['Beast']['Disabled']:
-        return await sendmsg(app=app, group=group)
+        return
     elif 'Beast' in group_data[group.id]['DisabledFunc']:
-        return await sendmsg(app=app, group=group)
+        return
 
     saying = message.asDisplay().split(" ", 1)
     if len(saying) == 2:
@@ -46,9 +46,9 @@ async def main(app: GraiaMiraiApplication, group: Group, message: MessageChain, 
 async def main(app: GraiaMiraiApplication, group: Group, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['Beast']['Disabled']:
-        return await sendmsg(app=app, group=group)
+        return
     elif 'Beast' in group_data[group.id]['DisabledFunc']:
-        return await sendmsg(app=app, group=group)
+        return
 
     saying = message.asDisplay().split(" ", 1)
     if len(saying) == 2:

@@ -13,7 +13,7 @@ from graia.application.message.elements.internal import MessageChain, Plain, AtA
 
 from util.RestControl import rest_control
 from util.limit import member_limit_check
-from config import sendmsg, group_data, yaml_data
+from config import group_data, yaml_data
 
 saya = Saya.current()
 channel = Channel.current()
@@ -30,9 +30,9 @@ if yaml_data['Saya']['MutePack']['MaxTime'] * yaml_data['Saya']['MutePack']['Max
 async def random_mute(app: GraiaMiraiApplication, group: Group, member: Member):
 
     if yaml_data['Saya']['MutePack']['Disabled']:
-        return await sendmsg(app=app, group=group)
+        return
     elif 'MutePack' in group_data[group.id]['DisabledFunc']:
-        return await sendmsg(app=app, group=group)
+        return
 
     if member.id in yaml_data['Basic']['Permission']['Admin']:
         await app.sendGroupMessage(group, MessageChain.create([Plain("我不能这样做！")]))

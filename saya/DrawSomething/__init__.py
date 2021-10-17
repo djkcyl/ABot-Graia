@@ -17,9 +17,9 @@ from graia.application.event.messages import GroupMessage, FriendMessage
 from graia.application.message.elements.internal import MessageChain, Source, Plain, At
 
 from util.limit import group_limit_check
-from util.UserBlock import group_black_list_block
+from config import yaml_data, group_data
 from datebase.db import reduce_gold, add_gold
-from config import yaml_data, group_data, sendmsg
+from util.UserBlock import group_black_list_block
 
 
 saya = Saya.current()
@@ -41,9 +41,9 @@ async def main(app: GraiaMiraiApplication, group: Group, member: Member, source:
 
     # 判断插件是否处于禁用状态
     if yaml_data['Saya']['Entertainment']['Disabled']:
-        return await sendmsg(app=app, group=group)
+        return
     elif 'Entertainment' in group_data[group.id]['DisabledFunc']:
-        return await sendmsg(app=app, group=group)
+        return
 
     # 判断用户是否正在游戏中
     if member.id in MEMBER_RUNING_LIST:

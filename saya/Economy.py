@@ -7,10 +7,10 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.parser.signature import FullMatch, OptionalParam
 from graia.application.message.elements.internal import MessageChain, At, Plain, Source
 
+from config import yaml_data, group_data
 from util.limit import member_limit_check
 from util.UserBlock import group_black_list_block
 from datebase.db import reduce_gold, add_gold
-from config import yaml_data, group_data, sendmsg
 
 saya = Saya.current()
 channel = Channel.current()
@@ -22,9 +22,9 @@ channel = Channel.current()
 async def adminmain(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['Entertainment']['Disabled']:
-        return await sendmsg(app=app, group=group)
+        return
     elif 'Entertainment' in group_data[group.id]['DisabledFunc']:
-        return await sendmsg(app=app, group=group)
+        return
 
     if not message.has(At):
         await app.sendGroupMessage(group, MessageChain.create([

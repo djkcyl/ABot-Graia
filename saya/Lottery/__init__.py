@@ -19,9 +19,9 @@ from graia.application.message.parser.literature import Literature
 from graia.application.event.messages import FriendMessage, GroupMessage
 from graia.application.message.elements.internal import At, Image_UnsafeBytes, Plain, MessageChain, Source, Image
 
-from util.UserBlock import group_black_list_block
+from config import yaml_data, group_data
 from datebase.db import add_gold, reduce_gold
-from config import sendmsg, yaml_data, group_data
+from util.UserBlock import group_black_list_block
 
 from .certification import decrypt
 from .lottery_image import qrgen, qrdecode
@@ -60,9 +60,9 @@ async def buy_lottery(app: GraiaMiraiApplication, group: Group, member: Member, 
     if not yaml_data['Saya']['Entertainment']['Lottery']:
         return
     elif yaml_data['Saya']['Entertainment']['Disabled']:
-        return await sendmsg(app=app, group=group)
+        return
     elif 'Entertainment' in group_data[group.id]['DisabledFunc']:
-        return await sendmsg(app=app, group=group)
+        return
 
     if await reduce_gold(str(member.id), 2):
         number = ''.join(random.sample(string.digits+string.digits+string.digits, 24))
@@ -99,9 +99,9 @@ async def redeem_lottery(app: GraiaMiraiApplication, group: Group, member: Membe
     if not yaml_data['Saya']['Entertainment']['Lottery']:
         return
     elif yaml_data['Saya']['Entertainment']['Disabled']:
-        return await sendmsg(app=app, group=group)
+        return
     elif 'Entertainment' in group_data[group.id]['DisabledFunc']:
-        return await sendmsg(app=app, group=group)
+        return
 
     WAITING.append(member.id)
 
@@ -211,9 +211,9 @@ async def redeem_lottery(app: GraiaMiraiApplication, group: Group):
     if not yaml_data['Saya']['Entertainment']['Lottery']:
         return
     elif yaml_data['Saya']['Entertainment']['Disabled']:
-        return await sendmsg(app=app, group=group)
+        return
     elif 'Entertainment' in group_data[group.id]['DisabledFunc']:
-        return await sendmsg(app=app, group=group)
+        return
 
     lottery = LOTTERY
     period = str(lottery["period"] - 1)

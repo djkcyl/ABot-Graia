@@ -19,9 +19,9 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.parser.signature import RegexMatch
 from graia.application.message.elements.internal import MessageChain, At, Plain, Image_UnsafeBytes
 
+from config import yaml_data, group_data
 from util.limit import member_limit_check
 from util.UserBlock import group_black_list_block
-from config import yaml_data, group_data, sendmsg
 from datebase.usertalk import get_user_talk, get_group_talk
 
 saya = Saya.current()
@@ -50,9 +50,9 @@ async def wordcloud(app: GraiaMiraiApplication, group: Group, member: Member, me
     if match:
 
         if yaml_data['Saya']['WordCloud']['Disabled']:
-            return await sendmsg(app=app, group=group)
+            return
         elif 'WordCloud' in group_data[group.id]['DisabledFunc']:
-            return await sendmsg(app=app, group=group)
+            return
 
         if RUNNING < 5:
             RUNNING += 1
