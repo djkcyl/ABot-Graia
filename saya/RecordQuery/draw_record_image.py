@@ -195,7 +195,7 @@ async def draw_r6(nick_name):
     draw.text((572, 705), best_wl['id'].upper(), "white", font_semibold_24)
 
     draw.text((65, 737), sec_to_minsec(most_played['timeplayed']), "white", font_bold_32)
-    draw.text((319, 737), str("%.2f" % division_zero(best_kd["kills"], best_kd["deaths"])), "white", font_bold_32)
+    draw.text((319, 737), str("%.2f" % division_zero(best_kd["kills"], best_kd["deaths"] if best_kd["deaths"] != 0 else 1)), "white", font_bold_32)
     draw.text((571, 737), str("%.2f" % division_zero(best_wl['wins'], best_wl['losses'])), "white", font_bold_32)
 
     # 常用武器
@@ -209,10 +209,10 @@ async def draw_r6(nick_name):
     weapons_image_inverted = inverted_image(weapons_image)
     bg.paste(weapons_image_inverted, (550 - (weapons_image.size[0] // 2), 1265 - (weapons_image.size[1] // 2)), weapons_image_inverted)
 
-    weapon_name_x, weapon_name_y = font_bold_40.getsize(weapons['name'])
+    weapon_name_x, _ = font_bold_40.getsize(weapons['name'])
     draw.text((330 - weapon_name_x, 1235), weapons['name'], "white", font_bold_40)
 
-    weapon_kd = "%.2f" % division_zero(weapons["kills"], weapons["deaths"])
+    weapon_kd = "%.2f" % division_zero(weapons["kills"], weapons["deaths"] if weapons["deaths"] != 0 else 1)
     draw.text((170, 1345), "击杀            爆头            K/D", (150, 150, 150), font_regular_24)
     draw.text((172, 1380), str(weapons['kills']), "white", font_bold_32)
     draw.text((364, 1380), str(weapons['headshots']), "white", font_bold_32)
