@@ -46,7 +46,8 @@ funcList = [
     {"name": "背单词", "key": "EnglishTest", "can_disabled": True},
     {"name": "BiliBili订阅推送", "key": "BilibiliDynamic", "can_disabled": False},
     {"name": "查看人设", "key": "CharacterDesignGenerator", "can_disabled": True},
-    {"name": "以图搜番 / 以图搜图", "key": "AnimeSceneSearch", "can_disabled": True}
+    {"name": "以图搜番 / 以图搜图", "key": "AnimeSceneSearch", "can_disabled": True},
+    {"name": "查战绩", "key": "RecordQuery", "can_disabled": True}
 ]
 
 configList = [
@@ -230,6 +231,12 @@ funcHelp = {
         "usage": "发送指令：\n以图搜番\n以图搜图",
         "options": "清晰度太低的图可能搜不到，无论成功与否均会扣除 4 个游戏币",
         "example": "（这也需要示例吗？"
+    },
+    "查战绩": {
+        "instruction": "用来查询所支持游戏的玩家战绩",
+        "usage": "发送指令：\n查战绩",
+        "options": "目前可以查询 “彩虹六号：围攻”\n首次输入需要绑定游戏id，可以at其他已绑定的人查询，也可以直接输入id查询",
+        "example": "查战绩 r6\n查战绩 r6 @xxxx\n查战绩 r6 Eustiana"
     }
 }
 
