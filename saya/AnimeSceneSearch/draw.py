@@ -28,9 +28,8 @@ async def draw_tracemoe(search_data, media_data):
 
     # 封面
     async with httpx.AsyncClient(timeout=10) as client:
-        res = await client.get(media_data['coverImage']["large"], timeout=5)
-    bio = BytesIO(res.content)
-    cover_img = Image.open(bio)
+        res = await client.get(media_data['coverImage']["large"])
+    cover_img = Image.open(BytesIO(res.content))
     coverx, covery = cover_img.size
     if covery < 400:
         ratio = covery / coverx
@@ -59,9 +58,8 @@ async def draw_tracemoe(search_data, media_data):
     search_img = Image.new("RGB", (bg_x, 220), "white")
     if not media_data['isAdult']:
         async with httpx.AsyncClient(timeout=10) as client:
-            res = await client.get(search_data['image'], timeout=5)
-        bio = BytesIO(res.content)
-        screenshot = Image.open(bio)
+            res = await client.get(search_data['image'])
+        screenshot = Image.open(BytesIO(res.content))
         screenshotx, screenshoty = screenshot.size
         if screenshoty < 220:
             ratio = screenshoty / screenshotx
