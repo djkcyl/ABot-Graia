@@ -24,7 +24,7 @@ def sec_to_minsec(sec):
     minutes, _ = divmod(int(sec), 60)
     hours, minutes = divmod(int(minutes), 60)
     one_min = '%.2f' % (minutes / 60)
-    return f"{hours:02d}.{one_min[2]}H"
+    return f"{hours:1d}.{one_min[2]}H"
 
 
 def circle_corner(img, radii):
