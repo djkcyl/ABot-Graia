@@ -115,13 +115,23 @@ async def anime_search(app: GraiaMiraiApplication, group: Group, member: Member,
                 Plain("正在搜索，请稍后\n仅可搜索日本番剧\n不支持有边框的截图，不支持裁切截图，不支持镜像截图，不支持滤色截图，不支持老动漫，不支持一切非动漫原画图\n详情请查看https://trace.moe/faq")
             ]), quote=source)
 
-            async with httpx.AsyncClient(timeout=45) as client:
+            async with httpx.AsyncClient(timeout=60) as client:
 
                 params = {
                     "key": yaml_data['Saya']['AnimeSceneSearch']['tracemoe_key'],
                     "url": image_url
                 }
-                r = await client.get("https://api.trace.moe/search", params=params)
+                for _ in range(3):
+                    try:
+                        r = await client.get("https://api.trace.moe/search", params=params)
+                        break
+                    except httpx.HTTPError:
+                        continue
+                else:
+                    V_RUNING = False
+                    return await app.sendGroupMessage(group, MessageChain.create([
+                        Plain("搜索失败")
+                    ]))
                 search_res = r.json()
                 if "result" not in search_res:
                     V_RUNING = False
