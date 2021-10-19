@@ -148,6 +148,14 @@ Saya: # saya 插件配置
     saucenao_key: "xxxxxxxxxxxxx" # API 获取地址：https://saucenao.com/user.php?page=search-api
     tracemoe_key: "xxxxxxxxxxxxx" # API 获取地址：https://trace.moe/account
 
+  RecordQuery: # 战绩查询
+    Disabled: false
+    r6: # 彩虹六号：围攻
+      # API 获取地址：https://developers.statsdb.net/apps
+      # 本 API 为可选项，可以不填，但是会减少可查询次数
+      user_id: "xxxxxxxxxxxxx"
+      password: "xxxxxxxxxxxxxx"
+
 Final: false
 # 配置完成后请调整为 true
 # 配置完成后请调整为 true
