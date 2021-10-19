@@ -14,6 +14,17 @@ DATABASE.joinpath("operators").mkdir(parents=True, exist_ok=True)
 DATABASE.joinpath("weapons").mkdir(parents=True, exist_ok=True)
 FONT_PATH = Path('font')
 
+# 字体
+font_bold_46 = ImageFont.truetype(FONT_PATH.joinpath("sarasa-mono-sc-bold.ttf").__str__(), 46)
+font_bold_40 = ImageFont.truetype(FONT_PATH.joinpath("sarasa-mono-sc-bold.ttf").__str__(), 40)
+font_bold_32 = ImageFont.truetype(FONT_PATH.joinpath("sarasa-mono-sc-bold.ttf").__str__(), 32)
+font_bold_30 = ImageFont.truetype(FONT_PATH.joinpath("sarasa-mono-sc-bold.ttf").__str__(), 30)
+font_semibold_24 = ImageFont.truetype(FONT_PATH.joinpath("sarasa-mono-sc-semibold.ttf").__str__(), 24)
+font_regular_28 = ImageFont.truetype(FONT_PATH.joinpath("sarasa-mono-sc-regular.ttf").__str__(), 28)
+font_regular_24 = ImageFont.truetype(FONT_PATH.joinpath("sarasa-mono-sc-regular.ttf").__str__(), 24)
+font_regular_20 = ImageFont.truetype(FONT_PATH.joinpath("sarasa-mono-sc-regular.ttf").__str__(), 20)
+
+
 text_info = str("""\
 场均击杀          击杀              死亡              助攻
 胜率              胜场              负场              游戏局数
@@ -109,16 +120,6 @@ async def draw_r6(nick_name):
         bg_b = round(bg_color_form[2] + step_b * y)
         for x in range(0, hight):
             draw.point((x, y), fill=(bg_r, bg_g, bg_b))
-
-    # 字体
-    font_bold_46 = ImageFont.truetype(FONT_PATH.joinpath("sarasa-mono-sc-bold.ttf").__str__(), 46)
-    font_bold_40 = ImageFont.truetype(FONT_PATH.joinpath("sarasa-mono-sc-bold.ttf").__str__(), 40)
-    font_bold_32 = ImageFont.truetype(FONT_PATH.joinpath("sarasa-mono-sc-bold.ttf").__str__(), 32)
-    font_bold_30 = ImageFont.truetype(FONT_PATH.joinpath("sarasa-mono-sc-bold.ttf").__str__(), 30)
-    font_semibold_24 = ImageFont.truetype(FONT_PATH.joinpath("sarasa-mono-sc-semibold.ttf").__str__(), 24)
-    font_regular_28 = ImageFont.truetype(FONT_PATH.joinpath("sarasa-mono-sc-regular.ttf").__str__(), 28)
-    font_regular_24 = ImageFont.truetype(FONT_PATH.joinpath("sarasa-mono-sc-regular.ttf").__str__(), 24)
-    font_regular_20 = ImageFont.truetype(FONT_PATH.joinpath("sarasa-mono-sc-regular.ttf").__str__(), 20)
 
     # 用户基本信息
     for _ in range(3):
