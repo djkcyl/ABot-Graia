@@ -196,7 +196,7 @@ async def draw_r6(nick_name):
 
     draw.text((65, 737), sec_to_minsec(most_played['timeplayed']), "white", font_bold_32)
     draw.text((319, 737), str("%.2f" % division_zero(best_kd["kills"], best_kd["deaths"] if best_kd["deaths"] != 0 else 1)), "white", font_bold_32)
-    draw.text((571, 737), str("%.2f" % division_zero(best_wl['wins'], best_wl['losses'])), "white", font_bold_32)
+    draw.text((571, 737), str("%.2f%%" % (division_zero(best_wl['wins'], best_wl['roundsplayed']) * 100)), "white", font_bold_32)
 
     # 常用武器
     weapon_bg = Image.new("RGB", (720, 330), (26, 27, 31))
