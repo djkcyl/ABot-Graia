@@ -14,7 +14,6 @@ from graia.application.event.lifecycle import ApplicationLaunched, ApplicationSh
 from graia.application.message.elements.internal import At, MessageChain, Plain, Image_NetworkAddress
 from graia.application.event.mirai import NewFriendRequestEvent, BotInvitedJoinGroupRequestEvent, BotJoinGroupEvent, BotLeaveEventKick, BotGroupPermissionChangeEvent, BotMuteEvent, MemberCardChangeEvent, MemberJoinEvent
 
-from util.RestControl import set_sleep
 from config import save_config, yaml_data, group_data, group_list
 
 from .AdminConfig import groupInitData
