@@ -126,6 +126,9 @@ async def anime_search(app: GraiaMiraiApplication, group: Group, member: Member,
                 for _ in range(3):
                     try:
                         r = await client.get("https://api.trace.moe/search", params=params)
+                        if r.status_code == 402:
+                            del params["key"]
+                            continue
                         break
                     except httpx.ReadTimeout:
                         try:
@@ -140,6 +143,7 @@ async def anime_search(app: GraiaMiraiApplication, group: Group, member: Member,
                     return await app.sendGroupMessage(group, MessageChain.create([
                         Plain(f"搜索失败 {error}")
                     ]))
+
                 search_res = r.json()
                 if "result" not in search_res:
                     V_RUNING = False
