@@ -16,8 +16,8 @@ channel = Channel.current()
 
 
 def path_bcc():
-    import graia.broadcast
-    filepath = Path(graia.broadcast.__file__)
+    import graia.broadcast as bcc
+    filepath = Path(bcc.__file__)
     fileread = filepath.read_text()
     if fileread.find('self.Executor(target=i, event=event)') != -1:
         print("正在修补BCC，请重新启动 ABot")
