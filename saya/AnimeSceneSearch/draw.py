@@ -56,7 +56,10 @@ async def draw_tracemoe(search_data, media_data):
     # 识别信息
     search_text = f"出自第 {str(search_data['episode'])} 集\n{sec_to_minsec(search_data['from'])} 至 {sec_to_minsec(search_data['to'])}\n相似度：{'%.2f%%' % (search_data['similarity'] * 100)}"
     search_img = Image.new("RGB", (bg_x, 220), "white")
-    if not media_data['isAdult']:
+    draw = ImageDraw.Draw(search_img)
+    if media_data['isAdult']:
+        draw.text((100, 50), "Adult!", "yellow", title_font)
+    else:
         async with httpx.AsyncClient(timeout=10) as client:
             res = await client.get(search_data['image'])
         screenshot = Image.open(BytesIO(res.content))
@@ -67,7 +70,6 @@ async def draw_tracemoe(search_data, media_data):
         else:
             screenshot.thumbnail((1000, 220))
         search_img.paste(screenshot, (0, 0))
-    draw = ImageDraw.Draw(search_img)
     draw.text((430, 50), search_text, (20, 20, 20), body_font, spacing=12)
 
     # 输出

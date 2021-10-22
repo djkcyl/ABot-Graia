@@ -4,6 +4,7 @@ import asyncio
 from saucenao_api import AIOSauceNao
 from graia.saya import Saya, Channel
 from graia.application.friend import Friend
+from saucenao_api.errors import SauceNaoApiError
 from graia.application.group import Group, Member
 from graia.broadcast.interrupt.waiter import Waiter
 from graia.application import GraiaMiraiApplication
@@ -115,28 +116,35 @@ async def anime_search(app: GraiaMiraiApplication, group: Group, member: Member,
                 Plain("正在搜索，请稍后\n仅可搜索日本番剧\n不支持有边框的截图，不支持裁切截图，不支持镜像截图，不支持滤色截图，不支持老动漫，不支持一切非动漫原画图\n详情请查看https://trace.moe/faq")
             ]), quote=source)
 
-            async with httpx.AsyncClient(timeout=60) as client:
+            async with httpx.AsyncClient(timeout=15) as client:
 
                 params = {
                     "key": yaml_data['Saya']['AnimeSceneSearch']['tracemoe_key'],
                     "url": image_url
                 }
+                error = None
                 for _ in range(3):
                     try:
                         r = await client.get("https://api.trace.moe/search", params=params)
                         break
-                    except httpx.HTTPError:
-                        continue
+                    except httpx.ReadTimeout:
+                        try:
+                            del params["key"]
+                        except KeyError:
+                            pass
+                    except httpx.HTTPError as e:
+                        error = type(e)
+                        asyncio.sleep(1)
                 else:
                     V_RUNING = False
                     return await app.sendGroupMessage(group, MessageChain.create([
-                        Plain("搜索失败")
+                        Plain(f"搜索失败 {error}")
                     ]))
                 search_res = r.json()
                 if "result" not in search_res:
                     V_RUNING = False
                     return await app.sendGroupMessage(group, MessageChain.create([
-                        Plain("搜索失败")
+                        Plain(f"搜索失败 {search_res['error']}")
                     ]))
                 data = {
                     "query": query,
@@ -162,6 +170,7 @@ async def anime_search(app: GraiaMiraiApplication, group: Group, member: Member,
                             inline_dispatchers=[Literature("以图搜图")],
                             headless_decorators=[member_limit_check(30), group_black_list_block()]))
 async def saucenao(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain, source: Source):
+
     if yaml_data['Saya']['AnimeSceneSearch']['Disabled']:
         return
     elif 'AnimeSceneSearch' in group_data[group.id]['DisabledFunc']:
@@ -204,10 +213,10 @@ async def saucenao(app: GraiaMiraiApplication, group: Group, member: Member, mes
             async with AIOSauceNao(yaml_data['Saya']['AnimeSceneSearch']['saucenao_key'], numres=3) as snao:
                 try:
                     results = await snao.from_url(image_url)
-                except:
+                except SauceNaoApiError as e:
                     I_RUNING = False
                     return await app.sendGroupMessage(group, MessageChain.create([
-                        Plain("搜索失败")
+                        Plain(f"搜索失败 {type(e)} {e.__str__()}")
                     ]))
             global saucenao_usage
             saucenao_usage = {
