@@ -14,7 +14,7 @@ Basic: # 基础配置
       - 123456789
 
 Saya: # saya 插件配置
-  AzureTTS: # 阿里云文字转语音
+  AzureTTS: # 微软文字转语音
     Disabled: false # 是否禁用
     # 密钥和区域获取地址：https://docs.microsoft.com/zh-cn/azure/cognitive-services/speech-service/overview#find-keys-and-region
     Subscription: "xxxxx" # 秘钥
