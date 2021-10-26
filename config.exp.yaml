@@ -156,6 +156,9 @@ Saya: # saya 插件配置
       user_id: "xxxxxxxxxxxxx"
       password: "xxxxxxxxxxxxxx"
 
+  ArkNews: # 明日方舟蹲饼
+    Disabled: false
+
 Final: false
 # 配置完成后请调整为 true
 # 配置完成后请调整为 true
