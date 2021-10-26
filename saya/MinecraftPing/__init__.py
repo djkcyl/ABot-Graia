@@ -28,11 +28,11 @@ async def minecraft_ping(app: GraiaMiraiApplication, group: Group, message: Mess
 
     saying = message.asDisplay().split()
     if len(saying) == 2:
-        try:
+        # try:
             send_msg = await mcping(saying[1])
             # print(send_msg)
             await app.sendGroupMessage(str(group.id), MessageChain.create(send_msg))
-        except:
-            await app.sendGroupMessage(str(group.id), MessageChain.create([Plain("用法：/mcping 服务器地址")]))
+        # except:
+        #     await app.sendGroupMessage(str(group.id), MessageChain.create([Plain("用法：/mcping 服务器地址")]))
     else:
         await app.sendGroupMessage(str(group.id), MessageChain.create([Plain("用法：/mcping 服务器地址")]))
