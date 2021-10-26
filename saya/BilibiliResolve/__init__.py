@@ -66,7 +66,7 @@ async def b23_extract(text):
     except TypeError:
         raise ExecutionStop()
     async with httpx.AsyncClient() as client:
-        resp = await client.get(url)
+        resp = await client.get(url, follow_redirects=True)
     r = str(resp.url)
     return r
 

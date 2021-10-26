@@ -281,7 +281,7 @@ async def update_scheduled(app: GraiaMiraiApplication):
             if "cards" in r["data"]:
                 up_name = r["data"]["cards"][0]["desc"]["user_profile"]["info"]["uname"]
                 up_last_dynid = r["data"]["cards"][0]["desc"]["dynamic_id"]
-                app.logger.info(f"[BiliBili推送] 正在检测{up_name}（{up_id}）")
+                app.logger.debug(f"[BiliBili推送] {up_name}（{up_id}）检测完成")
                 if up_last_dynid > DYNAMIC_OFFSET[up_id]:
                     app.logger.info(f"[BiliBili推送] {up_name} 更新了动态 {up_last_dynid}")
                     DYNAMIC_OFFSET[up_id] = up_last_dynid

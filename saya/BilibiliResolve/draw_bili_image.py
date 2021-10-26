@@ -1,5 +1,5 @@
+import httpx
 import qrcode
-import requests
 
 from io import BytesIO
 from qrcode.image.pil import PilImage
@@ -22,7 +22,7 @@ def binfo_image_create(video_info: str):
     bg_y = 0
     # 封面
     pic_url = video_info["data"]["pic"]
-    pic_get = requests.get(pic_url).content
+    pic_get = httpx.get(pic_url).content
     pic_bio = BytesIO(pic_get)
     pic = Image.open(pic_bio)
     pic = pic.resize((560, 350))
@@ -100,7 +100,7 @@ def binfo_image_create(video_info: str):
         up_list = []
         for up in video_info["data"]['staff']:
             up_mid = up['mid']
-            up_data = requests.get(f"https://api.bilibili.com/x/space/acc/info?mid={up_mid}").json()
+            up_data = httpx.get(f"https://api.bilibili.com/x/space/acc/info?mid={up_mid}").json()
             up_list.append({
                 "name": up['name'],
                 "up_title": up['title'],
@@ -111,8 +111,8 @@ def binfo_image_create(video_info: str):
             })
     else:
         up_mid = video_info["data"]["owner"]["mid"]
-        up_data = requests.get(f"https://api.bilibili.com/x/space/acc/info?mid={up_mid}").json()
-        up_stat = requests.get(f"https://api.bilibili.com/x/relation/stat?vmid={up_mid}").json()
+        up_data = httpx.get(f"https://api.bilibili.com/x/space/acc/info?mid={up_mid}").json()
+        up_stat = httpx.get(f"https://api.bilibili.com/x/relation/stat?vmid={up_mid}").json()
         up_list = [{
             "name": up_data['data']['name'],
             "up_title": "UP主",
@@ -158,7 +158,7 @@ def binfo_image_create(video_info: str):
 
         # 头像
         face_url = up["face"]
-        face_get = requests.get(face_url).content
+        face_get = httpx.get(face_url).content
         face_bio = BytesIO(face_get)
         face = Image.open(face_bio)
         face.convert("RGB")
