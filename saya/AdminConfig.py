@@ -19,35 +19,36 @@ channel = Channel.current()
 
 
 funcList = [
-    {"name": "微软文字转语音", "key": "AzureTTS", "can_disabled": True},
-    {"name": "小鸡词典查梗", "key": "ChickDict", "can_disabled": True},
-    {"name": "小鸡词典emoji转换", "key": "ChickEmoji", "can_disabled": True},
-    {"name": "汉语词典查询", "key": "ChineseDict", "can_disabled": True},
-    {"name": "网易云音乐点歌", "key": "CloudMusic", "can_disabled": True},
-    {"name": "网络黑话翻译", "key": "CyberBlacktalk", "can_disabled": True},
-    {"name": "词云", "key": "WordCloud", "can_disabled": True},
-    {"name": "禁言套餐", "key": "MutePack", "can_disabled": True},
-    {"name": "兽语转换", "key": "Beast", "can_disabled": True},
-    {"name": "我的世界服务器Ping", "key": "MinecraftPing", "can_disabled": True},
-    {"name": "摸头", "key": "PetPet", "can_disabled": True},
-    {"name": "风格logo生成", "key": "StyleLogoGenerator", "can_disabled": True},
-    {"name": "复读姬", "key": "Repeater", "can_disabled": True},
-    {"name": "涩图", "key": "Pixiv", "can_disabled": True},
-    {"name": "有点涩的聊天", "key": "ChatMS", "can_disabled": True},
-    {"name": "没啥用的回复", "key": "Message", "can_disabled": True},
-    {"name": "每日早报", "key": "DailyNewspaper", "can_disabled": True},
-    {"name": "色图", "key": "Setu", "can_disabled": True},
-    {"name": "防撤回", "key": "AnitRecall", "can_disabled": True},
-    {"name": "娱乐功能", "key": "Entertainment", "can_disabled": True},
-    {"name": "骰娘", "key": "DiceMaid", "can_disabled": True},
-    {"name": "B站视频解析", "key": "BilibiliResolve", "can_disabled": True},
-    {"name": "听歌识曲 / 哼唱识曲", "key": "VoiceMusicRecognition", "can_disabled": True},
-    {"name": "淫文翻译机", "key": "Yinglish", "can_disabled": True},
-    {"name": "背单词", "key": "EnglishTest", "can_disabled": True},
-    {"name": "BiliBili订阅推送", "key": "BilibiliDynamic", "can_disabled": False},
-    {"name": "查看人设", "key": "CharacterDesignGenerator", "can_disabled": True},
-    {"name": "以图搜番 / 以图搜图", "key": "AnimeSceneSearch", "can_disabled": True},
-    {"name": "查战绩", "key": "RecordQuery", "can_disabled": True}
+    {"name": "微软文字转语音", "key": "AzureTTS", "can_disabled": True, "default_disabled": False},
+    {"name": "小鸡词典查梗", "key": "ChickDict", "can_disabled": True, "default_disabled": False},
+    {"name": "小鸡词典emoji转换", "key": "ChickEmoji", "can_disabled": True, "default_disabled": False},
+    {"name": "汉语词典查询", "key": "ChineseDict", "can_disabled": True, "default_disabled": False},
+    {"name": "网易云音乐点歌", "key": "CloudMusic", "can_disabled": True, "default_disabled": False},
+    {"name": "网络黑话翻译", "key": "CyberBlacktalk", "can_disabled": True, "default_disabled": False},
+    {"name": "词云", "key": "WordCloud", "can_disabled": True, "default_disabled": False},
+    {"name": "禁言套餐", "key": "MutePack", "can_disabled": True, "default_disabled": False},
+    {"name": "兽语转换", "key": "Beast", "can_disabled": True, "default_disabled": False},
+    {"name": "我的世界服务器Ping", "key": "MinecraftPing", "can_disabled": True, "default_disabled": False},
+    {"name": "摸头", "key": "PetPet", "can_disabled": True, "default_disabled": False},
+    {"name": "风格logo生成", "key": "StyleLogoGenerator", "can_disabled": True, "default_disabled": False},
+    {"name": "复读姬", "key": "Repeater", "can_disabled": True, "default_disabled": False},
+    {"name": "涩图", "key": "Pixiv", "can_disabled": True, "default_disabled": False},
+    {"name": "有点涩的聊天", "key": "ChatMS", "can_disabled": True, "default_disabled": False},
+    {"name": "没啥用的回复", "key": "Message", "can_disabled": True, "default_disabled": False},
+    {"name": "每日早报", "key": "DailyNewspaper", "can_disabled": True, "default_disabled": False},
+    {"name": "色图", "key": "Setu", "can_disabled": True, "default_disabled": False},
+    {"name": "防撤回", "key": "AnitRecall", "can_disabled": True, "default_disabled": False},
+    {"name": "娱乐功能", "key": "Entertainment", "can_disabled": True, "default_disabled": False},
+    {"name": "骰娘", "key": "DiceMaid", "can_disabled": True, "default_disabled": False},
+    {"name": "B站视频解析", "key": "BilibiliResolve", "can_disabled": True, "default_disabled": False},
+    {"name": "听歌识曲 / 哼唱识曲", "key": "VoiceMusicRecognition", "can_disabled": True, "default_disabled": False},
+    {"name": "淫文翻译机", "key": "Yinglish", "can_disabled": True, "default_disabled": False},
+    {"name": "背单词", "key": "EnglishTest", "can_disabled": True, "default_disabled": False},
+    {"name": "BiliBili订阅推送", "key": "BilibiliDynamic", "can_disabled": False, "default_disabled": False},
+    {"name": "查看人设", "key": "CharacterDesignGenerator", "can_disabled": True, "default_disabled": False},
+    {"name": "以图搜番 / 以图搜图", "key": "AnimeSceneSearch", "can_disabled": True, "default_disabled": False},
+    {"name": "查战绩", "key": "RecordQuery", "can_disabled": True, "default_disabled": False},
+    {"name": "明日方舟蹲饼", "key": "ArkNews", "can_disabled": True, "default_disabled": True}
 ]
 
 configList = [
@@ -55,8 +56,13 @@ configList = [
     {"name": "退群通知", "key": "LeaveMSG"}
 ]
 
+DisabledFunc = []
+for func in funcList:
+    if func['default_disabled']:
+        DisabledFunc.append(func['key'])
+
 groupInitData = {
-    "DisabledFunc": ["A"],
+    "DisabledFunc": DisabledFunc,
     "WelcomeMSG": {
         "Enabled": False,
         "Message": None
@@ -237,6 +243,12 @@ funcHelp = {
         "usage": "发送指令：\n查战绩",
         "options": "目前可以查询 “彩虹六号：围攻”\n首次输入需要绑定游戏id，可以at其他已绑定的人查询，也可以直接输入id查询",
         "example": "查战绩 r6\n查战绩 r6 @xxxx\n查战绩 r6 Eustiana"
+    },
+    "明日方舟蹲饼": {
+        "instruction": "自动群发明日方舟微博和游戏内公告",
+        "usage": "无",
+        "options": "本功能默认关闭，如需使用请自行开启。",
+        "example": "无"
     }
 }
 
