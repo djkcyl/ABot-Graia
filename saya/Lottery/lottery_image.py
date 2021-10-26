@@ -1,10 +1,10 @@
+import httpx
 import qrcode
 import numpy as np
-from qrcode.image.pil import PilImage
-import requests
 
 from io import BytesIO
 from pyzbar import pyzbar
+from qrcode.image.pil import PilImage
 from PIL import Image, ImageDraw, ImageFont
 
 from .certification import encrypt
@@ -40,7 +40,7 @@ def qrgen(qq, id, name, period):
     return bg_bio
 
 def qrdecode(url):
-    r = requests.get(url)
+    r = httpx.get(url)
     pic = r.content
     image_bio = BytesIO()
     image_bio.write(pic)

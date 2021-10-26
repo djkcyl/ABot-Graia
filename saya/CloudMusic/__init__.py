@@ -1,7 +1,6 @@
 import time
 import httpx
 import asyncio
-import requests
 
 from pathlib import Path
 from graiax import silkcoder
@@ -38,7 +37,7 @@ CLOUD_HOST = "http://127.0.0.1:3000"
 if not yaml_data['Saya']['CloudMusic']['Disabled']:
     phone = yaml_data['Saya']['CloudMusic']['ApiConfig']['PhoneNumber']
     password = yaml_data['Saya']['CloudMusic']['ApiConfig']['Password']
-    login = requests.get(f"{CLOUD_HOST}/login/cellphone?phone={phone}&password={password}").cookies
+    login = httpx.get(f"{CLOUD_HOST}/login/cellphone?phone={phone}&password={password}").cookies
 
 QQ_HOST = "http://127.0.0.1:3200"
 
@@ -98,7 +97,7 @@ async def sing(app: GraiaMiraiApplication, group: Group, member: Member, message
                     Plain("点歌超时")
                 ]), quote=waite_musicmessageId.messageId)
         times = str(int(time.time()))
-        search = requests.get(f"{CLOUD_HOST}/cloudsearch?keywords={musicname}&timestamp={times}", cookies=login).json()
+        search = httpx.get(f"{CLOUD_HOST}/cloudsearch?keywords={musicname}&timestamp={times}", cookies=login).json()
         try:
             if search["result"]["songCount"] == 0:
                 WAITING.remove(member.id)
@@ -127,7 +126,7 @@ async def sing(app: GraiaMiraiApplication, group: Group, member: Member, message
             num += 1
             i += 1
 
-        search = requests.get(f"{QQ_HOST}/getSearchByKey?key={musicname}").json()
+        search = httpx.get(f"{QQ_HOST}/getSearchByKey?key={musicname}").json()
         if search["response"]["data"]["song"]["curnum"] == 0:
             WAITING.remove(member.id)
             return await app.sendGroupMessage(group, MessageChain.create([Plain("未找到此歌曲")]))
@@ -169,10 +168,10 @@ async def sing(app: GraiaMiraiApplication, group: Group, member: Member, message
         musicid = musicIdList[int(wantMusicID) - 1]
         if musicid[0] == 1:
             times = str(int(time.time()))
-            musicinfo = requests.get(
+            musicinfo = httpx.get(
                 url=f"{CLOUD_HOST}/song/detail?ids={musicid[1]}&timestamp={times}",
                 cookies=login).json()
-            musicurl = requests.get(
+            musicurl = httpx.get(
                 url=f"{CLOUD_HOST}/song/url?id={musicid[1]}&br=128000&timestamp={times}",
                 cookies=login).json()["data"][0]["url"]
             if yaml_data['Saya']['CloudMusic']['MusicInfo']:
@@ -182,11 +181,11 @@ async def sing(app: GraiaMiraiApplication, group: Group, member: Member, message
                     music_ar.append(ar['name'])
                 music_ar = "/".join(music_ar)
                 music_al = musicinfo['songs'][0]['al']['picUrl']+"?param=300x300"
-            musiclyric = requests.get(f"{CLOUD_HOST}/lyric?id={musicid[1]}&timestamp={times}").json()
+            musiclyric = httpx.get(f"{CLOUD_HOST}/lyric?id={musicid[1]}&timestamp={times}").json()
             music_lyric = musiclyric.get("lrc", {}).get("lyric", None)
         elif musicid[0] == 2:
-            musicinfo = requests.get(f"{QQ_HOST}/getSongInfo?songmid={musicid[1]}").json()["response"]["songinfo"]["data"]["track_info"]
-            musicurl = requests.get(f"{QQ_HOST}/getMusicPlay?songmid={musicid[1]}").json()["data"]["playUrl"][musicid[1]]["url"]
+            musicinfo = httpx.get(f"{QQ_HOST}/getSongInfo?songmid={musicid[1]}").json()["response"]["songinfo"]["data"]["track_info"]
+            musicurl = httpx.get(f"{QQ_HOST}/getMusicPlay?songmid={musicid[1]}").json()["data"]["playUrl"][musicid[1]]["url"]
             album_mid = musicinfo["album"]["mid"]
             if yaml_data['Saya']['CloudMusic']['MusicInfo']:
                 music_name = musicinfo["name"]
@@ -194,8 +193,8 @@ async def sing(app: GraiaMiraiApplication, group: Group, member: Member, message
                 for ar in musicinfo["singer"]:
                     music_ar.append(ar['name'])
                 music_ar = "/".join(music_ar)
-                music_al = requests.get(f"{QQ_HOST}/getImageUrl?id={album_mid}").json()["response"]["data"]["imageUrl"]
-            musiclyric = requests.get(f"{QQ_HOST}/getLyric?songmid={musicid[1]}").json()
+                music_al = httpx.get(f"{QQ_HOST}/getImageUrl?id={album_mid}").json()["response"]["data"]["imageUrl"]
+            musiclyric = httpx.get(f"{QQ_HOST}/getLyric?songmid={musicid[1]}").json()
             music_lyric = musiclyric["response"]["lyric"]
             if music_lyric == "[00:00:00]此歌曲为没有填词的纯音乐，请您欣赏":
                 music_lyric = None

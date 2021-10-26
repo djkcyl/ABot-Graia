@@ -1,6 +1,5 @@
 .vscode/
 __pycache__/
-poetry.lock
 temp/
 voice_file
 config.json
