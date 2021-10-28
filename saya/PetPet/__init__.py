@@ -34,6 +34,7 @@ async def petpet_generator(app: GraiaMiraiApplication, message: MessageChain, gr
         return
     elif 'PetPet' in group_data[group.id]['DisabledFunc']:
         return
+        
     message_text = message.asDisplay()
     if message.has(At) and message_text.startswith("摸") or message_text.startswith("摸头 "):
         manual_limit(group.id, "petpet", 3)
