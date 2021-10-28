@@ -111,7 +111,7 @@ async def get_game_news(app: GraiaMiraiApplication):
     elif len(new_list) == 0:
         return
 
-    pushed_list["game"] = list(set(pushed) - set(latest_list))
+    pushed_list["game"] = latest_list
     save_pushed_list()
 
     group_list = await app.groupList()
