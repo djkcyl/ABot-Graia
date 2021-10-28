@@ -43,6 +43,7 @@ markdown = "^3.3.4"
 scipy = "^1.7.1"
 pillow = "^8.3.2"
 saucenao-api = "^2.4.0"
+triangler = {git = "https://github.com/djkcyl/triangler"}
 
 [tool.poetry.dev-dependencies]
 autopep8 = "^1.6.0"

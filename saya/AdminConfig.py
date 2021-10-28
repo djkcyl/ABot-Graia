@@ -48,7 +48,9 @@ funcList = [
     {"name": "查看人设", "key": "CharacterDesignGenerator", "can_disabled": True, "default_disabled": False},
     {"name": "以图搜番 / 以图搜图", "key": "AnimeSceneSearch", "can_disabled": True, "default_disabled": False},
     {"name": "查战绩", "key": "RecordQuery", "can_disabled": True, "default_disabled": False},
-    {"name": "明日方舟蹲饼", "key": "ArkNews", "can_disabled": True, "default_disabled": True}
+    {"name": "明日方舟蹲饼", "key": "ArkNews", "can_disabled": True, "default_disabled": True},
+    {"name": "低多边形图片生成", "key": "LowPolygon", "can_disabled": True, "default_disabled": False}
+
 ]
 
 configList = [
@@ -249,7 +251,13 @@ funcHelp = {
         "usage": "无",
         "options": "本功能默认关闭，如需使用请自行开启。",
         "example": "无"
-    }
+    },
+    "低多边形图片生成": {
+        "instruction": "吧图片转换为低多边形风格化",
+        "usage": "发送指令：\n低多边形",
+        "options": "图片越大生成越慢，请耐心等待",
+        "example": "（这也需要示例吗？"
+    },
 }
 
 
