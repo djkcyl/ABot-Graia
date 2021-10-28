@@ -9,7 +9,6 @@ from graia.scheduler.timers import every_custom_seconds
 from graia.scheduler.saya.schema import SchedulerSchema
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.event.lifecycle import ApplicationLaunched
-from graia.application.message.parser.literature import Literature
 from graia.application.message.elements.internal import MessageChain, Plain, Image_NetworkAddress, Image_UnsafeBytes
 
 from util.TimeTool import TimeRecorder
@@ -108,7 +107,7 @@ async def get_game_news(app: GraiaMiraiApplication):
         save_pushed_list()
         await asyncio.sleep(1)
         return app.logger.info(f"[明日方舟蹲饼] 游戏公告初始化成功，当前共有 {len(latest_list)} 条公告")
-    elif len(new_list) == 0:
+    elif not new_list:
         return
 
     pushed_list["game"] = latest_list
