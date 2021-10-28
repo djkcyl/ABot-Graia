@@ -9,7 +9,6 @@ from graia.scheduler.timers import crontabify
 from graia.application import GraiaMiraiApplication
 from graia.scheduler.saya.schema import SchedulerSchema
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.event.lifecycle import ApplicationLaunched
 from graia.application.event.messages import GroupMessage, FriendMessage
 from graia.application.message.elements.internal import MessageChain, At, Plain
 
