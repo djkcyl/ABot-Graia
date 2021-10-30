@@ -69,12 +69,11 @@ async def get_weibo_news(app: GraiaMiraiApplication):
 
         time_rec = TimeRecorder()
         app.logger.info(f"[明日方舟蹲饼] 微博已更新：{new_id}")
-        image = await create_image(result)
+        image = await create_image(result, 72)
         msg = [
             Plain("明日方舟更新了新的微博\n"),
+            Plain(f"{detail_url}\n"),
             Image_UnsafeBytes(image.getvalue())] + [Image_NetworkAddress(x) for x in pics_list]
-
-        # msg.append(Plain(f"\n{detail_url}"))
 
         await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create(msg))
         for group in group_list:
@@ -113,7 +112,6 @@ async def get_game_news(app: GraiaMiraiApplication):
         return app.logger.info(f"[明日方舟蹲饼] 游戏公告初始化成功，当前共有 {len(latest_list)} 条公告")
     elif not new_list:
         return
-
 
     pushed_list["game"] = latest_list
     save_pushed_list()
