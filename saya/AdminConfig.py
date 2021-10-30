@@ -49,7 +49,8 @@ funcList = [
     {"name": "以图搜番 / 以图搜图", "key": "AnimeSceneSearch", "can_disabled": True, "default_disabled": False},
     {"name": "查战绩", "key": "RecordQuery", "can_disabled": True, "default_disabled": False},
     {"name": "明日方舟蹲饼", "key": "ArkNews", "can_disabled": True, "default_disabled": True},
-    {"name": "低多边形图片生成", "key": "LowPolygon", "can_disabled": True, "default_disabled": False}
+    {"name": "低多边形图片生成", "key": "LowPolygon", "can_disabled": True, "default_disabled": False},
+    {"name": "计算器", "key": "Calculator", "can_disabled": True, "default_disabled": False}
 
 ]
 
@@ -258,6 +259,12 @@ funcHelp = {
         "options": "图片越大生成越慢，请耐心等待",
         "example": "（这也需要示例吗？"
     },
+    "计算器": {
+        "instruction": "一个只支持 “加减乘除()” 的计算器功能",
+        "usage": "发送指令：\n计算器 <式子>",
+        "options": "只支持 加！减！乘！除！！！",
+        "example": "计算器 60+2*(-3-40.0+42425/5)*(9-2*5/3)"
+    },
 }
 
 
@@ -356,7 +363,7 @@ async def adminmain(app: GraiaMiraiApplication, group: Group, message: MessageCh
                    "\n方舟玩家可以加个好友，[官服 A60#6660]" +
                    "\n源码：github.com/djkcyl/ABot-Graia" +
                    f"\n更多功能待开发，如有特殊需求可以向 {yaml_data['Basic']['Permission']['Master']} 询问")
-        image = await create_image(msg)
+        image = await create_image(msg, )
         await app.sendGroupMessage(group, MessageChain.create([Image_UnsafeBytes(image.getvalue())]))
 
 

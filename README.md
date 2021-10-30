@@ -62,6 +62,7 @@ ABot 是一个使用 [Graia](https://github.com/GraiaProject/Application) 搭建
 >   - （待开发中）
 > - 明日方舟蹲饼
 > - 低多边形图片生成
+> - 计算器（？
 > - 亿些杂七杂八没整理的小功能
 >   - ABot 事件提醒
 >   - ABot 被禁言后自动退群

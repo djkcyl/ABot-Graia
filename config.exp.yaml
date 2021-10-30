@@ -162,6 +162,9 @@ Saya: # saya 插件配置
   LowPolygon: # 低多边形图片生成
     Disabled: false
 
+  Calculator: # 计算器
+    Disabled: false
+
 Final: false
 # 配置完成后请调整为 true
 # 配置完成后请调整为 true
