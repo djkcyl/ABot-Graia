@@ -91,7 +91,7 @@ async def get_weibo_news(app: GraiaMiraiApplication):
         pass
 
 
-@channel.use(SchedulerSchema(every_custom_seconds(15)))
+@channel.use(SchedulerSchema(every_custom_seconds(30)))
 @channel.use(ListenerSchema(listening_events=[ApplicationLaunched]))
 async def get_game_news(app: GraiaMiraiApplication):
 
@@ -102,6 +102,10 @@ async def get_game_news(app: GraiaMiraiApplication):
     latest_list = await game.get_announce()
     new_list = list(set(latest_list) - set(pushed))
 
+    # print(len(pushed))
+    # print(len(latest_list))
+    # print(len(new_list))
+
     if not pushed:
         pushed_list["game"] = latest_list
         save_pushed_list()
@@ -109,6 +113,7 @@ async def get_game_news(app: GraiaMiraiApplication):
         return app.logger.info(f"[明日方舟蹲饼] 游戏公告初始化成功，当前共有 {len(latest_list)} 条公告")
     elif not new_list:
         return
+
 
     pushed_list["game"] = latest_list
     save_pushed_list()

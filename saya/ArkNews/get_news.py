@@ -96,7 +96,7 @@ class Game():
         try:
             page = await browser.new_page()
             await page.goto(url, wait_until='networkidle', timeout=10000)
-            await page.set_viewport_size({"width": 750, "height": 410})
+            await page.set_viewport_size({"width": 500, "height": 273})
             image = await page.screenshot(full_page=True, type='jpeg', quality=85)
             await page.close()
             return image
