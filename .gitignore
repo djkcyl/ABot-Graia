@@ -22,6 +22,7 @@ data.json
 /saya/ArkFriend/
 /saya/ChaoxingSign
 
+/mirai/
 /pixiv/
 .gitignore
 util/UpImage.py

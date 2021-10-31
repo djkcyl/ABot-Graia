@@ -25,9 +25,9 @@ else:
 
 MIRAI_PATH = Path(yaml_data["Basic"]["MiraiPath"])
 VIOCE_PATH = MIRAI_PATH.joinpath("data", "net.mamoe.mirai-api-http", "voices")
-if not VIOCE_PATH.exists():
-    print(f"{VIOCE_PATH} 不存在，请修改配置文件中的 Basic-MiraiPath 为Mirai的根目录")
-    exit()
+# if not VIOCE_PATH.exists():
+#     print(f"{VIOCE_PATH} 不存在，请修改配置文件中的 Basic-MiraiPath 为Mirai的根目录")
+#     exit()
 
 if os.path.exists('groupdata.yaml'):
     with open('groupdata.yaml', 'r', encoding="utf-8") as f:

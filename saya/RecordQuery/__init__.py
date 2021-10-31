@@ -106,8 +106,8 @@ async def main(app: GraiaMiraiApplication, group: Group, member: Member, message
                     ]), quote=source)
 
                 # 搜索昵称
-                async with httpx.AsyncClient(timeout=10, auth=AUTH) as client:
-                    resp = await client.get(f"https://api.statsdb.net/r6/pc/player/{nick_name}", allow_redirects=True)
+                async with httpx.AsyncClient(timeout=10, auth=AUTH, follow_redirects=True) as client:
+                    resp = await client.get(f"https://api.statsdb.net/r6/pc/player/{nick_name}")
                     player_data = resp.json()
 
                 # 如果搜索到了

@@ -17,7 +17,7 @@ from graia.application.message.elements.internal import Plain, MessageChain, Voi
 from azure.cognitiveservices.speech import AudioDataStream, SpeechConfig, SpeechSynthesizer
 
 
-from datebase.db import reduce_gold
+from database.db import reduce_gold
 from util.limit import member_limit_check
 from util.RestControl import rest_control
 from util.UserBlock import group_black_list_block

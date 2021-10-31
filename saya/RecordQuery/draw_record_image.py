@@ -96,8 +96,8 @@ async def get_pic(type, name):
 
 async def draw_r6(nick_name):
 
-    async with httpx.AsyncClient(timeout=10, auth=AUTH) as client:
-        resp = await client.get(f"https://api.statsdb.net/r6/pc/player/{nick_name}", allow_redirects=True)
+    async with httpx.AsyncClient(timeout=10, auth=AUTH, follow_redirects=True) as client:
+        resp = await client.get(f"https://api.statsdb.net/r6/pc/player/{nick_name}")
         data = resp.json()
 
     if resp.status_code == 404:

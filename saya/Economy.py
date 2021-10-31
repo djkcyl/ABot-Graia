@@ -10,7 +10,7 @@ from graia.application.message.elements.internal import MessageChain, At, Plain,
 from config import yaml_data, group_data
 from util.limit import member_limit_check
 from util.UserBlock import group_black_list_block
-from datebase.db import reduce_gold, add_gold
+from database.db import reduce_gold, add_gold
 
 saya = Saya.current()
 channel = Channel.current()

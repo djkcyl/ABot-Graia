@@ -14,7 +14,7 @@ from graia.application.message.parser.literature import Literature
 from acrcloud.recognizer import ACRCloudRecognizer, ACRCloudRecognizeType
 from graia.application.message.elements.internal import Image_UnsafeBytes, MessageChain, Plain, Source, Voice
 
-from datebase.db import reduce_gold
+from database.db import reduce_gold
 from config import yaml_data, group_data
 from util.text2image import create_image
 from util.limit import member_limit_check

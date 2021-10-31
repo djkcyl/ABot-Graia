@@ -17,7 +17,7 @@ from graia.application.event.messages import FriendMessage, GroupMessage
 from graia.application.message.parser.signature import FullMatch, OptionalParam
 from graia.application.message.elements.internal import Image_UnsafeBytes, MessageChain, Plain, Image_NetworkAddress, Voice, Source
 
-from datebase.db import reduce_gold
+from database.db import reduce_gold
 from util.text2image import create_image
 from util.limit import member_limit_check
 from util.RestControl import rest_control

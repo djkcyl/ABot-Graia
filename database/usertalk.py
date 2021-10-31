@@ -2,7 +2,7 @@ import time
 
 from peewee import IntegerField, SqliteDatabase, Model, CharField, BigIntegerField
 
-db = SqliteDatabase('./datebase/talkData.db')
+db = SqliteDatabase('./database/talkData.db')
 
 
 class BaseModel(Model):
