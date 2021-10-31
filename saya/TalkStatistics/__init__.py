@@ -12,7 +12,7 @@ from graia.application.message.elements.internal import FlashImage, Image, Image
 
 from util.limit import member_limit_check
 from util.UserBlock import group_black_list_block
-from datebase.usertalk import get_message_analysis, add_talk, archive_exists
+from database.usertalk import get_message_analysis, add_talk, archive_exists
 
 from .mapping import get_mapping
 

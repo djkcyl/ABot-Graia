@@ -1,14 +1,13 @@
 [tool.poetry]
-name = "abot"
+name = "abot-v5"
 version = "0.1.0"
 description = ""
 authors = ["djkcyl <cyl@cyllive.cn>"]
 
 [tool.poetry.dependencies]
-python = ">=3.8,<3.10"
-graia-application-mirai = "0.19.2"
-graia-broadcast = "0.8.11"
-graia-saya = "0.0.9"
+python = ">=3.9,<3.10"
+graia-broadcast = "^0.13.1"
+graia-saya = "^0.0.13"
 graia-scheduler = "0.0.4"
 requests = "2.23"
 Pillow = "^8.4.0"
@@ -17,7 +16,6 @@ matplotlib = "^3.4.2"
 wordcloud = "^1.8.1"
 dnspython = "^2.1.0"
 moviepy = "^1.0.3"
-pydantic = "1.7.1"
 peewee = "^3.14.4"
 PyMySQL = "^1.0.2"
 PixivPy = "^3.5.11"
@@ -27,8 +25,7 @@ httpx = "^0.20.0"
 playwright = "^1.16.0"
 lxml = "^4.6.3"
 PyYAML = "^5.4.1"
-interval = "^1.0.0"
-tencentcloud-sdk-python = "^3.0.508"
+tencentcloud-sdk-python = "^3.0.515"
 xmltodict = "^0.12.0"
 azure-cognitiveservices-speech = "^1.18.0"
 redis = "^3.5.3"
@@ -41,21 +38,22 @@ jieba = "^0.42.1"
 psutil = "^5.8.0"
 markdown = "^3.3.4"
 scipy = "^1.7.1"
-pillow = "^8.3.2"
+pillow = "^8.4.0"
 saucenao-api = "^2.4.0"
 triangler = {git = "https://github.com/djkcyl/triangler"}
-
-[tool.poetry.dev-dependencies]
-autopep8 = "^1.6.0"
+graia-ariadne = "^0.3.3"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
-[tool.poetry.scripts]
-bot = "my_module:main"
+
+[tool.poetry.dev-dependencies]
+flake8 = "^4.0.1"
+autopep8 = "^1.6.0"
+devtools = "^0.8.0"
 
 [[tool.poetry.source]]
-name = "douban"
-url = "https://pypi.doubanio.com/simple"
+name = "tsinghua"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
 default = true

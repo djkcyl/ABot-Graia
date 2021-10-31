@@ -11,7 +11,7 @@ from graia.application.message.parser.literature import Literature
 from graia.application.event.messages import GroupMessage, FriendMessage
 from graia.application.message.elements.internal import At, Image_UnsafeBytes, MessageChain, Plain
 
-from datebase.db import add_answer
+from database.db import add_answer
 from util.text2image import create_image
 from util.UserBlock import group_black_list_block, friend_black_list_block
 

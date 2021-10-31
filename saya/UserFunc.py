@@ -9,7 +9,7 @@ from graia.application.event.lifecycle import ApplicationLaunched
 from graia.application.message.parser.literature import Literature
 from graia.application.message.elements.internal import Image_UnsafeBytes, MessageChain
 
-from datebase.db import get_ranking
+from database.db import get_ranking
 from util.text2image import create_image
 from util.limit import member_limit_check
 from util.UserBlock import group_black_list_block

@@ -5,7 +5,7 @@ ABot  根目录
 ├── README.md
 ├── config.exp.yaml  配置文件示例
 ├── config.py  配置管理
-├── datebase  用户数据管理
+├── database  用户数据管理
 │   ├── db.py
 │   ├── talkData.db  聊天记录
 │   ├── userData.db  用户数据

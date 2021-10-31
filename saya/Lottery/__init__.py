@@ -20,7 +20,7 @@ from graia.application.event.messages import FriendMessage, GroupMessage
 from graia.application.message.elements.internal import At, Image_UnsafeBytes, Plain, MessageChain, Source, Image
 
 from config import yaml_data, group_data
-from datebase.db import add_gold, reduce_gold
+from database.db import add_gold, reduce_gold
 from util.UserBlock import group_black_list_block
 
 from .certification import decrypt

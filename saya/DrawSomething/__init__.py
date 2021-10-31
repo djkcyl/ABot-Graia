@@ -18,7 +18,7 @@ from graia.application.message.elements.internal import MessageChain, Source, Pl
 
 from util.limit import group_limit_check
 from config import yaml_data, group_data
-from datebase.db import reduce_gold, add_gold
+from database.db import reduce_gold, add_gold
 from util.UserBlock import group_black_list_block
 
 

@@ -1,11 +1,11 @@
 import json
 import httpx
 
-from peewee import *
 from prettytable import PrettyTable
+from peewee import SqliteDatabase, Model, CharField, IntegerField
 
 
-db = SqliteDatabase('./datebase/userData.db')
+db = SqliteDatabase('./database/userData.db')
 
 
 class BaseModel(Model):

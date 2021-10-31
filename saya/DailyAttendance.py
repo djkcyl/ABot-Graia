@@ -16,7 +16,7 @@ from graia.application.message.elements.internal import Plain, MessageChain
 from config import yaml_data, group_data
 from util.limit import member_limit_check
 from util.UserBlock import group_black_list_block
-from datebase.db import sign, add_gold, get_info, add_talk, reset_sign, all_sign_num
+from database.db import sign, add_gold, get_info, add_talk, reset_sign, all_sign_num
 
 saya = Saya.current()
 channel = Channel.current()

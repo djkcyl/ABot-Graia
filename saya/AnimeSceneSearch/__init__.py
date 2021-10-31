@@ -14,7 +14,7 @@ from graia.application.message.parser.literature import Literature
 from graia.application.event.messages import FriendMessage, GroupMessage
 from graia.application.message.elements.internal import At, MessageChain, Plain, Image_UnsafeBytes, Image, Source
 
-from datebase.db import reduce_gold
+from database.db import reduce_gold
 from config import yaml_data, group_data
 from util.limit import member_limit_check
 from util.UserBlock import group_black_list_block

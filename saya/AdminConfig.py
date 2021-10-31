@@ -1,12 +1,13 @@
 import time
 
 from graia.saya import Saya, Channel
-from graia.application import GraiaMiraiApplication
-from graia.application.event.messages import GroupMessage
-from graia.application.group import Group, Member, MemberPerm
+from graia.ariadne.app import Ariadne
+from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.event.message import GroupMessage
+from graia.ariadne.model import Group, Member, MemberPerm
+from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.message.parser.literature import Literature
-from graia.application.message.elements.internal import MessageChain, Quote, At, Plain, Image_UnsafeBytes
+from graia.ariadne.message.element import Quote, At, Plain, Image
 
 
 from util.limit import manual_limit
@@ -270,7 +271,7 @@ funcHelp = {
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             headless_decorators=[group_black_list_block()]))
-async def atrep(app: GraiaMiraiApplication, group: Group, message: MessageChain):
+async def atrep(app: Ariadne, group: Group, message: MessageChain):
     if message.has(At):
         ifa = message.get(At)[0].target == yaml_data['Basic']['MAH']['BotQQ']
     else:
@@ -290,21 +291,21 @@ async def atrep(app: GraiaMiraiApplication, group: Group, message: MessageChain)
                 f"\n如果有需要可以联系主人QQ”{str(yaml_data['Basic']['Permission']['Master'])}“，" +
                 f"\n邀请 {yaml_data['Basic']['BotName']} 加入其他群需先询问主人获得白名单" +
                 f"\n{yaml_data['Basic']['BotName']} 被群禁言后会自动退出该群。" +
-                f"\n发送 <菜单> 可以查看功能列表" +
-                f"\n@不会触发任何功能　　　　@不会触发任何功能" +
-                f"\n@不会触发任何功能　　　　@不会触发任何功能" +
-                f"\n@不会触发任何功能　　　　@不会触发任何功能" +
-                f"\n@不会触发任何功能　　　　@不会触发任何功能" +
-                f"\n@不会触发任何功能　　　　@不会触发任何功能" +
-                f"\n@不会触发任何功能　　　　@不会触发任何功能"))
-            msg = Image_UnsafeBytes(image.getvalue())
+                "\n发送 <菜单> 可以查看功能列表" +
+                "\n@不会触发任何功能　　　　@不会触发任何功能" +
+                "\n@不会触发任何功能　　　　@不会触发任何功能" +
+                "\n@不会触发任何功能　　　　@不会触发任何功能" +
+                "\n@不会触发任何功能　　　　@不会触发任何功能" +
+                "\n@不会触发任何功能　　　　@不会触发任何功能" +
+                "\n@不会触发任何功能　　　　@不会触发任何功能"))
+            msg = Image(data_bytes=image)
         await app.sendGroupMessage(group, MessageChain.create([msg]))
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("功能")],
                             headless_decorators=[group_black_list_block()]))
-async def adminmain(app: GraiaMiraiApplication, group: Group, message: MessageChain):
+async def funchelp(app: Ariadne, group: Group, message: MessageChain):
     saying = message.asDisplay().split()
     manual_limit(group.id, "Help", 3)
     if len(saying) == 2:
@@ -325,14 +326,14 @@ async def adminmain(app: GraiaMiraiApplication, group: Group, message: MessageCh
                    funcHelp[sayfunc]["example"]
                    )
         image = await create_image(help)
-        await app.sendGroupMessage(group, MessageChain.create([Image_UnsafeBytes(image.getvalue())]))
+        await app.sendGroupMessage(group, MessageChain.create([Image(data_bytes=image)]))
     else:
         await app.sendGroupMessage(group, MessageChain.create([Plain("请输入 功能 <id>，如果不知道id可以发送菜单查看")]))
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             headless_decorators=[group_black_list_block()]))
-async def adminmain(app: GraiaMiraiApplication, group: Group, message: MessageChain):
+async def help(app: Ariadne, group: Group, message: MessageChain):
     if message.asDisplay() in [".help", "/help", "help", "帮助", "菜单"]:
         manual_limit(group.id, "Help", 3)
         msg = f"{yaml_data['Basic']['BotName']} 群菜单 / {str(group.id)}\n{group.name}\n========================================================"
@@ -363,14 +364,14 @@ async def adminmain(app: GraiaMiraiApplication, group: Group, message: MessageCh
                    "\n方舟玩家可以加个好友，[官服 A60#6660]" +
                    "\n源码：github.com/djkcyl/ABot-Graia" +
                    f"\n更多功能待开发，如有特殊需求可以向 {yaml_data['Basic']['Permission']['Master']} 询问")
-        image = await create_image(msg, )
-        await app.sendGroupMessage(group, MessageChain.create([Image_UnsafeBytes(image.getvalue())]))
+        image = await create_image(msg, 80)
+        await app.sendGroupMessage(group, MessageChain.create([Image(data_bytes=image)]))
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("开启功能")],
                             headless_decorators=[group_black_list_block()]))
-async def onAoff(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain):
+async def on_func(app: Ariadne, group: Group, member: Member, message: MessageChain):
     manual_limit(group.id, "FuncConfig", 2)
     if member.permission in [MemberPerm.Administrator, MemberPerm.Owner] or member.id in yaml_data['Basic']['Permission']['Admin']:
         saying = message.asDisplay().split()
@@ -391,13 +392,13 @@ async def onAoff(app: GraiaMiraiApplication, group: Group, member: Member, messa
         else:
             await app.sendGroupMessage(group, MessageChain.create([Plain(f"{funcname}已处于开启状态")]))
     else:
-        await app.sendGroupMessage(group, MessageChain.create([Plain(f"你没有使用该功能的权限")]))
+        await app.sendGroupMessage(group, MessageChain.create([Plain("你没有使用该功能的权限")]))
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("关闭功能")],
                             headless_decorators=[group_black_list_block()]))
-async def onAoff(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain):
+async def off_func(app: Ariadne, group: Group, member: Member, message: MessageChain):
     manual_limit(group.id, "FuncConfig", 2)
     if member.permission in [MemberPerm.Administrator, MemberPerm.Owner] or member.id in yaml_data['Basic']['Permission']['Admin']:
         saying = message.asDisplay().split()
@@ -418,4 +419,4 @@ async def onAoff(app: GraiaMiraiApplication, group: Group, member: Member, messa
         else:
             await app.sendGroupMessage(group, MessageChain.create([Plain(f"{funcname}已处于关闭状态")]))
     else:
-        await app.sendGroupMessage(group, MessageChain.create([Plain(f"你没有使用该功能的权限")]))
+        await app.sendGroupMessage(group, MessageChain.create([Plain("你没有使用该功能的权限")]))
