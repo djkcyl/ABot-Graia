@@ -39,18 +39,15 @@ app = Ariadne(
     )
 )
 
-# with saya.module_context():
-#     for module in os.listdir("saya"):
-#         if module in ignore:
-#             continue
-#         if os.path.isdir(module):
-#             saya.require(f"saya.{module}")
-#         else:
-#             saya.require(f"saya.{module.split('.')[0]}")
-#     logger.info("saya加载完成")
-
 with saya.module_context():
-    saya.require("saya.AdminMSG")
+    for module in os.listdir("saya"):
+        if module in ignore:
+            continue
+        if os.path.isdir(module):
+            saya.require(f"saya.{module}")
+        else:
+            saya.require(f"saya.{module.split('.')[0]}")
+    logger.info("saya加载完成")
 
 
 async def main():

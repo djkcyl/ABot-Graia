@@ -2,17 +2,16 @@ import asyncio
 
 from typing import Optional
 from graia.saya import Saya, Channel
-from graia.application.group import Group
-from graia.application.friend import Friend
-from graia.application.group import MemberInfo
-from graia.application import GraiaMiraiApplication
+from graia.ariadne.app import Ariadne
 from graia.broadcast.interrupt.waiter import Waiter
+from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.event.message import FriendMessage
 from graia.broadcast.interrupt import InterruptControl
-from graia.application.event.messages import FriendMessage
+from graia.ariadne.model import Group, Friend, MemberInfo
+from graia.ariadne.message.element import At, Plain, Image
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.event.lifecycle import ApplicationLaunched, ApplicationShutdowned
-from graia.application.message.elements.internal import At, MessageChain, Plain, Image_NetworkAddress
-from graia.application.event.mirai import NewFriendRequestEvent, BotInvitedJoinGroupRequestEvent, BotJoinGroupEvent, BotLeaveEventKick, BotGroupPermissionChangeEvent, BotMuteEvent, MemberCardChangeEvent, MemberJoinEvent
+from graia.ariadne.event.lifecycle import ApplicationLaunched, ApplicationShutdowned
+from graia.ariadne.event.mirai import NewFriendRequestEvent, BotInvitedJoinGroupRequestEvent, BotJoinGroupEvent, BotLeaveEventKick, BotGroupPermissionChangeEvent, BotMuteEvent, MemberCardChangeEvent, MemberJoinEvent
 
 from config import save_config, yaml_data, group_data, group_list
 
@@ -25,7 +24,7 @@ inc = InterruptControl(bcc)
 
 
 @channel.use(ListenerSchema(listening_events=[ApplicationLaunched]))
-async def groupDataInit(app: GraiaMiraiApplication):
+async def groupDataInit(app: Ariadne):
     '''
     Graia 成功启动
     '''
@@ -50,14 +49,14 @@ async def groupDataInit(app: GraiaMiraiApplication):
 
 
 @channel.use(ListenerSchema(listening_events=[ApplicationShutdowned]))
-async def groupDataInit(app: GraiaMiraiApplication):
+async def groupDataInit(app: Ariadne):
     await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
         Plain(f"正在关闭")
     ]))
 
 
 @channel.use(ListenerSchema(listening_events=[NewFriendRequestEvent]))
-async def get_BotJoinGroup(app: GraiaMiraiApplication, events: NewFriendRequestEvent):
+async def get_BotJoinGroup(app: Ariadne, events: NewFriendRequestEvent):
     '''
     收到好友申请
     '''
@@ -74,7 +73,7 @@ async def get_BotJoinGroup(app: GraiaMiraiApplication, events: NewFriendRequestE
 
 
 @channel.use(ListenerSchema(listening_events=[BotInvitedJoinGroupRequestEvent]))
-async def accept(app: GraiaMiraiApplication, invite: BotInvitedJoinGroupRequestEvent):
+async def accept(app: Ariadne, invite: BotInvitedJoinGroupRequestEvent):
     '''
     被邀请入群
     '''
@@ -130,7 +129,7 @@ async def accept(app: GraiaMiraiApplication, invite: BotInvitedJoinGroupRequestE
 
 
 @channel.use(ListenerSchema(listening_events=[BotJoinGroupEvent]))
-async def get_BotJoinGroup(app: GraiaMiraiApplication, joingroup: BotJoinGroupEvent):
+async def get_BotJoinGroup(app: Ariadne, joingroup: BotJoinGroupEvent):
     '''
     收到入群事件
     '''
@@ -168,7 +167,7 @@ async def get_BotJoinGroup(app: GraiaMiraiApplication, joingroup: BotJoinGroupEv
 
 
 @channel.use(ListenerSchema(listening_events=[BotLeaveEventKick]))
-async def get_BotJoinGroup(app: GraiaMiraiApplication, kickgroup: BotLeaveEventKick):
+async def get_BotJoinGroup(app: Ariadne, kickgroup: BotLeaveEventKick):
     '''
     被踢出群
     '''
@@ -188,7 +187,7 @@ async def get_BotJoinGroup(app: GraiaMiraiApplication, kickgroup: BotLeaveEventK
 
 
 @channel.use(ListenerSchema(listening_events=[BotGroupPermissionChangeEvent]))
-async def get_BotJoinGroup(app: GraiaMiraiApplication, permissionchange: BotGroupPermissionChangeEvent):
+async def get_BotJoinGroup(app: Ariadne, permissionchange: BotGroupPermissionChangeEvent):
     '''
     群内权限变动
     '''
@@ -202,7 +201,7 @@ async def get_BotJoinGroup(app: GraiaMiraiApplication, permissionchange: BotGrou
 
 
 @channel.use(ListenerSchema(listening_events=[BotMuteEvent]))
-async def get_BotJoinGroup(app: GraiaMiraiApplication, group: Group, mute: BotMuteEvent):
+async def get_BotJoinGroup(app: Ariadne, group: Group, mute: BotMuteEvent):
     '''
     被禁言
     '''
@@ -223,7 +222,7 @@ async def get_BotJoinGroup(app: GraiaMiraiApplication, group: Group, mute: BotMu
 
 
 @channel.use(ListenerSchema(listening_events=[MemberCardChangeEvent]))
-async def main(app: GraiaMiraiApplication, events: MemberCardChangeEvent):
+async def main(app: Ariadne, events: MemberCardChangeEvent):
     '''
     群名片被修改
     '''
@@ -256,14 +255,14 @@ async def main(app: GraiaMiraiApplication, events: MemberCardChangeEvent):
 
 # 群内事件
 @channel.use(ListenerSchema(listening_events=[MemberJoinEvent]))
-async def getMemberJoinEvent(app: GraiaMiraiApplication, events: MemberJoinEvent):
+async def getMemberJoinEvent(app: Ariadne, events: MemberJoinEvent):
     '''
     有人加入群聊
     '''
     a = 1
     if a == 2:
         msg = [
-            Image_NetworkAddress(f"http://q1.qlogo.cn/g?b=qq&nk={str(events.member.id)}&s=4"),
+            Image(url=f"http://q1.qlogo.cn/g?b=qq&nk={str(events.member.id)}&s=4"),
             Plain(f"\n欢迎 {events.member.name} 加入本群\n")
         ]
         if group_data[events.member.group.id]["WelcomeMSG"]["Enabled"]:

@@ -3,10 +3,11 @@ import heapq
 import random
 
 from graia.saya import Saya, Channel
-from graia.application import GraiaMiraiApplication
+from graia.ariadne.app import Ariadne
+from graia.ariadne.message.element import Plain
+from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.event.messages import Group, GroupMessage
-from graia.application.message.elements.internal import Plain, MessageChain
 
 from util.limit import manual_limit
 from util.UserBlock import group_black_list_block
@@ -18,7 +19,7 @@ channel = Channel.current()
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             headless_decorators=[group_black_list_block()]))
-async def dice(app: GraiaMiraiApplication, group: Group, message: MessageChain):
+async def dice(app: Ariadne, group: Group, message: MessageChain):
 
     if message.asDisplay()[:2] == ".r":
         if yaml_data['Saya']['DiceMaid']['Disabled']:

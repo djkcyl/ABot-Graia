@@ -1,11 +1,12 @@
 import random
 
 from graia.saya import Saya, Channel
-from graia.application.group import Group
-from graia.application import GraiaMiraiApplication
-from graia.application.event.messages import GroupMessage
+from graia.ariadne.app import Ariadne
+from graia.ariadne.model import Group
+from graia.ariadne.event.message import GroupMessage
+from graia.ariadne.message.chain import MessageChain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.message.elements.internal import Face, Image, MessageChain, Plain, At
+from graia.ariadne.message.element import Face, Image, Plain, At
 
 from config import yaml_data, group_data
 from util.RestControl import rest_control
@@ -21,7 +22,7 @@ repdict = {}
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             headless_decorators=[rest_control(), group_black_list_block()]))
-async def repeater(app: GraiaMiraiApplication, group: Group, message: MessageChain):
+async def repeater(app: Ariadne, group: Group, message: MessageChain):
 
     if yaml_data['Saya']['Repeater']['Disabled']:
         return
@@ -50,7 +51,7 @@ async def repeater(app: GraiaMiraiApplication, group: Group, message: MessageCha
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             headless_decorators=[rest_control(), group_black_list_block()]))
-async def repeateron(app: GraiaMiraiApplication, group: Group, message: MessageChain):
+async def repeateron(app: Ariadne, group: Group, message: MessageChain):
 
     if yaml_data['Saya']['Repeater']['Disabled']:
         return

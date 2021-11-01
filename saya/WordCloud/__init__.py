@@ -9,15 +9,15 @@ from io import BytesIO
 from pathlib import Path
 from matplotlib import pyplot
 from graia.saya import Saya, Channel
-from graia.application.group import Group, Member
+from graia.ariadne.app import Ariadne
+from graia.ariadne.model import Group, Member
 from concurrent.futures import ThreadPoolExecutor
-from graia.application import GraiaMiraiApplication
 from wordcloud import WordCloud, ImageColorGenerator
-from graia.application.event.messages import GroupMessage
-from graia.application.message.parser.kanata import Kanata
+from graia.ariadne.event.message import GroupMessage
+from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.message.element import At, Plain, Image
+from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.message.parser.signature import RegexMatch
-from graia.application.message.elements.internal import MessageChain, At, Plain, Image_UnsafeBytes
 
 from config import yaml_data, group_data
 from util.limit import member_limit_check
@@ -39,9 +39,9 @@ RUNNING_LIST = []
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            inline_dispatchers=[Kanata([RegexMatch("查看(个人|本群)词云")])],
+                            inline_dispatchers=[Literature("查看个人词云"), Literature("查看本群词云")],
                             headless_decorators=[member_limit_check(300), group_black_list_block()]))
-async def wordcloud(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain):
+async def wordcloud(app: Ariadne, group: Group, member: Member, message: MessageChain):
 
     global RUNNING, RUNNING_LIST
     pattern = re.compile("^查看(个人|本群)词云")
@@ -79,7 +79,7 @@ async def wordcloud(app: GraiaMiraiApplication, group: Group, member: Member, me
             await app.sendGroupMessage(group, MessageChain.create([
                 At(member.id),
                 Plain(f" 已成功制作{mode}词云"),
-                Image_UnsafeBytes(image)
+                Image(data_bytes=image)
             ]))
             RUNNING -= 1
             RUNNING_LIST.remove(member.id)

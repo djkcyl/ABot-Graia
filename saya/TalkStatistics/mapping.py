@@ -36,4 +36,4 @@ async def get_mapping(talk_num, time):
 
     bio = BytesIO()
     plt.savefig(bio)
-    return bio
+    return bio.getvalue()

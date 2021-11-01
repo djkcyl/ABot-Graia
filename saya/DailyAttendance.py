@@ -2,15 +2,15 @@ import time
 import random
 
 from graia.saya import Saya, Channel
-from graia.application.friend import Friend
+from graia.ariadne.app import Ariadne
 from graia.scheduler.timers import crontabify
-from graia.application.group import Group, Member
-from graia.application import GraiaMiraiApplication
+from graia.ariadne.message.element import Plain
+from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.model import Friend, Group, Member
 from graia.scheduler.saya.schema import SchedulerSchema
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.message.parser.literature import Literature
-from graia.application.event.messages import GroupMessage, FriendMessage
-from graia.application.message.elements.internal import Plain, MessageChain
+from graia.ariadne.message.parser.literature import Literature
+from graia.ariadne.event.message import GroupMessage, FriendMessage
 
 
 from config import yaml_data, group_data
@@ -25,7 +25,7 @@ channel = Channel.current()
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("签到")],
                             headless_decorators=[member_limit_check(10), group_black_list_block()]))
-async def main(app: GraiaMiraiApplication, group: Group, member: Member):
+async def main(app: Ariadne, group: Group, member: Member):
     if await sign(str(member.id)):
         i = random.randint(1, 10)
         if i == 1:
@@ -72,7 +72,7 @@ async def main(member: Member):
 
 
 @channel.use(SchedulerSchema(crontabify("0 4 * * *")))
-async def reset(app: GraiaMiraiApplication):
+async def reset(app: Ariadne):
     sign_info = await all_sign_num()
     await reset_sign()
     await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
@@ -82,7 +82,7 @@ async def reset(app: GraiaMiraiApplication):
 
 
 @channel.use(ListenerSchema(listening_events=[FriendMessage], inline_dispatchers=[Literature("签到率查询")]))
-async def main(app: GraiaMiraiApplication, friend: Friend):
+async def main(app: Ariadne, friend: Friend):
     if friend.id == yaml_data['Basic']['Permission']['Master']:
         sign_info = await all_sign_num()
         await app.sendFriendMessage(friend, MessageChain.create([

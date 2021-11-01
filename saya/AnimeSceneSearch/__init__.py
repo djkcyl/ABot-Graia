@@ -3,16 +3,16 @@ import asyncio
 
 from saucenao_api import AIOSauceNao
 from graia.saya import Saya, Channel
-from graia.application.friend import Friend
+from graia.ariadne.app import Ariadne
 from saucenao_api.errors import SauceNaoApiError
-from graia.application.group import Group, Member
 from graia.broadcast.interrupt.waiter import Waiter
-from graia.application import GraiaMiraiApplication
+from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.model import Friend, Group, Member
 from graia.broadcast.interrupt import InterruptControl
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.message.parser.literature import Literature
-from graia.application.event.messages import FriendMessage, GroupMessage
-from graia.application.message.elements.internal import At, MessageChain, Plain, Image_UnsafeBytes, Image, Source
+from graia.ariadne.message.parser.literature import Literature
+from graia.ariadne.message.element import At, Plain, Image, Source
+from graia.ariadne.event.message import FriendMessage, GroupMessage
 
 from database.db import reduce_gold
 from config import yaml_data, group_data
@@ -71,7 +71,7 @@ saucenao_usage = None
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("以图搜番")],
                             headless_decorators=[member_limit_check(30), group_black_list_block()]))
-async def anime_search(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain, source: Source):
+async def anime_search(app: Ariadne, group: Group, member: Member, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['AnimeSceneSearch']['Disabled']:
         return
@@ -98,7 +98,7 @@ async def anime_search(app: GraiaMiraiApplication, group: Group, member: Member,
             image_url = message.getFirst(Image).url
         else:
             WAITING.append(member.id)
-            waite = await app.sendGroupMessage(group, MessageChain.create([Plain(f"请发送图片以继续，发送取消可终止搜番")]))
+            waite = await app.sendGroupMessage(group, MessageChain.create([Plain("请发送图片以继续，发送取消可终止搜番")]))
             try:
                 image_url = await asyncio.wait_for(inc.wait(waiter1), timeout=20)
                 if not image_url:
@@ -114,7 +114,7 @@ async def anime_search(app: GraiaMiraiApplication, group: Group, member: Member,
             V_RUNING = True
             await app.sendGroupMessage(group, MessageChain.create([
                 Plain("正在搜索，请稍后\n仅可搜索日本番剧\n不支持有边框的截图，不支持裁切截图，不支持镜像截图，不支持滤色截图，不支持老动漫，不支持一切非动漫原画图\n详情请查看https://trace.moe/faq")
-            ]), quote=source)
+            ]), quote=source.id)
 
             async with httpx.AsyncClient(timeout=15) as client:
 
@@ -160,7 +160,7 @@ async def anime_search(app: GraiaMiraiApplication, group: Group, member: Member,
                 media_res = r.json()
 
             image = await draw_tracemoe(search_res["result"][0], media_res["data"]["Page"]["media"][0])
-            await app.sendGroupMessage(group, MessageChain.create([Image_UnsafeBytes(image)]), quote=source)
+            await app.sendGroupMessage(group, MessageChain.create([Image(data_bytes=image)]), quote=source.id)
 
             V_RUNING = False
         else:
@@ -173,7 +173,7 @@ async def anime_search(app: GraiaMiraiApplication, group: Group, member: Member,
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("以图搜图")],
                             headless_decorators=[member_limit_check(30), group_black_list_block()]))
-async def saucenao(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain, source: Source):
+async def saucenao(app: Ariadne, group: Group, member: Member, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['AnimeSceneSearch']['Disabled']:
         return
@@ -200,7 +200,7 @@ async def saucenao(app: GraiaMiraiApplication, group: Group, member: Member, mes
             image_url = message.getFirst(Image).url
         else:
             WAITING.append(member.id)
-            waite = await app.sendGroupMessage(group, MessageChain.create([Plain(f"请发送图片以继续，发送取消可终止搜图")]))
+            waite = await app.sendGroupMessage(group, MessageChain.create([Plain("请发送图片以继续，发送取消可终止搜图")]))
             try:
                 image_url = await asyncio.wait_for(inc.wait(waiter1), timeout=20)
                 if not image_url:
@@ -213,7 +213,7 @@ async def saucenao(app: GraiaMiraiApplication, group: Group, member: Member, mes
                 ]), quote=waite.messageId)
         if await reduce_gold(str(member.id), 4):
             I_RUNING = True
-            await app.sendGroupMessage(group, MessageChain.create([Plain("正在搜索，请稍后")]), quote=source)
+            await app.sendGroupMessage(group, MessageChain.create([Plain("正在搜索，请稍后")]), quote=source.id)
             async with AIOSauceNao(yaml_data['Saya']['AnimeSceneSearch']['saucenao_key'], numres=3) as snao:
                 try:
                     results = await snao.from_url(image_url)
@@ -242,12 +242,12 @@ async def saucenao(app: GraiaMiraiApplication, group: Group, member: Member, mes
             if len(results_list) == 0:
                 await app.sendGroupMessage(group, MessageChain.create([
                     Plain("未找到有价值的数据")
-                ]), quote=source)
+                ]), quote=source.id)
                 I_RUNING = False
             else:
                 await app.sendGroupMessage(group, MessageChain.create([
                     Plain("\n==================\n".join(results_list))
-                ]), quote=source)
+                ]), quote=source.id)
                 I_RUNING = False
         else:
             await app.sendGroupMessage(group, MessageChain.create([
@@ -258,7 +258,7 @@ async def saucenao(app: GraiaMiraiApplication, group: Group, member: Member, mes
 
 @channel.use(ListenerSchema(listening_events=[FriendMessage],
                             inline_dispatchers=[Literature("查看搜图用量")]))
-async def check_saucenao(app: GraiaMiraiApplication, friend: Friend):
+async def check_saucenao(app: Ariadne, friend: Friend):
     if friend.id == yaml_data['Basic']['Permission']['Master']:
         global saucenao_usage
         if not saucenao_usage:

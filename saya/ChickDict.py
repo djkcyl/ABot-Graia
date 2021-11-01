@@ -1,12 +1,13 @@
 import httpx
 
 from graia.saya import Saya, Channel
-from graia.application.group import Group, Member
-from graia.application import GraiaMiraiApplication
-from graia.application.event.messages import GroupMessage
+from graia.ariadne.app import Ariadne
+from graia.ariadne.model import Group, Member
+from graia.ariadne.event.message import GroupMessage
+from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.message.element import Plain, At, Image
+from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.message.parser.literature import Literature
-from graia.application.message.elements.internal import MessageChain, Plain, At, Image_NetworkAddress
 
 
 from config import yaml_data, group_data
@@ -21,7 +22,7 @@ channel = Channel.current()
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("查梗")],
                             headless_decorators=[rest_control(), member_limit_check(100), group_black_list_block()]))
-async def fun_dict(app: GraiaMiraiApplication, group: Group, message: MessageChain, member: Member):
+async def fun_dict(app: Ariadne, group: Group, message: MessageChain, member: Member):
 
     if yaml_data['Saya']['ChickDict']['Disabled']:
         return
@@ -88,7 +89,7 @@ async def fun_dict(app: GraiaMiraiApplication, group: Group, message: MessageCha
                 msg_chain = [Plain(msg_text)]
                 # 循环添加图片
                 for image in r_fun_data["images"]:
-                    msg_chain.append(Image_NetworkAddress(image["full"]["path"]))
+                    msg_chain.append(Image(url=image["full"]["path"]))
                 msg_chain.append(
                     Plain("----------------------\n数据来源为小鸡词典\nhttps://jikipedia.com/\n如果发现任何有问题的词条，与本bot无关，请前往小鸡词典官网反馈。"))
                 await app.sendGroupMessage(group, MessageChain.create(msg_chain))

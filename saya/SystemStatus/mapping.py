@@ -34,4 +34,4 @@ async def get_mapping(cpu, ram, max_ram):
 
     bio = BytesIO()
     plt.savefig(bio)
-    return bio
+    return bio.getvalue()

@@ -4,17 +4,18 @@ import asyncio
 
 from pathlib import Path
 from graia.saya import Saya, Channel
-from graia.application import GraiaMiraiApplication
-from graia.application.exceptions import UnknownTarget
+from graia.ariadne.app import Ariadne
+from graia.ariadne.exception import UnknownTarget
+from graia.ariadne.event.message import GroupMessage
+from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.message.element import Image, Plain
 from graia.scheduler.timers import every_custom_seconds
 from graia.scheduler.saya.schema import SchedulerSchema
-from graia.application.event.messages import GroupMessage
-from graia.application.group import Group, Member, MemberPerm
+from graia.ariadne.model import Group, Member, MemberPerm
+from graia.ariadne.event.lifecycle import ApplicationLaunched
+from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.event.lifecycle import ApplicationLaunched
-from graia.application.message.parser.literature import Literature
-from graia.application.event.mirai import BotLeaveEventKick, BotLeaveEventActive
-from graia.application.message.elements.internal import Image_NetworkAddress, MessageChain, Plain, Image_UnsafeBytes
+from graia.ariadne.event.mirai import BotLeaveEventKick, BotLeaveEventActive
 
 from config import yaml_data
 from util.text2image import create_image
@@ -95,9 +96,9 @@ async def add_uid(uid, groupid):
         else:
             uid = match.group(0)
     else:
-        return Plain(f"请输入正确的 UP UID 或 首页链接")
+        return Plain("请输入正确的 UP UID 或 首页链接")
 
-    r = await dynamic_svr(uid, GraiaMiraiApplication)
+    r = await dynamic_svr(uid, Ariadne)
     if "cards" in r["data"]:
         up_name = r["data"]["cards"][0]["desc"]["user_profile"]["info"]["uname"]
         uid_sub_group = dynamic_list['subscription'].get(uid, [])
@@ -110,7 +111,7 @@ async def add_uid(uid, groupid):
                 last_dynid = r["data"]["cards"][0]["desc"]["dynamic_id"]
                 DYNAMIC_OFFSET[uid] = last_dynid
             if get_group_sub(groupid) == 8:
-                return Plain(f"每个群聊最多仅可订阅 8 个 UP")
+                return Plain("每个群聊最多仅可订阅 8 个 UP")
             dynamic_list['subscription'][uid].append(groupid)
             with dynamic_list_json.open('w', encoding="utf-8") as f:
                 json.dump(dynamic_list, f, indent=2)
@@ -129,7 +130,7 @@ def remove_uid(uid, groupid):
         else:
             uid = match.group(0)
     else:
-        return Plain(f"请输入正确的 UP UID 或 首页链接")
+        return Plain("请输入正确的 UP UID 或 首页链接")
 
     uid_sub_group = dynamic_list['subscription'].get(uid, [])
     if groupid in uid_sub_group:
@@ -150,7 +151,7 @@ def delete_uid(uid):
 
 
 @channel.use(ListenerSchema(listening_events=[ApplicationLaunched]))
-async def init(app: GraiaMiraiApplication):
+async def init(app: Ariadne):
 
     global NONE
 
@@ -162,7 +163,7 @@ async def init(app: GraiaMiraiApplication):
     if sub_num == 0:
         NONE = True
         await asyncio.sleep(1)
-        return app.logger.info(f"[BiliBili推送] 由于未订阅任何账号，本次初始化结束")
+        return app.logger.info("[BiliBili推送] 由于未订阅任何账号，本次初始化结束")
     await asyncio.sleep(1)
     app.logger.info(f"[BiliBili推送] 将对 {sub_num} 个账号进行监控")
     info_msg = [f"[BiliBili推送] 将对 {sub_num} 个账号进行监控"]
@@ -208,12 +209,12 @@ async def init(app: GraiaMiraiApplication):
 
     image = await create_image("\n".join(info_msg), 100)
     await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
-        Image_UnsafeBytes(image.getvalue())
+        Image(data_bytes=image)
     ]))
 
 
 @channel.use(SchedulerSchema(every_custom_seconds(yaml_data['Saya']['BilibiliDynamic']['Intervals'])))
-async def update_scheduled(app: GraiaMiraiApplication):
+async def update_scheduled(app: Ariadne):
 
     if yaml_data['Saya']['BilibiliDynamic']['Disabled']:
         return
@@ -221,7 +222,7 @@ async def update_scheduled(app: GraiaMiraiApplication):
     if not NONE:
         return app.logger.info("[BiliBili推送] 初始化未完成，终止本次更新")
     elif len(dynamic_list["subscription"]) == 0:
-        return app.logger.info(f"[BiliBili推送] 由于未订阅任何账号，本次更新已终止")
+        return app.logger.info("[BiliBili推送] 由于未订阅任何账号，本次更新已终止")
 
     sub_list = dynamic_list["subscription"].copy()
     subid_list = get_subid_list()
@@ -247,7 +248,7 @@ async def update_scheduled(app: GraiaMiraiApplication):
                         await app.sendGroupMessage(groupid, MessageChain.create([
                             Plain(f"本群订阅的UP {up_name}（{up_id}）在 {room_area} 开播啦 ！\n"),
                             Plain(title),
-                            Image_NetworkAddress(cover_from_user),
+                            Image(data_bytes=cover_from_user),
                             Plain(f"\nhttps://live.bilibili.com/{room_id}")
                         ]))
                         await asyncio.sleep(0.3)
@@ -291,7 +292,7 @@ async def update_scheduled(app: GraiaMiraiApplication):
                         try:
                             await app.sendGroupMessage(groupid, MessageChain.create([
                                 Plain(f"本群订阅的UP {up_name}（{up_id}）更新动态啦！"),
-                                Image_UnsafeBytes(shot_image),
+                                Image(data_bytes=shot_image),
                                 Plain(f"https://t.bilibili.com/{dyn_url_str}")
                             ]))
                             await asyncio.sleep(0.3)
@@ -312,7 +313,7 @@ async def update_scheduled(app: GraiaMiraiApplication):
                 ]))
         else:
             await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
-                Plain(f"动态更新失败超过 3 次，已终止本次更新")
+                Plain("动态更新失败超过 3 次，已终止本次更新")
             ]))
             break
 
@@ -322,7 +323,7 @@ async def update_scheduled(app: GraiaMiraiApplication):
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("订阅")],
                             headless_decorators=[group_limit_check(10), group_black_list_block()]))
-async def atrep(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain):
+async def add_sub(app: Ariadne, group: Group, member: Member, message: MessageChain):
 
     if member.permission in [MemberPerm.Administrator, MemberPerm.Owner] or member.id in yaml_data['Basic']['Permission']['Admin']:
         saying = message.asDisplay().split(" ", 1)
@@ -337,22 +338,20 @@ async def atrep(app: GraiaMiraiApplication, group: Group, member: Member, messag
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("退订")],
                             headless_decorators=[group_limit_check(10), group_black_list_block()]))
-async def atrep(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain):
+async def remove_sub(app: Ariadne, group: Group, member: Member, message: MessageChain):
 
     if member.permission in [MemberPerm.Administrator, MemberPerm.Owner] or member.id in yaml_data['Basic']['Permission']['Admin']:
         saying = message.asDisplay().split(" ", 1)
         if len(saying) == 2:
             await app.sendGroupMessage(group, MessageChain.create([remove_uid(saying[1], group.id)]))
     else:
-        await app.sendGroupMessage(group, MessageChain.create([
-            Plain("你没有权限使用该功能！")
-        ]))
+        await app.sendGroupMessage(group, MessageChain.create([Plain("你没有权限使用该功能！")]))
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("本群订阅列表")],
                             headless_decorators=[group_limit_check(10), group_black_list_block()]))
-async def atrep(app: GraiaMiraiApplication, group: Group, member: Member):
+async def sub_list(app: Ariadne, group: Group, member: Member):
 
     if member.permission in [MemberPerm.Administrator, MemberPerm.Owner] or member.id in yaml_data['Basic']['Permission']['Admin']:
         sublist = []
@@ -361,20 +360,18 @@ async def atrep(app: GraiaMiraiApplication, group: Group, member: Member):
             sublist.append(subid)
         sublist_count = len(sublist)
         if sublist_count == 0:
-            await app.sendGroupMessage(group, MessageChain.create([Plain(f"本群未订阅任何 UP")]))
+            await app.sendGroupMessage(group, MessageChain.create([Plain("本群未订阅任何 UP")]))
         else:
             await app.sendGroupMessage(group, MessageChain.create([
                 Plain(f"本群共订阅 {sublist_count} 个 UP\n"),
                 Plain("\n".join(sublist))
             ]))
     else:
-        await app.sendGroupMessage(group, MessageChain.create([
-            Plain("你没有权限使用该功能！")
-        ]))
+        await app.sendGroupMessage(group, MessageChain.create([Plain("你没有权限使用该功能！")]))
 
 
 @channel.use(ListenerSchema(listening_events=[BotLeaveEventActive, BotLeaveEventKick]))
-async def bot_leave(app: GraiaMiraiApplication, group: Group):
+async def bot_leave(app: Ariadne, group: Group):
     remove_list = []
     for subid in get_group_sublist(group.id):
         remove_uid(subid, group.id)
@@ -385,7 +382,7 @@ async def bot_leave(app: GraiaMiraiApplication, group: Group):
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("查看动态")],
                             headless_decorators=[group_limit_check(30), group_black_list_block()]))
-async def atrep(app: GraiaMiraiApplication, group: Group, message: MessageChain):
+async def atrep(app: Ariadne, group: Group, message: MessageChain):
 
     saying = message.asDisplay().split(" ", 1)
     if len(saying) == 2:
@@ -398,16 +395,16 @@ async def atrep(app: GraiaMiraiApplication, group: Group, message: MessageChain)
                 uid = match.group(0)
         else:
             return await app.sendGroupMessage(group, MessageChain.create([
-                Plain(f"请输入正确的 UP UID 或 首页链接")
+                Plain("请输入正确的 UP UID 或 首页链接")
             ]))
 
         res = await dynamic_svr(uid, app)
         if "cards" in res["data"]:
             shot_image = await get_dynamic_screenshot(res["data"]["cards"][0]["desc"]["dynamic_id_str"])
             await app.sendGroupMessage(group, MessageChain.create([
-                Image_UnsafeBytes(shot_image)
+                Image(data_bytes=shot_image)
             ]))
         else:
             await app.sendGroupMessage(group, MessageChain.create([
-                Plain(f"该UP未发布任何动态")
+                Plain("该UP未发布任何动态")
             ]))

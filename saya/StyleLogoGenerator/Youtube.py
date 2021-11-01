@@ -1,7 +1,7 @@
 from io import BytesIO
+from graia.ariadne.message.element import Image
 from PIL import Image as IMG, ImageDraw, ImageFont
-from graia.application.message.chain import MessageChain
-from graia.application.message.elements.internal import Image
+from graia.ariadne.message.chain import MessageChain
 
 
 LEFT_PART_VERTICAL_BLANK_MULTIPLY_FONT_HEIGHT = 2

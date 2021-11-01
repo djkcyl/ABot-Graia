@@ -4,11 +4,13 @@ import jieba
 import jieba.posseg as pseg
 
 from graia.saya import Saya, Channel
-from graia.application import GraiaMiraiApplication
+from graia.ariadne.app import Ariadne
+from graia.ariadne.model import Group
+from graia.ariadne.event.message import GroupMessage
+from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.message.element import Source, Plain
+from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.event.messages import GroupMessage, Group
-from graia.application.message.parser.literature import Literature
-from graia.application.message.elements.internal import MessageChain, Source, Plain
 
 from config import yaml_data, group_data
 from util.RestControl import rest_control
@@ -43,7 +45,7 @@ def chs2yin(s, 淫乱度=0.5):
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("淫语")],
                             headless_decorators=[rest_control(), member_limit_check(15), group_black_list_block()]))
-async def main(app: GraiaMiraiApplication, group: Group, message: MessageChain, source: Source):
+async def main(app: Ariadne, group: Group, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['Yinglish']['Disabled']:
         return
@@ -52,6 +54,6 @@ async def main(app: GraiaMiraiApplication, group: Group, message: MessageChain, 
 
     saying = message.asDisplay().split(" ", 1)
     if len(saying[1]) < 200:
-        await app.sendGroupMessage(group, MessageChain.create([Plain(chs2yin(saying[1]))]), quote=source)
+        await app.sendGroupMessage(group, MessageChain.create([Plain(chs2yin(saying[1]))]), quote=source.id)
     else:
-        await app.sendGroupMessage(group, MessageChain.create([Plain("文字过长")]), quote=source)
+        await app.sendGroupMessage(group, MessageChain.create([Plain("文字过长")]), quote=source.id)

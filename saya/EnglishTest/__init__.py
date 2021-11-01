@@ -1,15 +1,15 @@
 import asyncio
 
 from graia.saya import Saya, Channel
-from graia.application.friend import Friend
-from graia.application.group import Group, Member
+from graia.ariadne.app import Ariadne
 from graia.broadcast.interrupt.waiter import Waiter
-from graia.application import GraiaMiraiApplication
+from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.model import Friend, Group, Member
 from graia.broadcast.interrupt import InterruptControl
+from graia.ariadne.message.element import At, Image, Plain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.message.parser.literature import Literature
-from graia.application.event.messages import GroupMessage, FriendMessage
-from graia.application.message.elements.internal import At, Image_UnsafeBytes, MessageChain, Plain
+from graia.ariadne.message.parser.literature import Literature
+from graia.ariadne.event.message import GroupMessage, FriendMessage
 
 from database.db import add_answer
 from util.text2image import create_image
@@ -55,7 +55,7 @@ RUNNING = {}
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("背单词")],
                             headless_decorators=[group_black_list_block()]))
-async def group_learn(app: GraiaMiraiApplication, group: Group, member: Member):
+async def group_learn(app: Ariadne, group: Group, member: Member):
 
     @Waiter.create_using_function([GroupMessage])
     async def confirm(waiter_group: Group, waiter_member: Member, waiter_message: MessageChain):
@@ -68,7 +68,7 @@ async def group_learn(app: GraiaMiraiApplication, group: Group, member: Member):
                     bookid = int(waiter_saying)
                     if 1 <= bookid <= 15:
                         return bookid
-                except:
+                except Exception:
                     await app.sendGroupMessage(group, MessageChain.create([
                         Plain("请输入1-15以内的数字")
                     ]))
@@ -89,7 +89,7 @@ async def group_learn(app: GraiaMiraiApplication, group: Group, member: Member):
     bookid_image = await create_image("\n".join(booklist))
     await app.sendGroupMessage(group, MessageChain.create([
         Plain("请输入你想要选择的词库ID"),
-        Image_UnsafeBytes(bookid_image.getvalue())
+        Image(data_bytes=bookid_image)
     ]))
 
     try:
@@ -159,7 +159,7 @@ async def group_learn(app: GraiaMiraiApplication, group: Group, member: Member):
 @channel.use(ListenerSchema(listening_events=[FriendMessage],
                             inline_dispatchers=[Literature("背单词")],
                             headless_decorators=[friend_black_list_block()]))
-async def friend_learn(app: GraiaMiraiApplication, friend: Friend):
+async def friend_learn(app: Ariadne, friend: Friend):
 
     @Waiter.create_using_function([FriendMessage])
     async def confirm(waiter_friend: Friend, waiter_message: MessageChain):
@@ -172,7 +172,7 @@ async def friend_learn(app: GraiaMiraiApplication, friend: Friend):
                     bookid = int(waiter_saying)
                     if 1 <= bookid <= 15:
                         return bookid
-                except:
+                except Exception:
                     await app.sendFriendMessage(friend, MessageChain.create([
                         Plain("请输入1-15以内的数字")
                     ]))
@@ -192,7 +192,7 @@ async def friend_learn(app: GraiaMiraiApplication, friend: Friend):
     bookid_image = await create_image("\n".join(booklist))
     await app.sendFriendMessage(friend, MessageChain.create([
         Plain("请输入你想要选择的词库ID"),
-        Image_UnsafeBytes(bookid_image.getvalue())
+        Image(data_bytes=bookid_image.getvalue())
     ]))
 
     try:

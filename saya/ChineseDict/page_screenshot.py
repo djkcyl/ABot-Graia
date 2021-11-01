@@ -1,5 +1,3 @@
-import base64
-
 from util.browser import get_browser
 
 
@@ -15,7 +13,7 @@ async def get_hans_screenshot(url):
         assert card is not None
         image = await card.screenshot(type='jpeg', quality=90)
         await page.close()
-        return base64.b64encode(image).decode()
+        return image
     except Exception:
         if page:
             await page.close()
