@@ -1,11 +1,11 @@
 from graia.saya import Saya, Channel
-from graia.application.group import Group, Member
-from graia.application import GraiaMiraiApplication
-from graia.application.event.messages import GroupMessage
-from graia.application.message.parser.kanata import Kanata
+from graia.ariadne.app import Ariadne
+from graia.ariadne.model import Group, Member
+from graia.ariadne.event.message import GroupMessage
+from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.message.element import At, Plain, Source
+from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.message.parser.signature import FullMatch, OptionalParam
-from graia.application.message.elements.internal import MessageChain, At, Plain, Source
 
 from config import yaml_data, group_data
 from util.limit import member_limit_check
@@ -17,36 +17,37 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            inline_dispatchers=[Kanata([FullMatch("赠送游戏币"), OptionalParam("saying")])],
+                            inline_dispatchers=[Literature("赠送游戏币")],
                             headless_decorators=[member_limit_check(5), group_black_list_block()]))
-async def adminmain(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain, source: Source):
+async def adminmain(app: Ariadne, group: Group, member: Member, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['Entertainment']['Disabled']:
         return
     elif 'Entertainment' in group_data[group.id]['DisabledFunc']:
         return
 
+    saying = message.asDisplay().split()
+
     if not message.has(At):
         await app.sendGroupMessage(group, MessageChain.create([
             Plain("请at需要赠送的对象")
-        ]), quote=source)
+        ]), quote=source.id)
     else:
         to = str(message.getFirst(At).target)
         if int(to) == member.id:
             return await app.sendGroupMessage(group, MessageChain.create([
                 Plain("请勿向自己赠送")
-            ]), quote=source)
-        # print(message.getOne(Plain, 1))
+            ]), quote=source.id)
         try:
-            num = int(message.get(Plain)[-1].text)
+            num = int(saying[2])
             if not 0 < num <= 1000:
                 return await app.sendGroupMessage(group, MessageChain.create([
                     Plain("请输入 1-1000 以内的金额")
-                ]), quote=source)
+                ]), quote=source.id)
         except:
             return await app.sendGroupMessage(group, MessageChain.create([
                 Plain("请输入需要赠送的金额")
-            ]), quote=source)
+            ]), quote=source.id)
 
         if await reduce_gold(str(member.id), num):
             await add_gold(to, num)
@@ -54,8 +55,8 @@ async def adminmain(app: GraiaMiraiApplication, group: Group, member: Member, me
                 Plain("你已成功向 "),
                 At(int(to)),
                 Plain(f" 赠送 {num} 个游戏币")
-            ]), quote=source)
+            ]), quote=source.id)
         else:
             await app.sendGroupMessage(group, MessageChain.create([
                 Plain("你的游戏币不足，无法赠送")
-            ]), quote=source)
+            ]), quote=source.id)

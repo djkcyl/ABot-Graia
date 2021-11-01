@@ -4,15 +4,16 @@ import platform
 
 from pathlib import Path
 from graia.saya import Saya, Channel
-from graia.application.group import Group
-from graia.application import GraiaMiraiApplication
+from graia.ariadne.app import Ariadne
+from graia.ariadne.model import Group
+from graia.ariadne.message.element import Image
+from graia.ariadne.event.message import GroupMessage
+from graia.ariadne.message.chain import MessageChain
 from graia.scheduler.timers import every_custom_seconds
 from graia.scheduler.saya.schema import SchedulerSchema
-from graia.application.event.messages import GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.event.lifecycle import ApplicationLaunched
-from graia.application.message.parser.literature import Literature
-from graia.application.message.elements.internal import Image_UnsafeBytes, MessageChain
+from graia.ariadne.event.lifecycle import ApplicationLaunched
+from graia.ariadne.message.parser.literature import Literature
 
 from util.limit import member_limit_check
 from util.UserBlock import group_black_list_block
@@ -39,7 +40,7 @@ async def update_scheduled():
 
 
 @channel.use(ListenerSchema(listening_events=[ApplicationLaunched]))
-async def cpuStatus(app: GraiaMiraiApplication):
+async def cpuStatus(app: Ariadne):
     await asyncio.sleep(0.1)
     virtual_memory = psutil.virtual_memory()
     disk = psutil.disk_usage(Path.cwd())
@@ -56,6 +57,6 @@ async def cpuStatus(app: GraiaMiraiApplication):
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("查看性能统计")],
                             headless_decorators=[member_limit_check(15), group_black_list_block()]))
-async def get_image(app: GraiaMiraiApplication, group: Group):
+async def get_image(app: Ariadne, group: Group):
     image = await get_mapping(CPU_USAGE, MEM_USAGE, int(psutil.virtual_memory().total / 1000000))
-    await app.sendGroupMessage(group, MessageChain.create([Image_UnsafeBytes(image.getvalue())]))
+    await app.sendGroupMessage(group, MessageChain.create([Image(data_bytes=image)]))

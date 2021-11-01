@@ -4,15 +4,16 @@ import asyncio
 
 from graiax import silkcoder
 from graia.saya import Saya, Channel
-from graia.application.group import Group, Member
+from graia.ariadne.app import Ariadne
+from graia.ariadne.model import Group, Member
 from graia.broadcast.interrupt.waiter import Waiter
-from graia.application import GraiaMiraiApplication
+from graia.ariadne.event.message import GroupMessage
+from graia.ariadne.message.chain import MessageChain
 from graia.broadcast.interrupt import InterruptControl
-from graia.application.event.messages import GroupMessage
+from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.message.parser.literature import Literature
+from graia.ariadne.message.element import Image, Plain, Source, Voice
 from acrcloud.recognizer import ACRCloudRecognizer, ACRCloudRecognizeType
-from graia.application.message.elements.internal import Image_UnsafeBytes, MessageChain, Plain, Source, Voice
 
 from database.db import reduce_gold
 from config import yaml_data, group_data
@@ -46,7 +47,7 @@ WAITING = []
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("识曲")],
                             headless_decorators=[member_limit_check(30), group_black_list_block()]))
-async def main(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain, source: Source):
+async def main(app: Ariadne, group: Group, member: Member, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['VoiceMusicRecognition']['Disabled']:
         return
@@ -95,7 +96,7 @@ async def main(app: GraiaMiraiApplication, group: Group, member: Member, message
             WAITING.remove(member.id)
             return await app.sendGroupMessage(group, MessageChain.create([
                 Plain("等待语音超时")
-            ]), quote=source)
+            ]), quote=source.id)
 
         if await reduce_gold((member.id), 2):
             async with httpx.AsyncClient() as client:
@@ -127,7 +128,7 @@ async def main(app: GraiaMiraiApplication, group: Group, member: Member, message
                                                "=====================================================\n" +
                                                "\n".join(music_list)), 180)
                 await app.sendGroupMessage(group, MessageChain.create([
-                    Image_UnsafeBytes(image.getvalue()),
+                    Image(data_bytes=image),
                     Plain(str("\n".join(music_list)))
                 ]))
             elif voice_info['status']['code'] == 1001:

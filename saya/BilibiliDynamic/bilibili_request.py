@@ -1,7 +1,7 @@
 import httpx
 
 
-from graia.application import GraiaMiraiApplication
+from graia.ariadne.app import Ariadne
 
 
 from config import yaml_data
@@ -14,7 +14,7 @@ head = {
 }
 
 
-async def dynamic_svr(uid, app: GraiaMiraiApplication):
+async def dynamic_svr(uid, app: Ariadne):
     for _ in range(2):
         for retry in range(3):
             try:
@@ -37,7 +37,7 @@ async def dynamic_svr(uid, app: GraiaMiraiApplication):
         next_proxy()
 
 
-async def get_status_info_by_uids(uids, app: GraiaMiraiApplication):
+async def get_status_info_by_uids(uids, app: Ariadne):
     for _ in range(2):
         for retry in range(3):
             try:
@@ -58,5 +58,3 @@ async def get_status_info_by_uids(uids, app: GraiaMiraiApplication):
         else:
             app.logger.error("[BiliBili推送] API 访问连续失败，请检查")
         next_proxy()
-
-

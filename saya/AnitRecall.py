@@ -1,9 +1,10 @@
 from graia.saya import Saya, Channel
-from graia.application import GraiaMiraiApplication
-from graia.application.event.mirai import GroupRecallEvent
+from graia.ariadne.app import Ariadne
+from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.event.mirai import GroupRecallEvent
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.exceptions import AccountMuted, UnknownTarget
-from graia.application.message.elements.internal import MessageChain, Plain, Image, FlashImage, Xml, Json, Voice
+from graia.ariadne.exception import AccountMuted, UnknownTarget
+from graia.ariadne.message.element import Plain, Image, FlashImage, Xml, Json, Voice
 
 from util.limit import manual_limit
 from config import yaml_data, group_data
@@ -16,7 +17,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupRecallEvent]))
-async def anitRecall(app: GraiaMiraiApplication, events: GroupRecallEvent):
+async def anitRecall(app: Ariadne, events: GroupRecallEvent):
 
     if events.authorId != yaml_data["Basic"]["MAH"]["BotQQ"] or events.operator.id == yaml_data["Basic"]["MAH"]["BotQQ"]:
         try:

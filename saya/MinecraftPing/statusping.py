@@ -16,7 +16,7 @@ class StatusPing:
         for i in range(5):
             try:
                 ordinal = sock.recv(1)
-            except:
+            except Exception:
                 return("error")
             if len(ordinal) == 0:
                 break
@@ -85,7 +85,7 @@ class StatusPing:
             try:
                 connection.settimeout(self._timeout)
                 connection.connect((self._host, self._port))
-            except:
+            except Exception:
                 return("error")
             self._send_data(connection, b'\x00\x00', self._host, self._port, b'\x01')
             self._send_data(connection, b'\x00')
@@ -98,8 +98,7 @@ class StatusPing:
         try:
             response = json.loads(data.decode('utf8'))
             response['ping'] = int(time.time() * 1000) - struct.unpack('Q', unix)[0]
-        except:
+        except Exception:
             return("error")
 
         return response
-

@@ -1,23 +1,22 @@
 import os
 import json
 import random
-import secrets
 import string
 import asyncio
-import time
+import secrets
 
 from graia.saya import Saya, Channel
-from graia.application.friend import Friend
+from graia.ariadne.app import Ariadne
 from graia.scheduler.timers import crontabify
-from graia.application.group import Group, Member
-from graia.application import GraiaMiraiApplication
 from graia.broadcast.interrupt.waiter import Waiter
+from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.model import Friend, Group, Member
 from graia.broadcast.interrupt import InterruptControl
 from graia.scheduler.saya.schema import SchedulerSchema
+from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.message.parser.literature import Literature
-from graia.application.event.messages import FriendMessage, GroupMessage
-from graia.application.message.elements.internal import At, Image_UnsafeBytes, Plain, MessageChain, Source, Image
+from graia.ariadne.message.element import At, Plain, Source, Image
+from graia.ariadne.event.message import FriendMessage, GroupMessage
 
 from config import yaml_data, group_data
 from database.db import add_gold, reduce_gold
@@ -55,7 +54,7 @@ else:
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("购买奖券")],
                             headless_decorators=[group_black_list_block()]))
-async def buy_lottery(app: GraiaMiraiApplication, group: Group, member: Member, source: Source):
+async def buy_lottery(app: Ariadne, group: Group, member: Member, source: Source):
 
     if not yaml_data['Saya']['Entertainment']['Lottery']:
         return
@@ -78,20 +77,20 @@ async def buy_lottery(app: GraiaMiraiApplication, group: Group, member: Member, 
             Plain("购买成功，编号为："),
             Plain(f"\n{number}"),
             Plain(f"\n当前卡池已有 {lottery_len} 张"),
-            Plain(f"\n请妥善保管，丢失一概不补"),
-            Image_UnsafeBytes(lottery.getvalue())
-        ]), quote=source)
+            Plain("\n请妥善保管，丢失一概不补"),
+            Image(data_bytes=lottery)
+        ]), quote=source.id)
     else:
         await app.sendGroupMessage(group, MessageChain.create([
             At(member.id),
             Plain("你的游戏币不够，无法购买")
-        ]), quote=source)
+        ]), quote=source.id)
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("兑换奖券")],
                             headless_decorators=[group_black_list_block()]))
-async def redeem_lottery(app: GraiaMiraiApplication, group: Group, member: Member, source: Source):
+async def redeem_lottery(app: Ariadne, group: Group, member: Member, source: Source):
 
     if member.id in WAITING:
         return
@@ -115,7 +114,7 @@ async def redeem_lottery(app: GraiaMiraiApplication, group: Group, member: Membe
 
     await app.sendGroupMessage(group, MessageChain.create([
         Plain("请发送需要兑换的奖券")
-    ]), quote=source)
+    ]), quote=source.id)
 
     try:
         waite_pic = await asyncio.wait_for(inc.wait(waiter), timeout=30)
@@ -124,7 +123,7 @@ async def redeem_lottery(app: GraiaMiraiApplication, group: Group, member: Membe
         return await app.sendGroupMessage(group, MessageChain.create([
             At(member.id),
             Plain(" 奖券兑换等待超时")
-        ]), quote=source)
+        ]), quote=source.id)
 
     qrinfo = qrdecode(waite_pic)
     image_info = decrypt(qrinfo)
@@ -155,7 +154,7 @@ async def redeem_lottery(app: GraiaMiraiApplication, group: Group, member: Membe
 
 
 @channel.use(SchedulerSchema(crontabify("0 0 * * 1")))
-async def something_scheduled(app: GraiaMiraiApplication):
+async def something_scheduled(app: Ariadne):
     global LOTTERY
     lottery = LOTTERY
     lottery["period"] += 1
@@ -179,7 +178,7 @@ async def something_scheduled(app: GraiaMiraiApplication):
 
 
 @channel.use(ListenerSchema(listening_events=[FriendMessage], inline_dispatchers=[Literature("开奖")]))
-async def something_scheduled(app: GraiaMiraiApplication, friend: Friend):
+async def lo(app: Ariadne, friend: Friend):
     if friend.id == yaml_data['Basic']['Permission']['Master']:
         global LOTTERY
         lottery = LOTTERY
@@ -206,7 +205,7 @@ async def something_scheduled(app: GraiaMiraiApplication, friend: Friend):
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("开奖查询")],
                             headless_decorators=[group_black_list_block()]))
-async def redeem_lottery(app: GraiaMiraiApplication, group: Group):
+async def q_lottery(app: Ariadne, group: Group):
 
     if not yaml_data['Saya']['Entertainment']['Lottery']:
         return

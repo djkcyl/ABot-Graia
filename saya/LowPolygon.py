@@ -6,15 +6,16 @@ import matplotlib.pyplot as plt
 from io import BytesIO
 from PIL import Image as IMG
 from graia.saya import Saya, Channel
-from graia.application.group import Group, Member
+from graia.ariadne.app import Ariadne
+from graia.ariadne.model import Group, Member
 from concurrent.futures import ThreadPoolExecutor
-from graia.application import GraiaMiraiApplication
 from graia.broadcast.interrupt.waiter import Waiter
+from graia.ariadne.event.message import GroupMessage
+from graia.ariadne.message.chain import MessageChain
 from graia.broadcast.interrupt import InterruptControl
-from graia.application.event.messages import GroupMessage
+from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.message.parser.literature import Literature
-from graia.application.message.elements.internal import MessageChain, Plain, At, Image_UnsafeBytes, Source, Image
+from graia.ariadne.message.element import Plain, At, Source, Image
 
 from config import yaml_data, group_data
 from util.limit import member_limit_check
@@ -35,7 +36,7 @@ WAITING = []
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("低多边形")],
                             headless_decorators=[rest_control(), member_limit_check(60), group_black_list_block()]))
-async def low_poly(app: GraiaMiraiApplication, group: Group, message: MessageChain, member: Member, source: Source):
+async def low_poly(app: Ariadne, group: Group, message: MessageChain, member: Member, source: Source):
 
     if yaml_data['Saya']['LowPolygon']['Disabled']:
         return
@@ -75,7 +76,7 @@ async def low_poly(app: GraiaMiraiApplication, group: Group, message: MessageCha
                 WAITING.remove(member.id)
                 return await app.sendGroupMessage(group, MessageChain.create([
                     Plain("等待超时")
-                ]), quote=source)
+                ]), quote=source.id)
 
         async with httpx.AsyncClient() as client:
             resp = await client.get(image_url)
@@ -83,7 +84,7 @@ async def low_poly(app: GraiaMiraiApplication, group: Group, message: MessageCha
         await app.sendGroupMessage(group, MessageChain.create([Plain("正在生成，请稍后")]))
         image = await loop.run_in_executor(pool, make_low_poly, img_bytes)
         await app.sendGroupMessage(group, MessageChain.create([
-            Image_UnsafeBytes(image)
+            Image(data_bytes=image)
         ]))
         WAITING.remove(member.id)
 

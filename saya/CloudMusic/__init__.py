@@ -5,17 +5,15 @@ import asyncio
 from pathlib import Path
 from graiax import silkcoder
 from graia.saya import Saya, Channel
-from graia.application.friend import Friend
-from graia.application.group import Group, Member
+from graia.ariadne.app import Ariadne
 from graia.broadcast.interrupt.waiter import Waiter
-from graia.application import GraiaMiraiApplication
+from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.model import Friend, Group, Member
 from graia.broadcast.interrupt import InterruptControl
-from graia.application.message.parser.kanata import Kanata
+from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.message.parser.literature import Literature
-from graia.application.event.messages import FriendMessage, GroupMessage
-from graia.application.message.parser.signature import FullMatch, OptionalParam
-from graia.application.message.elements.internal import Image_UnsafeBytes, MessageChain, Plain, Image_NetworkAddress, Voice, Source
+from graia.ariadne.event.message import FriendMessage, GroupMessage
+from graia.ariadne.message.element import Plain, Image, Voice, Source
 
 from database.db import reduce_gold
 from util.text2image import create_image
@@ -45,9 +43,9 @@ WAITING = []
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            inline_dispatchers=[Kanata([FullMatch("点歌"), OptionalParam("message")])],
+                            inline_dispatchers=[Literature("点歌")],
                             headless_decorators=[rest_control(), member_limit_check(300), group_black_list_block()]))
-async def sing(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain, source: Source):
+async def sing(app: Ariadne, group: Group, member: Member, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['CloudMusic']['Disabled']:
         return
@@ -79,13 +77,14 @@ async def sing(app: GraiaMiraiApplication, group: Group, member: Member, message
     if member.id not in WAITING:
         WAITING.append(member.id)
 
-        if message:
-            musicname = message.asDisplay().strip()
-            if musicname == None or musicname.replace(" ", "") == "":
+        saying = message.asDisplay().split(" ", 1)
+        if len(saying) == 2:
+            musicname = saying[1]
+            if musicname is None or musicname.replace(" ", "") == "":
                 WAITING.remove(member.id)
                 return await app.sendGroupMessage(group, MessageChain.create([Plain("歌名输入有误")]))
         else:
-            waite_musicmessageId = await app.sendGroupMessage(group, MessageChain.create([Plain(f"请发送歌曲名，发送取消即可终止点歌")]))
+            waite_musicmessageId = await app.sendGroupMessage(group, MessageChain.create([Plain("请发送歌曲名，发送取消即可终止点歌")]))
             try:
                 musicname = await asyncio.wait_for(inc.wait(waiter1), timeout=15)
                 if not musicname:
@@ -148,10 +147,10 @@ async def sing(app: GraiaMiraiApplication, group: Group, member: Member, message
             num += 1
             i += 1
 
-        msg += f"\n===============================\n发送歌曲id可完成点歌\n发送取消可终止当前点歌\n点歌将消耗 4 个游戏币\n==============================="
+        msg += "\n===============================\n发送歌曲id可完成点歌\n发送取消可终止当前点歌\n点歌将消耗 4 个游戏币\n==============================="
         image = await create_image(msg)
         waite_musicmessageId = await app.sendGroupMessage(group, MessageChain.create([
-            Image_UnsafeBytes(image.getvalue())
+            Image(data_bytes=image)
         ]))
 
         try:
@@ -202,7 +201,7 @@ async def sing(app: GraiaMiraiApplication, group: Group, member: Member, message
         MUSIC_PATH = BASEPATH.joinpath(f"{musicid[1]}.mp3")
         if not MUSIC_PATH.exists():
             app.logger.info(f"正在缓存歌曲：{music_name}")
-            if musicurl == None or musicurl == "":
+            if musicurl is None or musicurl == "":
                 WAITING.remove(member.id)
                 return await app.sendGroupMessage(group, MessageChain.create([Plain(f"该歌曲（{music_name}）由于版权问题无法点歌，请使用客户端播放")]))
             headers = {
@@ -214,15 +213,15 @@ async def sing(app: GraiaMiraiApplication, group: Group, member: Member, message
 
         if not await reduce_gold(str(member.id), 4):
             WAITING.remove(member.id)
-            return await app.sendGroupMessage(group, MessageChain.create([Plain("你的游戏币不足，无法使用")]), quote=source)
+            return await app.sendGroupMessage(group, MessageChain.create([Plain("你的游戏币不足，无法使用")]), quote=source.id)
 
         try:
             await app.sendGroupMessage(group, MessageChain.create([
-                Image_NetworkAddress(music_al),
+                Image(url=music_al),
                 Plain(f"\n曲名：{music_name}\n作者：{music_ar}"),
-                Plain(f"\n超过9:00的歌曲将被裁切前9:00\n歌曲时长越长音质越差\n超过4分钟的歌曲音质将受到较大程度的损伤\n发送语音需要一定时间，请耐心等待")
+                Plain("\n超过9:00的歌曲将被裁切前9:00\n歌曲时长越长音质越差\n超过4分钟的歌曲音质将受到较大程度的损伤\n发送语音需要一定时间，请耐心等待")
             ]))
-        except:
+        except Exception:
             await app.sendGroupMessage(group, MessageChain.create([
                 Plain(f"曲名：{music_name}\n作者：{music_ar}"),
                 Plain("\n超过9:00的歌曲将被裁切前9:00\n歌曲时长越长音质越差\n超过4分钟的歌曲音质将受到较大程度的损伤\n发送语音需要一定时间，请耐心等待")
@@ -230,7 +229,7 @@ async def sing(app: GraiaMiraiApplication, group: Group, member: Member, message
 
         if music_lyric:
             music_lyric_image = await create_image(music_lyric, 120)
-            await app.sendGroupMessage(group, MessageChain.create([Image_UnsafeBytes(music_lyric_image.getvalue())]))
+            await app.sendGroupMessage(group, MessageChain.create([Image(data_bytes=music_lyric_image)]))
 
         cache = VIOCE_PATH.joinpath(str(musicid[1]))
         cache.write_bytes(await silkcoder.encode(MUSIC_PATH.read_bytes(), t=540))
@@ -240,7 +239,7 @@ async def sing(app: GraiaMiraiApplication, group: Group, member: Member, message
 
 
 @channel.use(ListenerSchema(listening_events=[FriendMessage], inline_dispatchers=[Literature("查看点歌状态")]))
-async def main(app: GraiaMiraiApplication, friend: Friend):
+async def main(app: Ariadne, friend: Friend):
     if friend.id == yaml_data['Basic']['Permission']['Master']:
         runlist_len = len(WAITING)
         runlist = "\n".join(map(lambda x: str(x), WAITING))
@@ -250,4 +249,4 @@ async def main(app: GraiaMiraiApplication, friend: Friend):
                 Plain(f"\n{runlist}")
             ]))
         else:
-            await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([Plain(f"当前没有正在点歌的人")]))
+            await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([Plain("当前没有正在点歌的人")]))

@@ -2,12 +2,13 @@ import json
 import httpx
 
 from graia.saya import Saya, Channel
-from graia.application.group import Group, Member
-from graia.application import GraiaMiraiApplication
-from graia.application.event.messages import GroupMessage
+from graia.ariadne.app import Ariadne
+from graia.ariadne.model import Group, Member
+from graia.ariadne.message.element import Plain, At
+from graia.ariadne.event.message import GroupMessage
+from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.message.parser.literature import Literature
-from graia.application.message.elements.internal import MessageChain, Plain, At
 
 from config import yaml_data, group_data
 from util.limit import member_limit_check
@@ -21,7 +22,7 @@ channel = Channel.current()
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("你在说什么")],
                             headless_decorators=[rest_control(), member_limit_check(30), group_black_list_block()]))
-async def what_are_you_saying(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain):  # 你在说什么
+async def what_are_you_saying(app: Ariadne, group: Group, member: Member, message: MessageChain):  # 你在说什么
 
     if yaml_data['Saya']['CyberBlacktalk']['Disabled']:
         return

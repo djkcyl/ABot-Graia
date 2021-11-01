@@ -4,12 +4,13 @@ import asyncio
 
 from pathlib import Path
 from graia.saya import Saya, Channel
-from graia.application import GraiaMiraiApplication
+from graia.ariadne.app import Ariadne
+from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.message.element import Plain, Image
 from graia.scheduler.timers import every_custom_seconds
 from graia.scheduler.saya.schema import SchedulerSchema
+from graia.ariadne.event.lifecycle import ApplicationLaunched
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.event.lifecycle import ApplicationLaunched
-from graia.application.message.elements.internal import MessageChain, Plain, Image_NetworkAddress, Image_UnsafeBytes
 
 from util.TimeTool import TimeRecorder
 from config import yaml_data, group_data
@@ -43,7 +44,7 @@ def save_pushed_list():
 
 @channel.use(SchedulerSchema(every_custom_seconds(15)))
 @channel.use(ListenerSchema(listening_events=[ApplicationLaunched]))
-async def get_weibo_news(app: GraiaMiraiApplication):
+async def get_weibo_news(app: Ariadne):
 
     if yaml_data['Saya']['ArkNews']['Disabled']:
         return
@@ -73,7 +74,7 @@ async def get_weibo_news(app: GraiaMiraiApplication):
         msg = [
             Plain("明日方舟更新了新的微博\n"),
             Plain(f"{detail_url}\n"),
-            Image_UnsafeBytes(image.getvalue())] + [Image_NetworkAddress(x) for x in pics_list]
+            Image(data_bytes=image)] + [Image(url=x) for x in pics_list]
 
         await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create(msg))
         for group in group_list:
@@ -92,7 +93,7 @@ async def get_weibo_news(app: GraiaMiraiApplication):
 
 @channel.use(SchedulerSchema(every_custom_seconds(30)))
 @channel.use(ListenerSchema(listening_events=[ApplicationLaunched]))
-async def get_game_news(app: GraiaMiraiApplication):
+async def get_game_news(app: Ariadne):
 
     if yaml_data['Saya']['ArkNews']['Disabled']:
         return
@@ -124,7 +125,7 @@ async def get_game_news(app: GraiaMiraiApplication):
         image = await game.get_screenshot(announce)
         msg = [
             Plain("明日方舟更新了新的游戏公告\n"),
-            Image_UnsafeBytes(image)
+            Image(data_bytes=image)
         ]
 
         await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create(msg))

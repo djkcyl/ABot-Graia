@@ -3,12 +3,13 @@ import random
 
 from pathlib import Path
 from graia.saya import Saya, Channel
-from graia.application.group import Group, Member
-from graia.application import GraiaMiraiApplication
-from graia.application.event.messages import GroupMessage
+from graia.ariadne.app import Ariadne
+from graia.ariadne.model import Group, Member
+from graia.ariadne.event.message import GroupMessage
+from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.message.parser.literature import Literature
+from graia.ariadne.message.element import Image, Plain, Source
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.message.parser.literature import Literature
-from graia.application.message.elements.internal import Image_UnsafeBytes, MessageChain, Plain, Source
 
 from config import yaml_data, group_data
 from util.text2image import create_image
@@ -25,7 +26,7 @@ Designs = json.loads(Path(__file__).parent.joinpath("DesignsDICT.json").read_tex
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("查看人设")],
                             headless_decorators=[member_limit_check(15), rest_control(), group_black_list_block()]))
-async def rand_designs(app: GraiaMiraiApplication, group: Group, member: Member, source: Source):
+async def rand_designs(app: Ariadne, group: Group, member: Member, source: Source):
 
     if yaml_data['Saya']['CharacterDesignGenerator']['Disabled']:
         return
@@ -38,8 +39,8 @@ async def rand_designs(app: GraiaMiraiApplication, group: Group, member: Member,
 
     image = await create_image(msg)
     await app.sendGroupMessage(group, MessageChain.create([
-        Image_UnsafeBytes(image.getvalue())
-    ]), quote=source)
+        Image(data_bytes=image)
+    ]), quote=source.id)
 
 
 def get_rand(qid: int, gid: int):
@@ -63,7 +64,7 @@ def get_rand(qid: int, gid: int):
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("/reload", "人设")],
                             headless_decorators=[member_limit_check(15), rest_control(), group_black_list_block()]))
-async def rand_designs(app: GraiaMiraiApplication, group: Group, member: Member):
+async def reoald_designs(app: Ariadne, group: Group, member: Member):
     global Designs
     if member.id == yaml_data['Basic']['Permission']['Master']:
         Designs = json.loads(Path(__file__).parent.joinpath("DesignsDICT.json").read_text("UTF-8"))['Designs']

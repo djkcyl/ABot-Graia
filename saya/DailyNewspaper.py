@@ -5,14 +5,15 @@ import asyncio
 
 from io import BytesIO
 from graia.saya import Saya, Channel
-from graia.application.friend import Friend
+from graia.ariadne.app import Ariadne
+from graia.ariadne.model import Friend
 from graia.scheduler.timers import crontabify
-from graia.application import GraiaMiraiApplication
+from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.event.message import FriendMessage
+from graia.ariadne.message.element import Plain, Image
 from graia.scheduler.saya.schema import SchedulerSchema
-from graia.application.event.messages import FriendMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.message.parser.literature import Literature
-from graia.application.message.elements.internal import MessageChain, Plain, Image_UnsafeBytes
+from graia.ariadne.message.parser.literature import Literature
 
 from config import yaml_data, group_data
 
@@ -21,21 +22,21 @@ channel = Channel.current()
 
 
 @channel.use(SchedulerSchema(crontabify("30 8 * * *")))
-async def something_scheduled(app: GraiaMiraiApplication):
+async def something_scheduled(app: Ariadne):
     if yaml_data['Saya']['DailyNewspaper']['Disabled']:
         return
     await send(app=app)
 
 
 @channel.use(ListenerSchema(listening_events=[FriendMessage], inline_dispatchers=[Literature("发送早报")]))
-async def main(app: GraiaMiraiApplication, friend: Friend):
+async def main(app: Ariadne, friend: Friend):
     if friend.id == yaml_data['Basic']['Permission']['Master']:
         await send(app=app)
 
 
-async def send(app):
+async def send(app: Ariadne):
     ts = time.time()
-    groupList = await app.groupList()
+    groupList = await app.getGroupList()
     groupNum = len(groupList)
     await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
         Plain(f"正在开始发送每日日报，当前共有 {groupNum} 个群")
@@ -47,16 +48,18 @@ async def send(app):
                 paperurl = r.json()['imageUrl']
                 r2 = await client.get(paperurl)
                 paperimg = r2.content
-            paperimgbio = BytesIO()
-            paperimgbio.write(paperimg) 
             break
         except Exception as err:
             await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
                 Plain(f"第 {i + 1} 次日报加载失败\n{err}")
             ]))
             await asyncio.sleep(3)
+    else:
+        return await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
+            Plain(f"日报加载失败，请稍后手动重试")
+        ]))
     await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
-        Image_UnsafeBytes(paperimgbio.getvalue())
+        Image(data_bytes=paperimg)
     ]))
     for group in groupList:
 
@@ -65,7 +68,7 @@ async def send(app):
         try:
             await app.sendGroupMessage(group.id, MessageChain.create([
                 Plain(group.name),
-                Image_UnsafeBytes(paperimgbio.getvalue())
+                Image(data_bytes=paperimg)
             ]))
         except Exception as err:
             await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([

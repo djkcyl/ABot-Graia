@@ -1,13 +1,13 @@
 import time
 import redis
 
+from graia.ariadne.app import Ariadne
 from redis.exceptions import ConnectionError
-from graia.application.group import Group, Member
-from graia.application import GraiaMiraiApplication
+from graia.ariadne.model import Group, Member
+from graia.ariadne.message.element import At, Plain
 from graia.broadcast.exceptions import ExecutionStop
+from graia.ariadne.message.chain import MessageChain
 from graia.broadcast.builtin.decorators import Depend
-from graia.application.message.chain import MessageChain
-from graia.application.message.elements.internal import At, Plain
 
 from config import user_black_list
 
@@ -45,7 +45,7 @@ def member_limit_check(limit: int):
     ~~~~~~~~~~~~~~~~~~~~~
     按群用户独立控制
     '''
-    async def limit_wrapper(app: GraiaMiraiApplication, group: Group, member: Member):
+    async def limit_wrapper(app: Ariadne, group: Group, member: Member):
         name = str(group.id) + "_" + str(member.id)
         limit_blocked, cd, limited = limit_exists(name, limit)
         if member.id in user_black_list:
@@ -69,7 +69,7 @@ def group_limit_check(limit: int):
     ~~~~~~~~~~~~~~~~~~~~~
     按群独立控制
     '''
-    async def limit_wrapper(app: GraiaMiraiApplication, group: Group, member: Member):
+    async def limit_wrapper(app: Ariadne, group: Group, member: Member):
         name = str(group.id)
         limit_blocked, cd, limited = limit_exists(name, limit)
         if member.id in user_black_list:

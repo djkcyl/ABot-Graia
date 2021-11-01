@@ -1,12 +1,11 @@
 from graia.saya import Saya, Channel
-from graia.application.group import Group
-from graia.application import GraiaMiraiApplication
-from graia.application.message.chain import MessageChain
-from graia.application.event.messages import GroupMessage
-from graia.application.message.parser.kanata import Kanata
+from graia.ariadne.app import Ariadne
+from graia.ariadne.model import Group
+from graia.ariadne.message.element import Image
+from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.event.message import GroupMessage
+from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.message.parser.signature import FullMatch
-from graia.application.message.elements.internal import Image_UnsafeBytes
 
 from util.limit import group_limit_check
 from config import yaml_data, group_data
@@ -20,9 +19,9 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            inline_dispatchers=[Kanata([FullMatch("色图|涩图|瑟图|setu")])],
+                            inline_dispatchers=[Literature("色图")],
                             headless_decorators=[group_limit_check(5), rest_control(), group_black_list_block()]))
-async def main(app: GraiaMiraiApplication, group: Group):
+async def main(app: Ariadne, group: Group):
 
     if yaml_data['Saya']['Setu']['Disabled']:
         return
@@ -30,5 +29,5 @@ async def main(app: GraiaMiraiApplication, group: Group):
         return
 
     await app.sendGroupMessage(group, MessageChain.create([
-        Image_UnsafeBytes(await create_setu())
+        Image(data_bytes=await create_setu())
     ]))

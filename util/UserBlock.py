@@ -1,7 +1,5 @@
-from typing import Optional, Any, Union
-from graia.application.friend import Friend
-from graia.application.group import Group, Member
 from graia.broadcast.exceptions import ExecutionStop
+from graia.ariadne.model import Friend, Group, Member
 from graia.broadcast.builtin.decorators import Depend
 
 from config import user_black_list

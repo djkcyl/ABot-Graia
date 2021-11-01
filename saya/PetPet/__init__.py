@@ -1,20 +1,19 @@
 import os
 import numpy
-import aiohttp
+import httpx
 
 from io import BytesIO
 from PIL import ImageOps
 from PIL import Image as IMG
 from graia.saya import Saya, Channel
-from graia.application.event.messages import Group
-from graia.application import GraiaMiraiApplication
-from graia.application.event.mirai import NudgeEvent
-from graia.application.exceptions import AccountMuted
-from graia.application.message.chain import MessageChain
+from graia.ariadne.model import Group
+from graia.ariadne.app import Ariadne
+from graia.ariadne.event.mirai import NudgeEvent
+from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.event.message import GroupMessage
 from moviepy.editor import ImageSequenceClip as imageclip
-from graia.application.event.messages import GroupMessage
+from graia.ariadne.message.element import At, Image, Plain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.message.elements.internal import At, Image, Plain
 
 from util.limit import manual_limit
 from config import yaml_data, group_data
@@ -28,13 +27,13 @@ channel = Channel.current()
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             headless_decorators=[rest_control(), group_black_list_block()]))
-async def petpet_generator(app: GraiaMiraiApplication, message: MessageChain, group: Group):
+async def petpet_generator(app: Ariadne, message: MessageChain, group: Group):
 
     if yaml_data['Saya']['PetPet']['Disabled'] and not yaml_data['Saya']['PetPet']['CanAt']:
         return
     elif 'PetPet' in group_data[group.id]['DisabledFunc']:
         return
-        
+
     message_text = message.asDisplay()
     if message.has(At) and message_text.startswith("摸") or message_text.startswith("摸头 "):
         manual_limit(group.id, "petpet", 3)
@@ -48,7 +47,7 @@ async def petpet_generator(app: GraiaMiraiApplication, message: MessageChain, gr
 
 @channel.use(ListenerSchema(listening_events=[NudgeEvent],
                             headless_decorators=[rest_control()]))
-async def get_nudge(app: GraiaMiraiApplication, nudge: NudgeEvent):
+async def get_nudge(app: Ariadne, nudge: NudgeEvent):
 
     if nudge.group_id:
 
@@ -118,14 +117,12 @@ async def make_frame(avatar, i, squish=0, flip=False):
     if flip:
         avatar = ImageOps.mirror(avatar)
     # 将头像放缩成所需大小
-    avatar = avatar.resize(
-        (int((spec[2] - spec[0]) * 1.2), int((spec[3] - spec[1]) * 1.2)), IMG.ANTIALIAS)
+    avatar = avatar.resize((int((spec[2] - spec[0]) * 1.2), int((spec[3] - spec[1]) * 1.2)), IMG.ANTIALIAS)
     # 并贴到空图像上
     gif_frame = IMG.new('RGB', (112, 112), (255, 255, 255))
     gif_frame.paste(avatar, (spec[0], spec[1]))
     # 将手覆盖（包括偏移量）
-    gif_frame.paste(
-        hand, (0, int(squish * squish_translation_factor[i])), hand)
+    gif_frame.paste(hand, (0, int(squish * squish_translation_factor[i])), hand)
     # 返回
     return numpy.array(gif_frame)
 
@@ -136,11 +133,10 @@ async def petpet(member_id, flip=False, squish=0, fps=20) -> None:
     gif_frames = []
     # 打开头像
     # avatar = Image.open(path)
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url=url) as resp:
-            img_content = await resp.read()
+    async with httpx.AsyncClient() as client:
+        resp = await client.get(url=url)
 
-    avatar = IMG.open(BytesIO(img_content))
+    avatar = IMG.open(BytesIO(resp.content))
 
     # 生成每一帧
     for i in range(5):

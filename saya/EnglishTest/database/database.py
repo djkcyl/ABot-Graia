@@ -1,7 +1,6 @@
-import json
 import random
 
-from peewee import *
+from peewee import SqliteDatabase, Model, CharField, IntegerField
 
 
 db = SqliteDatabase('./saya/EnglishTest/database/WordData.db')

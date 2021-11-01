@@ -2,10 +2,11 @@ import traceback
 
 from io import StringIO
 from graia.saya import Saya, Channel
-from graia.application import GraiaMiraiApplication
+from graia.ariadne.app import Ariadne
+from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.message.element import Image, Plain
 from graia.broadcast.builtin.event import ExceptionThrowed
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.message.elements.internal import Image_UnsafeBytes, MessageChain, Plain
 
 from util.text2image import create_image
 from config import yaml_data
@@ -25,11 +26,12 @@ async def make_msg_for_unknow_exception(event):
     image = await create_image(msg, 200)
     return MessageChain.create([
         Plain("发生未捕获的异常\n"),
-        Image_UnsafeBytes(image.getvalue())])
+        Image(data_bytes=image)
+    ])
 
 
 @channel.use(ListenerSchema(listening_events=[ExceptionThrowed]))
-async def except_handle(app: GraiaMiraiApplication, event: ExceptionThrowed):
+async def except_handle(app: Ariadne, event: ExceptionThrowed):
     if isinstance(event.event, ExceptionThrowed):
         return
     else:

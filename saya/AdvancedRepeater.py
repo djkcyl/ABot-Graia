@@ -1,24 +1,18 @@
 from graia.saya import Saya, Channel
-from graia.application.group import Group, Member
-from graia.application import GraiaMiraiApplication
-from graia.broadcast.interrupt.waiter import Waiter
-from graia.broadcast.interrupt import InterruptControl
-from graia.application.event.messages import GroupMessage
-from graia.application.event.mirai import GroupRecallEvent
+from graia.ariadne.app import Ariadne
+from graia.ariadne.model import Group, Member
+from graia.ariadne.event.message import GroupMessage
+from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.event.mirai import GroupRecallEvent
+from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.message.parser.literature import Literature
-from graia.application.message.elements.internal import At, MessageChain, Plain, Image, FlashImage, Quote, Source, Xml, Json, Voice
+from graia.ariadne.message.element import At, Plain, Quote, Source
 
-from util.limit import manual_limit
-from config import yaml_data, group_data
-from util.TextModeration import text_moderation
-from util.ImageModeration import image_moderation
+from config import yaml_data
 
 
 saya = Saya.current()
 channel = Channel.current()
-bcc = saya.broadcast
-inc = InterruptControl(bcc)
 
 
 REPEATER = {
@@ -35,7 +29,7 @@ MESSAGEID = {
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("/rep")]))
-async def main(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain):
+async def main(app: Ariadne, group: Group, member: Member, message: MessageChain):
 
     global REPEATER
 
@@ -68,7 +62,7 @@ async def main(app: GraiaMiraiApplication, group: Group, member: Member, message
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def rep(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain, source: Source):
+async def rep(app: Ariadne, group: Group, member: Member, message: MessageChain, source: Source):
 
     if REPEATER["statu"] and REPEATER["group"] == group.id and REPEATER["member"] == member.id:
         quote_id = message.getFirst(Quote).id if message.has(Quote) else None
@@ -78,7 +72,7 @@ async def rep(app: GraiaMiraiApplication, group: Group, member: Member, message:
 
 
 @channel.use(ListenerSchema(listening_events=[GroupRecallEvent]))
-async def rep(app: GraiaMiraiApplication, event: GroupRecallEvent):
+async def rep(app: Ariadne, event: GroupRecallEvent):
 
     if REPEATER["statu"] and REPEATER["group"] == event.group.id:
         if event.messageId in MESSAGEID["origin"]:

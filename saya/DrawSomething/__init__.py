@@ -3,18 +3,19 @@ import time
 import secrets
 import asyncio
 
+from pathlib import Path
 from graia.saya import Saya, Channel
-from graia.application.friend import Friend
-from graia.application.group import Group, Member
+from graia.ariadne.app import Ariadne
+from graia.ariadne.exception import UnknownTarget
 from graia.broadcast.interrupt.waiter import Waiter
-from graia.application import GraiaMiraiApplication
-from graia.application.exceptions import UnknownTarget
+from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.model import Friend, Group, Member
 from graia.broadcast.interrupt import InterruptControl
+from graia.ariadne.message.element import Source, Plain, At
+from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.message.parser.literature import Literature
-from graia.application.event.lifecycle import ApplicationShutdowned
-from graia.application.event.messages import GroupMessage, FriendMessage
-from graia.application.message.elements.internal import MessageChain, Source, Plain, At
+from graia.ariadne.event.lifecycle import ApplicationShutdowned
+from graia.ariadne.event.message import GroupMessage, FriendMessage
 
 from util.limit import group_limit_check
 from config import yaml_data, group_data
@@ -27,8 +28,7 @@ channel = Channel.current()
 bcc = saya.broadcast
 inc = InterruptControl(bcc)
 
-with open("./saya/DrawSomething/word.json", "r") as f:
-    WORD = json.load(f)
+WORD = json.load(Path(__file__).parent.joinpath("word.json").read_bytes())
 MEMBER_RUNING_LIST = []
 GROUP_RUNING_LIST = []
 GROUP_GAME_PROCESS = {}
@@ -37,7 +37,7 @@ GROUP_GAME_PROCESS = {}
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("你画我猜")],
                             headless_decorators=[group_limit_check(20), group_black_list_block()]))
-async def main(app: GraiaMiraiApplication, group: Group, member: Member, source: Source):
+async def main(app: Ariadne, group: Group, member: Member, source: Source):
 
     # 判断插件是否处于禁用状态
     if yaml_data['Saya']['Entertainment']['Disabled']:
@@ -56,7 +56,7 @@ async def main(app: GraiaMiraiApplication, group: Group, member: Member, source:
         await app.sendFriendMessage(member.id, MessageChain.create([
             Plain(f"本消息仅用于测试私信是否可用，无需回复\n{time.time()}")
         ]))
-    except:
+    except Exception:
         await app.sendGroupMessage(group, MessageChain.create([
             Plain(f"由于你未添加好友，暂时无法发起你画我猜，请自行添加 {yaml_data['Basic']['BotName']} 好友，用于发送题目")
         ]))
@@ -112,7 +112,7 @@ async def main(app: GraiaMiraiApplication, group: Group, member: Member, source:
             await app.sendGroupMessage(group, MessageChain.create([
                 At(member.id),
                 Plain(" 本群正在请求确认开启一场游戏，请稍候")
-            ]), quote=source)
+            ]), quote=source.id)
         else:
             owner = GROUP_GAME_PROCESS[group.id]["owner"]
             owner_name = (await app.getMember(group, owner)).name
@@ -120,7 +120,7 @@ async def main(app: GraiaMiraiApplication, group: Group, member: Member, source:
                 At(member.id),
                 Plain(" 本群存在一场已经开始的游戏，请等待当前游戏结束"),
                 Plain(f"\n发起者：{str(owner)} | {owner_name}")
-            ]), quote=source)
+            ]), quote=source.id)
 
     # 新游戏创建流程
     else:
@@ -128,7 +128,7 @@ async def main(app: GraiaMiraiApplication, group: Group, member: Member, source:
         try:
             await app.sendGroupMessage(group, MessageChain.create([
                 Plain("是否确认在本群开启一场你画我猜？这将消耗你 4 个游戏币")
-            ]), quote=source)
+            ]), quote=source.id)
         except UnknownTarget:
             await app.sendGroupMessage(group, MessageChain.create([
                 At(member.id),
@@ -158,7 +158,7 @@ async def main(app: GraiaMiraiApplication, group: Group, member: Member, source:
                             Plain(" 在群中绘图"),
                             Plain("\n创建者发送 <取消/终止/结束> 可结束本次游戏"),
                             Plain("\n每人每回合只有 8 次答题机会，请勿刷屏请勿抢答。")
-                        ]), quote=source)
+                        ]), quote=source.id)
                     except UnknownTarget:
                         await app.sendGroupMessage(group, MessageChain.create([
                             Plain(f"本次题目为 {question_len} 个字，请等待 "),
@@ -183,13 +183,13 @@ async def main(app: GraiaMiraiApplication, group: Group, member: Member, source:
                                 await app.sendGroupMessage(group.id, MessageChain.create([
                                     Plain("恭喜 "),
                                     At(result[0].id),
-                                    Plain(f" 成功猜出本次答案，你和创建者分别获得 1 个和 2 个游戏币，本次游戏结束")
+                                    Plain(" 成功猜出本次答案，你和创建者分别获得 1 个和 2 个游戏币，本次游戏结束")
                                 ]), quote=result[1])
                             except UnknownTarget:
                                 await app.sendGroupMessage(group.id, MessageChain.create([
                                     Plain("恭喜 "),
                                     At(result[0].id),
-                                    Plain(f" 成功猜出本次答案，你和创建者分别获得 1 个和 2 个游戏币，本次游戏结束")
+                                    Plain(" 成功猜出本次答案，你和创建者分别获得 1 个和 2 个游戏币，本次游戏结束")
                                 ]))
                         else:
                             owner = str(GROUP_GAME_PROCESS[group.id]["owner"])
@@ -228,7 +228,7 @@ async def main(app: GraiaMiraiApplication, group: Group, member: Member, source:
 
 
 @channel.use(ListenerSchema(listening_events=[FriendMessage], inline_dispatchers=[Literature("添加你画我猜词库")]))
-async def main(app: GraiaMiraiApplication, friend: Friend, message: MessageChain):
+async def add_word(app: Ariadne, friend: Friend, message: MessageChain):
     if friend.id == yaml_data['Basic']['Permission']['Master']:
         global WORD
         saying = message.asDisplay().split()
@@ -243,12 +243,12 @@ async def main(app: GraiaMiraiApplication, friend: Friend, message: MessageChain
             ]))
         else:
             await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
-                Plain(f"词库内已存在该词")
+                Plain("词库内已存在该词")
             ]))
 
 
 @channel.use(ListenerSchema(listening_events=[FriendMessage], inline_dispatchers=[Literature("删除你画我猜词库")]))
-async def main(app: GraiaMiraiApplication, friend: Friend, message: MessageChain):
+async def remove_word(app: Ariadne, friend: Friend, message: MessageChain):
     if friend.id == yaml_data['Basic']['Permission']['Master']:
         global WORD
         saying = message.asDisplay().split()
@@ -263,12 +263,12 @@ async def main(app: GraiaMiraiApplication, friend: Friend, message: MessageChain
             ]))
         else:
             await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
-                Plain(f"词库内未存在该词")
+                Plain("词库内未存在该词")
             ]))
 
 
 @channel.use(ListenerSchema(listening_events=[FriendMessage], inline_dispatchers=[Literature("查看你画我猜状态")]))
-async def main(app: GraiaMiraiApplication, friend: Friend):
+async def vive_status(app: Ariadne, friend: Friend):
     if friend.id == yaml_data['Basic']['Permission']['Master']:
         runlist_len = len(GROUP_RUNING_LIST)
         runlist_str = "\n".join(map(lambda x: str(x), GROUP_RUNING_LIST))
@@ -279,12 +279,12 @@ async def main(app: GraiaMiraiApplication, friend: Friend):
             ]))
         else:
             await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
-                Plain(f"当前没有正在运行你画我猜的群")
+                Plain("当前没有正在运行你画我猜的群")
             ]))
 
 
 @channel.use(ListenerSchema(listening_events=[ApplicationShutdowned]))
-async def groupDataInit(app: GraiaMiraiApplication):
+async def groupDataInit(app: Ariadne):
     for game_group in GROUP_RUNING_LIST:
         if game_group in GROUP_GAME_PROCESS:
             await add_gold(str(GROUP_GAME_PROCESS[game_group]['owner']), 4)

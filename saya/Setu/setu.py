@@ -1,7 +1,8 @@
 import random
 
-from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
+from PIL import Image, ImageDraw, ImageFont
+
 
 async def create_setu():
     color = (

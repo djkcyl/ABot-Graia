@@ -3,13 +3,14 @@ import httpx
 import asyncio
 
 from graia.saya import Saya, Channel
-from graia.application.group import Group
+from graia.ariadne.model import Group
+from graia.ariadne.app import Ariadne
 from concurrent.futures import ThreadPoolExecutor
-from graia.application import GraiaMiraiApplication
 from graia.broadcast.exceptions import ExecutionStop
-from graia.application.event.messages import GroupMessage
+from graia.ariadne.event.message import GroupMessage
+from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.message.element import Image, Plain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.message.elements.internal import MessageChain, Image_UnsafeBytes, Plain
 
 from util.limit import manual_limit
 from config import yaml_data, group_data
@@ -20,11 +21,11 @@ from .draw_bili_image import binfo_image_create
 saya = Saya.current()
 channel = Channel.current()
 loop = asyncio.get_event_loop()
-pool = ThreadPoolExecutor(6)
+pool = ThreadPoolExecutor()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage], headless_decorators=[group_black_list_block()]))
-async def bilibili_main(app: GraiaMiraiApplication, group: Group, message: MessageChain):
+async def bilibili_main(app: Ariadne, group: Group, message: MessageChain):
 
     if yaml_data['Saya']['BilibiliResolve']['Disabled']:
         return
@@ -49,7 +50,7 @@ async def bilibili_main(app: GraiaMiraiApplication, group: Group, message: Messa
             manual_limit(group.id, video_number, 30)
         try:
             image = await loop.run_in_executor(pool, binfo_image_create, video_info)
-            await app.sendGroupMessage(group, MessageChain.create([Image_UnsafeBytes(image.getvalue())]))
+            await app.sendGroupMessage(group, MessageChain.create([Image(data_bytes=image.getvalue())]))
         except Exception as err:
             await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
                 Plain(f"B站视频 {video_number} 解析失败\n{err}")

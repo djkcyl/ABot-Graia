@@ -3,14 +3,15 @@ import httpx
 import asyncio
 
 from graia.saya import Saya, Channel
-from graia.application.group import Group, Member
+from graia.ariadne.app import Ariadne
+from graia.ariadne.model import Group, Member
 from graia.broadcast.interrupt.waiter import Waiter
-from graia.application import GraiaMiraiApplication
+from graia.ariadne.event.message import GroupMessage
+from graia.ariadne.message.chain import MessageChain
 from graia.broadcast.interrupt import InterruptControl
-from graia.application.event.messages import GroupMessage
+from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.message.parser.literature import Literature
-from graia.application.message.elements.internal import Image_UnsafeBytes, MessageChain, Source, Plain, At
+from graia.ariadne.message.element import Image, Source, Plain, At
 
 from config import yaml_data, group_data
 from util.limit import member_limit_check
@@ -39,7 +40,7 @@ WAITING = []
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("查战绩", "r6")],
                             headless_decorators=[member_limit_check(60), group_black_list_block()]))
-async def main(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain, source: Source):
+async def main(app: Ariadne, group: Group, member: Member, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['RecordQuery']['Disabled']:
         return
@@ -87,14 +88,14 @@ async def main(app: GraiaMiraiApplication, group: Group, member: Member, message
                     WAITING.remove(member.id)
                     return await app.sendGroupMessage(group, MessageChain.create([
                         At(atid),
-                        Plain(f" 暂未绑定账号")
+                        Plain(" 暂未绑定账号")
                     ]))
                 else:
                     nick_name = bind[atid]
             elif str(member.id) not in bind:
                 # 等待输入昵称
                 try:
-                    await app.sendGroupMessage(group, MessageChain.create([Plain(f"未绑定账号，请输入你的游戏昵称，不支持改绑，请谨慎填写")]))
+                    await app.sendGroupMessage(group, MessageChain.create([Plain("未绑定账号，请输入你的游戏昵称，不支持改绑，请谨慎填写")]))
                     nick_name = await asyncio.wait_for(inc.wait(waiter1), timeout=60)
                     if not nick_name:
                         WAITING.remove(member.id)
@@ -103,7 +104,7 @@ async def main(app: GraiaMiraiApplication, group: Group, member: Member, message
                     WAITING.remove(member.id)
                     return await app.sendGroupMessage(group, MessageChain.create([
                         Plain("等待超时")
-                    ]), quote=source)
+                    ]), quote=source.id)
 
                 # 搜索昵称
                 async with httpx.AsyncClient(timeout=10, auth=AUTH, follow_redirects=True) as client:
@@ -158,11 +159,11 @@ async def main(app: GraiaMiraiApplication, group: Group, member: Member, message
         image = await draw_r6(nick_name)
         if image:
             await app.sendGroupMessage(group, MessageChain.create([
-                Image_UnsafeBytes(image)
-            ]), quote=source)
+                Image(data_bytes=image)
+            ]), quote=source.id)
         else:
             await app.sendGroupMessage(group, MessageChain.create([
                 Plain(f"未搜索到该昵称：{nick_name}")
             ]))
-            
+
         WAITING.remove(member.id)

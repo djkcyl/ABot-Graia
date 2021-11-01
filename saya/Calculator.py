@@ -2,14 +2,14 @@ import re
 import asyncio
 
 from graia.saya import Saya, Channel
-from graia.application.group import Group
+from graia.ariadne.model import Group
+from graia.ariadne.app import Ariadne
 from concurrent.futures import ThreadPoolExecutor
-from graia.application import GraiaMiraiApplication
-from graia.application.event.messages import GroupMessage
-from graia.application.message.parser.kanata import Kanata
+from graia.ariadne.event.message import GroupMessage
+from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.message.element import Plain, Source
+from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.message.parser.signature import FullMatch, OptionalParam
-from graia.application.message.elements.internal import MessageChain, Plain, Source
 
 from config import yaml_data, group_data
 from util.limit import member_limit_check
@@ -22,28 +22,31 @@ pool = ThreadPoolExecutor()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            inline_dispatchers=[Kanata([FullMatch("计算器"), OptionalParam("message")])],
+                            inline_dispatchers=[Literature("计算器")],
                             headless_decorators=[member_limit_check(10)]))
-async def calculator_main(app: GraiaMiraiApplication, group: Group, message: MessageChain, source: Source):
+async def calculator_main(app: Ariadne, group: Group, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['Calculator']['Disabled']:
         return
     elif 'Calculator' in group_data[group.id]['DisabledFunc']:
         return
 
-    expression = rep_str(message.asDisplay())
-    if len(expression) > 800:
-        return await app.sendGroupMessage(group, MessageChain.create([Plain("字符数过多")]), quote=source)
-    try:
-        answer = await asyncio.wait_for(loop.run_in_executor(pool, arithmetic, expression), timeout=15)
-    except ZeroDivisionError:
-        return await app.sendGroupMessage(group, MessageChain.create([Plain("0不可作为除数")]), quote=source)
-    except asyncio.TimeoutError:
-        return await app.sendGroupMessage(group, MessageChain.create([Plain("计算超时")]), quote=source)
-    except:
-        return await app.sendGroupMessage(group, MessageChain.create([Plain("出现未知错误，终止计算")]), quote=source)
+    saying = message.asDisplay().split(" ", 1)
 
-    await app.sendGroupMessage(group, MessageChain.create([Plain(answer)]), quote=source)
+    if len(saying) == 2:
+        expression = rep_str(saying[1])
+        if len(expression) > 800:
+            return await app.sendGroupMessage(group, MessageChain.create([Plain("字符数过多")]), quote=source.id)
+        try:
+            answer = await asyncio.wait_for(loop.run_in_executor(pool, arithmetic, expression), timeout=15)
+        except ZeroDivisionError:
+            return await app.sendGroupMessage(group, MessageChain.create([Plain("0不可作为除数")]), quote=source.id)
+        except asyncio.TimeoutError:
+            return await app.sendGroupMessage(group, MessageChain.create([Plain("计算超时")]), quote=source.id)
+        except:
+            return await app.sendGroupMessage(group, MessageChain.create([Plain("出现未知错误，终止计算")]), quote=source.id)
+
+        await app.sendGroupMessage(group, MessageChain.create([Plain(answer)]), quote=source.id)
 
 
 def rep_str(say: str):

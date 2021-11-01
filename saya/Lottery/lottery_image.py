@@ -10,8 +10,6 @@ from PIL import Image, ImageDraw, ImageFont
 from .certification import encrypt
 
 
-
-
 def qrgen(qq, id, name, period):
     text = encrypt(f"{qq}|{id}|{period}")
     qr = qrcode.QRCode()
@@ -37,7 +35,8 @@ def qrgen(qq, id, name, period):
     draw.text((10, 10), period + "期", font=font_36, fill="black")
     bg_bio = BytesIO()
     bg.save(bg_bio, format="jpeg")
-    return bg_bio
+    return bg_bio.getvalue()
+
 
 def qrdecode(url):
     r = httpx.get(url)
@@ -48,6 +47,7 @@ def qrdecode(url):
     image_array = np.array(image)
     image_data = pyzbar.decode(image_array)[0].data.decode("utf-8")
     return image_data
+
 
 def getCutStr(str, cut):
     si = 0

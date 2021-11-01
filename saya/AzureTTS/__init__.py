@@ -1,4 +1,3 @@
-import os
 import time
 import asyncio
 
@@ -7,13 +6,14 @@ import xmltodict
 from pathlib import Path
 from graiax import silkcoder
 from graia.saya import Saya, Channel
-from graia.application.group import Member
+from graia.ariadne.app import Ariadne
+from graia.ariadne.model import Member, Group
 from concurrent.futures import ThreadPoolExecutor
-from graia.application import GraiaMiraiApplication
+from graia.ariadne.event.message import GroupMessage
+from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.message.element import Plain, Voice, Source
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.event.messages import Group, GroupMessage
-from graia.application.message.parser.literature import Literature
-from graia.application.message.elements.internal import Plain, MessageChain, Voice, Source
+from graia.ariadne.message.parser.literature import Literature
 from azure.cognitiveservices.speech import AudioDataStream, SpeechConfig, SpeechSynthesizer
 
 
@@ -31,10 +31,11 @@ TTSRUNING = False
 BASEPATH = Path(__file__).parent.joinpath("temp")
 BASEPATH.mkdir(exist_ok=True)
 
+
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("/tts")],
                             headless_decorators=[rest_control(), member_limit_check(40), group_black_list_block()]))
-async def azuretts(app: GraiaMiraiApplication, group: Group, member: Member, message: MessageChain, source: Source):
+async def azuretts(app: Ariadne, group: Group, member: Member, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['AzureTTS']['Disabled']:
         return
@@ -98,10 +99,10 @@ async def azuretts(app: GraiaMiraiApplication, group: Group, member: Member, mes
         style = "embarrassed"
 
     if not await reduce_gold(str(member.id), 2):
-        return await app.sendGroupMessage(group, MessageChain.create([Plain("你的游戏币不足，无法请求语音")]), quote=source)
+        return await app.sendGroupMessage(group, MessageChain.create([Plain("你的游戏币不足，无法请求语音")]), quote=source.id)
 
     if TTSRUNING:
-        return app.sendGroupMessage(group, MessageChain.create([Plain("当前tts队列已满，请等待")]), quote=source)
+        return app.sendGroupMessage(group, MessageChain.create([Plain("当前tts队列已满，请等待")]), quote=source.id)
 
     if len(saying[3]) < 800:
         times = str(int(time.time() * 100))
@@ -137,7 +138,6 @@ def dict2xml(name: str, style: str, text: str):
         }
     }
     con = xmltodict.unparse(xml_json, encoding='utf-8', pretty=1)
-    print(con)
     return con
 
 

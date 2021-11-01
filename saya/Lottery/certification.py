@@ -1,6 +1,6 @@
 import os
-import base64
 import rsa
+import base64
 
 
 PRIVATE = "./saya/Lottery/server-private.pem"

@@ -206,4 +206,4 @@ def binfo_image_create(video_info: str):
     image = BytesIO()
     video.save(image, "JPEG")
 
-    return image
+    return image.getvalue()
