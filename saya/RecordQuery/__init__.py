@@ -39,7 +39,7 @@ WAITING = []
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("查战绩", "r6")],
-                            headless_decorators=[member_limit_check(60), group_black_list_block()]))
+                            decorators=[member_limit_check(60), group_black_list_block()]))
 async def main(app: Ariadne, group: Group, member: Member, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['RecordQuery']['Disabled']:

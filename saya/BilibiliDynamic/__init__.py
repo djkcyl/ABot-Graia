@@ -3,6 +3,7 @@ import json
 import asyncio
 
 from pathlib import Path
+from loguru import logger
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.exception import UnknownTarget
@@ -98,7 +99,7 @@ async def add_uid(uid, groupid):
     else:
         return Plain("请输入正确的 UP UID 或 首页链接")
 
-    r = await dynamic_svr(uid, Ariadne)
+    r = await dynamic_svr(uid)
     if "cards" in r["data"]:
         up_name = r["data"]["cards"][0]["desc"]["user_profile"]["info"]["uname"]
         uid_sub_group = dynamic_list['subscription'].get(uid, [])
@@ -163,12 +164,12 @@ async def init(app: Ariadne):
     if sub_num == 0:
         NONE = True
         await asyncio.sleep(1)
-        return app.logger.info("[BiliBili推送] 由于未订阅任何账号，本次初始化结束")
+        return logger.info("[BiliBili推送] 由于未订阅任何账号，本次初始化结束")
     await asyncio.sleep(1)
-    app.logger.info(f"[BiliBili推送] 将对 {sub_num} 个账号进行监控")
+    logger.info(f"[BiliBili推送] 将对 {sub_num} 个账号进行监控")
     info_msg = [f"[BiliBili推送] 将对 {sub_num} 个账号进行监控"]
     data = {"uids": subid_list}
-    r = await get_status_info_by_uids(data, app)
+    r = await get_status_info_by_uids(data)
     for uid_statu in r["data"]:
         if r["data"][uid_statu]["live_status"] == 1:
             LIVE_STATUS[uid_statu] = True
@@ -177,7 +178,7 @@ async def init(app: Ariadne):
 
     i = 1
     for up_id in subid_list:
-        res = await dynamic_svr(up_id, app)
+        res = await dynamic_svr(up_id)
         if "cards" in res["data"]:
             last_dynid = res["data"]["cards"][0]["desc"]["dynamic_id"]
             DYNAMIC_OFFSET[up_id] = last_dynid
@@ -193,7 +194,7 @@ async def init(app: Ariadne):
             else:
                 live_status = ""
             info_msg.append(f"    ● {si}  ---->  {up_name}({up_id}){live_status}")
-            app.logger.info(f"[BiliBili推送] 正在初始化  ● {si}  ---->  {up_name}({up_id}){live_status}")
+            logger.info(f"[BiliBili推送] 正在初始化  ● {si}  ---->  {up_name}({up_id}){live_status}")
             i += 1
         else:
             delete_uid(up_id)
@@ -205,7 +206,7 @@ async def init(app: Ariadne):
     if i-1 != sub_num:
         info_msg.append(f"[BiliBili推送] 共有 {sub_num-i+1} 个账号无法获取最近动态，暂不可进行监控，已从列表中移除")
     for msg in info_msg:
-        app.logger.info(msg)
+        logger.info(msg)
 
     image = await create_image("\n".join(info_msg), 100)
     await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
@@ -220,16 +221,16 @@ async def update_scheduled(app: Ariadne):
         return
 
     if not NONE:
-        return app.logger.info("[BiliBili推送] 初始化未完成，终止本次更新")
+        return logger.info("[BiliBili推送] 初始化未完成，终止本次更新")
     elif len(dynamic_list["subscription"]) == 0:
-        return app.logger.info("[BiliBili推送] 由于未订阅任何账号，本次更新已终止")
+        return logger.info("[BiliBili推送] 由于未订阅任何账号，本次更新已终止")
 
     sub_list = dynamic_list["subscription"].copy()
     subid_list = get_subid_list()
     post_data = {"uids": subid_list}
-    app.logger.info("[BiliBili推送] 正在检测直播更新")
-    live_statu = await get_status_info_by_uids(post_data, app)
-    app.logger.info("[BiliBili推送] 直播更新成功")
+    logger.info("[BiliBili推送] 正在检测直播更新")
+    live_statu = await get_status_info_by_uids(post_data)
+    logger.info("[BiliBili推送] 直播更新成功")
     for up_id in live_statu["data"]:
         title = live_statu["data"][up_id]["title"]
         room_id = live_statu["data"][up_id]["room_id"]
@@ -242,7 +243,7 @@ async def update_scheduled(app: Ariadne):
                 continue
             else:
                 LIVE_STATUS[up_id] = True
-                app.logger.info(f"[BiliBili推送] {up_name} 开播了 - {room_area} - {title}")
+                logger.info(f"[BiliBili推送] {up_name} 开播了 - {room_area} - {title}")
                 for groupid in sub_list[up_id]:
                     try:
                         await app.sendGroupMessage(groupid, MessageChain.create([
@@ -257,11 +258,11 @@ async def update_scheduled(app: Ariadne):
                         for subid in get_group_sublist(groupid):
                             remove_uid(subid, groupid)
                             remove_list.append(subid)
-                        app.logger.info(f"[BiliBili推送] 推送失败，找不到该群 {groupid}，已删除该群订阅的 {len(remove_list)} 个UP")
+                        logger.info(f"[BiliBili推送] 推送失败，找不到该群 {groupid}，已删除该群订阅的 {len(remove_list)} 个UP")
         else:
             if LIVE_STATUS[up_id]:
                 LIVE_STATUS[up_id] = False
-                app.logger.info(f"[BiliBili推送] {up_name} 已下播")
+                logger.info(f"[BiliBili推送] {up_name} 已下播")
                 try:
                     for groupid in sub_list[up_id]:
                         await app.sendGroupMessage(groupid, MessageChain.create([
@@ -273,18 +274,18 @@ async def update_scheduled(app: Ariadne):
                     for subid in get_group_sublist(groupid):
                         remove_uid(subid, groupid)
                         remove_list.append(subid)
-                    app.logger.info(f"[BiliBili推送] 推送失败，找不到该群 {groupid}，已删除该群订阅的 {len(remove_list)} 个UP")
+                    logger.info(f"[BiliBili推送] 推送失败，找不到该群 {groupid}，已删除该群订阅的 {len(remove_list)} 个UP")
 
-    app.logger.info("[BiliBili推送] 正在检测动态更新")
+    logger.info("[BiliBili推送] 正在检测动态更新")
     for up_id in sub_list:
-        r = await dynamic_svr(up_id, app)
+        r = await dynamic_svr(up_id)
         if r:
             if "cards" in r["data"]:
                 up_name = r["data"]["cards"][0]["desc"]["user_profile"]["info"]["uname"]
                 up_last_dynid = r["data"]["cards"][0]["desc"]["dynamic_id"]
-                app.logger.debug(f"[BiliBili推送] {up_name}（{up_id}）检测完成")
+                logger.debug(f"[BiliBili推送] {up_name}（{up_id}）检测完成")
                 if up_last_dynid > DYNAMIC_OFFSET[up_id]:
-                    app.logger.info(f"[BiliBili推送] {up_name} 更新了动态 {up_last_dynid}")
+                    logger.info(f"[BiliBili推送] {up_name} 更新了动态 {up_last_dynid}")
                     DYNAMIC_OFFSET[up_id] = up_last_dynid
                     dyn_url_str = r["data"]["cards"][0]["desc"]["dynamic_id_str"]
                     shot_image = await get_dynamic_screenshot(r["data"]["cards"][0]["desc"]["dynamic_id_str"])
@@ -301,13 +302,13 @@ async def update_scheduled(app: Ariadne):
                             for subid in get_group_sublist(groupid):
                                 remove_uid(subid, groupid)
                                 remove_list.append(subid)
-                            app.logger.info(f"[BiliBili推送] 推送失败，找不到该群 {groupid}，已删除该群订阅的 {len(remove_list)} 个UP")
+                            logger.info(f"[BiliBili推送] 推送失败，找不到该群 {groupid}，已删除该群订阅的 {len(remove_list)} 个UP")
                         except Exception as e:
-                            app.logger.info(f"[BiliBili推送] 推送失败，未知错误 {type(e)}")
+                            logger.info(f"[BiliBili推送] 推送失败，未知错误 {type(e)}")
                 await asyncio.sleep(TIME_INTERVALS)
             else:
                 delete_uid(up_id)
-                app.logger.info(f"{up_id} 暂时无法监控，已从列表中移除")
+                logger.info(f"{up_id} 暂时无法监控，已从列表中移除")
                 await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
                     Plain(f"{up_id} 暂时无法监控，已从列表中移除")
                 ]))
@@ -317,12 +318,12 @@ async def update_scheduled(app: Ariadne):
             ]))
             break
 
-    return app.logger.info("[BiliBili推送] 本轮检测完成")
+    return logger.info("[BiliBili推送] 本轮检测完成")
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("订阅")],
-                            headless_decorators=[group_limit_check(10), group_black_list_block()]))
+                            decorators=[group_limit_check(10), group_black_list_block()]))
 async def add_sub(app: Ariadne, group: Group, member: Member, message: MessageChain):
 
     if member.permission in [MemberPerm.Administrator, MemberPerm.Owner] or member.id in yaml_data['Basic']['Permission']['Admin']:
@@ -337,7 +338,7 @@ async def add_sub(app: Ariadne, group: Group, member: Member, message: MessageCh
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("退订")],
-                            headless_decorators=[group_limit_check(10), group_black_list_block()]))
+                            decorators=[group_limit_check(10), group_black_list_block()]))
 async def remove_sub(app: Ariadne, group: Group, member: Member, message: MessageChain):
 
     if member.permission in [MemberPerm.Administrator, MemberPerm.Owner] or member.id in yaml_data['Basic']['Permission']['Admin']:
@@ -350,7 +351,7 @@ async def remove_sub(app: Ariadne, group: Group, member: Member, message: Messag
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("本群订阅列表")],
-                            headless_decorators=[group_limit_check(10), group_black_list_block()]))
+                            decorators=[group_limit_check(10), group_black_list_block()]))
 async def sub_list(app: Ariadne, group: Group, member: Member):
 
     if member.permission in [MemberPerm.Administrator, MemberPerm.Owner] or member.id in yaml_data['Basic']['Permission']['Admin']:
@@ -371,17 +372,17 @@ async def sub_list(app: Ariadne, group: Group, member: Member):
 
 
 @channel.use(ListenerSchema(listening_events=[BotLeaveEventActive, BotLeaveEventKick]))
-async def bot_leave(app: Ariadne, group: Group):
+async def bot_leave(group: Group):
     remove_list = []
     for subid in get_group_sublist(group.id):
         remove_uid(subid, group.id)
         remove_list.append(subid)
-    app.logger.info(f"[BiliBili推送] 检测到退群事件 > {group.name}({group.id})，已删除该群订阅的 {len(remove_list)} 个UP")
+    logger.info(f"[BiliBili推送] 检测到退群事件 > {group.name}({group.id})，已删除该群订阅的 {len(remove_list)} 个UP")
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("查看动态")],
-                            headless_decorators=[group_limit_check(30), group_black_list_block()]))
+                            decorators=[group_limit_check(30), group_black_list_block()]))
 async def atrep(app: Ariadne, group: Group, message: MessageChain):
 
     saying = message.asDisplay().split(" ", 1)
@@ -398,7 +399,7 @@ async def atrep(app: Ariadne, group: Group, message: MessageChain):
                 Plain("请输入正确的 UP UID 或 首页链接")
             ]))
 
-        res = await dynamic_svr(uid, app)
+        res = await dynamic_svr(uid)
         if "cards" in res["data"]:
             shot_image = await get_dynamic_screenshot(res["data"]["cards"][0]["desc"]["dynamic_id_str"])
             await app.sendGroupMessage(group, MessageChain.create([

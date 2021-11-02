@@ -24,7 +24,7 @@ if yaml_data['Saya']['MutePack']['MaxTime'] * yaml_data['Saya']['MutePack']['Max
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            headless_decorators=[rest_control()]))
+                            decorators=[rest_control()]))
 async def random_mute(app: Ariadne, group: Group, member: Member, message: MessageChain):
 
     if yaml_data['Saya']['MutePack']['Disabled']:

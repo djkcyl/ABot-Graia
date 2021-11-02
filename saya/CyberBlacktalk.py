@@ -21,7 +21,7 @@ channel = Channel.current()
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("你在说什么")],
-                            headless_decorators=[rest_control(), member_limit_check(30), group_black_list_block()]))
+                            decorators=[rest_control(), member_limit_check(30), group_black_list_block()]))
 async def what_are_you_saying(app: Ariadne, group: Group, member: Member, message: MessageChain):  # 你在说什么
 
     if yaml_data['Saya']['CyberBlacktalk']['Disabled']:

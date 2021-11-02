@@ -53,7 +53,7 @@ else:
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("购买奖券")],
-                            headless_decorators=[group_black_list_block()]))
+                            decorators=[group_black_list_block()]))
 async def buy_lottery(app: Ariadne, group: Group, member: Member, source: Source):
 
     if not yaml_data['Saya']['Entertainment']['Lottery']:
@@ -89,7 +89,7 @@ async def buy_lottery(app: Ariadne, group: Group, member: Member, source: Source
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("兑换奖券")],
-                            headless_decorators=[group_black_list_block()]))
+                            decorators=[group_black_list_block()]))
 async def redeem_lottery(app: Ariadne, group: Group, member: Member, source: Source):
 
     if member.id in WAITING:
@@ -204,7 +204,7 @@ async def lo(app: Ariadne, friend: Friend):
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("开奖查询")],
-                            headless_decorators=[group_black_list_block()]))
+                            decorators=[group_black_list_block()]))
 async def q_lottery(app: Ariadne, group: Group):
 
     if not yaml_data['Saya']['Entertainment']['Lottery']:

@@ -1,5 +1,6 @@
 import httpx
 
+from loguru import logger
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.model import Group, Member
@@ -19,7 +20,7 @@ channel = Channel.current()
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("我是废物")],
-                            headless_decorators=[member_limit_check(5), group_black_list_block()]))
+                            decorators=[member_limit_check(5), group_black_list_block()]))
 async def trashCard(app: Ariadne, group: Group, member: Member, source: Source):
     if yaml_data['Saya']['TrashCard']['Disabled']:
         return
@@ -33,7 +34,7 @@ async def trashCard(app: Ariadne, group: Group, member: Member, source: Source):
     async with httpx.AsyncClient() as client:
         r = await client.post(url, json=data)
     card = r.json()
-    app.logger.info(card)
+    logger.info(card)
 
     if "code" in card:
         await app.sendGroupMessage(group, MessageChain.create([

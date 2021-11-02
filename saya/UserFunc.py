@@ -1,3 +1,4 @@
+from loguru import logger
 from graia.saya import Saya, Channel
 from graia.ariadne.model import Group
 from graia.ariadne.app import Ariadne
@@ -23,7 +24,7 @@ RANK_LIST = None
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("查看排行榜")],
-                            headless_decorators=[member_limit_check(5), group_black_list_block()]))
+                            decorators=[member_limit_check(5), group_black_list_block()]))
 async def main(app: Ariadne, group: Group):
     await app.sendGroupMessage(group, MessageChain.create([Image(data_bytes=RANK_LIST)]))
 
@@ -33,13 +34,13 @@ async def something_scheduled(app: Ariadne):
     global RANK_LIST
     msg = await get_ranking()
     RANK_LIST = await create_image(msg, 100)
-    app.logger.info("排行榜已生成完毕")
+    logger.info("排行榜已生成完毕")
 
 
 @channel.use(ListenerSchema(listening_events=[ApplicationLaunched]))
-async def something_scheduled(app: Ariadne):
+async def bot_Launched(app: Ariadne):
 
     global RANK_LIST
     msg = await get_ranking()
     RANK_LIST = await create_image(msg, 100)
-    app.logger.info("排行榜已生成完毕")
+    logger.info("排行榜已生成完毕")

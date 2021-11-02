@@ -4,9 +4,9 @@ import numpy
 import asyncio
 import jieba.analyse
 
-from PIL import Image
 from io import BytesIO
 from pathlib import Path
+from PIL import Image as IMG
 from matplotlib import pyplot
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
@@ -30,7 +30,7 @@ loop = asyncio.get_event_loop()
 pool = ThreadPoolExecutor(4)
 
 BASEPATH = Path(__file__).parent
-MASK = numpy.array(Image.open(BASEPATH.joinpath('bgg.jpg')))
+MASK = numpy.array(IMG.open(BASEPATH.joinpath('bgg.jpg')))
 FONT_PATH = Path("font").joinpath("sarasa-mono-sc-regular.ttf").__str__()
 STOPWORDS = BASEPATH.joinpath('stopwords')
 
@@ -40,7 +40,7 @@ RUNNING_LIST = []
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("查看个人词云"), Literature("查看本群词云")],
-                            headless_decorators=[member_limit_check(300), group_black_list_block()]))
+                            decorators=[member_limit_check(300), group_black_list_block()]))
 async def wordcloud(app: Ariadne, group: Group, member: Member, message: MessageChain):
 
     global RUNNING, RUNNING_LIST
@@ -58,7 +58,7 @@ async def wordcloud(app: Ariadne, group: Group, member: Member, message: Message
             RUNNING += 1
             RUNNING_LIST.append(member.id)
             mode = match.group(1)
-            before_week = int(time.time()- 604800)
+            before_week = int(time.time() - 604800)
             if mode == "个人":
                 talk_list = await get_user_talk(str(member.id), str(group.id), before_week)
             elif mode == "本群":
@@ -69,7 +69,6 @@ async def wordcloud(app: Ariadne, group: Group, member: Member, message: Message
                 ]))
                 RUNNING -= 1
                 return RUNNING_LIST.remove(member.id)
-            app.logger.info(f"正在制作词云，一周内共 {len(talk_list)} 条记录")
             await app.sendGroupMessage(group, MessageChain.create([
                 At(member.id),
                 Plain(f" 正在制作词云，一周内共 {len(talk_list)} 条记录")
@@ -96,7 +95,7 @@ async def get_frequencies(msg_list):
 
 
 def make_wordcloud(words):
-    
+
     wordcloud = WordCloud(
         font_path=FONT_PATH,
         background_color='white',

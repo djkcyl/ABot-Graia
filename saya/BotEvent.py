@@ -1,5 +1,6 @@
 import asyncio
 
+from loguru import logger
 from typing import Optional
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
@@ -28,35 +29,35 @@ async def groupDataInit(app: Ariadne):
     '''
     Graia 成功启动
     '''
-    groupList = await app.groupList()
+    groupList = await app.getGroupList()
     groupNum = len(groupList)
     await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
-        Plain(f"ABot-Graia成功启动，正在初始化，请稍后。"),
+        Plain("ABot-Graia成功启动，正在初始化，请稍后。"),
         Plain(f"\n当前 {yaml_data['Basic']['BotName']} 共加入了 {groupNum} 个群")
     ]))
     i = 0
     for group in groupList:
         if group.id not in group_data:
             group_data[group.id] = groupInitData
-            app.logger.info(group_data[group.id])
-            app.logger.info(f"已为 {group.id} 进行初始化配置")
+            logger.info(group_data[group.id])
+            logger.info(f"已为 {group.id} 进行初始化配置")
             i += 1
     save_config()
-    msg = [Plain(f"初始化结束")]
+    msg = [Plain("初始化结束")]
     if i > 0:
         msg.append(Plain(f"\n已为 {i} 个群进行了初始化配置"))
     await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create(msg))
 
 
 @channel.use(ListenerSchema(listening_events=[ApplicationShutdowned]))
-async def groupDataInit(app: Ariadne):
+async def stopEvents(app: Ariadne):
     await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
-        Plain(f"正在关闭")
+        Plain("正在关闭")
     ]))
 
 
 @channel.use(ListenerSchema(listening_events=[NewFriendRequestEvent]))
-async def get_BotJoinGroup(app: Ariadne, events: NewFriendRequestEvent):
+async def get_BotNewFriend(app: Ariadne, events: NewFriendRequestEvent):
     '''
     收到好友申请
     '''
@@ -88,11 +89,11 @@ async def accept(app: Ariadne, invite: BotInvitedJoinGroupRequestEvent):
         await invite.accept("")
     else:
         await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
-            Plain(f"收到邀请入群事件"),
+            Plain("收到邀请入群事件"),
             Plain(f"\n邀请者：{invite.supplicant} | {invite.nickname}"),
             Plain(f"\n群号：{invite.groupId}"),
             Plain(f"\n群名：{invite.groupName}"),
-            Plain(f"\n\n请发送“同意”或“拒绝”")
+            Plain("\n\n请发送“同意”或“拒绝”")
         ]))
 
         @Waiter.create_using_function([FriendMessage])
@@ -160,20 +161,20 @@ async def get_BotJoinGroup(app: Ariadne, joingroup: BotJoinGroupEvent):
             Plain(f"如果有需要可以联系主人QQ”{str(yaml_data['Basic']['Permission']['Master'])}“，"),
             Plain(f"添加{yaml_data['Basic']['BotName']}好友后请私聊说明用途后即可拉进其他群，主人看到后会选择是否同意入群"),
             Plain(f"\n{yaml_data['Basic']['BotName']}被群禁言后会自动退出该群。"),
-            Plain(f"\n发送 <菜单> 可以查看功能列表"),
-            Plain(f"\n拥有管理员以上权限可以开关功能"),
+            Plain("\n发送 <菜单> 可以查看功能列表"),
+            Plain("\n拥有管理员以上权限可以开关功能"),
             Plain(f"\n\n注：@{yaml_data['Basic']['BotName']}不会触发任何功能"),
         ]))
 
 
 @channel.use(ListenerSchema(listening_events=[BotLeaveEventKick]))
-async def get_BotJoinGroup(app: Ariadne, kickgroup: BotLeaveEventKick):
+async def get_BotKickGroup(app: Ariadne, kickgroup: BotLeaveEventKick):
     '''
     被踢出群
     '''
     try:
         group_list['white'].remove(kickgroup.group.id)
-    except:
+    except Exception:
         pass
     save_config()
 
@@ -182,12 +183,12 @@ async def get_BotJoinGroup(app: Ariadne, kickgroup: BotLeaveEventKick):
             Plain("收到被踢出群聊事件"),
             Plain(f"\n群号：{kickgroup.group.id}"),
             Plain(f"\n群名：{kickgroup.group.name}"),
-            Plain(f"\n已移出白名单")
+            Plain("\n已移出白名单")
         ]))
 
 
 @channel.use(ListenerSchema(listening_events=[BotGroupPermissionChangeEvent]))
-async def get_BotJoinGroup(app: Ariadne, permissionchange: BotGroupPermissionChangeEvent):
+async def get_BotPermissionChange(app: Ariadne, permissionchange: BotGroupPermissionChangeEvent):
     '''
     群内权限变动
     '''
@@ -201,13 +202,13 @@ async def get_BotJoinGroup(app: Ariadne, permissionchange: BotGroupPermissionCha
 
 
 @channel.use(ListenerSchema(listening_events=[BotMuteEvent]))
-async def get_BotJoinGroup(app: Ariadne, group: Group, mute: BotMuteEvent):
+async def get_BotMuteGroup(app: Ariadne, group: Group, mute: BotMuteEvent):
     '''
     被禁言
     '''
     try:
         group_list['white'].remove(group.id)
-    except:
+    except Exception:
         pass
     save_config()
 
@@ -222,7 +223,7 @@ async def get_BotJoinGroup(app: Ariadne, group: Group, mute: BotMuteEvent):
 
 
 @channel.use(ListenerSchema(listening_events=[MemberCardChangeEvent]))
-async def main(app: Ariadne, events: MemberCardChangeEvent):
+async def get_BotCardChange(app: Ariadne, events: MemberCardChangeEvent):
     '''
     群名片被修改
     '''
@@ -242,13 +243,13 @@ async def main(app: Ariadne, events: MemberCardChangeEvent):
                                        info=MemberInfo(name=yaml_data['Basic']['BotName']),
                                        group=events.member.group.id)
             await app.sendGroupMessage(events.member.group.id, MessageChain.create([
-                Plain(f"请不要修改我的群名片")
+                Plain("请不要修改我的群名片")
             ]))
-    elif events.operator != None:
+    elif events.operator:
         await app.sendGroupMessage(events.member.group, MessageChain.create([
             At(events.member.id),
             Plain(" 的群名片被修改"),
-            Plain(f"\n操作者为 "),
+            Plain("\n操作者为 "),
             At(events.operator.id)
         ]))
 

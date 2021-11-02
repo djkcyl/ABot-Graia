@@ -28,7 +28,7 @@ channel = Channel.current()
 bcc = saya.broadcast
 inc = InterruptControl(bcc)
 
-WORD = json.load(Path(__file__).parent.joinpath("word.json").read_bytes())
+WORD = json.loads(Path(__file__).parent.joinpath("word.json").read_text())
 MEMBER_RUNING_LIST = []
 GROUP_RUNING_LIST = []
 GROUP_GAME_PROCESS = {}
@@ -36,7 +36,7 @@ GROUP_GAME_PROCESS = {}
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("你画我猜")],
-                            headless_decorators=[group_limit_check(20), group_black_list_block()]))
+                            decorators=[group_limit_check(20), group_black_list_block()]))
 async def main(app: Ariadne, group: Group, member: Member, source: Source):
 
     # 判断插件是否处于禁用状态

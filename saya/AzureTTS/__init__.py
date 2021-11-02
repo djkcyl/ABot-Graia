@@ -34,7 +34,7 @@ BASEPATH.mkdir(exist_ok=True)
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("/tts")],
-                            headless_decorators=[rest_control(), member_limit_check(40), group_black_list_block()]))
+                            decorators=[rest_control(), member_limit_check(40), group_black_list_block()]))
 async def azuretts(app: Ariadne, group: Group, member: Member, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['AzureTTS']['Disabled']:

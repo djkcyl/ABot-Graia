@@ -22,7 +22,7 @@ channel = Channel.current()
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("嗷")],
-                            headless_decorators=[rest_control(), member_limit_check(15), group_black_list_block()]))
+                            decorators=[rest_control(), member_limit_check(15), group_black_list_block()]))
 async def main_encode(app: Ariadne, group: Group, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['Beast']['Disabled']:
@@ -44,7 +44,7 @@ async def main_encode(app: Ariadne, group: Group, message: MessageChain, source:
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("呜")],
-                            headless_decorators=[rest_control(), member_limit_check(15), group_black_list_block()]))
+                            decorators=[rest_control(), member_limit_check(15), group_black_list_block()]))
 async def main_decode(app: Ariadne, group: Group, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['Beast']['Disabled']:

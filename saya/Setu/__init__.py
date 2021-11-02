@@ -20,7 +20,7 @@ channel = Channel.current()
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("色图")],
-                            headless_decorators=[group_limit_check(5), rest_control(), group_black_list_block()]))
+                            decorators=[group_limit_check(5), rest_control(), group_black_list_block()]))
 async def main(app: Ariadne, group: Group):
 
     if yaml_data['Saya']['Setu']['Disabled']:

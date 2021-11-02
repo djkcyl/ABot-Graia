@@ -29,14 +29,13 @@ VIOCE_PATH = MIRAI_PATH.joinpath("data", "net.mamoe.mirai-api-http", "voices")
 #     print(f"{VIOCE_PATH} 不存在，请修改配置文件中的 Basic-MiraiPath 为Mirai的根目录")
 #     exit()
 
-if os.path.exists('groupdata.yaml'):
-    with open('groupdata.yaml', 'r', encoding="utf-8") as f:
-        file_data = f.read()
-    group_data = yaml.load(file_data, Loader=yaml.FullLoader)
+if os.path.exists('groupdata.json'):
+    with open('groupdata.json', 'r', encoding="utf-8") as f:
+        group_data = json.load(f)
 else:
-    with open('groupdata.yaml', 'w', encoding="utf-8") as f:
-        group_data = json.loads("{}")
-        yaml.dump(group_data, f, allow_unicode=True, Dumper=NoAliasDumper)
+    with open('groupdata.json', 'w', encoding="utf-8") as f:
+        group_data = {}
+        json.dump(group_data, f, indent=2)
 
 if os.path.exists('grouplist.json'):
     with open('grouplist.json', 'r', encoding="utf-8") as f:
@@ -73,10 +72,10 @@ if yaml_data['Basic']['Permission']['Master'] not in yaml_data['Basic']['Permiss
 
 def save_config():
     print("正在保存配置文件")
-    with open("groupdata.yaml", 'w', encoding="utf-8") as f:
-        yaml.dump(group_data, f, allow_unicode=True, Dumper=NoAliasDumper)
     with open("config.yaml", 'w', encoding="utf-8") as f:
         yaml.dump(yaml_data, f, allow_unicode=True, Dumper=NoAliasDumper)
+    with open("groupdata.json", 'w', encoding="utf-8") as f:
+        json.dump(group_data, f, indent=2)
     with open("grouplist.json", 'w', encoding="utf-8") as f:
         json.dump(group_list, f, indent=2)
     with open('userlist.json', 'w', encoding="utf-8") as f:

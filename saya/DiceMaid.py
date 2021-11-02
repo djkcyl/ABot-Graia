@@ -18,7 +18,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            headless_decorators=[group_black_list_block()]))
+                            decorators=[group_black_list_block()]))
 async def dice(app: Ariadne, group: Group, message: MessageChain):
 
     if message.asDisplay()[:2] == ".r":

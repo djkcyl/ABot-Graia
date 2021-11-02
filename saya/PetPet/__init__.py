@@ -4,6 +4,7 @@ import httpx
 
 from io import BytesIO
 from PIL import ImageOps
+from loguru import logger
 from PIL import Image as IMG
 from graia.saya import Saya, Channel
 from graia.ariadne.model import Group
@@ -26,7 +27,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            headless_decorators=[rest_control(), group_black_list_block()]))
+                            decorators=[rest_control(), group_black_list_block()]))
 async def petpet_generator(app: Ariadne, message: MessageChain, group: Group):
 
     if yaml_data['Saya']['PetPet']['Disabled'] and not yaml_data['Saya']['PetPet']['CanAt']:
@@ -46,7 +47,7 @@ async def petpet_generator(app: Ariadne, message: MessageChain, group: Group):
 
 
 @channel.use(ListenerSchema(listening_events=[NudgeEvent],
-                            headless_decorators=[rest_control()]))
+                            decorators=[rest_control()]))
 async def get_nudge(app: Ariadne, nudge: NudgeEvent):
 
     if nudge.group_id:
@@ -59,7 +60,7 @@ async def get_nudge(app: Ariadne, nudge: NudgeEvent):
         manual_block(nudge.supplicant, nudge.group_id)
         manual_limit(nudge.group_id, "petpet", 3)
 
-        app.logger.info(f"[{nudge.group_id}] 收到戳一戳事件 -> [{nudge.target}]")
+        logger.info(f"[{nudge.group_id}] 收到戳一戳事件 -> [{nudge.target}]")
         if not os.path.exists("./saya/PetPet/temp"):
             os.mkdir("./saya/PetPet/temp")
 
