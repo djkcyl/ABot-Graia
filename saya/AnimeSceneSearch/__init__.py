@@ -70,7 +70,7 @@ saucenao_usage = None
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("以图搜番")],
-                            headless_decorators=[member_limit_check(30), group_black_list_block()]))
+                            decorators=[member_limit_check(30), group_black_list_block()]))
 async def anime_search(app: Ariadne, group: Group, member: Member, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['AnimeSceneSearch']['Disabled']:
@@ -172,7 +172,7 @@ async def anime_search(app: Ariadne, group: Group, member: Member, message: Mess
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("以图搜图")],
-                            headless_decorators=[member_limit_check(30), group_black_list_block()]))
+                            decorators=[member_limit_check(30), group_black_list_block()]))
 async def saucenao(app: Ariadne, group: Group, member: Member, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['AnimeSceneSearch']['Disabled']:

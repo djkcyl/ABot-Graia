@@ -25,7 +25,7 @@ Designs = json.loads(Path(__file__).parent.joinpath("DesignsDICT.json").read_tex
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("查看人设")],
-                            headless_decorators=[member_limit_check(15), rest_control(), group_black_list_block()]))
+                            decorators=[member_limit_check(15), rest_control(), group_black_list_block()]))
 async def rand_designs(app: Ariadne, group: Group, member: Member, source: Source):
 
     if yaml_data['Saya']['CharacterDesignGenerator']['Disabled']:
@@ -63,7 +63,7 @@ def get_rand(qid: int, gid: int):
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("/reload", "人设")],
-                            headless_decorators=[member_limit_check(15), rest_control(), group_black_list_block()]))
+                            decorators=[member_limit_check(15), rest_control(), group_black_list_block()]))
 async def reoald_designs(app: Ariadne, group: Group, member: Member):
     global Designs
     if member.id == yaml_data['Basic']['Permission']['Master']:

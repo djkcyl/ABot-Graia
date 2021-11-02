@@ -54,7 +54,7 @@ RUNNING = {}
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("背单词")],
-                            headless_decorators=[group_black_list_block()]))
+                            decorators=[group_black_list_block()]))
 async def group_learn(app: Ariadne, group: Group, member: Member):
 
     @Waiter.create_using_function([GroupMessage])
@@ -158,7 +158,7 @@ async def group_learn(app: Ariadne, group: Group, member: Member):
 
 @channel.use(ListenerSchema(listening_events=[FriendMessage],
                             inline_dispatchers=[Literature("背单词")],
-                            headless_decorators=[friend_black_list_block()]))
+                            decorators=[friend_black_list_block()]))
 async def friend_learn(app: Ariadne, friend: Friend):
 
     @Waiter.create_using_function([FriendMessage])

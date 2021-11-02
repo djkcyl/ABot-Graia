@@ -3,6 +3,7 @@ import random
 import asyncio
 
 from pathlib import Path
+from loguru import logger
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.message.chain import MessageChain
@@ -58,18 +59,18 @@ async def get_weibo_news(app: Ariadne):
             print(pushed_list)
             save_pushed_list()
             await asyncio.sleep(1)
-            return app.logger.info(f"[明日方舟蹲饼] 微博初始化成功，当前最新微博：{new_id}")
+            return logger.info(f"[明日方舟蹲饼] 微博初始化成功，当前最新微博：{new_id}")
         elif not isinstance(new_id, str) or new_id == pushed:
             return False
 
         pushed_list["weibo"] = new_id
         save_pushed_list()
 
-        group_list = await app.groupList()
+        group_list = await app.getGroupList()
         result, detail_url, pics_list = await weibo.requests_content(0)
 
         time_rec = TimeRecorder()
-        app.logger.info(f"[明日方舟蹲饼] 微博已更新：{new_id}")
+        logger.info(f"[明日方舟蹲饼] 微博已更新：{new_id}")
         image = await create_image(result, 72)
         msg = [
             Plain("明日方舟更新了新的微博\n"),
@@ -110,18 +111,18 @@ async def get_game_news(app: Ariadne):
         pushed_list["game"] = latest_list
         save_pushed_list()
         await asyncio.sleep(1)
-        return app.logger.info(f"[明日方舟蹲饼] 游戏公告初始化成功，当前共有 {len(latest_list)} 条公告")
+        return logger.info(f"[明日方舟蹲饼] 游戏公告初始化成功，当前共有 {len(latest_list)} 条公告")
     elif not new_list:
         return
 
     pushed_list["game"] = latest_list
     save_pushed_list()
 
-    group_list = await app.groupList()
+    group_list = await app.getGroupList()
 
     for announce in new_list:
         time_rec = TimeRecorder()
-        app.logger.info(f"[明日方舟蹲饼] 游戏公告已更新：{announce}")
+        logger.info(f"[明日方舟蹲饼] 游戏公告已更新：{announce}")
         image = await game.get_screenshot(announce)
         msg = [
             Plain("明日方舟更新了新的游戏公告\n"),

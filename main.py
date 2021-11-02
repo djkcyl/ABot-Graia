@@ -8,7 +8,6 @@ from graia.broadcast import Broadcast
 from graia.scheduler import GraiaScheduler
 from graia.ariadne.model import MiraiSession
 from graia.ariadne.adapter import DebugAdapter
-from graia.ariadne.exception import AccountNotFound
 from graia.broadcast.interrupt import InterruptControl
 from graia.scheduler.saya import GraiaSchedulerBehaviour
 from graia.saya.builtins.broadcast import BroadcastBehaviour
@@ -55,17 +54,9 @@ async def main():
     await app.lifecycle()
 
 
-def start():
+if __name__ == '__main__':
     try:
         loop.run_until_complete(main())
     except KeyboardInterrupt:
         loop.run_until_complete(app.stop())
         save_config()
-    except AccountNotFound:
-        loop.run_until_complete(app.stop())
-        save_config()
-        print("未能使用所配置的账号激活 sessionKey, 请检查 config.yaml 配置是否正确或检查 Mirai 是否正常登录该账号")
-
-
-if __name__ == '__main__':
-    start()

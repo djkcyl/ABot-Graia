@@ -2,15 +2,16 @@ import httpx
 import random
 import asyncio
 
+from loguru import logger
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
-from graia.ariadne.model import Group, Friend
+from graia.ariadne.model import Group
 from graia.scheduler.timers import crontabify
 from graia.ariadne.message.element import At, Plain
 from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.event.message import GroupMessage
 from graia.scheduler.saya.schema import SchedulerSchema
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.event.message import GroupMessage, FriendMessage
 
 from config import yaml_data, group_data
 
@@ -23,10 +24,10 @@ root = httpx.get("https://raw.githubusercontents.com/Kyomotoi/AnimeThesaurus/mai
 
 
 @channel.use(SchedulerSchema(crontabify("0 0 * * *")))
-async def updateDict(app: Ariadne):
+async def updateDict():
     global root
     await asyncio.sleep(1)
-    app.logger.info(msg=f"已更新完成聊天词库，共计：{len(root)}条")
+    logger.info(msg=f"已更新完成聊天词库，共计：{len(root)}条")
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
@@ -45,17 +46,3 @@ async def main(app: Ariadne, group: Group, message: MessageChain):
                     return await app.sendGroupMessage(group, MessageChain.create([
                         Plain(random.choice(root[key]))
                     ]))
-
-
-@channel.use(ListenerSchema(listening_events=[FriendMessage]))
-async def main(app: Ariadne, friend: Friend, message: MessageChain):
-
-    if yaml_data['Saya']['ChatMS']['Disabled']:
-        return
-
-    saying = message.getFirst(Plain).text
-    for key in root:
-        if key in saying:
-            return await app.sendFriendMessage(friend, MessageChain.create([
-                Plain(random.choice(root[key]))
-            ]))

@@ -35,7 +35,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            headless_decorators=[rest_control(), group_black_list_block()]))
+                            decorators=[rest_control(), group_black_list_block()]))
 async def abbreviated_prediction_handler(app: Ariadne, message: MessageChain, group: Group):
     msg = await StylePictureGeneraterHandler.handle(group, message)
     if msg:

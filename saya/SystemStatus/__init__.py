@@ -3,6 +3,7 @@ import asyncio
 import platform
 
 from pathlib import Path
+from loguru import logger
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.model import Group
@@ -40,23 +41,23 @@ async def update_scheduled():
 
 
 @channel.use(ListenerSchema(listening_events=[ApplicationLaunched]))
-async def cpuStatus(app: Ariadne):
+async def cpuStatus():
     await asyncio.sleep(0.1)
     virtual_memory = psutil.virtual_memory()
     disk = psutil.disk_usage(Path.cwd())
-    app.logger.info("=========================")
-    app.logger.info(f"当前系统：{platform.system()}")
-    app.logger.info(f"CPU核心数：{psutil.cpu_count()}")
-    app.logger.info(f"内存：{int(virtual_memory.used / 1000000)}MB / {int(virtual_memory.total / 1000000)}MB")
-    app.logger.info(f"硬盘：{int(disk.used / 1000000)}MB / {int(disk.total / 1000000)}MB")
-    app.logger.info("已开始记录 CPU 占用率")
-    app.logger.info("已开始记录内存占用率")
-    app.logger.info("=========================")
+    logger.info("=========================")
+    logger.info(f"当前系统：{platform.system()}")
+    logger.info(f"CPU核心数：{psutil.cpu_count()}")
+    logger.info(f"内存：{int(virtual_memory.used / 1000000)}MB / {int(virtual_memory.total / 1000000)}MB")
+    logger.info(f"硬盘：{int(disk.used / 1000000)}MB / {int(disk.total / 1000000)}MB")
+    logger.info("已开始记录 CPU 占用率")
+    logger.info("已开始记录内存占用率")
+    logger.info("=========================")
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("查看性能统计")],
-                            headless_decorators=[member_limit_check(15), group_black_list_block()]))
+                            decorators=[member_limit_check(15), group_black_list_block()]))
 async def get_image(app: Ariadne, group: Group):
     image = await get_mapping(CPU_USAGE, MEM_USAGE, int(psutil.virtual_memory().total / 1000000))
     await app.sendGroupMessage(group, MessageChain.create([Image(data_bytes=image)]))

@@ -23,7 +23,7 @@ pool = ThreadPoolExecutor()
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("计算器")],
-                            headless_decorators=[member_limit_check(10)]))
+                            decorators=[member_limit_check(10)]))
 async def calculator_main(app: Ariadne, group: Group, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['Calculator']['Disabled']:

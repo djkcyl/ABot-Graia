@@ -270,7 +270,7 @@ funcHelp = {
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            headless_decorators=[group_black_list_block()]))
+                            decorators=[group_black_list_block()]))
 async def atrep(app: Ariadne, group: Group, message: MessageChain):
     if message.has(At):
         ifa = message.get(At)[0].target == yaml_data['Basic']['MAH']['BotQQ']
@@ -304,7 +304,7 @@ async def atrep(app: Ariadne, group: Group, message: MessageChain):
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("功能")],
-                            headless_decorators=[group_black_list_block()]))
+                            decorators=[group_black_list_block()]))
 async def funchelp(app: Ariadne, group: Group, message: MessageChain):
     saying = message.asDisplay().split()
     manual_limit(group.id, "Help", 3)
@@ -332,7 +332,7 @@ async def funchelp(app: Ariadne, group: Group, message: MessageChain):
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            headless_decorators=[group_black_list_block()]))
+                            decorators=[group_black_list_block()]))
 async def help(app: Ariadne, group: Group, message: MessageChain):
     if message.asDisplay() in [".help", "/help", "help", "帮助", "菜单"]:
         manual_limit(group.id, "Help", 3)
@@ -370,7 +370,7 @@ async def help(app: Ariadne, group: Group, message: MessageChain):
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("开启功能")],
-                            headless_decorators=[group_black_list_block()]))
+                            decorators=[group_black_list_block()]))
 async def on_func(app: Ariadne, group: Group, member: Member, message: MessageChain):
     manual_limit(group.id, "FuncConfig", 2)
     if member.permission in [MemberPerm.Administrator, MemberPerm.Owner] or member.id in yaml_data['Basic']['Permission']['Admin']:
@@ -397,7 +397,7 @@ async def on_func(app: Ariadne, group: Group, member: Member, message: MessageCh
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("关闭功能")],
-                            headless_decorators=[group_black_list_block()]))
+                            decorators=[group_black_list_block()]))
 async def off_func(app: Ariadne, group: Group, member: Member, message: MessageChain):
     manual_limit(group.id, "FuncConfig", 2)
     if member.permission in [MemberPerm.Administrator, MemberPerm.Owner] or member.id in yaml_data['Basic']['Permission']['Admin']:

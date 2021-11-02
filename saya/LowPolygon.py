@@ -35,7 +35,7 @@ WAITING = []
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("低多边形")],
-                            headless_decorators=[rest_control(), member_limit_check(60), group_black_list_block()]))
+                            decorators=[rest_control(), member_limit_check(60), group_black_list_block()]))
 async def low_poly(app: Ariadne, group: Group, message: MessageChain, member: Member, source: Source):
 
     if yaml_data['Saya']['LowPolygon']['Disabled']:

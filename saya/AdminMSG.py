@@ -62,7 +62,7 @@ async def Announcement(app: Ariadne, friend: Friend, message: MessageChain):
         saying = message.asDisplay().split(" ", 1)
         if len(saying) == 2:
             image = await create_image(saying[1])
-            groupList = await app.groupList()
+            groupList = await app.getGroupList()
             for group in groupList:
                 if group.id not in [885355617, 780537426, 474769367, 690211045, 855895642]:
                     try:
@@ -228,7 +228,7 @@ async def gset_rest(app: Ariadne, group: Group, member: Member):
 @channel.use(ListenerSchema(listening_events=[FriendMessage], inline_dispatchers=[Literature("群名片修正")]))
 async def group_card_fix(app: Ariadne, friend: Friend):
     if friend.id == yaml_data['Basic']['Permission']['Master']:
-        grouplits = await app.groupList()
+        grouplits = await app.getGroupList()
         i = 0
         for group in grouplits:
             opt = await app.modifyMemberInfo(member=yaml_data['Basic']['MAH']['BotQQ'],
@@ -248,13 +248,7 @@ async def group_card_fix(app: Ariadne, friend: Friend):
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            inline_dispatchers=[
-                                Literature(
-                                    "/echo",
-                                    arguments={
-                                        "t": BoxParameter(["times"], "t", 1)
-                                    }
-                                )]))
+                            inline_dispatchers=[Literature("/echo")]))
 async def mute(app: Ariadne, group: Group, member: Member, message: MessageChain):
     if member.id == yaml_data['Basic']['Permission']['Master']:
         await app.sendGroupMessage(group, MessageChain.create([Plain(str(message.asDisplay().strip()))]))

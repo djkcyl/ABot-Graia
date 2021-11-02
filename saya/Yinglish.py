@@ -44,7 +44,7 @@ def chs2yin(s, 淫乱度=0.5):
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("淫语")],
-                            headless_decorators=[rest_control(), member_limit_check(15), group_black_list_block()]))
+                            decorators=[rest_control(), member_limit_check(15), group_black_list_block()]))
 async def main(app: Ariadne, group: Group, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['Yinglish']['Disabled']:

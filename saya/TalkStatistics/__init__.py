@@ -2,6 +2,7 @@ import httpx
 import datetime
 
 from pathlib import Path
+from loguru import logger
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.model import Group, Member
@@ -31,7 +32,7 @@ if not data_path.exists():
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("查看消息量统计")],
-                            headless_decorators=[member_limit_check(15), group_black_list_block()]))
+                            decorators=[member_limit_check(15), group_black_list_block()]))
 async def get_image(app: Ariadne, group: Group):
 
     talk_num, time = await get_message_analysis()
@@ -43,7 +44,7 @@ async def get_image(app: Ariadne, group: Group):
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            headless_decorators=[group_black_list_block()]))
+                            decorators=[group_black_list_block()]))
 async def add_talk_word(app: Ariadne, group: Group, member: Member, message: MessageChain):
     if message.has(Plain):
         plain_list = message.get(Plain)
@@ -73,4 +74,4 @@ async def download(app: Ariadne, url, name, path, type):
             r = await client.get(url)
             now_path.joinpath(name).write_bytes(r.content)
     else:
-        app.logger.info(f"已存在的文件 - {name}")
+        logger.info(f"已存在的文件 - {name}")

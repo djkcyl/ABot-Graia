@@ -24,7 +24,7 @@ loop = asyncio.get_event_loop()
 pool = ThreadPoolExecutor()
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage], headless_decorators=[group_black_list_block()]))
+@channel.use(ListenerSchema(listening_events=[GroupMessage], decorators=[group_black_list_block()]))
 async def bilibili_main(app: Ariadne, group: Group, message: MessageChain):
 
     if yaml_data['Saya']['BilibiliResolve']['Disabled']:

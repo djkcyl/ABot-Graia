@@ -3,6 +3,7 @@ import httpx
 import asyncio
 
 from pathlib import Path
+from loguru import logger
 from graiax import silkcoder
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
@@ -44,7 +45,7 @@ WAITING = []
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("点歌")],
-                            headless_decorators=[rest_control(), member_limit_check(300), group_black_list_block()]))
+                            decorators=[rest_control(), member_limit_check(300), group_black_list_block()]))
 async def sing(app: Ariadne, group: Group, member: Member, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['CloudMusic']['Disabled']:
@@ -200,7 +201,7 @@ async def sing(app: Ariadne, group: Group, member: Member, message: MessageChain
 
         MUSIC_PATH = BASEPATH.joinpath(f"{musicid[1]}.mp3")
         if not MUSIC_PATH.exists():
-            app.logger.info(f"正在缓存歌曲：{music_name}")
+            logger.info(f"正在缓存歌曲：{music_name}")
             if musicurl is None or musicurl == "":
                 WAITING.remove(member.id)
                 return await app.sendGroupMessage(group, MessageChain.create([Plain(f"该歌曲（{music_name}）由于版权问题无法点歌，请使用客户端播放")]))

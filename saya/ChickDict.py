@@ -21,7 +21,7 @@ channel = Channel.current()
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("查梗")],
-                            headless_decorators=[rest_control(), member_limit_check(100), group_black_list_block()]))
+                            decorators=[rest_control(), member_limit_check(100), group_black_list_block()]))
 async def fun_dict(app: Ariadne, group: Group, message: MessageChain, member: Member):
 
     if yaml_data['Saya']['ChickDict']['Disabled']:

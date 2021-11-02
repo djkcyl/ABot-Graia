@@ -20,7 +20,7 @@ channel = Channel.current()
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("涩图")],
-                            headless_decorators=[group_limit_check(5), rest_control(), group_black_list_block()]))
+                            decorators=[group_limit_check(5), rest_control(), group_black_list_block()]))
 async def main(app: Ariadne, group: Group, message: MessageChain):
 
     if yaml_data['Saya']['Pixiv']['Disabled']:

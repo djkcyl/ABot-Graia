@@ -19,7 +19,7 @@ channel = Channel.current()
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("/mcping")],
-                            headless_decorators=[group_limit_check(15), group_black_list_block()]))
+                            decorators=[group_limit_check(15), group_black_list_block()]))
 async def minecraft_ping(app: Ariadne, group: Group, message: MessageChain):
 
     if yaml_data['Saya']['MinecraftPing']['Disabled']:

@@ -18,7 +18,7 @@ channel = Channel.current()
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("赠送游戏币")],
-                            headless_decorators=[member_limit_check(5), group_black_list_block()]))
+                            decorators=[member_limit_check(5), group_black_list_block()]))
 async def adminmain(app: Ariadne, group: Group, member: Member, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['Entertainment']['Disabled']:
