@@ -4,10 +4,10 @@
 
 - 为必须
   - 为可选
-
-- [Python](https://www.python.org/) `^3.8`
-  - [Poetry](https://python-poetry.org/)
-- [Mirai HTTP API](https://github.com/project-mirai/mirai-api-http) `1.12.0`
+>如未特殊说明，均已最新版为准
+- [Python](https://www.python.org/) `3.9`
+- [Poetry](https://python-poetry.org/)
+- [Mirai HTTP API](https://github.com/project-mirai/mirai-api-http)
 - [Redis](https://redis.io/)
   - [Netease Cloud Music Api](https://github.com/Binaryify/NeteaseCloudMusicApi) `如果你需要点歌姬功能的话需要自行搭建`
   - [QQ Music API](https://github.com/Rain120/qq-music-api) `如果你需要点歌姬功能的话需要自行搭建`
@@ -18,20 +18,14 @@
    ```shell
    git clone https://github.com/djkcyl/ABot-Graia
    ```
-> 以下步骤仅用于安装了可选组件`Poetry`。
-> 1. 使用虚拟容器安装依赖   `本步骤可能需要执行5分钟到5小时，请耐心等待（`
->    ```shell
->    poetry install
->    ```
-> 2. 进入虚拟容器<br>
-> 注：**每次运行前都需要进行**
->    ```shell
->    poetry shell
->    ```
+1. 使用虚拟容器安装依赖   `本步骤可能需要执行5分钟到5小时，请耐心等待（`
+   ```shell
+   poetry install
+   ```
 2. 修改 ABot 配置文件 `config.exp.yaml` 后**并重命名**为 `config.yaml`
 3. 启动 ABot
    ```shell
-   python main.py
+   poetry run python main.py
    ```
 
 > 你可能还需要执行下面这条命令才能正常使用词典功能
