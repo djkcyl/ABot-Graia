@@ -26,7 +26,7 @@ async def fun_dict(app: Ariadne, group: Group, message: MessageChain, member: Me
 
     if yaml_data['Saya']['ChickDict']['Disabled']:
         return
-    elif 'ChickDict' in group_data[group.id]['DisabledFunc']:
+    elif 'ChickDict' in group_data[str(group.id)]['DisabledFunc']:
         return
 
     saying = message.asDisplay().split(" ", 1)

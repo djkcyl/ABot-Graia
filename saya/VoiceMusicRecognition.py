@@ -51,7 +51,7 @@ async def main(app: Ariadne, group: Group, member: Member, message: MessageChain
 
     if yaml_data['Saya']['VoiceMusicRecognition']['Disabled']:
         return
-    elif 'VoiceMusicRecognition' in group_data[group.id]['DisabledFunc']:
+    elif 'VoiceMusicRecognition' in group_data[str(group.id)]['DisabledFunc']:
         return
 
     @Waiter.create_using_function([GroupMessage])

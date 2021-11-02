@@ -29,7 +29,7 @@ async def dict(app: Ariadne, group: Group, message: MessageChain):
 
     if yaml_data['Saya']['ChineseDict']['Disabled']:
         return
-    elif 'ChineseDict' in group_data[group.id]['DisabledFunc']:
+    elif 'ChineseDict' in group_data[str(group.id)]['DisabledFunc']:
         return
 
     saying = message.asDisplay().split()

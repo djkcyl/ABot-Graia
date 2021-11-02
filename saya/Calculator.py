@@ -28,7 +28,7 @@ async def calculator_main(app: Ariadne, group: Group, message: MessageChain, sou
 
     if yaml_data['Saya']['Calculator']['Disabled']:
         return
-    elif 'Calculator' in group_data[group.id]['DisabledFunc']:
+    elif 'Calculator' in group_data[str(group.id)]['DisabledFunc']:
         return
 
     saying = message.asDisplay().split(" ", 1)

@@ -51,7 +51,7 @@ async def wordcloud(app: Ariadne, group: Group, member: Member, message: Message
 
         if yaml_data['Saya']['WordCloud']['Disabled']:
             return
-        elif 'WordCloud' in group_data[group.id]['DisabledFunc']:
+        elif 'WordCloud' in group_data[str(group.id)]['DisabledFunc']:
             return
 
         if RUNNING < 5:

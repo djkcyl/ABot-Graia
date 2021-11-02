@@ -24,7 +24,7 @@ async def az(app: Ariadne, group: Group, message: MessageChain):
 
     if yaml_data['Saya']['Message']['Disabled']:
         return
-    elif 'Message' in group_data[group.id]['DisabledFunc']:
+    elif 'Message' in group_data[str(group.id)]['DisabledFunc']:
         return
 
     saying = message.asDisplay()

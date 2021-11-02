@@ -26,7 +26,7 @@ async def what_are_you_saying(app: Ariadne, group: Group, member: Member, messag
 
     if yaml_data['Saya']['CyberBlacktalk']['Disabled']:
         return
-    elif 'CyberBlacktalk' in group_data[group.id]['DisabledFunc']:
+    elif 'CyberBlacktalk' in group_data[str(group.id)]['DisabledFunc']:
         return
 
     saying = message.asDisplay().split(" ", 1)

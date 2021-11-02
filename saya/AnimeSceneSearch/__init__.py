@@ -75,7 +75,7 @@ async def anime_search(app: Ariadne, group: Group, member: Member, message: Mess
 
     if yaml_data['Saya']['AnimeSceneSearch']['Disabled']:
         return
-    elif 'AnimeSceneSearch' in group_data[group.id]['DisabledFunc']:
+    elif 'AnimeSceneSearch' in group_data[str(group.id)]['DisabledFunc']:
         return
 
     @Waiter.create_using_function([GroupMessage])
@@ -177,7 +177,7 @@ async def saucenao(app: Ariadne, group: Group, member: Member, message: MessageC
 
     if yaml_data['Saya']['AnimeSceneSearch']['Disabled']:
         return
-    elif 'AnimeSceneSearch' in group_data[group.id]['DisabledFunc']:
+    elif 'AnimeSceneSearch' in group_data[str(group.id)]['DisabledFunc']:
         return
 
     @Waiter.create_using_function([GroupMessage])

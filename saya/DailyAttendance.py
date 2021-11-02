@@ -39,7 +39,7 @@ async def main(app: Ariadne, group: Group, member: Member):
 
     if yaml_data['Saya']['Entertainment']['Disabled']:
         return
-    elif 'Entertainment' in group_data[group.id]['DisabledFunc']:
+    elif 'Entertainment' in group_data[str(group.id)]['DisabledFunc']:
         return
 
     user_info = await get_info(str(member.id))

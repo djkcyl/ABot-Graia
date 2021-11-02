@@ -29,7 +29,7 @@ async def bilibili_main(app: Ariadne, group: Group, message: MessageChain):
 
     if yaml_data['Saya']['BilibiliResolve']['Disabled']:
         return
-    elif 'BilibiliResolve' in group_data[group.id]['DisabledFunc']:
+    elif 'BilibiliResolve' in group_data[str(group.id)]['DisabledFunc']:
         return
 
     saying = message.to_string()

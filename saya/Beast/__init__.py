@@ -27,7 +27,7 @@ async def main_encode(app: Ariadne, group: Group, message: MessageChain, source:
 
     if yaml_data['Saya']['Beast']['Disabled']:
         return
-    elif 'Beast' in group_data[group.id]['DisabledFunc']:
+    elif 'Beast' in group_data[str(group.id)]['DisabledFunc']:
         return
 
     saying = message.asDisplay().split(" ", 1)
@@ -49,7 +49,7 @@ async def main_decode(app: Ariadne, group: Group, message: MessageChain, source:
 
     if yaml_data['Saya']['Beast']['Disabled']:
         return
-    elif 'Beast' in group_data[group.id]['DisabledFunc']:
+    elif 'Beast' in group_data[str(group.id)]['DisabledFunc']:
         return
 
     saying = message.asDisplay().split(" ", 1)

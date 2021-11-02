@@ -35,7 +35,7 @@ async def main(app: Ariadne, group: Group, message: MessageChain):
 
     if yaml_data['Saya']['ChatMS']['Disabled']:
         return
-    elif 'ChatMS' in group_data[group.id]['DisabledFunc']:
+    elif 'ChatMS' in group_data[str(group.id)]['DisabledFunc']:
         return
 
     if message.has(At):

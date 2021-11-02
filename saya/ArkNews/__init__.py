@@ -79,7 +79,7 @@ async def get_weibo_news(app: Ariadne):
 
         await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create(msg))
         for group in group_list:
-            if 'ArkNews' in group_data[group.id]['DisabledFunc']:
+            if 'ArkNews' in group_data[str(group.id)]['DisabledFunc']:
                 continue
             await app.sendGroupMessage(group, MessageChain.create(msg))
             await asyncio.sleep(random.randint(3, 5))
@@ -131,7 +131,7 @@ async def get_game_news(app: Ariadne):
 
         await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create(msg))
         for group in group_list:
-            if 'ArkNews' in group_data[group.id]['DisabledFunc']:
+            if 'ArkNews' in group_data[str(group.id)]['DisabledFunc']:
                 continue
             await app.sendGroupMessage(group, MessageChain.create(msg))
             await asyncio.sleep(random.randint(3, 5))

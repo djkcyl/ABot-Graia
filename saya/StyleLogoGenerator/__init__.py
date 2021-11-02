@@ -54,19 +54,19 @@ class StylePictureGeneraterHandler():
         if re.match("5000兆 .* .*", message_text):
             if yaml_data['Saya']['StyleLogoGenerator']['Disabled']:
                 return MessageChain.create([Plain("该功能暂不开启")])
-            elif 'StyleLogoGenerator' in group_data[group.id]['DisabledFunc']:
+            elif 'StyleLogoGenerator' in group_data[str(group.id)]['DisabledFunc']:
                 return MessageChain.create([Plain("该功能暂不开启")])
             return await StylePictureGeneraterHandler.gosencho_en_hoshi_style_image_generator(message)
         elif re.match("ph .* .*", message_text):
             if yaml_data['Saya']['StyleLogoGenerator']['Disabled']:
                 return MessageChain.create([Plain("该功能暂不开启")])
-            elif 'StyleLogoGenerator' in group_data[group.id]['DisabledFunc']:
+            elif 'StyleLogoGenerator' in group_data[str(group.id)]['DisabledFunc']:
                 return MessageChain.create([Plain("该功能暂不开启")])
             return await StylePictureGeneraterHandler.pornhub_style_image_generator(message)
         elif re.match("yt .* .*", message_text):
             if yaml_data['Saya']['StyleLogoGenerator']['Disabled']:
                 return MessageChain.create([Plain("该功能暂不开启")])
-            elif 'StyleLogoGenerator' in group_data[group.id]['DisabledFunc']:
+            elif 'StyleLogoGenerator' in group_data[str(group.id)]['DisabledFunc']:
                 return MessageChain.create([Plain("该功能暂不开启")])
             return await StylePictureGeneraterHandler.youtube_style_image_generator(message)
         else:

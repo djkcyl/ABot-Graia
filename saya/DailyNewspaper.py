@@ -63,7 +63,7 @@ async def send(app: Ariadne):
     ]))
     for group in groupList:
 
-        if 'DailyNewspaper' in group_data[group.id]['DisabledFunc']:
+        if 'DailyNewspaper' in group_data[str(group.id)]['DisabledFunc']:
             continue
         try:
             await app.sendGroupMessage(group.id, MessageChain.create([

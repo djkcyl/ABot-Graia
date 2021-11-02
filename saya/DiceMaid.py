@@ -24,7 +24,7 @@ async def dice(app: Ariadne, group: Group, message: MessageChain):
     if message.asDisplay()[:2] == ".r":
         if yaml_data['Saya']['DiceMaid']['Disabled']:
             return
-        elif 'DiceMaid' in group_data[group.id]['DisabledFunc']:
+        elif 'DiceMaid' in group_data[str(group.id)]['DisabledFunc']:
             return
         manual_limit(group.id, "DiceMaid", 3)
 

@@ -37,9 +37,9 @@ async def groupDataInit(app: Ariadne):
     ]))
     i = 0
     for group in groupList:
-        if group.id not in group_data:
-            group_data[group.id] = groupInitData
-            logger.info(group_data[group.id])
+        if str(group.id) not in group_data:
+            group_data[str(group.id)] = groupInitData
+            logger.info(group_data[str(group.id)])
             logger.info(f"已为 {group.id} 进行初始化配置")
             i += 1
     save_config()
@@ -152,7 +152,7 @@ async def get_BotJoinGroup(app: Ariadne, joingroup: BotJoinGroupEvent):
         return await app.quit(joingroup.group.id)
 
     if joingroup.group.id not in group_data:
-        group_data[joingroup.group.id] = groupInitData
+        group_data[str(joingroup.group.id)] = groupInitData
         print("已为该群初始化配置文件")
         save_config()
         await app.sendGroupMessage(joingroup.group.id, MessageChain.create([
@@ -266,7 +266,7 @@ async def getMemberJoinEvent(app: Ariadne, events: MemberJoinEvent):
             Image(url=f"http://q1.qlogo.cn/g?b=qq&nk={str(events.member.id)}&s=4"),
             Plain(f"\n欢迎 {events.member.name} 加入本群\n")
         ]
-        if group_data[events.member.group.id]["WelcomeMSG"]["Enabled"]:
-            welcomeMsg = group_data[events.member.group.id]["WelcomeMSG"]['Message']
+        if group_data[str(events.member.group.id)]["WelcomeMSG"]["Enabled"]:
+            welcomeMsg = group_data[str(events.member.group.id)]["WelcomeMSG"]['Message']
             msg.append(Plain(f"\n{welcomeMsg}"))
         await app.sendGroupMessage(events.member.group, MessageChain.create(msg))

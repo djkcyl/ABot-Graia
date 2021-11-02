@@ -312,7 +312,7 @@ async def funchelp(app: Ariadne, group: Group, message: MessageChain):
         sayfunc = funcList[int(saying[1]) - 1]['name']
         funckey = funcList[int(saying[1]) - 1]['key']
         funcGlobalDisabled = yaml_data["Saya"][funckey]["Disabled"]
-        funcGroupDisabledList = funckey in group_data[group.id]["DisabledFunc"]
+        funcGroupDisabledList = funckey in group_data[str(group.id)]["DisabledFunc"]
         if funcGlobalDisabled or funcGroupDisabledList:
             return await app.sendGroupMessage(group, MessageChain.create([
                 Plain("该功能暂不开启")
@@ -342,7 +342,7 @@ async def help(app: Ariadne, group: Group, message: MessageChain):
             funcname = func["name"]
             funckey = func["key"]
             funcGlobalDisabled = yaml_data["Saya"][funckey]["Disabled"]
-            funcGroupDisabledList = func["key"] in group_data[group.id]["DisabledFunc"]
+            funcGroupDisabledList = func["key"] in group_data[str(group.id)]["DisabledFunc"]
             if funcGlobalDisabled:
                 statu = "【全局关闭】"
             elif funcGroupDisabledList:
@@ -380,13 +380,13 @@ async def on_func(app: Ariadne, group: Group, member: Member, message: MessageCh
         funcname = func["name"]
         funckey = func["key"]
         funcGlobalDisabled = yaml_data["Saya"][funckey]["Disabled"]
-        funcGroupDisabled = func["key"] in group_data[group.id]["DisabledFunc"]
-        funcDisabledList = group_data[group.id]["DisabledFunc"]
+        funcGroupDisabled = func["key"] in group_data[str(group.id)]["DisabledFunc"]
+        funcDisabledList = group_data[str(group.id)]["DisabledFunc"]
         if funcGlobalDisabled:
             await app.sendGroupMessage(group, MessageChain.create([Plain(f"{funcname}当前处于全局禁用状态")]))
         elif funcGroupDisabled:
             funcDisabledList.remove(funckey)
-            group_data[group.id]["DisabledFunc"] = funcDisabledList
+            group_data[str(group.id)]["DisabledFunc"] = funcDisabledList
             save_config()
             await app.sendGroupMessage(group, MessageChain.create([Plain(f"{funcname}已开启")]))
         else:
@@ -407,13 +407,13 @@ async def off_func(app: Ariadne, group: Group, member: Member, message: MessageC
         funcname = func["name"]
         funckey = func["key"]
         funcCanDisabled = func["can_disabled"]
-        funcDisabledList = group_data[group.id]["DisabledFunc"]
+        funcDisabledList = group_data[str(group.id)]["DisabledFunc"]
         funcGroupDisabled = func["key"] in funcDisabledList
         if not funcCanDisabled:
             await app.sendGroupMessage(group, MessageChain.create([Plain(f"{funcname}无法被关闭")]))
         elif not funcGroupDisabled:
             funcDisabledList.append(funckey)
-            group_data[group.id]["DisabledFunc"] = funcDisabledList
+            group_data[str(group.id)]["DisabledFunc"] = funcDisabledList
             save_config()
             await app.sendGroupMessage(group, MessageChain.create([Plain(f"{funcname}已关闭")]))
         else:

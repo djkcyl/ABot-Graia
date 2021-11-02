@@ -60,7 +60,7 @@ async def buy_lottery(app: Ariadne, group: Group, member: Member, source: Source
         return
     elif yaml_data['Saya']['Entertainment']['Disabled']:
         return
-    elif 'Entertainment' in group_data[group.id]['DisabledFunc']:
+    elif 'Entertainment' in group_data[str(group.id)]['DisabledFunc']:
         return
 
     if await reduce_gold(str(member.id), 2):
@@ -99,7 +99,7 @@ async def redeem_lottery(app: Ariadne, group: Group, member: Member, source: Sou
         return
     elif yaml_data['Saya']['Entertainment']['Disabled']:
         return
-    elif 'Entertainment' in group_data[group.id]['DisabledFunc']:
+    elif 'Entertainment' in group_data[str(group.id)]['DisabledFunc']:
         return
 
     WAITING.append(member.id)
@@ -211,7 +211,7 @@ async def q_lottery(app: Ariadne, group: Group):
         return
     elif yaml_data['Saya']['Entertainment']['Disabled']:
         return
-    elif 'Entertainment' in group_data[group.id]['DisabledFunc']:
+    elif 'Entertainment' in group_data[str(group.id)]['DisabledFunc']:
         return
 
     lottery = LOTTERY
