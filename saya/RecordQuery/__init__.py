@@ -44,7 +44,7 @@ async def main(app: Ariadne, group: Group, member: Member, message: MessageChain
 
     if yaml_data['Saya']['RecordQuery']['Disabled']:
         return
-    elif 'RecordQuery' in group_data[group.id]['DisabledFunc']:
+    elif 'RecordQuery' in group_data[str(group.id)]['DisabledFunc']:
         return
 
     @Waiter.create_using_function([GroupMessage])

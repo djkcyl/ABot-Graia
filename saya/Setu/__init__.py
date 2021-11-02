@@ -25,7 +25,7 @@ async def main(app: Ariadne, group: Group):
 
     if yaml_data['Saya']['Setu']['Disabled']:
         return
-    elif 'Setu' in group_data[group.id]['DisabledFunc']:
+    elif 'Setu' in group_data[str(group.id)]['DisabledFunc']:
         return
 
     await app.sendGroupMessage(group, MessageChain.create([

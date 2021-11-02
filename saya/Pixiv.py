@@ -25,7 +25,7 @@ async def main(app: Ariadne, group: Group, message: MessageChain):
 
     if yaml_data['Saya']['Pixiv']['Disabled']:
         return
-    elif 'Pixiv' in group_data[group.id]['DisabledFunc']:
+    elif 'Pixiv' in group_data[str(group.id)]['DisabledFunc']:
         return
 
     saying = message.asDisplay().split(" ", 1)

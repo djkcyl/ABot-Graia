@@ -39,7 +39,7 @@ async def anitRecall(app: Ariadne, events: GroupRecallEvent):
                     res = await image_moderation(image.url)
                     if res['Suggestion'] != "Pass":
                         # await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], msg.asSendable())
-                        if 'AnitRecall' not in group_data[events.group.id]['DisabledFunc'] and not yaml_data['Saya']['AnitRecall']['Disabled']:
+                        if 'AnitRecall' not in group_data[str(events.group.id)]['DisabledFunc'] and not yaml_data['Saya']['AnitRecall']['Disabled']:
                             try:
                                 await app.mute(events.group, events.authorId, 60)
                             except Exception:
@@ -55,7 +55,7 @@ async def anitRecall(app: Ariadne, events: GroupRecallEvent):
                 for text in recallMsg.get(Plain):
                     res = await text_moderation(text.text)
                     if res['Suggestion'] != "Pass":
-                        if 'AnitRecall' not in group_data[events.group.id]['DisabledFunc'] and not yaml_data['Saya']['AnitRecall']['Disabled']:
+                        if 'AnitRecall' not in group_data[str(events.group.id)]['DisabledFunc'] and not yaml_data['Saya']['AnitRecall']['Disabled']:
                             try:
                                 await app.mute(events.group, events.authorId, 60)
                             except Exception:
@@ -67,7 +67,7 @@ async def anitRecall(app: Ariadne, events: GroupRecallEvent):
                                 Plain(f"\n（由于撤回文字内包含 {res['Label']} 违规，不予防撤回）")
                             ]))
                             return
-            if 'AnitRecall' not in group_data[events.group.id]['DisabledFunc'] and not yaml_data['Saya']['AnitRecall']['Disabled']:
+            if 'AnitRecall' not in group_data[str(events.group.id)]['DisabledFunc'] and not yaml_data['Saya']['AnitRecall']['Disabled']:
                 manual_limit(events.group.id, "AnitRecall", 3)
                 if recallMsg.has(Voice) or recallMsg.has(Xml) or recallMsg.has(Json):
                     pass

@@ -32,7 +32,7 @@ async def petpet_generator(app: Ariadne, message: MessageChain, group: Group):
 
     if yaml_data['Saya']['PetPet']['Disabled'] and not yaml_data['Saya']['PetPet']['CanAt']:
         return
-    elif 'PetPet' in group_data[group.id]['DisabledFunc']:
+    elif 'PetPet' in group_data[str(group.id)]['DisabledFunc']:
         return
 
     message_text = message.asDisplay()
@@ -54,7 +54,7 @@ async def get_nudge(app: Ariadne, nudge: NudgeEvent):
 
         if yaml_data['Saya']['PetPet']['Disabled'] and not yaml_data['Saya']['PetPet']['CanNudge']:
             return
-        elif 'PetPet' in group_data[nudge.group_id]['DisabledFunc']:
+        elif 'PetPet' in group_data[str(nudge.group_id)]['DisabledFunc']:
             return
 
         manual_block(nudge.supplicant, nudge.group_id)

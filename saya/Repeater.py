@@ -27,7 +27,7 @@ async def repeater(app: Ariadne, group: Group, message: MessageChain):
 
     if yaml_data['Saya']['Repeater']['Disabled']:
         return
-    elif 'Repeater' in group_data[group.id]['DisabledFunc']:
+    elif 'Repeater' in group_data[str(group.id)]['DisabledFunc']:
         return
 
     global repdict
@@ -56,7 +56,7 @@ async def repeateron(app: Ariadne, group: Group, message: MessageChain):
 
     if yaml_data['Saya']['Repeater']['Disabled']:
         return
-    elif 'Repeater' in group_data[group.id]['DisabledFunc']:
+    elif 'Repeater' in group_data[str(group.id)]['DisabledFunc']:
         return
     elif yaml_data['Saya']['Repeater']['Random']['Disabled']:
         return

@@ -29,7 +29,7 @@ async def random_mute(app: Ariadne, group: Group, member: Member, message: Messa
 
     if yaml_data['Saya']['MutePack']['Disabled']:
         return
-    elif 'MutePack' in group_data[group.id]['DisabledFunc']:
+    elif 'MutePack' in group_data[str(group.id)]['DisabledFunc']:
         return
 
     if re.match("(?=.*要)(?=.*禁)(?=.*言)(?=.*套)(?=.*餐)", message.asDisplay()):

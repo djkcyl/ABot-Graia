@@ -24,7 +24,7 @@ async def minecraft_ping(app: Ariadne, group: Group, message: MessageChain):
 
     if yaml_data['Saya']['MinecraftPing']['Disabled']:
         return
-    elif 'MinecraftPing' in group_data[group.id]['DisabledFunc']:
+    elif 'MinecraftPing' in group_data[str(group.id)]['DisabledFunc']:
         return
 
     saying = message.asDisplay().split()

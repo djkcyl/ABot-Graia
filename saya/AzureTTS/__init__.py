@@ -39,7 +39,7 @@ async def azuretts(app: Ariadne, group: Group, member: Member, message: MessageC
 
     if yaml_data['Saya']['AzureTTS']['Disabled']:
         return
-    elif 'AzureTTS' in group_data[group.id]['DisabledFunc']:
+    elif 'AzureTTS' in group_data[str(group.id)]['DisabledFunc']:
         return
 
     saying = message.asDisplay().split(" ", 3)
