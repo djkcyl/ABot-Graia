@@ -1,6 +1,5 @@
 import random
 
-from loguru import logger
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.model import Group
@@ -10,8 +9,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.element import Face, Image, Plain, At
 
 from config import yaml_data, group_data
-from util.RestControl import rest_control
-from util.UserBlock import group_black_list_block
+from util.control import Permission, Rest
 from util.TextModeration import text_moderation
 
 saya = Saya.current()
@@ -22,7 +20,7 @@ repdict = {}
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            decorators=[rest_control(), group_black_list_block()]))
+                            decorators=[Rest.rest_control(), Permission.require()]))
 async def repeater(app: Ariadne, group: Group, message: MessageChain):
 
     if yaml_data['Saya']['Repeater']['Disabled']:
@@ -51,7 +49,7 @@ async def repeater(app: Ariadne, group: Group, message: MessageChain):
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            decorators=[rest_control(), group_black_list_block()]))
+                            decorators=[Rest.rest_control(), Permission.require()]))
 async def repeateron(app: Ariadne, group: Group, message: MessageChain):
 
     if yaml_data['Saya']['Repeater']['Disabled']:
@@ -68,7 +66,6 @@ async def repeateron(app: Ariadne, group: Group, message: MessageChain):
         ifface = not message.has(Face)
         ifat = not message.has(At)
         if ifpic & ifface & ifat:
-            logger.info('已触发随机复读')
             repdict[group.id] = {'msg': saying, 'times': 1, 'last': saying}
             res = await text_moderation(saying)
             if res['Suggestion'] == "Pass":

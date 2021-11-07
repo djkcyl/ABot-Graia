@@ -1,3 +1,4 @@
+import time
 import asyncio
 
 from loguru import logger
@@ -14,6 +15,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.lifecycle import ApplicationLaunched, ApplicationShutdowned
 from graia.ariadne.event.mirai import NewFriendRequestEvent, BotInvitedJoinGroupRequestEvent, BotJoinGroupEvent, BotLeaveEventKick, BotGroupPermissionChangeEvent, BotMuteEvent, MemberCardChangeEvent, MemberJoinEvent
 
+from util.control import Rest
 from config import save_config, yaml_data, group_data, group_list
 
 from .AdminConfig import groupInitData
@@ -47,6 +49,13 @@ async def groupDataInit(app: Ariadne):
     if i > 0:
         msg.append(Plain(f"\n已为 {i} 个群进行了初始化配置"))
     await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create(msg))
+
+    now_localtime = time.strftime("%H:%M:%S", time.localtime())
+    if "00:00:00" < now_localtime < "07:30:00":
+        Rest.set_sleep(1)
+        await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
+            Plain("当前为休息时间，已进入休息状态")
+        ]))
 
 
 @channel.use(ListenerSchema(listening_events=[ApplicationShutdowned]))
@@ -134,7 +143,7 @@ async def get_BotJoinGroup(app: Ariadne, joingroup: BotJoinGroupEvent):
     '''
     收到入群事件
     '''
-    membernum = len(await app.memberList(joingroup.group.id))
+    membernum = len(await app.getMemberList(joingroup.group))
     await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
         Plain("收到加入群聊事件"),
         Plain(f"\n群号：{joingroup.group.id}"),
@@ -227,7 +236,6 @@ async def get_BotCardChange(app: Ariadne, events: MemberCardChangeEvent):
     '''
     群名片被修改
     '''
-    print(events)
     if events.member.id == yaml_data['Basic']['MAH']['BotQQ']:
         if events.current != yaml_data['Basic']['BotName']:
             for qq in yaml_data['Basic']['Permission']['Admin']:
@@ -235,7 +243,6 @@ async def get_BotCardChange(app: Ariadne, events: MemberCardChangeEvent):
                     Plain(f"检测到 {yaml_data['Basic']['BotName']} 群名片变动"),
                     Plain(f"\n群号：{str(events.member.group.id)}"),
                     Plain(f"\n群名：{events.member.group.name}"),
-                    Plain(f"\n操作者{events.operator.name}（{events.operator.id}）"),
                     Plain(f"\n被修改为：{events.current}"),
                     Plain(f"\n已为你修改回：{yaml_data['Basic']['BotName']}")
                 ]))
@@ -245,12 +252,10 @@ async def get_BotCardChange(app: Ariadne, events: MemberCardChangeEvent):
             await app.sendGroupMessage(events.member.group.id, MessageChain.create([
                 Plain("请不要修改我的群名片")
             ]))
-    elif events.operator:
+    else:
         await app.sendGroupMessage(events.member.group, MessageChain.create([
             At(events.member.id),
-            Plain(" 的群名片被修改"),
-            Plain("\n操作者为 "),
-            At(events.operator.id)
+            Plain(f" 的群名片由 {events.origin} 被修改为 {events.current}")
         ]))
 
 
@@ -260,13 +265,11 @@ async def getMemberJoinEvent(app: Ariadne, events: MemberJoinEvent):
     '''
     有人加入群聊
     '''
-    a = 1
-    if a == 2:
-        msg = [
-            Image(url=f"http://q1.qlogo.cn/g?b=qq&nk={str(events.member.id)}&s=4"),
-            Plain(f"\n欢迎 {events.member.name} 加入本群\n")
-        ]
-        if group_data[str(events.member.group.id)]["WelcomeMSG"]["Enabled"]:
-            welcomeMsg = group_data[str(events.member.group.id)]["WelcomeMSG"]['Message']
-            msg.append(Plain(f"\n{welcomeMsg}"))
-        await app.sendGroupMessage(events.member.group, MessageChain.create(msg))
+    msg = [
+        Image(url=f"http://q1.qlogo.cn/g?b=qq&nk={str(events.member.id)}&s=4"),
+        Plain(f"\n欢迎 {events.member.name} 加入本群")
+    ]
+    if group_data[str(events.member.group.id)]["WelcomeMSG"]["Enabled"]:
+        welcomeMsg = group_data[str(events.member.group.id)]["WelcomeMSG"]['Message']
+        msg.append(Plain(f"\n{welcomeMsg}"))
+    await app.sendGroupMessage(events.member.group, MessageChain.create(msg))

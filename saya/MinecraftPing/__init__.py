@@ -7,9 +7,8 @@ from graia.ariadne.message.chain import MessageChain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.literature import Literature
 
-from util.limit import group_limit_check
 from config import yaml_data, group_data
-from util.UserBlock import group_black_list_block
+from util.control import Permission, Interval
 
 from .mcping import mcping
 
@@ -19,7 +18,7 @@ channel = Channel.current()
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("/mcping")],
-                            decorators=[group_limit_check(15), group_black_list_block()]))
+                            decorators=[Permission.require(), Interval.require()]))
 async def minecraft_ping(app: Ariadne, group: Group, message: MessageChain):
 
     if yaml_data['Saya']['MinecraftPing']['Disabled']:

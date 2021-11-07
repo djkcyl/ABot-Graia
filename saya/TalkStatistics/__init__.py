@@ -12,8 +12,7 @@ from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.element import FlashImage, Image, Plain, Voice
 
-from util.limit import member_limit_check
-from util.UserBlock import group_black_list_block
+from util.control import Permission
 from database.usertalk import get_message_analysis, add_talk, archive_exists
 
 from .mapping import get_mapping
@@ -32,7 +31,7 @@ if not data_path.exists():
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("查看消息量统计")],
-                            decorators=[member_limit_check(15), group_black_list_block()]))
+                            decorators=[Permission.require(Permission.MASTER)]))
 async def get_image(app: Ariadne, group: Group):
 
     talk_num, time = await get_message_analysis()
@@ -44,7 +43,7 @@ async def get_image(app: Ariadne, group: Group):
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            decorators=[group_black_list_block()]))
+                            decorators=[Permission.require()]))
 async def add_talk_word(app: Ariadne, group: Group, member: Member, message: MessageChain):
     if message.has(Plain):
         plain_list = message.get(Plain)
@@ -53,19 +52,19 @@ async def add_talk_word(app: Ariadne, group: Group, member: Member, message: Mes
     elif message.has(Image):
         image_list = message.get(Image)
         for image in image_list:
-            await download(app, image.url, image.imageId, "image", 2)
-            await add_talk(str(member.id), str(group.id), 2, image.imageId, image.url)
+            await download(app, image.url, image.id, "image", 2)
+            await add_talk(str(member.id), str(group.id), 2, image.id, image.url)
     elif message.has(FlashImage):
         flash_image = message.getFirst(FlashImage)
-        await download(app, flash_image.url, flash_image.imageId, "flashimage", 3)
-        await add_talk(str(member.id), str(group.id), 3, flash_image.imageId, flash_image.url)
+        await download(app, flash_image.url, flash_image.id, "flashimage", 3)
+        await add_talk(str(member.id), str(group.id), 3, flash_image.id, flash_image.url)
     elif message.has(Voice):
         voice = message.getFirst(Voice)
-        await download(app, voice.url, voice.imageId, "voice", 4)
-        await add_talk(str(member.id), str(group.id), 4, voice.voiceId, voice.url)
+        await download(app, voice.url, voice.id, "voice", 4)
+        await add_talk(str(member.id), str(group.id), 4, voice.id, voice.url)
 
 
-async def download(app: Ariadne, url, name, path, type):
+async def download(url, name, path, type):
     now_time = datetime.datetime.now()
     now_path = data_path.joinpath(path, str(now_time.year), str(now_time.month), str(now_time.day))
     now_path.mkdir(0o775, True, True)

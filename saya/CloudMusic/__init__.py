@@ -7,21 +7,19 @@ from loguru import logger
 from graiax import silkcoder
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
+from graia.ariadne.model import Group, Member
 from graia.broadcast.interrupt.waiter import Waiter
 from graia.ariadne.message.chain import MessageChain
-from graia.ariadne.model import Friend, Group, Member
+from graia.ariadne.event.message import GroupMessage
 from graia.broadcast.interrupt import InterruptControl
 from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.event.message import FriendMessage, GroupMessage
 from graia.ariadne.message.element import Plain, Image, Voice, Source
 
 from database.db import reduce_gold
+from config import yaml_data, group_data
 from util.text2image import create_image
-from util.limit import member_limit_check
-from util.RestControl import rest_control
-from util.UserBlock import group_black_list_block
-from config import yaml_data, group_data, VIOCE_PATH
+from util.control import Permission, Interval, Rest
 
 saya = Saya.current()
 channel = Channel.current()
@@ -45,7 +43,7 @@ WAITING = []
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("点歌")],
-                            decorators=[rest_control(), member_limit_check(300), group_black_list_block()]))
+                            decorators=[Rest.rest_control(), Permission.require(), Interval.require(120)]))
 async def sing(app: Ariadne, group: Group, member: Member, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['CloudMusic']['Disabled']:
@@ -232,22 +230,6 @@ async def sing(app: Ariadne, group: Group, member: Member, message: MessageChain
             music_lyric_image = await create_image(music_lyric, 120)
             await app.sendGroupMessage(group, MessageChain.create([Image(data_bytes=music_lyric_image)]))
 
-        cache = VIOCE_PATH.joinpath(str(musicid[1]))
-        cache.write_bytes(await silkcoder.encode(MUSIC_PATH.read_bytes(), t=540))
-        await app.sendGroupMessage(group, MessageChain.create([Voice(path=musicid[1])]))
-        cache.unlink()
+        music_bytes = await silkcoder.encode(MUSIC_PATH.read_bytes(), t=540)
+        await app.sendGroupMessage(group, MessageChain.create([Voice(data_bytes=music_bytes)]))
         return WAITING.remove(member.id)
-
-
-@channel.use(ListenerSchema(listening_events=[FriendMessage], inline_dispatchers=[Literature("查看点歌状态")]))
-async def main(app: Ariadne, friend: Friend):
-    if friend.id == yaml_data['Basic']['Permission']['Master']:
-        runlist_len = len(WAITING)
-        runlist = "\n".join(map(lambda x: str(x), WAITING))
-        if runlist_len > 0:
-            await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
-                Plain(f"当前共有 {runlist_len} 人正在点歌"),
-                Plain(f"\n{runlist}")
-            ]))
-        else:
-            await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([Plain("当前没有正在点歌的人")]))

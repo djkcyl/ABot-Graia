@@ -10,24 +10,32 @@ from graia.saya import Saya, Channel
 from graia.ariadne.model import Group
 from graia.ariadne.app import Ariadne
 from graia.ariadne.event.mirai import NudgeEvent
-from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.event.message import GroupMessage
+from graia.ariadne.message.chain import MessageChain
 from moviepy.editor import ImageSequenceClip as imageclip
 from graia.ariadne.message.element import At, Image, Plain
+from graia.ariadne.message.parser.pattern import FullMatch
 from graia.saya.builtins.broadcast.schema import ListenerSchema
+from graia.ariadne.message.parser.twilight import Sparkle, Twilight
 
-from util.limit import manual_limit
 from config import yaml_data, group_data
-from util.RestControl import rest_control
-from util.UserBlock import group_black_list_block, manual_block
+from util.control import Interval, Permission, Rest
 
 
 saya = Saya.current()
 channel = Channel.current()
 
 
+class Pet_Sparkle(Sparkle):
+    math = FullMatch("摸")
+
+
+math = Twilight(Pet_Sparkle, remove_extra_space=True)
+
+
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            decorators=[rest_control(), group_black_list_block()]))
+                            inline_dispatchers=[math],
+                            decorators=[Rest.rest_control(), Permission.require(), Interval.require()]))
 async def petpet_generator(app: Ariadne, message: MessageChain, group: Group):
 
     if yaml_data['Saya']['PetPet']['Disabled'] and not yaml_data['Saya']['PetPet']['CanAt']:
@@ -35,9 +43,7 @@ async def petpet_generator(app: Ariadne, message: MessageChain, group: Group):
     elif 'PetPet' in group_data[str(group.id)]['DisabledFunc']:
         return
 
-    message_text = message.asDisplay()
-    if message.has(At) and message_text.startswith("摸") or message_text.startswith("摸头 "):
-        manual_limit(group.id, "petpet", 3)
+    if message.has(At):
         if not os.path.exists("./saya/PetPet/temp"):
             os.mkdir("./saya/PetPet/temp")
         await petpet(message.getFirst(At).target)
@@ -47,7 +53,7 @@ async def petpet_generator(app: Ariadne, message: MessageChain, group: Group):
 
 
 @channel.use(ListenerSchema(listening_events=[NudgeEvent],
-                            decorators=[rest_control()]))
+                            decorators=[Rest.rest_control(), Permission.require()]))
 async def get_nudge(app: Ariadne, nudge: NudgeEvent):
 
     if nudge.group_id:
@@ -57,8 +63,7 @@ async def get_nudge(app: Ariadne, nudge: NudgeEvent):
         elif 'PetPet' in group_data[str(nudge.group_id)]['DisabledFunc']:
             return
 
-        manual_block(nudge.supplicant, nudge.group_id)
-        manual_limit(nudge.group_id, "petpet", 3)
+        await Interval.manual(nudge.group_id, 3)
 
         logger.info(f"[{nudge.group_id}] 收到戳一戳事件 -> [{nudge.target}]")
         if not os.path.exists("./saya/PetPet/temp"):

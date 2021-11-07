@@ -1,20 +1,19 @@
 <div align="center">
 
-# ABot for Graia
+# ABot for Graia-Ariadne
+
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fdjkcyl%2FABot-Graia.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fdjkcyl%2FABot-Graia?ref=badge_shield)
 
 ![!](https://count.getloli.com/get/@ABot-Graia?theme=rule34)
 
-ABot 是一个使用 [Graia](https://github.com/GraiaProject/Application) 搭建的 QQ 功能性<del>究极缝合怪</del>机器人
+ABot 是一个使用 [Graia-Ariadne](https://github.com/GraiaProject/Ariadne) 搭建的 QQ 功能性<del>究极缝合怪</del>机器人
 
 </div>
 
 ## ABot 现在能干什么
 
-**部分功能因为mirai-api-http的版本问题导致无法使用，项目正在将 [Graia](https://github.com/GraiaProject/Application) 更新至 [Ariadne](https://github.com/GraiaProject/Ariadne)**
-
 > - 菜单以及功能介绍
-> - 群名片修正 ~~`[被他人修改后自动触发]`~~ and 私聊`群名片修正`
+> - 群名片修正 `[被他人修改后自动触发]` and 私聊`群名片修正`
 > - 微软文字转语音
 > - 兽语转换
 > - 小鸡词典查梗
@@ -67,21 +66,22 @@ ABot 是一个使用 [Graia](https://github.com/GraiaProject/Application) 搭建
 >   - ABot 事件提醒
 >   - ABot 被禁言后自动退群
 >   - 撤回群消息 `[回复]1`
->   - ~~大清扫（如果 ABot 是管理员的情况下）`/viveall` and `/kickall`~~
 > - （待开发中）
 
 ### 部署
+
 - 详见[部署](_docs/deploy.md)
-### 
+
+###
 
 [**文件目录结构**](FILES.md)
 
-> 如果有什么需要的，可以发issue或者加我的QQ：`2948531755`。
+> 如果有什么需要的，可以发 issue 或者加我的 QQ：`2948531755`。
 
-感谢[SAGIRI-BOT](https://github.com/SAGIRI-kawaii/sagiri-bot)的一堆功能以及saya转型启发
+感谢[SAGIRI-BOT](https://github.com/SAGIRI-kawaii/sagiri-bot)的一堆功能以及 saya 转型启发
 
 感谢[HarukaBot](https://github.com/SK-415/HarukaBot)提供的哔哩哔哩推送灵感及部分实现思路
 
-
 ## License
+
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fdjkcyl%2FABot-Graia.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fdjkcyl%2FABot-Graia?ref=badge_large)

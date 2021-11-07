@@ -11,9 +11,7 @@ from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 from config import yaml_data, group_data
-from util.RestControl import rest_control
-from util.limit import member_limit_check
-from util.UserBlock import group_black_list_block
+from util.control import Permission, Interval, Rest
 
 from .page_screenshot import get_hans_screenshot
 
@@ -24,7 +22,7 @@ channel = Channel.current()
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("词典")],
-                            decorators=[rest_control(), member_limit_check(15), group_black_list_block()]))
+                            decorators=[Rest.rest_control(), Permission.require(), Interval.require()]))
 async def dict(app: Ariadne, group: Group, message: MessageChain):
 
     if yaml_data['Saya']['ChineseDict']['Disabled']:

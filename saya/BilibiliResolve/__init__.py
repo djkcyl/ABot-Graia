@@ -3,36 +3,32 @@ import httpx
 import asyncio
 
 from graia.saya import Saya, Channel
-from graia.ariadne.model import Group
 from graia.ariadne.app import Ariadne
-from concurrent.futures import ThreadPoolExecutor
+from graia.ariadne.model import Group, Member
 from graia.broadcast.exceptions import ExecutionStop
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import Image, Plain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 
-from util.limit import manual_limit
 from config import yaml_data, group_data
-from util.UserBlock import group_black_list_block
+from util.control import Permission, Interval
 
 from .draw_bili_image import binfo_image_create
 
 saya = Saya.current()
 channel = Channel.current()
-loop = asyncio.get_event_loop()
-pool = ThreadPoolExecutor()
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage], decorators=[group_black_list_block()]))
-async def bilibili_main(app: Ariadne, group: Group, message: MessageChain):
+@channel.use(ListenerSchema(listening_events=[GroupMessage], decorators=[Permission.require()]))
+async def bilibili_main(app: Ariadne, group: Group, member: Member, message: MessageChain):
 
     if yaml_data['Saya']['BilibiliResolve']['Disabled']:
         return
     elif 'BilibiliResolve' in group_data[str(group.id)]['DisabledFunc']:
         return
 
-    saying = message.to_string()
+    saying = message.asPersistentString()
     video_info = None
     if "b23.tv" in saying:
         saying = await b23_extract(saying)
@@ -42,14 +38,15 @@ async def bilibili_main(app: Ariadne, group: Group, message: MessageChain):
         video_number = video_number.group(0)
         if video_number:
             video_info = await video_info_get(video_number)
+
     if video_info:
         if video_info["code"] != 0:
-            manual_limit(group.id, "BilibiliResolve", 10)
+            await Interval.manual(member.id)
             return await app.sendGroupMessage(group, MessageChain.create([Plain("视频不存在")]))
         else:
-            manual_limit(group.id, video_number, 30)
+            await Interval.manual(int(video_info["data"]["aid"]))
         try:
-            image = await loop.run_in_executor(pool, binfo_image_create, video_info)
+            image = await asyncio.to_thread(binfo_image_create, video_info)
             await app.sendGroupMessage(group, MessageChain.create([Image(data_bytes=image.getvalue())]))
         except Exception as err:
             await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([

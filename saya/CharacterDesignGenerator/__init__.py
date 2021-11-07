@@ -13,9 +13,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 from config import yaml_data, group_data
 from util.text2image import create_image
-from util.limit import member_limit_check
-from util.RestControl import rest_control
-from util.UserBlock import group_black_list_block
+from util.control import Permission, Interval, Rest
 
 saya = Saya.current()
 channel = Channel.current()
@@ -25,7 +23,7 @@ Designs = json.loads(Path(__file__).parent.joinpath("DesignsDICT.json").read_tex
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("查看人设")],
-                            decorators=[member_limit_check(15), rest_control(), group_black_list_block()]))
+                            decorators=[Rest.rest_control(), Permission.require(), Interval.require()]))
 async def rand_designs(app: Ariadne, group: Group, member: Member, source: Source):
 
     if yaml_data['Saya']['CharacterDesignGenerator']['Disabled']:
@@ -63,9 +61,8 @@ def get_rand(qid: int, gid: int):
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("/reload", "人设")],
-                            decorators=[member_limit_check(15), rest_control(), group_black_list_block()]))
+                            decorators=[Permission.require(Permission.MASTER), Interval.require()]))
 async def reoald_designs(app: Ariadne, group: Group, member: Member):
     global Designs
-    if member.id == yaml_data['Basic']['Permission']['Master']:
-        Designs = json.loads(Path(__file__).parent.joinpath("DesignsDICT.json").read_text("UTF-8"))['Designs']
-        await app.sendGroupMessage(group, MessageChain.create([Plain("重载完成")]))
+    Designs = json.loads(Path(__file__).parent.joinpath("DesignsDICT.json").read_text("UTF-8"))['Designs']
+    await app.sendGroupMessage(group, MessageChain.create([Plain("重载完成")]))

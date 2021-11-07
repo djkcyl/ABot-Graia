@@ -14,8 +14,7 @@ from graia.ariadne.event.message import GroupMessage, FriendMessage
 
 
 from config import yaml_data, group_data
-from util.limit import member_limit_check
-from util.UserBlock import group_black_list_block
+from util.control import Permission, Interval
 from database.db import sign, add_gold, get_info, add_talk, reset_sign, all_sign_num
 
 saya = Saya.current()
@@ -24,7 +23,7 @@ channel = Channel.current()
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("签到")],
-                            decorators=[member_limit_check(10), group_black_list_block()]))
+                            decorators=[Permission.require(), Interval.require()]))
 async def main(app: Ariadne, group: Group, member: Member):
     if await sign(str(member.id)):
         i = random.randint(1, 10)
@@ -67,7 +66,7 @@ async def main(app: Ariadne, group: Group, member: Member):
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def main(member: Member):
+async def add_talk_event(member: Member):
     await add_talk(str(member.id))
 
 
@@ -81,11 +80,12 @@ async def reset(app: Ariadne):
     ]))
 
 
-@channel.use(ListenerSchema(listening_events=[FriendMessage], inline_dispatchers=[Literature("签到率查询")]))
-async def main(app: Ariadne, friend: Friend):
-    if friend.id == yaml_data['Basic']['Permission']['Master']:
-        sign_info = await all_sign_num()
-        await app.sendFriendMessage(friend, MessageChain.create([
-            Plain(f"共有 {str(sign_info[0])} / {str(sign_info[1])} 人完成了签到，"),
-            Plain(f"签到率为 {'{:.2%}'.format(sign_info[0]/sign_info[1])}")
-        ]))
+@channel.use(ListenerSchema(listening_events=[FriendMessage],
+                            inline_dispatchers=[Literature("签到率查询")],
+                            decorators=[Permission.require(Permission.MASTER)]))
+async def inquire(app: Ariadne, friend: Friend):
+    sign_info = await all_sign_num()
+    await app.sendFriendMessage(friend, MessageChain.create([
+        Plain(f"共有 {str(sign_info[0])} / {str(sign_info[1])} 人完成了签到，"),
+        Plain(f"签到率为 {'{:.2%}'.format(sign_info[0]/sign_info[1])}")
+    ]))

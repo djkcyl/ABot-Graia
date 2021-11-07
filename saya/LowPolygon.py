@@ -8,7 +8,6 @@ from PIL import Image as IMG
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.model import Group, Member
-from concurrent.futures import ThreadPoolExecutor
 from graia.broadcast.interrupt.waiter import Waiter
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
@@ -18,24 +17,20 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.element import Plain, At, Source, Image
 
 from config import yaml_data, group_data
-from util.limit import member_limit_check
-from util.RestControl import rest_control
-from util.UserBlock import group_black_list_block
+from util.control import Permission, Interval, Rest
 
 
 saya = Saya.current()
 channel = Channel.current()
 bcc = saya.broadcast
 inc = InterruptControl(bcc)
-loop = asyncio.get_event_loop()
-pool = ThreadPoolExecutor(4)
 
 WAITING = []
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("低多边形")],
-                            decorators=[rest_control(), member_limit_check(60), group_black_list_block()]))
+                            decorators=[Rest.rest_control(), Permission.require(), Interval.require()]))
 async def low_poly(app: Ariadne, group: Group, message: MessageChain, member: Member, source: Source):
 
     if yaml_data['Saya']['LowPolygon']['Disabled']:
@@ -82,7 +77,7 @@ async def low_poly(app: Ariadne, group: Group, message: MessageChain, member: Me
             resp = await client.get(image_url)
             img_bytes = resp.content
         await app.sendGroupMessage(group, MessageChain.create([Plain("正在生成，请稍后")]))
-        image = await loop.run_in_executor(pool, make_low_poly, img_bytes)
+        image = await asyncio.to_thread(make_low_poly, img_bytes)
         await app.sendGroupMessage(group, MessageChain.create([
             Image(data_bytes=image)
         ]))

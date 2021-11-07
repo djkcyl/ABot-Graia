@@ -6,13 +6,13 @@ from pathlib import Path
 from loguru import logger
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
+from graia.ariadne.model import Group
 from graia.ariadne.exception import UnknownTarget
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import Image, Plain
 from graia.scheduler.timers import every_custom_seconds
 from graia.scheduler.saya.schema import SchedulerSchema
-from graia.ariadne.model import Group, Member, MemberPerm
 from graia.ariadne.event.lifecycle import ApplicationLaunched
 from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
@@ -20,8 +20,7 @@ from graia.ariadne.event.mirai import BotLeaveEventKick, BotLeaveEventActive
 
 from config import yaml_data
 from util.text2image import create_image
-from util.limit import group_limit_check
-from util.UserBlock import group_black_list_block
+from util.control import Permission, Interval
 
 from .dynamic_shot import get_dynamic_screenshot
 from .bilibili_request import dynamic_svr, get_status_info_by_uids
@@ -323,52 +322,41 @@ async def update_scheduled(app: Ariadne):
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("订阅")],
-                            decorators=[group_limit_check(10), group_black_list_block()]))
-async def add_sub(app: Ariadne, group: Group, member: Member, message: MessageChain):
+                            decorators=[Permission.require(Permission.GROUP_ADMIN), Interval.require()]))
+async def add_sub(app: Ariadne, group: Group, message: MessageChain):
 
-    if member.permission in [MemberPerm.Administrator, MemberPerm.Owner] or member.id in yaml_data['Basic']['Permission']['Admin']:
-        saying = message.asDisplay().split(" ", 1)
-        if len(saying) == 2:
-            await app.sendGroupMessage(group, MessageChain.create([await add_uid(saying[1], group.id)]))
-    else:
-        await app.sendGroupMessage(group, MessageChain.create([
-            Plain("你没有权限使用该功能！")
-        ]))
+    saying = message.asDisplay().split(" ", 1)
+    if len(saying) == 2:
+        await app.sendGroupMessage(group, MessageChain.create([await add_uid(saying[1], group.id)]))
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("退订")],
-                            decorators=[group_limit_check(10), group_black_list_block()]))
-async def remove_sub(app: Ariadne, group: Group, member: Member, message: MessageChain):
+                            decorators=[Permission.require(Permission.GROUP_ADMIN), Interval.require()]))
+async def remove_sub(app: Ariadne, group: Group, message: MessageChain):
 
-    if member.permission in [MemberPerm.Administrator, MemberPerm.Owner] or member.id in yaml_data['Basic']['Permission']['Admin']:
-        saying = message.asDisplay().split(" ", 1)
-        if len(saying) == 2:
-            await app.sendGroupMessage(group, MessageChain.create([remove_uid(saying[1], group.id)]))
-    else:
-        await app.sendGroupMessage(group, MessageChain.create([Plain("你没有权限使用该功能！")]))
+    saying = message.asDisplay().split(" ", 1)
+    if len(saying) == 2:
+        await app.sendGroupMessage(group, MessageChain.create([remove_uid(saying[1], group.id)]))
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("本群订阅列表")],
-                            decorators=[group_limit_check(10), group_black_list_block()]))
-async def sub_list(app: Ariadne, group: Group, member: Member):
+                            decorators=[Permission.require(Permission.GROUP_ADMIN), Interval.require()]))
+async def sub_list(app: Ariadne, group: Group):
 
-    if member.permission in [MemberPerm.Administrator, MemberPerm.Owner] or member.id in yaml_data['Basic']['Permission']['Admin']:
-        sublist = []
-        for subid in get_group_sublist(group.id):
-            remove_uid(subid, group.id)
-            sublist.append(subid)
-        sublist_count = len(sublist)
-        if sublist_count == 0:
-            await app.sendGroupMessage(group, MessageChain.create([Plain("本群未订阅任何 UP")]))
-        else:
-            await app.sendGroupMessage(group, MessageChain.create([
-                Plain(f"本群共订阅 {sublist_count} 个 UP\n"),
-                Plain("\n".join(sublist))
-            ]))
+    sublist = []
+    for subid in get_group_sublist(group.id):
+        remove_uid(subid, group.id)
+        sublist.append(subid)
+    sublist_count = len(sublist)
+    if sublist_count == 0:
+        await app.sendGroupMessage(group, MessageChain.create([Plain("本群未订阅任何 UP")]))
     else:
-        await app.sendGroupMessage(group, MessageChain.create([Plain("你没有权限使用该功能！")]))
+        await app.sendGroupMessage(group, MessageChain.create([
+            Plain(f"本群共订阅 {sublist_count} 个 UP\n"),
+            Plain("\n".join(sublist))
+        ]))
 
 
 @channel.use(ListenerSchema(listening_events=[BotLeaveEventActive, BotLeaveEventKick]))
@@ -382,8 +370,8 @@ async def bot_leave(group: Group):
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("查看动态")],
-                            decorators=[group_limit_check(30), group_black_list_block()]))
-async def atrep(app: Ariadne, group: Group, message: MessageChain):
+                            decorators=[Permission.require(), Interval.require(20)]))
+async def vive_dyn(app: Ariadne, group: Group, message: MessageChain):
 
     saying = message.asDisplay().split(" ", 1)
     if len(saying) == 2:

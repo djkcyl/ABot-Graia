@@ -7,7 +7,6 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.exception import AccountMuted, UnknownTarget
 from graia.ariadne.message.element import Plain, Image, FlashImage, Xml, Json, Voice
 
-from util.limit import manual_limit
 from config import yaml_data, group_data
 from util.TextModeration import text_moderation
 from util.ImageModeration import image_moderation
@@ -23,8 +22,7 @@ async def anitRecall(app: Ariadne, events: GroupRecallEvent):
     if events.authorId != yaml_data["Basic"]["MAH"]["BotQQ"] or events.operator.id == yaml_data["Basic"]["MAH"]["BotQQ"]:
         try:
             logger.info(f"防撤回触发：[{events.group.name}({str(events.group.id)})]")
-            recallEvents = await app.messageFromId(events.messageId)
-            recallMsg = recallEvents.messageChain
+            recallMsg = await app.getMessageFromId(events.messageId)
             authorMember = await app.getMember(events.group.id, events.authorId)
             authorName = "自己" if events.operator.id == events.authorId else authorMember.name
             msg = MessageChain.join(
@@ -38,13 +36,11 @@ async def anitRecall(app: Ariadne, events: GroupRecallEvent):
                 for image in recallMsg.get(Image):
                     res = await image_moderation(image.url)
                     if res['Suggestion'] != "Pass":
-                        # await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], msg.asSendable())
                         if 'AnitRecall' not in group_data[str(events.group.id)]['DisabledFunc'] and not yaml_data['Saya']['AnitRecall']['Disabled']:
                             try:
                                 await app.mute(events.group, events.authorId, 60)
                             except Exception:
                                 pass
-                            manual_limit(events.group.id, "AnitRecall", 3)
                             await app.sendGroupMessage(events.group, MessageChain.create([
                                 Plain(f"{events.operator.name}({events.operator.id})撤回了{authorName}的一条消息:"),
                                 Plain("\n=====================\n"),
@@ -60,7 +56,6 @@ async def anitRecall(app: Ariadne, events: GroupRecallEvent):
                                 await app.mute(events.group, events.authorId, 60)
                             except Exception:
                                 pass
-                            manual_limit(events.group.id, "AnitRecall", 3)
                             await app.sendGroupMessage(events.group, MessageChain.create([
                                 Plain(f"{events.operator.name}({events.operator.id})撤回了{authorName}的一条消息:"),
                                 Plain("\n=====================\n"),
@@ -68,7 +63,6 @@ async def anitRecall(app: Ariadne, events: GroupRecallEvent):
                             ]))
                             return
             if 'AnitRecall' not in group_data[str(events.group.id)]['DisabledFunc'] and not yaml_data['Saya']['AnitRecall']['Disabled']:
-                manual_limit(events.group.id, "AnitRecall", 3)
                 if recallMsg.has(Voice) or recallMsg.has(Xml) or recallMsg.has(Json):
                     pass
                 elif recallMsg.has(FlashImage):

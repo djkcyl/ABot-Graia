@@ -8,6 +8,7 @@ user_data_dir = "./util/browser/data"
 
 _browser: Optional[Browser] = None
 
+
 async def init() -> Browser:
     global _browser
     browser = await async_playwright().start()
@@ -25,6 +26,7 @@ async def init() -> Browser:
 
 async def get_browser() -> Browser:
     return _browser or await init()
+
 
 def install():
     print("正在检查 Chromium 更新")

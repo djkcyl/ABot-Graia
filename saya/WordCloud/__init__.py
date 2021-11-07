@@ -11,7 +11,6 @@ from matplotlib import pyplot
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.model import Group, Member
-from concurrent.futures import ThreadPoolExecutor
 from wordcloud import WordCloud, ImageColorGenerator
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
@@ -20,14 +19,11 @@ from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 from config import yaml_data, group_data
-from util.limit import member_limit_check
-from util.UserBlock import group_black_list_block
+from util.control import Permission, Interval
 from database.usertalk import get_user_talk, get_group_talk
 
 saya = Saya.current()
 channel = Channel.current()
-loop = asyncio.get_event_loop()
-pool = ThreadPoolExecutor(4)
 
 BASEPATH = Path(__file__).parent
 MASK = numpy.array(IMG.open(BASEPATH.joinpath('bgg.jpg')))
@@ -40,7 +36,7 @@ RUNNING_LIST = []
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("查看个人词云"), Literature("查看本群词云")],
-                            decorators=[member_limit_check(300), group_black_list_block()]))
+                            decorators=[Permission.require(), Interval.require(150)]))
 async def wordcloud(app: Ariadne, group: Group, member: Member, message: MessageChain):
 
     global RUNNING, RUNNING_LIST
@@ -74,7 +70,7 @@ async def wordcloud(app: Ariadne, group: Group, member: Member, message: Message
                 Plain(f" 正在制作词云，一周内共 {len(talk_list)} 条记录")
             ]))
             words = await get_frequencies(talk_list)
-            image = await loop.run_in_executor(pool, make_wordcloud, words)
+            image = await asyncio.to_thread(make_wordcloud, words)
             await app.sendGroupMessage(group, MessageChain.create([
                 At(member.id),
                 Plain(f" 已成功制作{mode}词云"),

@@ -13,9 +13,7 @@ from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 from config import yaml_data, group_data
-from util.RestControl import rest_control
-from util.limit import member_limit_check
-from util.UserBlock import group_black_list_block
+from util.control import Permission, Interval, Rest
 
 jieba.setLogLevel(20)
 
@@ -44,7 +42,7 @@ def chs2yin(s, 淫乱度=0.5):
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("淫语")],
-                            decorators=[rest_control(), member_limit_check(15), group_black_list_block()]))
+                            decorators=[Rest.rest_control(), Permission.require(), Interval.require()]))
 async def main(app: Ariadne, group: Group, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['Yinglish']['Disabled']:

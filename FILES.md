@@ -66,7 +66,7 @@ ABot  根目录
 │   ├── WordCloud  词云
 │   └── Yinglish.py  淫文翻译姬
 └── util  通用功能
-    ├── CutString.py  文字切割（自动换行）
+    ├── cut_string.py  文字切割（自动换行）
     ├── ImageModeration.py  图片安全审核
     ├── QRGeneration.py  二维码生成
     ├── RestControl.py  作息控制

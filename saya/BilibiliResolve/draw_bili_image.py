@@ -5,7 +5,7 @@ from io import BytesIO
 from qrcode.image.pil import PilImage
 from PIL import Image, ImageFont, ImageDraw
 
-from util.CutString import get_cut_str
+from util.cut_string import get_cut_str
 
 
 def numf(num: int):

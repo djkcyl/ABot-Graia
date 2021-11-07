@@ -12,8 +12,8 @@ from graia.ariadne.message.parser.literature import Literature
 from graia.ariadne.event.message import GroupMessage, FriendMessage
 
 from database.db import add_answer
+from util.control import Permission
 from util.text2image import create_image
-from util.UserBlock import group_black_list_block, friend_black_list_block
 
 from .database.database import random_word
 
@@ -54,7 +54,7 @@ RUNNING = {}
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("背单词")],
-                            decorators=[group_black_list_block()]))
+                            decorators=[Permission.require()]))
 async def group_learn(app: Ariadne, group: Group, member: Member):
 
     @Waiter.create_using_function([GroupMessage])
@@ -157,8 +157,7 @@ async def group_learn(app: Ariadne, group: Group, member: Member):
 
 
 @channel.use(ListenerSchema(listening_events=[FriendMessage],
-                            inline_dispatchers=[Literature("背单词")],
-                            decorators=[friend_black_list_block()]))
+                            inline_dispatchers=[Literature("背单词")]))
 async def friend_learn(app: Ariadne, friend: Friend):
 
     @Waiter.create_using_function([FriendMessage])
