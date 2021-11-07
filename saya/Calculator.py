@@ -4,7 +4,6 @@ import asyncio
 from graia.saya import Saya, Channel
 from graia.ariadne.model import Group
 from graia.ariadne.app import Ariadne
-from concurrent.futures import ThreadPoolExecutor
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import Plain, Source
@@ -12,18 +11,16 @@ from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 from config import yaml_data, group_data
-from util.limit import member_limit_check
+from util.control import Permission, Interval
 
 
 saya = Saya.current()
 channel = Channel.current()
-loop = asyncio.get_event_loop()
-pool = ThreadPoolExecutor()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("计算器")],
-                            decorators=[member_limit_check(10)]))
+                            decorators=[Permission.require(), Interval.require()]))
 async def calculator_main(app: Ariadne, group: Group, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['Calculator']['Disabled']:
@@ -38,12 +35,12 @@ async def calculator_main(app: Ariadne, group: Group, message: MessageChain, sou
         if len(expression) > 800:
             return await app.sendGroupMessage(group, MessageChain.create([Plain("字符数过多")]), quote=source.id)
         try:
-            answer = await asyncio.wait_for(loop.run_in_executor(pool, arithmetic, expression), timeout=15)
+            answer = await asyncio.wait_for(asyncio.to_thread(arithmetic, expression), timeout=15)
         except ZeroDivisionError:
             return await app.sendGroupMessage(group, MessageChain.create([Plain("0不可作为除数")]), quote=source.id)
         except asyncio.TimeoutError:
             return await app.sendGroupMessage(group, MessageChain.create([Plain("计算超时")]), quote=source.id)
-        except:
+        except Exception:
             return await app.sendGroupMessage(group, MessageChain.create([Plain("出现未知错误，终止计算")]), quote=source.id)
 
         await app.sendGroupMessage(group, MessageChain.create([Plain(answer)]), quote=source.id)

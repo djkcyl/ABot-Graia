@@ -16,8 +16,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.lifecycle import ApplicationLaunched
 from graia.ariadne.message.parser.literature import Literature
 
-from util.limit import member_limit_check
-from util.UserBlock import group_black_list_block
+from util.control import Permission
 
 from .mapping import get_mapping
 
@@ -57,7 +56,7 @@ async def cpuStatus():
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("查看性能统计")],
-                            decorators=[member_limit_check(15), group_black_list_block()]))
+                            decorators=[Permission.require(Permission.MASTER)]))
 async def get_image(app: Ariadne, group: Group):
     image = await get_mapping(CPU_USAGE, MEM_USAGE, int(psutil.virtual_memory().total / 1000000))
     await app.sendGroupMessage(group, MessageChain.create([Image(data_bytes=image)]))

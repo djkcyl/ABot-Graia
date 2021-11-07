@@ -1,10 +1,10 @@
 import json
 import base64
 from tencentcloud.common import credential
-from tencentcloud.common.profile.client_profile import ClientProfile
-from tencentcloud.common.profile.http_profile import HttpProfile
-from tencentcloud.common.exception.tencent_cloud_sdk_exception import TencentCloudSDKException
 from tencentcloud.tms.v20201229 import tms_client, models
+from tencentcloud.common.profile.http_profile import HttpProfile
+from tencentcloud.common.profile.client_profile import ClientProfile
+from tencentcloud.common.exception.tencent_cloud_sdk_exception import TencentCloudSDKException
 
 from config import yaml_data
 
@@ -13,7 +13,7 @@ async def text_moderation(text: str):
 
     text_base64 = str(base64.b64encode(text.encode('utf-8')), "utf-8")
     try:
-        cred = credential.Credential(yaml_data["Saya"]["AnitRecall"]["Moderation"]["secretId"], 
+        cred = credential.Credential(yaml_data["Saya"]["AnitRecall"]["Moderation"]["secretId"],
                                      yaml_data["Saya"]["AnitRecall"]["Moderation"]["secretKey"])
         httpProfile = HttpProfile()
         httpProfile.endpoint = "tms.tencentcloudapi.com"

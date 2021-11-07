@@ -10,9 +10,7 @@ from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 from config import yaml_data, group_data
-from util.limit import group_limit_check
-from util.RestControl import rest_control
-from util.UserBlock import group_black_list_block
+from util.control import Permission, Interval, Rest
 
 saya = Saya.current()
 channel = Channel.current()
@@ -20,7 +18,7 @@ channel = Channel.current()
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("涩图")],
-                            decorators=[group_limit_check(5), rest_control(), group_black_list_block()]))
+                            decorators=[Rest.rest_control(), Permission.require(), Interval.require()]))
 async def main(app: Ariadne, group: Group, message: MessageChain):
 
     if yaml_data['Saya']['Pixiv']['Disabled']:
@@ -51,7 +49,7 @@ async def main(app: Ariadne, group: Group, message: MessageChain):
             ]))
     else:
         async with httpx.AsyncClient() as client:
-            r = await client.get(f"http://a60.one:404/")
+            r = await client.get("http://a60.one:404/")
             res = r.json()
         if res.get('code', False) == 200:
             await app.sendGroupMessage(group, MessageChain.create([

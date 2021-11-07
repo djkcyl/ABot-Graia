@@ -11,9 +11,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 
 from config import yaml_data, group_data
-from util.limit import member_limit_check
-from util.RestControl import rest_control
-from util.UserBlock import group_black_list_block
+from util.control import Permission, Interval
 
 saya = Saya.current()
 channel = Channel.current()
@@ -21,7 +19,7 @@ channel = Channel.current()
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("查梗")],
-                            decorators=[rest_control(), member_limit_check(100), group_black_list_block()]))
+                            decorators=[Permission.require(), Interval.require(80)]))
 async def fun_dict(app: Ariadne, group: Group, message: MessageChain, member: Member):
 
     if yaml_data['Saya']['ChickDict']['Disabled']:
@@ -32,7 +30,7 @@ async def fun_dict(app: Ariadne, group: Group, message: MessageChain, member: Me
     saying = message.asDisplay().split(" ", 1)
     if len(saying) != 2:
         await app.sendGroupMessage(group, MessageChain.create([
-            Plain(f"用法：查梗 xxxxx")
+            Plain("用法：查梗 xxxxx")
         ]))
         return
     else:
@@ -40,7 +38,7 @@ async def fun_dict(app: Ariadne, group: Group, message: MessageChain, member: Me
     if yaml_data['Basic']['Permission']['MasterName'].replace(" ", "").upper() in say_name.replace(" ", "").upper() or yaml_data['Basic']['BotName'].replace(" ", "").upper() in say_name.replace(" ", "").upper():
         await app.sendGroupMessage(group, MessageChain.create([
             At(member.id),
-            Plain(f" 爬")
+            Plain(" 爬")
         ]))
         return
 
@@ -63,11 +61,11 @@ async def fun_dict(app: Ariadne, group: Group, message: MessageChain, member: Me
     # 如果列表为空
     if "size" not in r_fun:
         await app.sendGroupMessage(group, MessageChain.create([
-            Plain(f"API 访问错误"),
+            Plain("API 访问错误"),
         ]))
     elif r_fun["size"] == 0:
         await app.sendGroupMessage(group, MessageChain.create([
-            Plain(f"未找到相应词条：{say_name}"),
+            Plain("未找到相应词条：{say_name}"),
         ]))
     else:
         # 循环 “data” 内所有项目
@@ -84,7 +82,7 @@ async def fun_dict(app: Ariadne, group: Group, message: MessageChain, member: Me
                     tags.append(t["name"])
                     tag_num = tag_num + 1
                 if tag_num != 0:
-                    r_fun_tags = f"标签：" + " | ".join(tags)
+                    r_fun_tags = "标签：" + " | ".join(tags)
                 msg_text = f"词条：{r_fun_title}\n{r_fun_tags}\n----------------------\n{r_fun_text}\n"
                 msg_chain = [Plain(msg_text)]
                 # 循环添加图片
@@ -105,7 +103,7 @@ async def fun_dict(app: Ariadne, group: Group, message: MessageChain, member: Me
                 n += 1
             await app.sendGroupMessage(str(group.id), MessageChain.create([
                 Plain(f"未找到相应词条：{say_name}"),
-                Plain(f"\n你可能要找？\n --->" + "\n --->".join(r_fun_titles)),
-                Plain(f"\n数据来源为小鸡词典\nhttps://jikipedia.com/"),
-                Plain(f"\n如果发现任何有问题的词条，与本bot无关，请前往小鸡词典官网反馈。")
+                Plain("\n你可能要找？\n --->" + "\n --->".join(r_fun_titles)),
+                Plain("\n数据来源为小鸡词典\nhttps://jikipedia.com/"),
+                Plain("\n如果发现任何有问题的词条，与本bot无关，请前往小鸡词典官网反馈。")
             ]))

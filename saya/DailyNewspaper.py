@@ -3,7 +3,6 @@ import httpx
 import random
 import asyncio
 
-from io import BytesIO
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.model import Friend
@@ -15,6 +14,7 @@ from graia.scheduler.saya.schema import SchedulerSchema
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.literature import Literature
 
+from util.control import Permission
 from config import yaml_data, group_data
 
 saya = Saya.current()
@@ -25,13 +25,14 @@ channel = Channel.current()
 async def something_scheduled(app: Ariadne):
     if yaml_data['Saya']['DailyNewspaper']['Disabled']:
         return
-    await send(app=app)
+    await send(app)
 
 
-@channel.use(ListenerSchema(listening_events=[FriendMessage], inline_dispatchers=[Literature("发送早报")]))
+@channel.use(ListenerSchema(listening_events=[FriendMessage],
+                            inline_dispatchers=[Literature("发送早报")],
+                            decorators=[Permission.require(Permission.MASTER)]))
 async def main(app: Ariadne, friend: Friend):
-    if friend.id == yaml_data['Basic']['Permission']['Master']:
-        await send(app=app)
+    await send(app)
 
 
 async def send(app: Ariadne):
@@ -56,7 +57,7 @@ async def send(app: Ariadne):
             await asyncio.sleep(3)
     else:
         return await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
-            Plain(f"日报加载失败，请稍后手动重试")
+            Plain("日报加载失败，请稍后手动重试")
         ]))
     await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
         Image(data_bytes=paperimg)

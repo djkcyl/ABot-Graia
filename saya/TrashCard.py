@@ -11,8 +11,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.element import Source, Plain, Image, At
 
 from config import yaml_data
-from util.limit import member_limit_check
-from util.UserBlock import group_black_list_block
+from util.control import Permission, Interval
 
 saya = Saya.current()
 channel = Channel.current()
@@ -20,7 +19,7 @@ channel = Channel.current()
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("我是废物")],
-                            decorators=[member_limit_check(5), group_black_list_block()]))
+                            decorators=[Permission.require(), Interval.require()]))
 async def trashCard(app: Ariadne, group: Group, member: Member, source: Source):
     if yaml_data['Saya']['TrashCard']['Disabled']:
         return

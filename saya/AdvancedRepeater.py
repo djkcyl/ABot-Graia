@@ -8,7 +8,7 @@ from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.element import At, Plain, Quote, Source
 
-from config import yaml_data
+from util.control import Permission
 
 
 saya = Saya.current()
@@ -28,37 +28,37 @@ MESSAGEID = {
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            inline_dispatchers=[Literature("/rep")]))
-async def main(app: Ariadne, group: Group, member: Member, message: MessageChain):
+                            inline_dispatchers=[Literature("/rep")],
+                            decorators=[Permission.require(Permission.MASTER)]))
+async def main(app: Ariadne, group: Group, message: MessageChain):
 
     global REPEATER
 
-    if member.id == yaml_data['Basic']['Permission']['Master']:
-        if message.asDisplay().split()[1] == "on":
-            if REPEATER["statu"]:
-                repid = REPEATER["member"].id
-                return await app.sendGroupMessage(group, MessageChain.create([
-                    Plain(f"复读机当前为开启状态\n正在复读的用户：{repid}")
-                ]))
-            else:
-                REPEATER["statu"] = True
-                REPEATER["group"] = group.id
-                REPEATER["member"] = message.getFirst(At).target
-                return await app.sendGroupMessage(group, MessageChain.create([
-                    Plain(f"复读机开始工作")
-                ]))
-        elif message.asDisplay().split()[1] == "off":
-            if REPEATER["statu"]:
-                REPEATER["statu"] = False
-                REPEATER["group"] = None
-                REPEATER["member"] = None
-                return await app.sendGroupMessage(group, MessageChain.create([
-                    Plain(f"复读机已关闭")
-                ]))
-            else:
-                return await app.sendGroupMessage(group, MessageChain.create([
-                    Plain(f"复读机当前未开启")
-                ]))
+    if message.asDisplay().split()[1] == "on":
+        if REPEATER["statu"]:
+            repid = REPEATER["member"].id
+            return await app.sendGroupMessage(group, MessageChain.create([
+                Plain(f"复读机当前为开启状态\n正在复读的用户：{repid}")
+            ]))
+        else:
+            REPEATER["statu"] = True
+            REPEATER["group"] = group.id
+            REPEATER["member"] = message.getFirst(At).target
+            return await app.sendGroupMessage(group, MessageChain.create([
+                Plain("复读机开始工作")
+            ]))
+    elif message.asDisplay().split()[1] == "off":
+        if REPEATER["statu"]:
+            REPEATER["statu"] = False
+            REPEATER["group"] = None
+            REPEATER["member"] = None
+            return await app.sendGroupMessage(group, MessageChain.create([
+                Plain("复读机已关闭")
+            ]))
+        else:
+            return await app.sendGroupMessage(group, MessageChain.create([
+                Plain("复读机当前未开启")
+            ]))
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
@@ -72,7 +72,7 @@ async def rep(app: Ariadne, group: Group, member: Member, message: MessageChain,
 
 
 @channel.use(ListenerSchema(listening_events=[GroupRecallEvent]))
-async def rep(app: Ariadne, event: GroupRecallEvent):
+async def rep_recal(app: Ariadne, event: GroupRecallEvent):
 
     if REPEATER["statu"] and REPEATER["group"] == event.group.id:
         if event.messageId in MESSAGEID["origin"]:

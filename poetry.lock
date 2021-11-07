@@ -200,14 +200,13 @@ reference = "tsinghua"
 
 [[package]]
 name = "croniter"
-version = "0.3.37"
+version = "1.0.15"
 description = "croniter provides iteration for datetime object with cron like format"
 category = "main"
 optional = false
 python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
 [package.dependencies]
-natsort = "*"
 python-dateutil = "*"
 
 [package.source]
@@ -327,7 +326,7 @@ reference = "tsinghua"
 
 [[package]]
 name = "graia-ariadne"
-version = "0.3.4"
+version = "0.3.8.1"
 description = "An elegant mirai-api-http v2 Python SDK."
 category = "main"
 optional = false
@@ -378,24 +377,29 @@ reference = "tsinghua"
 
 [[package]]
 name = "graia-scheduler"
-version = "0.0.4"
+version = "0.0.6"
 description = "a scheduler for graia framework"
 category = "main"
 optional = false
-python-versions = ">=3.6,<4.0"
+python-versions = "^3.7"
+develop = false
 
 [package.dependencies]
-croniter = ">=0.3.36,<0.4.0"
-graia-broadcast = ">=0.7.0"
+croniter = "^1.0.0"
+graia-broadcast = ">=0.12.1"
+
+[package.extras]
+saya = []
 
 [package.source]
-type = "legacy"
-url = "https://pypi.tuna.tsinghua.edu.cn/simple"
-reference = "tsinghua"
+type = "git"
+url = "https://github.com/djkcyl/Scheduler"
+reference = "master"
+resolved_reference = "3598de5fda46618a0fd8642688b9f0143f420ab5"
 
 [[package]]
 name = "graiax-silkcoder"
-version = "0.0.18"
+version = "0.0.19"
 description = "transform audio file to silk"
 category = "main"
 optional = false
@@ -701,23 +705,6 @@ description = "multidict implementation"
 category = "main"
 optional = false
 python-versions = ">=3.6"
-
-[package.source]
-type = "legacy"
-url = "https://pypi.tuna.tsinghua.edu.cn/simple"
-reference = "tsinghua"
-
-[[package]]
-name = "natsort"
-version = "7.1.1"
-description = "Simple yet flexible natural sorting in Python."
-category = "main"
-optional = false
-python-versions = ">=3.4"
-
-[package.extras]
-fast = ["fastnumbers (>=2.0.0)"]
-icu = ["PyICU (>=1.0.0)"]
 
 [package.source]
 type = "legacy"
@@ -1483,7 +1470,7 @@ reference = "tsinghua"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.9,<3.10"
-content-hash = "02f17ccc65211abf8acd86cf9d26b2e57a4e2659089e1474474cf08c13e05909"
+content-hash = "8acc38340bfc04ed176d8ce03de6b885a519e47175526a31cc1bd904f7e19612"
 
 [metadata.files]
 aiohttp = [
@@ -1584,8 +1571,8 @@ colorama = [
     {file = "colorama-0.4.4.tar.gz", hash = "sha256:5941b2b48a20143d2267e95b1c2a7603ce057ee39fd88e7329b0c292aa16869b"},
 ]
 croniter = [
-    {file = "croniter-0.3.37-py2.py3-none-any.whl", hash = "sha256:8f573a889ca9379e08c336193435c57c02698c2dd22659cdbe04fee57426d79b"},
-    {file = "croniter-0.3.37.tar.gz", hash = "sha256:12ced475dfc107bf7c6c1440af031f34be14cd97bbbfaf0f62221a9c11e86404"},
+    {file = "croniter-1.0.15-py2.py3-none-any.whl", hash = "sha256:0f97b361fe343301a8f66f852e7d84e4fb7f21379948f71e1bbfe10f5d015fbd"},
+    {file = "croniter-1.0.15.tar.gz", hash = "sha256:a70dfc9d52de9fc1a886128b9148c89dd9e76b67d55f46516ca94d2d73d58219"},
 ]
 cycler = [
     {file = "cycler-0.11.0-py3-none-any.whl", hash = "sha256:3a27e95f763a428a739d2add979fa7494c912a32c17c4c38c4d5f082cad165a3"},
@@ -1615,8 +1602,8 @@ func-timeout = [
     {file = "func_timeout-4.3.5.tar.gz", hash = "sha256:74cd3c428ec94f4edfba81f9b2f14904846d5ffccc27c92433b8b5939b5575dd"},
 ]
 graia-ariadne = [
-    {file = "graia-ariadne-0.3.4.tar.gz", hash = "sha256:87f078f856ef4a32881d93a309db65814e00cfcbe87263af34815440a993c7b1"},
-    {file = "graia_ariadne-0.3.4-py3-none-any.whl", hash = "sha256:91e86817f04d96cbf8d50746daab9bc8014f7b656eddcbf55a5bbd6e77032b28"},
+    {file = "graia-ariadne-0.3.8.1.tar.gz", hash = "sha256:40c17e5ad5ff62e92ca9183b43ef3d7da35c83b1184f91ab4f23805e0875072a"},
+    {file = "graia_ariadne-0.3.8.1-py3-none-any.whl", hash = "sha256:ab5235a6212bad7676185401565de11cb2b53369569e22490bf40a5a55ca3422"},
 ]
 graia-broadcast = [
     {file = "graia-broadcast-0.13.1.tar.gz", hash = "sha256:a22d2678a1946f9084a5f29c469c3c631e039e60dbefd52d683294db998cb075"},
@@ -1626,13 +1613,15 @@ graia-saya = [
     {file = "graia-saya-0.0.13.tar.gz", hash = "sha256:07b4fe4c5e9b82212b63207e6264f5fa296375bdebeb6e972f50eb5825d52547"},
     {file = "graia_saya-0.0.13-py3-none-any.whl", hash = "sha256:9ffcef9b5ed17c1032d77e199b9718c05b41b76c12888a368a0d234b0771b91c"},
 ]
-graia-scheduler = [
-    {file = "graia-scheduler-0.0.4.tar.gz", hash = "sha256:08ddcba08ac74ff1834ba2b028b8990389c4d47937914abb01077cd25b645d34"},
-    {file = "graia_scheduler-0.0.4-py3-none-any.whl", hash = "sha256:142792d9e296a1625886bbd8aa070d2cb4dbb7f008db83c6932d82e35918bdd5"},
-]
+graia-scheduler = []
 graiax-silkcoder = [
-    {file = "graiax-silkcoder-0.0.18.tar.gz", hash = "sha256:2fb1d1f798c5af82dead47859e73e196e983e91fd36115be0b477ba42bba1a5c"},
-    {file = "graiax_silkcoder-0.0.18-cp39-cp39-win_amd64.whl", hash = "sha256:d5a943f41e36be7110f90c7ae7cd26c7f3471f1cfba6b53538a9c7c9a83e05a8"},
+    {file = "graiax-silkcoder-0.0.19.tar.gz", hash = "sha256:9a5b48a53db9452e5826a6c45e16480e1057afeb84783d856dad722195d4d155"},
+    {file = "graiax_silkcoder-0.0.19-cp310-cp310-win32.whl", hash = "sha256:a0f8c162cc8637c66e53a758a0336758c4575a6204280f2e80f4547bbac9320c"},
+    {file = "graiax_silkcoder-0.0.19-cp310-cp310-win_amd64.whl", hash = "sha256:64a4dc008e9cd871500c57cf96a522910ff1ba2b3843e5da010f5634033df3f3"},
+    {file = "graiax_silkcoder-0.0.19-cp38-cp38-win32.whl", hash = "sha256:f82a6d0133d56acc99cf51618d659866a30be8fd4e4de4361446f48cf51ac6b7"},
+    {file = "graiax_silkcoder-0.0.19-cp38-cp38-win_amd64.whl", hash = "sha256:414e2b4cecdfa943c173d003a21f19532590f8dd6ed233b3c1ad1c6b6cf0b201"},
+    {file = "graiax_silkcoder-0.0.19-cp39-cp39-win32.whl", hash = "sha256:236d35c46075726165125b91607789bc93cc740c336929f481d4595728be8868"},
+    {file = "graiax_silkcoder-0.0.19-cp39-cp39-win_amd64.whl", hash = "sha256:57360ad26785d87ee9d8ff7e7cd109a594ae48dd61566767ae3cc22573b5e314"},
 ]
 greenlet = [
     {file = "greenlet-1.1.2-cp27-cp27m-macosx_10_14_x86_64.whl", hash = "sha256:58df5c2a0e293bf665a51f8a100d3e9956febfbf1d9aaf8c0677cf70218910c6"},
@@ -1945,10 +1934,6 @@ multidict = [
     {file = "multidict-5.2.0-cp39-cp39-win32.whl", hash = "sha256:1c7976cd1c157fa7ba5456ae5d31ccdf1479680dc9b8d8aa28afabc370df42b8"},
     {file = "multidict-5.2.0-cp39-cp39-win_amd64.whl", hash = "sha256:c9631c642e08b9fff1c6255487e62971d8b8e821808ddd013d8ac058087591ac"},
     {file = "multidict-5.2.0.tar.gz", hash = "sha256:0dd1c93edb444b33ba2274b66f63def8a327d607c6c790772f448a53b6ea59ce"},
-]
-natsort = [
-    {file = "natsort-7.1.1-py3-none-any.whl", hash = "sha256:d0f4fc06ca163fa4a5ef638d9bf111c67f65eedcc7920f98dec08e489045b67e"},
-    {file = "natsort-7.1.1.tar.gz", hash = "sha256:00c603a42365830c4722a2eb7663a25919551217ec09a243d3399fa8dd4ac403"},
 ]
 networkx = [
     {file = "networkx-2.6.3-py3-none-any.whl", hash = "sha256:80b6b89c77d1dfb64a4c7854981b60aeea6360ac02c6d4e4913319e0a313abef"},

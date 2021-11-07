@@ -2,8 +2,6 @@ import os
 import yaml
 import json
 
-from pathlib import Path
-
 
 class NoAliasDumper(yaml.SafeDumper):
     def ignore_aliases(self, data):
@@ -23,11 +21,6 @@ else:
         file_data = f.read()
     yaml_data = yaml.load(file_data, Loader=yaml.FullLoader)
 
-MIRAI_PATH = Path(yaml_data["Basic"]["MiraiPath"])
-VIOCE_PATH = MIRAI_PATH.joinpath("data", "net.mamoe.mirai-api-http", "voices")
-# if not VIOCE_PATH.exists():
-#     print(f"{VIOCE_PATH} 不存在，请修改配置文件中的 Basic-MiraiPath 为Mirai的根目录")
-#     exit()
 
 if os.path.exists('groupdata.json'):
     with open('groupdata.json', 'r', encoding="utf-8") as f:

@@ -8,7 +8,6 @@ from graiax import silkcoder
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.model import Member, Group
-from concurrent.futures import ThreadPoolExecutor
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import Plain, Voice, Source
@@ -18,15 +17,11 @@ from azure.cognitiveservices.speech import AudioDataStream, SpeechConfig, Speech
 
 
 from database.db import reduce_gold
-from util.limit import member_limit_check
-from util.RestControl import rest_control
-from util.UserBlock import group_black_list_block
-from config import yaml_data, group_data, VIOCE_PATH
+from config import yaml_data, group_data
+from util.control import Permission, Interval, Rest
 
 saya = Saya.current()
 channel = Channel.current()
-
-TTSRUNING = False
 
 BASEPATH = Path(__file__).parent.joinpath("temp")
 BASEPATH.mkdir(exist_ok=True)
@@ -34,7 +29,7 @@ BASEPATH.mkdir(exist_ok=True)
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("/tts")],
-                            decorators=[rest_control(), member_limit_check(40), group_black_list_block()]))
+                            decorators=[Rest.rest_control(), Permission.require(), Interval.require(60)]))
 async def azuretts(app: Ariadne, group: Group, member: Member, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['AzureTTS']['Disabled']:
@@ -101,21 +96,13 @@ async def azuretts(app: Ariadne, group: Group, member: Member, message: MessageC
     if not await reduce_gold(str(member.id), 2):
         return await app.sendGroupMessage(group, MessageChain.create([Plain("你的游戏币不足，无法请求语音")]), quote=source.id)
 
-    if TTSRUNING:
-        return app.sendGroupMessage(group, MessageChain.create([Plain("当前tts队列已满，请等待")]), quote=source.id)
-
     if len(saying[3]) < 800:
         times = str(int(time.time() * 100))
         voicefile = BASEPATH.joinpath(f"{times}.wav")
-
-        loop = asyncio.get_event_loop()
-        pool = ThreadPoolExecutor(5)
-        await loop.run_in_executor(pool, gettts, name, style, saying[3], voicefile.__str__())
-        cache = VIOCE_PATH.joinpath(times)
-        cache.write_bytes(await silkcoder.encode(voicefile.read_bytes(), rate=100000))
-        await app.sendGroupMessage(group, MessageChain.create([Voice(path=times)]))
+        await asyncio.to_thread(gettts, name, style, saying[3], voicefile.__str__())
+        vioce_bytes = await silkcoder.encode(voicefile.read_bytes())
+        await app.sendGroupMessage(group, MessageChain.create([Voice(data_bytes=vioce_bytes)]))
         voicefile.unlink()
-        cache.unlink()
     else:
         await app.sendGroupMessage(group, MessageChain.create([Plain("文字过长，仅支持600字以内")]))
 

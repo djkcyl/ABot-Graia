@@ -8,10 +8,8 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.literature import Literature
 
 from config import yaml_data, group_data
-from util.RestControl import rest_control
-from util.limit import member_limit_check
-from util.UserBlock import group_black_list_block
 from util.TextModeration import text_moderation
+from util.control import Permission, Interval, Rest
 
 from .beast import encode, decode
 
@@ -22,7 +20,7 @@ channel = Channel.current()
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("嗷")],
-                            decorators=[rest_control(), member_limit_check(15), group_black_list_block()]))
+                            decorators=[Rest.rest_control(), Permission.require(), Interval.require()]))
 async def main_encode(app: Ariadne, group: Group, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['Beast']['Disabled']:
@@ -44,7 +42,7 @@ async def main_encode(app: Ariadne, group: Group, message: MessageChain, source:
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("呜")],
-                            decorators=[rest_control(), member_limit_check(15), group_black_list_block()]))
+                            decorators=[Rest.rest_control(), Permission.require(), Interval.require()]))
 async def main_decode(app: Ariadne, group: Group, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['Beast']['Disabled']:

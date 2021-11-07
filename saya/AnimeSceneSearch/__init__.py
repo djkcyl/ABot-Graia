@@ -16,8 +16,7 @@ from graia.ariadne.event.message import FriendMessage, GroupMessage
 
 from database.db import reduce_gold
 from config import yaml_data, group_data
-from util.limit import member_limit_check
-from util.UserBlock import group_black_list_block
+from util.control import Permission, Interval
 
 from .draw import draw_tracemoe
 
@@ -70,7 +69,7 @@ saucenao_usage = None
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("以图搜番")],
-                            decorators=[member_limit_check(30), group_black_list_block()]))
+                            decorators=[Permission.require(), Interval.require()]))
 async def anime_search(app: Ariadne, group: Group, member: Member, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['AnimeSceneSearch']['Disabled']:
@@ -172,7 +171,7 @@ async def anime_search(app: Ariadne, group: Group, member: Member, message: Mess
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("以图搜图")],
-                            decorators=[member_limit_check(30), group_black_list_block()]))
+                            decorators=[Permission.require(), Interval.require()]))
 async def saucenao(app: Ariadne, group: Group, member: Member, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['AnimeSceneSearch']['Disabled']:

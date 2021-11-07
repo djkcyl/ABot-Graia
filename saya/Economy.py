@@ -4,21 +4,32 @@ from graia.ariadne.model import Group, Member
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import At, Plain, Source
-from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
+from graia.ariadne.message.parser.twilight import Sparkle, Twilight
+from graia.ariadne.message.parser.pattern import FullMatch, RegexMatch
 
 from config import yaml_data, group_data
-from util.limit import member_limit_check
-from util.UserBlock import group_black_list_block
+from util.control import Permission, Interval
 from database.db import reduce_gold, add_gold
 
 saya = Saya.current()
 channel = Channel.current()
 
 
+class Sparkle1(Sparkle):
+    perfix = FullMatch("赠送游戏币")
+    space1 = FullMatch(" ", optional=True)
+    any1 = RegexMatch(".*", optional=True)
+    space2 = FullMatch(" ", optional=True)
+    any2 = RegexMatch(".*", optional=True)
+
+
+twilight = Twilight(Sparkle1)
+
+
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            inline_dispatchers=[Literature("赠送游戏币")],
-                            decorators=[member_limit_check(5), group_black_list_block()]))
+                            inline_dispatchers=[twilight],
+                            decorators=[Permission.require(), Interval.require(5)]))
 async def adminmain(app: Ariadne, group: Group, member: Member, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['Entertainment']['Disabled']:
@@ -26,7 +37,7 @@ async def adminmain(app: Ariadne, group: Group, member: Member, message: Message
     elif 'Entertainment' in group_data[str(group.id)]['DisabledFunc']:
         return
 
-    saying = message.asDisplay().split()
+    saying: Sparkle1 = twilight.gen_sparkle(message)
 
     if not message.has(At):
         await app.sendGroupMessage(group, MessageChain.create([
@@ -38,25 +49,25 @@ async def adminmain(app: Ariadne, group: Group, member: Member, message: Message
             return await app.sendGroupMessage(group, MessageChain.create([
                 Plain("请勿向自己赠送")
             ]), quote=source.id)
-        try:
-            num = int(saying[2])
+
+        if saying.any2.matched:
+            num = int(saying.any2.result.getFirst(Plain).text.strip())
             if not 0 < num <= 1000:
                 return await app.sendGroupMessage(group, MessageChain.create([
                     Plain("请输入 1-1000 以内的金额")
                 ]), quote=source.id)
-        except:
+            elif await reduce_gold(str(member.id), num):
+                await add_gold(to, num)
+                await app.sendGroupMessage(group, MessageChain.create([
+                    Plain("你已成功向 "),
+                    At(int(to)),
+                    Plain(f" 赠送 {num} 个游戏币")
+                ]), quote=source.id)
+            else:
+                await app.sendGroupMessage(group, MessageChain.create([
+                    Plain("你的游戏币不足，无法赠送")
+                ]), quote=source.id)
+        else:
             return await app.sendGroupMessage(group, MessageChain.create([
                 Plain("请输入需要赠送的金额")
-            ]), quote=source.id)
-
-        if await reduce_gold(str(member.id), num):
-            await add_gold(to, num)
-            await app.sendGroupMessage(group, MessageChain.create([
-                Plain("你已成功向 "),
-                At(int(to)),
-                Plain(f" 赠送 {num} 个游戏币")
-            ]), quote=source.id)
-        else:
-            await app.sendGroupMessage(group, MessageChain.create([
-                Plain("你的游戏币不足，无法赠送")
             ]), quote=source.id)

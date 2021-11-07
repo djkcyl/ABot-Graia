@@ -9,6 +9,7 @@ from graia.ariadne.message.element import Plain, Image
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 from config import yaml_data, group_data
+from util.control import Interval, Permission
 
 
 saya = Saya.current()
@@ -19,7 +20,8 @@ inc = InterruptControl(bcc)
 HOME = Path(__file__).parent
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage]))
+@channel.use(ListenerSchema(listening_events=[GroupMessage],
+                            decorators=[Permission.require(), Interval.require(3, silent=True)]))
 async def az(app: Ariadne, group: Group, message: MessageChain):
 
     if yaml_data['Saya']['Message']['Disabled']:

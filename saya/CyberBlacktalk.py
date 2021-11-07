@@ -11,9 +11,7 @@ from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 from config import yaml_data, group_data
-from util.limit import member_limit_check
-from util.RestControl import rest_control
-from util.UserBlock import group_black_list_block
+from util.control import Permission, Interval, Rest
 
 saya = Saya.current()
 channel = Channel.current()
@@ -21,8 +19,8 @@ channel = Channel.current()
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("你在说什么")],
-                            decorators=[rest_control(), member_limit_check(30), group_black_list_block()]))
-async def what_are_you_saying(app: Ariadne, group: Group, member: Member, message: MessageChain):  # 你在说什么
+                            decorators=[Rest.rest_control(), Permission.require(), Interval.require()]))
+async def what_are_you_saying(app: Ariadne, group: Group, member: Member, message: MessageChain):
 
     if yaml_data['Saya']['CyberBlacktalk']['Disabled']:
         return
@@ -31,7 +29,7 @@ async def what_are_you_saying(app: Ariadne, group: Group, member: Member, messag
 
     saying = message.asDisplay().split(" ", 1)
     if len(saying) != 2:
-        return await app.sendGroupMessage(group, MessageChain.create([Plain(f"用法：你在说什么 <需要翻译的简写>")]))
+        return await app.sendGroupMessage(group, MessageChain.create([Plain("用法：你在说什么 <需要翻译的简写>")]))
     api_url = "https://lab.magiconch.com/api/nbnhhsh/guess"
     api_data = {"text": saying[1]}
     api_headers = {
@@ -43,7 +41,7 @@ async def what_are_you_saying(app: Ariadne, group: Group, member: Member, messag
     ta = translation.text
     tb = json.loads(ta)
     if len(tb) == 0:
-        return await app.sendGroupMessage(group, MessageChain.create([Plain(f"用法：你在说什么 <需要翻译的简写>")]))
+        return await app.sendGroupMessage(group, MessageChain.create([Plain("用法：你在说什么 <需要翻译的简写>")]))
 
     msg = [At(member.id)]
     for dict in tb:
@@ -56,6 +54,6 @@ async def what_are_you_saying(app: Ariadne, group: Group, member: Member, messag
             tc = dict["inputting"]
             msg.append(Plain(f"\n===================\n{name} 可能是：\n  > " + "\n  > ".join(tc)))
         else:
-            msg.append(Plain(f"未收录该条目"))
+            msg.append(Plain("未收录该条目"))
 
     await app.sendGroupMessage(group, MessageChain.create(msg))

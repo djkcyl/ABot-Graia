@@ -7,10 +7,8 @@ from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 
-from util.limit import group_limit_check
 from config import yaml_data, group_data
-from util.RestControl import rest_control
-from util.UserBlock import group_black_list_block
+from util.control import Permission, Interval, Rest
 
 from .setu import create_setu
 
@@ -20,7 +18,7 @@ channel = Channel.current()
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("色图")],
-                            decorators=[group_limit_check(5), rest_control(), group_black_list_block()]))
+                            decorators=[Rest.rest_control(), Permission.require(), Interval.require()]))
 async def main(app: Ariadne, group: Group):
 
     if yaml_data['Saya']['Setu']['Disabled']:

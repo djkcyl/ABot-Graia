@@ -49,8 +49,7 @@ def circle_corner(img, radii):
     alpha = Image.new('L', img.size, 255)
     alpha.paste(circle.crop((0, 0, radii, radii)), (0, 0))
     alpha.paste(circle.crop((radii, 0, radii * 2, radii)), (w - radii, 0))
-    alpha.paste(circle.crop((radii, radii, radii * 2, radii * 2)),
-                (w - radii, h - radii))
+    alpha.paste(circle.crop((radii, radii, radii * 2, radii * 2)), (w - radii, h - radii))
     alpha.paste(circle.crop((0, radii, radii, radii * 2)), (0, h - radii))
     img.putalpha(alpha)
     return img

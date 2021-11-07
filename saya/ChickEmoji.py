@@ -10,9 +10,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.literature import Literature
 
 from config import yaml_data, group_data
-from util.limit import member_limit_check
-from util.RestControl import rest_control
-from util.UserBlock import group_black_list_block
+from util.control import Permission, Interval, Rest
 
 saya = Saya.current()
 channel = Channel.current()
@@ -20,7 +18,7 @@ channel = Channel.current()
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("emoji")],
-                            decorators=[rest_control(), member_limit_check(5), group_black_list_block()]))
+                            decorators=[Rest.rest_control(), Permission.require(), Interval.require(30)]))
 async def fun_dict(app: Ariadne, group: Group, message: MessageChain, member: Member):
 
     if yaml_data['Saya']['ChickEmoji']['Disabled']:
@@ -41,7 +39,6 @@ async def fun_dict(app: Ariadne, group: Group, message: MessageChain, member: Me
     async with httpx.AsyncClient as client:
         r = await client.post(api_url, json=api_data, headers=api_headers)
     emoji = r.json()
-    # print(emoji)
     await app.sendGroupMessage(str(group.id), MessageChain.create([
         At(member.id),
         Plain("\n" + emoji["translation"])

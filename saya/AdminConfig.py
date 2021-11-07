@@ -1,18 +1,19 @@
 import time
+from graia.ariadne.message.parser.pattern import RegexMatch
 
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
+from graia.ariadne.model import Group
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.event.message import GroupMessage
-from graia.ariadne.model import Group, Member, MemberPerm
 from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.element import Quote, At, Plain, Image
+from graia.ariadne.message.parser.twilight import Twilight, Sparkle
 
 
-from util.limit import manual_limit
 from util.text2image import create_image
-from util.UserBlock import group_black_list_block
+from util.control import Permission, Interval
 from config import save_config, yaml_data, group_data
 
 saya = Saya.current()
@@ -270,7 +271,7 @@ funcHelp = {
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            decorators=[group_black_list_block()]))
+                            decorators=[Permission.require()]))
 async def atrep(app: Ariadne, group: Group, message: MessageChain):
     if message.has(At):
         ifa = message.get(At)[0].target == yaml_data['Basic']['MAH']['BotQQ']
@@ -280,7 +281,6 @@ async def atrep(app: Ariadne, group: Group, message: MessageChain):
     ifasdisplay = message.asDisplay().replace(" ", "") == f"@{yaml_data['Basic']['MAH']['BotQQ']}"
     # 判断是否为空消息，判断是否at，判断是否回复
     if ifa and ifasdisplay and ifquote:
-        manual_limit(group.id, "Help", 3)
         now_localtime = time.strftime("%H:%M:%S", time.localtime())
         if "00:00:00" < now_localtime < "07:30:00":
             msg = Plain("Zzzzzz~")
@@ -304,10 +304,9 @@ async def atrep(app: Ariadne, group: Group, message: MessageChain):
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("功能")],
-                            decorators=[group_black_list_block()]))
+                            decorators=[Permission.require(), Interval.require(5)]))
 async def funchelp(app: Ariadne, group: Group, message: MessageChain):
     saying = message.asDisplay().split()
-    manual_limit(group.id, "Help", 3)
     if len(saying) == 2:
         sayfunc = funcList[int(saying[1]) - 1]['name']
         funckey = funcList[int(saying[1]) - 1]['key']
@@ -332,91 +331,82 @@ async def funchelp(app: Ariadne, group: Group, message: MessageChain):
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            decorators=[group_black_list_block()]))
-async def help(app: Ariadne, group: Group, message: MessageChain):
-    if message.asDisplay() in [".help", "/help", "help", "帮助", "菜单"]:
-        manual_limit(group.id, "Help", 3)
-        msg = f"{yaml_data['Basic']['BotName']} 群菜单 / {str(group.id)}\n{group.name}\n========================================================"
-        i = 1
-        for func in funcList:
-            funcname = func["name"]
-            funckey = func["key"]
-            funcGlobalDisabled = yaml_data["Saya"][funckey]["Disabled"]
-            funcGroupDisabledList = func["key"] in group_data[str(group.id)]["DisabledFunc"]
-            if funcGlobalDisabled:
-                statu = "【全局关闭】"
-            elif funcGroupDisabledList:
-                statu = "【  关闭  】"
-            else:
-                statu = "            "
-            if i < 10:
-                si = " " + str(i)
-            else:
-                si = str(i)
-            msg += f"\n{si}  {statu}  {funcname}"
-            i += 1
-        msg += str("\n========================================================" +
-                   "\n管理员可发送 开启功能/关闭功能 <id>，例如：关闭功能 1" +
-                   "\n详细查看功能使用方法请发送 功能 <id>，例如：功能 1" +
-                   "\n管理员可发送 开启功能/关闭功能 <功能id> " +
-                   "\n每日00:00至07:30为休息时间，将关闭大部分功能" +
-                   "\n所有功能均无需@机器人本身" +
-                   "\n方舟玩家可以加个好友，[官服 A60#6660]" +
-                   "\n源码：github.com/djkcyl/ABot-Graia" +
-                   f"\n更多功能待开发，如有特殊需求可以向 {yaml_data['Basic']['Permission']['Master']} 询问")
-        image = await create_image(msg, 80)
-        await app.sendGroupMessage(group, MessageChain.create([Image(data_bytes=image)]))
+                            inline_dispatchers=[Twilight(Sparkle([RegexMatch(r'^[。./]?help$|^帮助$|^菜单$')]))],
+                            decorators=[Permission.require()]))
+async def help(app: Ariadne, group: Group):
+    msg = f"{yaml_data['Basic']['BotName']} 群菜单 / {str(group.id)}\n{group.name}\n========================================================"
+    i = 1
+    for func in funcList:
+        funcname = func["name"]
+        funckey = func["key"]
+        funcGlobalDisabled = yaml_data["Saya"][funckey]["Disabled"]
+        funcGroupDisabledList = func["key"] in group_data[str(group.id)]["DisabledFunc"]
+        if funcGlobalDisabled:
+            statu = "【全局关闭】"
+        elif funcGroupDisabledList:
+            statu = "【  关闭  】"
+        else:
+            statu = "            "
+        if i < 10:
+            si = " " + str(i)
+        else:
+            si = str(i)
+        msg += f"\n{si}  {statu}  {funcname}"
+        i += 1
+    msg += str("\n========================================================" +
+               "\n管理员可发送 开启功能/关闭功能 <id>，例如：关闭功能 1" +
+               "\n详细查看功能使用方法请发送 功能 <id>，例如：功能 1" +
+               "\n管理员可发送 开启功能/关闭功能 <功能id> " +
+               "\n每日00:00至07:30为休息时间，将关闭大部分功能" +
+               "\n所有功能均无需@机器人本身" +
+               "\n方舟玩家可以加个好友，[官服 A60#6660]" +
+               "\n源码：github.com/djkcyl/ABot-Graia" +
+               f"\n更多功能待开发，如有特殊需求可以向 {yaml_data['Basic']['Permission']['Master']} 询问")
+    image = await create_image(msg, 80)
+    await app.sendGroupMessage(group, MessageChain.create([Image(data_bytes=image)]))
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("开启功能")],
-                            decorators=[group_black_list_block()]))
-async def on_func(app: Ariadne, group: Group, member: Member, message: MessageChain):
-    manual_limit(group.id, "FuncConfig", 2)
-    if member.permission in [MemberPerm.Administrator, MemberPerm.Owner] or member.id in yaml_data['Basic']['Permission']['Admin']:
-        saying = message.asDisplay().split()
-        sayfunc = int(saying[1]) - 1
-        func = funcList[sayfunc]
-        funcname = func["name"]
-        funckey = func["key"]
-        funcGlobalDisabled = yaml_data["Saya"][funckey]["Disabled"]
-        funcGroupDisabled = func["key"] in group_data[str(group.id)]["DisabledFunc"]
-        funcDisabledList = group_data[str(group.id)]["DisabledFunc"]
-        if funcGlobalDisabled:
-            await app.sendGroupMessage(group, MessageChain.create([Plain(f"{funcname}当前处于全局禁用状态")]))
-        elif funcGroupDisabled:
-            funcDisabledList.remove(funckey)
-            group_data[str(group.id)]["DisabledFunc"] = funcDisabledList
-            save_config()
-            await app.sendGroupMessage(group, MessageChain.create([Plain(f"{funcname}已开启")]))
-        else:
-            await app.sendGroupMessage(group, MessageChain.create([Plain(f"{funcname}已处于开启状态")]))
+                            decorators=[Permission.require(Permission.GROUP_ADMIN), Interval.require(5)]))
+async def on_func(app: Ariadne, group: Group, message: MessageChain):
+    saying = message.asDisplay().split()
+    sayfunc = int(saying[1]) - 1
+    func = funcList[sayfunc]
+    funcname = func["name"]
+    funckey = func["key"]
+    funcGlobalDisabled = yaml_data["Saya"][funckey]["Disabled"]
+    funcGroupDisabled = func["key"] in group_data[str(group.id)]["DisabledFunc"]
+    funcDisabledList = group_data[str(group.id)]["DisabledFunc"]
+    if funcGlobalDisabled:
+        await app.sendGroupMessage(group, MessageChain.create([Plain(f"{funcname}当前处于全局禁用状态")]))
+    elif funcGroupDisabled:
+        funcDisabledList.remove(funckey)
+        group_data[str(group.id)]["DisabledFunc"] = funcDisabledList
+        save_config()
+        await app.sendGroupMessage(group, MessageChain.create([Plain(f"{funcname}已开启")]))
     else:
-        await app.sendGroupMessage(group, MessageChain.create([Plain("你没有使用该功能的权限")]))
+        await app.sendGroupMessage(group, MessageChain.create([Plain(f"{funcname}已处于开启状态")]))
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("关闭功能")],
-                            decorators=[group_black_list_block()]))
-async def off_func(app: Ariadne, group: Group, member: Member, message: MessageChain):
-    manual_limit(group.id, "FuncConfig", 2)
-    if member.permission in [MemberPerm.Administrator, MemberPerm.Owner] or member.id in yaml_data['Basic']['Permission']['Admin']:
-        saying = message.asDisplay().split()
-        sayfunc = int(saying[1]) - 1
-        func = funcList[sayfunc]
-        funcname = func["name"]
-        funckey = func["key"]
-        funcCanDisabled = func["can_disabled"]
-        funcDisabledList = group_data[str(group.id)]["DisabledFunc"]
-        funcGroupDisabled = func["key"] in funcDisabledList
-        if not funcCanDisabled:
-            await app.sendGroupMessage(group, MessageChain.create([Plain(f"{funcname}无法被关闭")]))
-        elif not funcGroupDisabled:
-            funcDisabledList.append(funckey)
-            group_data[str(group.id)]["DisabledFunc"] = funcDisabledList
-            save_config()
-            await app.sendGroupMessage(group, MessageChain.create([Plain(f"{funcname}已关闭")]))
-        else:
-            await app.sendGroupMessage(group, MessageChain.create([Plain(f"{funcname}已处于关闭状态")]))
+                            decorators=[Permission.require(Permission.GROUP_ADMIN), Interval.require(5)]))
+async def off_func(app: Ariadne, group: Group, message: MessageChain):
+    saying = message.asDisplay().split()
+    sayfunc = int(saying[1]) - 1
+    func = funcList[sayfunc]
+    funcname = func["name"]
+    funckey = func["key"]
+    funcCanDisabled = func["can_disabled"]
+    funcDisabledList = group_data[str(group.id)]["DisabledFunc"]
+    funcGroupDisabled = func["key"] in funcDisabledList
+    if not funcCanDisabled:
+        await app.sendGroupMessage(group, MessageChain.create([Plain(f"{funcname}无法被关闭")]))
+    elif not funcGroupDisabled:
+        funcDisabledList.append(funckey)
+        group_data[str(group.id)]["DisabledFunc"] = funcDisabledList
+        save_config()
+        await app.sendGroupMessage(group, MessageChain.create([Plain(f"{funcname}已关闭")]))
     else:
-        await app.sendGroupMessage(group, MessageChain.create([Plain("你没有使用该功能的权限")]))
+        await app.sendGroupMessage(group, MessageChain.create([Plain(f"{funcname}已处于关闭状态")]))

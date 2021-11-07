@@ -14,8 +14,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.element import Image, Source, Plain, At
 
 from config import yaml_data, group_data
-from util.limit import member_limit_check
-from util.UserBlock import group_black_list_block
+from util.control import Permission, Interval
 
 from .draw_record_image import AUTH, DATABASE, draw_r6
 
@@ -39,7 +38,7 @@ WAITING = []
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("查战绩", "r6")],
-                            decorators=[member_limit_check(60), group_black_list_block()]))
+                            decorators=[Permission.require, Interval.require(30)]))
 async def main(app: Ariadne, group: Group, member: Member, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['RecordQuery']['Disabled']:
@@ -74,7 +73,6 @@ async def main(app: Ariadne, group: Group, member: Member, message: MessageChain
                 ]), quote=confirm_source)
 
     saying = message.asDisplay().strip().split(" ", 2)
-    print(saying)
 
     if member.id not in WAITING:
         WAITING.append(member.id)

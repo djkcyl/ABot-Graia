@@ -8,9 +8,9 @@ import secrets
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
 from graia.scheduler.timers import crontabify
+from graia.ariadne.model import Group, Member
 from graia.broadcast.interrupt.waiter import Waiter
 from graia.ariadne.message.chain import MessageChain
-from graia.ariadne.model import Friend, Group, Member
 from graia.broadcast.interrupt import InterruptControl
 from graia.scheduler.saya.schema import SchedulerSchema
 from graia.ariadne.message.parser.literature import Literature
@@ -18,9 +18,9 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.element import At, Plain, Source, Image
 from graia.ariadne.event.message import FriendMessage, GroupMessage
 
+from util.control import Interval, Permission
 from config import yaml_data, group_data
 from database.db import add_gold, reduce_gold
-from util.UserBlock import group_black_list_block
 
 from .certification import decrypt
 from .lottery_image import qrgen, qrdecode
@@ -53,7 +53,7 @@ else:
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("购买奖券")],
-                            decorators=[group_black_list_block()]))
+                            decorators=[Permission.require()]))
 async def buy_lottery(app: Ariadne, group: Group, member: Member, source: Source):
 
     if not yaml_data['Saya']['Entertainment']['Lottery']:
@@ -89,7 +89,7 @@ async def buy_lottery(app: Ariadne, group: Group, member: Member, source: Source
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("兑换奖券")],
-                            decorators=[group_black_list_block()]))
+                            decorators=[Permission.require()]))
 async def redeem_lottery(app: Ariadne, group: Group, member: Member, source: Source):
 
     if member.id in WAITING:
@@ -177,34 +177,35 @@ async def something_scheduled(app: Ariadne):
     ]))
 
 
-@channel.use(ListenerSchema(listening_events=[FriendMessage], inline_dispatchers=[Literature("开奖")]))
-async def lo(app: Ariadne, friend: Friend):
-    if friend.id == yaml_data['Basic']['Permission']['Master']:
-        global LOTTERY
-        lottery = LOTTERY
-        lottery["period"] += 1
-        lottery_len = len(lottery["week_lottery_list"])
-        winner = secrets.choice(lottery["week_lottery_list"])
-        lottery["lastweek"] = {
-            "received": False,
-            "number": winner,
-            "len": lottery_len
-        }
-        lottery["week_lottery_list"] = []
+@channel.use(ListenerSchema(listening_events=[FriendMessage],
+                            inline_dispatchers=[Literature("开奖")],
+                            decorators=[Permission.require(Permission.MASTER)]))
+async def lo(app: Ariadne):
+    global LOTTERY
+    lottery = LOTTERY
+    lottery["period"] += 1
+    lottery_len = len(lottery["week_lottery_list"])
+    winner = secrets.choice(lottery["week_lottery_list"])
+    lottery["lastweek"] = {
+        "received": False,
+        "number": winner,
+        "len": lottery_len
+    }
+    lottery["week_lottery_list"] = []
 
-        LOTTERY = lottery
-        with open("./saya/Lottery/data.json", "w") as f:
-            json.dump(LOTTERY, f, indent=2, ensure_ascii=False)
+    LOTTERY = lottery
+    with open("./saya/Lottery/data.json", "w") as f:
+        json.dump(LOTTERY, f, indent=2, ensure_ascii=False)
 
-        await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
-            Plain("本期奖券开奖完毕，中奖号码为\n"),
-            Plain(str(winner))
-        ]))
+    await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
+        Plain("本期奖券开奖完毕，中奖号码为\n"),
+        Plain(str(winner))
+    ]))
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("开奖查询")],
-                            decorators=[group_black_list_block()]))
+                            decorators=[Permission.require(), Interval.require()]))
 async def q_lottery(app: Ariadne, group: Group):
 
     if not yaml_data['Saya']['Entertainment']['Lottery']:
