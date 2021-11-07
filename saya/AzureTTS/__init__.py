@@ -18,6 +18,7 @@ from azure.cognitiveservices.speech import AudioDataStream, SpeechConfig, Speech
 
 from database.db import reduce_gold
 from config import yaml_data, group_data
+from util.sendMessage import selfSendGroupMessage
 from util.control import Permission, Interval, Rest
 
 saya = Saya.current()
@@ -39,7 +40,7 @@ async def azuretts(app: Ariadne, group: Group, member: Member, message: MessageC
 
     saying = message.asDisplay().split(" ", 3)
     if len(saying) != 4:
-        return await app.sendGroupMessage(group, MessageChain.create([Plain("格式有误：/tts <性别> <感情> <文字>")]))
+        return await selfSendGroupMessage(group, MessageChain.create([Plain("格式有误：/tts <性别> <感情> <文字>")]))
 
     if saying[1] == "男":
         name = "Microsoft Server Speech Text to Speech Voice (zh-CN, YunxiNeural)"
@@ -47,16 +48,16 @@ async def azuretts(app: Ariadne, group: Group, member: Member, message: MessageC
                       "严肃", "生气", "悲伤", "沮丧", "尴尬", "默认"]
         if saying[2] not in style_list:
             style_list_str = "、".join(style_list)
-            return await app.sendGroupMessage(group, MessageChain.create([Plain(f"该性别可使用的感情：{style_list_str}")]))
+            return await selfSendGroupMessage(group, MessageChain.create([Plain(f"该性别可使用的感情：{style_list_str}")]))
     elif saying[1] == "女":
         name = "Microsoft Server Speech Text to Speech Voice (zh-CN, XiaoxiaoNeural)"
         style_list = ["助理", "聊天", "客服", "新闻", "撒娇", "生气", "平静",
                       "开心", "不满", "害怕", "温柔", "抒情", "悲伤", "严肃", "默认"]
         if saying[2] not in style_list:
             style_list_str = "、".join(style_list)
-            return await app.sendGroupMessage(group, MessageChain.create([Plain(f"该性别可使用的感情：{style_list_str}")]))
+            return await selfSendGroupMessage(group, MessageChain.create([Plain(f"该性别可使用的感情：{style_list_str}")]))
     else:
-        return await app.sendGroupMessage(group, MessageChain.create([Plain("性别仅支持【男/女】")]))
+        return await selfSendGroupMessage(group, MessageChain.create([Plain("性别仅支持【男/女】")]))
 
     if saying[2] == "默认":
         style = "Default"
@@ -94,17 +95,17 @@ async def azuretts(app: Ariadne, group: Group, member: Member, message: MessageC
         style = "embarrassed"
 
     if not await reduce_gold(str(member.id), 2):
-        return await app.sendGroupMessage(group, MessageChain.create([Plain("你的游戏币不足，无法请求语音")]), quote=source.id)
+        return await selfSendGroupMessage(group, MessageChain.create([Plain("你的游戏币不足，无法请求语音")]), quote=source.id)
 
     if len(saying[3]) < 800:
         times = str(int(time.time() * 100))
         voicefile = BASEPATH.joinpath(f"{times}.wav")
         await asyncio.to_thread(gettts, name, style, saying[3], voicefile.__str__())
         vioce_bytes = await silkcoder.encode(voicefile.read_bytes())
-        await app.sendGroupMessage(group, MessageChain.create([Voice(data_bytes=vioce_bytes)]))
+        await selfSendGroupMessage(group, MessageChain.create([Voice(data_bytes=vioce_bytes)]))
         voicefile.unlink()
     else:
-        await app.sendGroupMessage(group, MessageChain.create([Plain("文字过长，仅支持600字以内")]))
+        await selfSendGroupMessage(group, MessageChain.create([Plain("文字过长，仅支持600字以内")]))
 
 
 def dict2xml(name: str, style: str, text: str):

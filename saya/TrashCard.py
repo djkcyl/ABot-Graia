@@ -12,6 +12,7 @@ from graia.ariadne.message.element import Source, Plain, Image, At
 
 from config import yaml_data
 from util.control import Permission, Interval
+from util.sendMessage import selfSendGroupMessage
 
 saya = Saya.current()
 channel = Channel.current()
@@ -36,10 +37,10 @@ async def trashCard(app: Ariadne, group: Group, member: Member, source: Source):
     logger.info(card)
 
     if "code" in card:
-        await app.sendGroupMessage(group, MessageChain.create([
+        await selfSendGroupMessage(group, MessageChain.create([
             At(member.id),
             Plain(" "),
             Plain(card['msg']),
             Plain(card['id'])
         ]), quote=source.id)
-        await app.sendGroupMessage(group, MessageChain.create([Image(url=card['pic'])]))
+        await selfSendGroupMessage(group, MessageChain.create([Image(url=card['pic'])]))

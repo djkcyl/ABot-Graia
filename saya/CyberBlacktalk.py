@@ -11,6 +11,7 @@ from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 from config import yaml_data, group_data
+from util.sendMessage import selfSendGroupMessage
 from util.control import Permission, Interval, Rest
 
 saya = Saya.current()
@@ -29,7 +30,7 @@ async def what_are_you_saying(app: Ariadne, group: Group, member: Member, messag
 
     saying = message.asDisplay().split(" ", 1)
     if len(saying) != 2:
-        return await app.sendGroupMessage(group, MessageChain.create([Plain("用法：你在说什么 <需要翻译的简写>")]))
+        return await selfSendGroupMessage(group, MessageChain.create([Plain("用法：你在说什么 <需要翻译的简写>")]))
     api_url = "https://lab.magiconch.com/api/nbnhhsh/guess"
     api_data = {"text": saying[1]}
     api_headers = {
@@ -41,7 +42,7 @@ async def what_are_you_saying(app: Ariadne, group: Group, member: Member, messag
     ta = translation.text
     tb = json.loads(ta)
     if len(tb) == 0:
-        return await app.sendGroupMessage(group, MessageChain.create([Plain("用法：你在说什么 <需要翻译的简写>")]))
+        return await selfSendGroupMessage(group, MessageChain.create([Plain("用法：你在说什么 <需要翻译的简写>")]))
 
     msg = [At(member.id)]
     for dict in tb:
@@ -56,4 +57,4 @@ async def what_are_you_saying(app: Ariadne, group: Group, member: Member, messag
         else:
             msg.append(Plain("未收录该条目"))
 
-    await app.sendGroupMessage(group, MessageChain.create(msg))
+    await selfSendGroupMessage(group, MessageChain.create(msg))

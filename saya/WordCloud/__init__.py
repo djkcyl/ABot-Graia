@@ -20,6 +20,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 from config import yaml_data, group_data
 from util.control import Permission, Interval
+from util.sendMessage import selfSendGroupMessage
 from database.usertalk import get_user_talk, get_group_talk
 
 saya = Saya.current()
@@ -60,18 +61,18 @@ async def wordcloud(app: Ariadne, group: Group, member: Member, message: Message
             elif mode == "本群":
                 talk_list = await get_group_talk(str(group.id), before_week)
             if len(talk_list) < 10:
-                await app.sendGroupMessage(group, MessageChain.create([
+                await selfSendGroupMessage(group, MessageChain.create([
                     Plain("当前样本量较少，无法制作")
                 ]))
                 RUNNING -= 1
                 return RUNNING_LIST.remove(member.id)
-            await app.sendGroupMessage(group, MessageChain.create([
+            await selfSendGroupMessage(group, MessageChain.create([
                 At(member.id),
                 Plain(f" 正在制作词云，一周内共 {len(talk_list)} 条记录")
             ]))
             words = await get_frequencies(talk_list)
             image = await asyncio.to_thread(make_wordcloud, words)
-            await app.sendGroupMessage(group, MessageChain.create([
+            await selfSendGroupMessage(group, MessageChain.create([
                 At(member.id),
                 Plain(f" 已成功制作{mode}词云"),
                 Image(data_bytes=image)
@@ -79,7 +80,7 @@ async def wordcloud(app: Ariadne, group: Group, member: Member, message: Message
             RUNNING -= 1
             RUNNING_LIST.remove(member.id)
         else:
-            await app.sendGroupMessage(group, MessageChain.create([
+            await selfSendGroupMessage(group, MessageChain.create([
                 Plain("词云生成进程正忙，请稍后")
             ]))
 

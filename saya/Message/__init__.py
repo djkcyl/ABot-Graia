@@ -10,6 +10,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 from config import yaml_data, group_data
 from util.control import Interval, Permission
+from util.sendMessage import selfSendGroupMessage
 
 
 saya = Saya.current()
@@ -31,14 +32,14 @@ async def az(app: Ariadne, group: Group, message: MessageChain):
 
     saying = message.asDisplay()
     if saying == "草":
-        await app.sendGroupMessage(group, MessageChain.create([
+        await selfSendGroupMessage(group, MessageChain.create([
             Plain("一种植物（")
         ]))
     if saying == "好耶":
-        await app.sendGroupMessage(group, MessageChain.create([
+        await selfSendGroupMessage(group, MessageChain.create([
             Image(path=HOME.joinpath("haoye.png"))
         ]))
     if saying == "流汗黄豆.jpg":
-        await app.sendGroupMessage(group, MessageChain.create([
+        await selfSendGroupMessage(group, MessageChain.create([
             Image(path=HOME.joinpath("jpg"))
         ]))

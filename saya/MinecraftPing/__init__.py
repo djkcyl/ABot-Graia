@@ -9,6 +9,7 @@ from graia.ariadne.message.parser.literature import Literature
 
 from config import yaml_data, group_data
 from util.control import Permission, Interval
+from util.sendMessage import selfSendGroupMessage
 
 from .mcping import mcping
 
@@ -29,6 +30,6 @@ async def minecraft_ping(app: Ariadne, group: Group, message: MessageChain):
     saying = message.asDisplay().split()
     if len(saying) == 2:
         send_msg = await mcping(saying[1])
-        await app.sendGroupMessage(str(group.id), MessageChain.create(send_msg))
+        await selfSendGroupMessage(str(group.id), MessageChain.create(send_msg))
     else:
-        await app.sendGroupMessage(str(group.id), MessageChain.create([Plain("用法：/mcping 服务器地址")]))
+        await selfSendGroupMessage(str(group.id), MessageChain.create([Plain("用法：/mcping 服务器地址")]))

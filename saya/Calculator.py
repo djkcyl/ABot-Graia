@@ -12,6 +12,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 from config import yaml_data, group_data
 from util.control import Permission, Interval
+from util.sendMessage import selfSendGroupMessage
 
 
 saya = Saya.current()
@@ -33,17 +34,17 @@ async def calculator_main(app: Ariadne, group: Group, message: MessageChain, sou
     if len(saying) == 2:
         expression = rep_str(saying[1])
         if len(expression) > 800:
-            return await app.sendGroupMessage(group, MessageChain.create([Plain("字符数过多")]), quote=source.id)
+            return await selfSendGroupMessage(group, MessageChain.create([Plain("字符数过多")]), quote=source.id)
         try:
             answer = await asyncio.wait_for(asyncio.to_thread(arithmetic, expression), timeout=15)
         except ZeroDivisionError:
-            return await app.sendGroupMessage(group, MessageChain.create([Plain("0不可作为除数")]), quote=source.id)
+            return await selfSendGroupMessage(group, MessageChain.create([Plain("0不可作为除数")]), quote=source.id)
         except asyncio.TimeoutError:
-            return await app.sendGroupMessage(group, MessageChain.create([Plain("计算超时")]), quote=source.id)
+            return await selfSendGroupMessage(group, MessageChain.create([Plain("计算超时")]), quote=source.id)
         except Exception:
-            return await app.sendGroupMessage(group, MessageChain.create([Plain("出现未知错误，终止计算")]), quote=source.id)
+            return await selfSendGroupMessage(group, MessageChain.create([Plain("出现未知错误，终止计算")]), quote=source.id)
 
-        await app.sendGroupMessage(group, MessageChain.create([Plain(answer)]), quote=source.id)
+        await selfSendGroupMessage(group, MessageChain.create([Plain(answer)]), quote=source.id)
 
 
 def rep_str(say: str):

@@ -10,6 +10,7 @@ from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 from config import yaml_data, group_data
+from util.sendMessage import selfSendGroupMessage
 from util.control import Permission, Interval, Rest
 
 saya = Saya.current()
@@ -34,17 +35,17 @@ async def main(app: Ariadne, group: Group, message: MessageChain):
             res = r.json()
         if res.get('code', False) == 200:
             pic = res['data']['pic_list'][0]
-            await app.sendGroupMessage(group, MessageChain.create([
+            await selfSendGroupMessage(group, MessageChain.create([
                 Plain(f"ID：{pic['pic']}"),
                 Plain(f"\nNAME：{pic['name']}"),
                 Image(url=pic['url'])
             ]))
         elif res.get('code', False) == 404:
-            await app.sendGroupMessage(group, MessageChain.create([
+            await selfSendGroupMessage(group, MessageChain.create([
                 Plain("未找到相应tag的色图")
             ]))
         else:
-            await app.sendGroupMessage(group, MessageChain.create([
+            await selfSendGroupMessage(group, MessageChain.create([
                 Plain("慢一点慢一点，别冲辣！")
             ]))
     else:
@@ -52,12 +53,12 @@ async def main(app: Ariadne, group: Group, message: MessageChain):
             r = await client.get("http://a60.one:404/")
             res = r.json()
         if res.get('code', False) == 200:
-            await app.sendGroupMessage(group, MessageChain.create([
+            await selfSendGroupMessage(group, MessageChain.create([
                 Plain(f"ID：{res['pic']}"),
                 Plain(f"\nNAME：{res['name']}"),
                 Image(url=res['url'])
             ]))
         else:
-            await app.sendGroupMessage(group, MessageChain.create([
+            await selfSendGroupMessage(group, MessageChain.create([
                 Plain("慢一点慢一点，别冲辣！")
             ]))

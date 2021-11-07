@@ -8,6 +8,7 @@ from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 from config import yaml_data, group_data
+from util.sendMessage import selfSendGroupMessage
 from util.control import Permission, Interval, Rest
 
 from .setu import create_setu
@@ -26,6 +27,6 @@ async def main(app: Ariadne, group: Group):
     elif 'Setu' in group_data[str(group.id)]['DisabledFunc']:
         return
 
-    await app.sendGroupMessage(group, MessageChain.create([
+    await selfSendGroupMessage(group, MessageChain.create([
         Image(data_bytes=await create_setu())
     ]))
