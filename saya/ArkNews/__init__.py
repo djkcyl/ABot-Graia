@@ -16,6 +16,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from util.TimeTool import TimeRecorder
 from config import yaml_data, group_data
 from util.text2image import create_image
+from util.sendMessage import selfSendGroupMessage
 
 from .get_news import Weibo, Game
 
@@ -81,7 +82,7 @@ async def get_weibo_news(app: Ariadne):
         for group in group_list:
             if 'ArkNews' in group_data[str(group.id)]['DisabledFunc']:
                 continue
-            await app.sendGroupMessage(group, MessageChain.create(msg))
+            await selfSendGroupMessage(group, MessageChain.create(msg))
             await asyncio.sleep(random.randint(3, 5))
 
         await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
@@ -133,7 +134,7 @@ async def get_game_news(app: Ariadne):
         for group in group_list:
             if 'ArkNews' in group_data[str(group.id)]['DisabledFunc']:
                 continue
-            await app.sendGroupMessage(group, MessageChain.create(msg))
+            await selfSendGroupMessage(group, MessageChain.create(msg))
             await asyncio.sleep(random.randint(3, 5))
 
         await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([

@@ -153,7 +153,7 @@ class Interval:
                 if event.sender.id not in cls.sent_alert:
                     app: Ariadne = application_ctx.get()
                     if not silent:
-                        await app.sendGroupMessage(
+                        await selfSendGroupMessage(
                             event.sender.group,
                             MessageChain.create(
                                 [

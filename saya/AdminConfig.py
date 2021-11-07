@@ -14,6 +14,7 @@ from graia.ariadne.message.parser.twilight import Twilight, Sparkle
 
 from util.text2image import create_image
 from util.control import Permission, Interval
+from util.sendMessage import selfSendGroupMessage
 from config import save_config, yaml_data, group_data
 
 saya = Saya.current()
@@ -299,7 +300,7 @@ async def atrep(app: Ariadne, group: Group, message: MessageChain):
                 "\n@不会触发任何功能　　　　@不会触发任何功能" +
                 "\n@不会触发任何功能　　　　@不会触发任何功能"))
             msg = Image(data_bytes=image)
-        await app.sendGroupMessage(group, MessageChain.create([msg]))
+        await selfSendGroupMessage(group, MessageChain.create([msg]))
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
@@ -313,7 +314,7 @@ async def funchelp(app: Ariadne, group: Group, message: MessageChain):
         funcGlobalDisabled = yaml_data["Saya"][funckey]["Disabled"]
         funcGroupDisabledList = funckey in group_data[str(group.id)]["DisabledFunc"]
         if funcGlobalDisabled or funcGroupDisabledList:
-            return await app.sendGroupMessage(group, MessageChain.create([
+            return await selfSendGroupMessage(group, MessageChain.create([
                 Plain("该功能暂不开启")
             ]))
         help = str(sayfunc +
@@ -325,9 +326,9 @@ async def funchelp(app: Ariadne, group: Group, message: MessageChain):
                    funcHelp[sayfunc]["example"]
                    )
         image = await create_image(help)
-        await app.sendGroupMessage(group, MessageChain.create([Image(data_bytes=image)]))
+        await selfSendGroupMessage(group, MessageChain.create([Image(data_bytes=image)]))
     else:
-        await app.sendGroupMessage(group, MessageChain.create([Plain("请输入 功能 <id>，如果不知道id可以发送菜单查看")]))
+        await selfSendGroupMessage(group, MessageChain.create([Plain("请输入 功能 <id>，如果不知道id可以发送菜单查看")]))
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
@@ -363,7 +364,7 @@ async def help(app: Ariadne, group: Group):
                "\n源码：github.com/djkcyl/ABot-Graia" +
                f"\n更多功能待开发，如有特殊需求可以向 {yaml_data['Basic']['Permission']['Master']} 询问")
     image = await create_image(msg, 80)
-    await app.sendGroupMessage(group, MessageChain.create([Image(data_bytes=image)]))
+    await selfSendGroupMessage(group, MessageChain.create([Image(data_bytes=image)]))
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
@@ -379,14 +380,14 @@ async def on_func(app: Ariadne, group: Group, message: MessageChain):
     funcGroupDisabled = func["key"] in group_data[str(group.id)]["DisabledFunc"]
     funcDisabledList = group_data[str(group.id)]["DisabledFunc"]
     if funcGlobalDisabled:
-        await app.sendGroupMessage(group, MessageChain.create([Plain(f"{funcname}当前处于全局禁用状态")]))
+        await selfSendGroupMessage(group, MessageChain.create([Plain(f"{funcname}当前处于全局禁用状态")]))
     elif funcGroupDisabled:
         funcDisabledList.remove(funckey)
         group_data[str(group.id)]["DisabledFunc"] = funcDisabledList
         save_config()
-        await app.sendGroupMessage(group, MessageChain.create([Plain(f"{funcname}已开启")]))
+        await selfSendGroupMessage(group, MessageChain.create([Plain(f"{funcname}已开启")]))
     else:
-        await app.sendGroupMessage(group, MessageChain.create([Plain(f"{funcname}已处于开启状态")]))
+        await selfSendGroupMessage(group, MessageChain.create([Plain(f"{funcname}已处于开启状态")]))
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
@@ -402,11 +403,11 @@ async def off_func(app: Ariadne, group: Group, message: MessageChain):
     funcDisabledList = group_data[str(group.id)]["DisabledFunc"]
     funcGroupDisabled = func["key"] in funcDisabledList
     if not funcCanDisabled:
-        await app.sendGroupMessage(group, MessageChain.create([Plain(f"{funcname}无法被关闭")]))
+        await selfSendGroupMessage(group, MessageChain.create([Plain(f"{funcname}无法被关闭")]))
     elif not funcGroupDisabled:
         funcDisabledList.append(funckey)
         group_data[str(group.id)]["DisabledFunc"] = funcDisabledList
         save_config()
-        await app.sendGroupMessage(group, MessageChain.create([Plain(f"{funcname}已关闭")]))
+        await selfSendGroupMessage(group, MessageChain.create([Plain(f"{funcname}已关闭")]))
     else:
-        await app.sendGroupMessage(group, MessageChain.create([Plain(f"{funcname}已处于关闭状态")]))
+        await selfSendGroupMessage(group, MessageChain.create([Plain(f"{funcname}已处于关闭状态")]))

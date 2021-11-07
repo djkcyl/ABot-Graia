@@ -23,6 +23,7 @@ from util.text2image import create_image
 from util.control import Permission, Interval
 
 from .dynamic_shot import get_dynamic_screenshot
+from util.sendMessage import selfSendGroupMessage
 from .bilibili_request import dynamic_svr, get_status_info_by_uids
 
 saya = Saya.current()
@@ -245,7 +246,7 @@ async def update_scheduled(app: Ariadne):
                 logger.info(f"[BiliBili推送] {up_name} 开播了 - {room_area} - {title}")
                 for groupid in sub_list[up_id]:
                     try:
-                        await app.sendGroupMessage(groupid, MessageChain.create([
+                        await selfSendGroupMessage(groupid, MessageChain.create([
                             Plain(f"本群订阅的UP {up_name}（{up_id}）在 {room_area} 开播啦 ！\n"),
                             Plain(title),
                             Image(data_bytes=cover_from_user),
@@ -264,7 +265,7 @@ async def update_scheduled(app: Ariadne):
                 logger.info(f"[BiliBili推送] {up_name} 已下播")
                 try:
                     for groupid in sub_list[up_id]:
-                        await app.sendGroupMessage(groupid, MessageChain.create([
+                        await selfSendGroupMessage(groupid, MessageChain.create([
                             Plain(f"本群订阅的UP {up_name}（{up_id}）已下播！")
                         ]))
                         await asyncio.sleep(0.3)
@@ -290,7 +291,7 @@ async def update_scheduled(app: Ariadne):
                     shot_image = await get_dynamic_screenshot(r["data"]["cards"][0]["desc"]["dynamic_id_str"])
                     for groupid in sub_list[up_id]:
                         try:
-                            await app.sendGroupMessage(groupid, MessageChain.create([
+                            await selfSendGroupMessage(groupid, MessageChain.create([
                                 Plain(f"本群订阅的UP {up_name}（{up_id}）更新动态啦！"),
                                 Image(data_bytes=shot_image),
                                 Plain(f"https://t.bilibili.com/{dyn_url_str}")
@@ -327,7 +328,7 @@ async def add_sub(app: Ariadne, group: Group, message: MessageChain):
 
     saying = message.asDisplay().split(" ", 1)
     if len(saying) == 2:
-        await app.sendGroupMessage(group, MessageChain.create([await add_uid(saying[1], group.id)]))
+        await selfSendGroupMessage(group, MessageChain.create([await add_uid(saying[1], group.id)]))
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
@@ -337,7 +338,7 @@ async def remove_sub(app: Ariadne, group: Group, message: MessageChain):
 
     saying = message.asDisplay().split(" ", 1)
     if len(saying) == 2:
-        await app.sendGroupMessage(group, MessageChain.create([remove_uid(saying[1], group.id)]))
+        await selfSendGroupMessage(group, MessageChain.create([remove_uid(saying[1], group.id)]))
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
@@ -351,9 +352,9 @@ async def sub_list(app: Ariadne, group: Group):
         sublist.append(subid)
     sublist_count = len(sublist)
     if sublist_count == 0:
-        await app.sendGroupMessage(group, MessageChain.create([Plain("本群未订阅任何 UP")]))
+        await selfSendGroupMessage(group, MessageChain.create([Plain("本群未订阅任何 UP")]))
     else:
-        await app.sendGroupMessage(group, MessageChain.create([
+        await selfSendGroupMessage(group, MessageChain.create([
             Plain(f"本群共订阅 {sublist_count} 个 UP\n"),
             Plain("\n".join(sublist))
         ]))
@@ -383,17 +384,17 @@ async def vive_dyn(app: Ariadne, group: Group, message: MessageChain):
             else:
                 uid = match.group(0)
         else:
-            return await app.sendGroupMessage(group, MessageChain.create([
+            return await selfSendGroupMessage(group, MessageChain.create([
                 Plain("请输入正确的 UP UID 或 首页链接")
             ]))
 
         res = await dynamic_svr(uid)
         if "cards" in res["data"]:
             shot_image = await get_dynamic_screenshot(res["data"]["cards"][0]["desc"]["dynamic_id_str"])
-            await app.sendGroupMessage(group, MessageChain.create([
+            await selfSendGroupMessage(group, MessageChain.create([
                 Image(data_bytes=shot_image)
             ]))
         else:
-            await app.sendGroupMessage(group, MessageChain.create([
+            await selfSendGroupMessage(group, MessageChain.create([
                 Plain("该UP未发布任何动态")
             ]))

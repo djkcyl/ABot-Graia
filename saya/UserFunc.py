@@ -14,6 +14,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from database.db import get_ranking
 from util.text2image import create_image
 from util.control import Permission, Interval
+from util.sendMessage import selfSendGroupMessage
 
 saya = Saya.current()
 channel = Channel.current()
@@ -25,7 +26,7 @@ RANK_LIST = None
                             inline_dispatchers=[Literature("查看排行榜")],
                             decorators=[Permission.require(), Interval.require()]))
 async def main(app: Ariadne, group: Group):
-    await app.sendGroupMessage(group, MessageChain.create([Image(data_bytes=RANK_LIST)]))
+    await selfSendGroupMessage(group, MessageChain.create([Image(data_bytes=RANK_LIST)]))
 
 
 @channel.use(SchedulerSchema(every_custom_minutes(10)))

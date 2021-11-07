@@ -13,6 +13,7 @@ from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 from config import yaml_data, group_data
+from util.sendMessage import selfSendGroupMessage
 from util.control import Permission, Interval, Rest
 
 jieba.setLogLevel(20)
@@ -52,6 +53,6 @@ async def main(app: Ariadne, group: Group, message: MessageChain, source: Source
 
     saying = message.asDisplay().split(" ", 1)
     if len(saying[1]) < 200:
-        await app.sendGroupMessage(group, MessageChain.create([Plain(chs2yin(saying[1]))]), quote=source.id)
+        await selfSendGroupMessage(group, MessageChain.create([Plain(chs2yin(saying[1]))]), quote=source.id)
     else:
-        await app.sendGroupMessage(group, MessageChain.create([Plain("文字过长")]), quote=source.id)
+        await selfSendGroupMessage(group, MessageChain.create([Plain("文字过长")]), quote=source.id)

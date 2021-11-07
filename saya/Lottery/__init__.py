@@ -18,9 +18,10 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.element import At, Plain, Source, Image
 from graia.ariadne.event.message import FriendMessage, GroupMessage
 
-from util.control import Interval, Permission
 from config import yaml_data, group_data
 from database.db import add_gold, reduce_gold
+from util.control import Interval, Permission
+from util.sendMessage import selfSendGroupMessage
 
 from .certification import decrypt
 from .lottery_image import qrgen, qrdecode
@@ -73,7 +74,7 @@ async def buy_lottery(app: Ariadne, group: Group, member: Member, source: Source
 
         with open("./saya/Lottery/data.json", "w") as f:
             json.dump(LOTTERY, f, indent=2, ensure_ascii=False)
-        await app.sendGroupMessage(group, MessageChain.create([
+        await selfSendGroupMessage(group, MessageChain.create([
             Plain("购买成功，编号为："),
             Plain(f"\n{number}"),
             Plain(f"\n当前卡池已有 {lottery_len} 张"),
@@ -81,7 +82,7 @@ async def buy_lottery(app: Ariadne, group: Group, member: Member, source: Source
             Image(data_bytes=lottery)
         ]), quote=source.id)
     else:
-        await app.sendGroupMessage(group, MessageChain.create([
+        await selfSendGroupMessage(group, MessageChain.create([
             At(member.id),
             Plain("你的游戏币不够，无法购买")
         ]), quote=source.id)
@@ -112,7 +113,7 @@ async def redeem_lottery(app: Ariadne, group: Group, member: Member, source: Sou
                 get_pic = waiter_message.getFirst(Image).url
                 return get_pic
 
-    await app.sendGroupMessage(group, MessageChain.create([
+    await selfSendGroupMessage(group, MessageChain.create([
         Plain("请发送需要兑换的奖券")
     ]), quote=source.id)
 
@@ -120,7 +121,7 @@ async def redeem_lottery(app: Ariadne, group: Group, member: Member, source: Sou
         waite_pic = await asyncio.wait_for(inc.wait(waiter), timeout=30)
     except asyncio.TimeoutError:
         WAITING.remove(member.id)
-        return await app.sendGroupMessage(group, MessageChain.create([
+        return await selfSendGroupMessage(group, MessageChain.create([
             At(member.id),
             Plain(" 奖券兑换等待超时")
         ]), quote=source.id)
@@ -139,17 +140,17 @@ async def redeem_lottery(app: Ariadne, group: Group, member: Member, source: Sou
                     LOTTERY["lastweek"]["received"] = True
                     with open("./saya/Lottery/data.json", "w") as f:
                         json.dump(LOTTERY, f, indent=2, ensure_ascii=False)
-                    await app.sendGroupMessage(group, MessageChain.create([Plain(f"你已成功兑换上期奖券，共获得 {str(gold)} 个游戏币")]))
+                    await selfSendGroupMessage(group, MessageChain.create([Plain(f"你已成功兑换上期奖券，共获得 {str(gold)} 个游戏币")]))
                 else:
-                    await app.sendGroupMessage(group, MessageChain.create([Plain("该奖券已被兑换")]))
+                    await selfSendGroupMessage(group, MessageChain.create([Plain("该奖券已被兑换")]))
             else:
-                await app.sendGroupMessage(group, MessageChain.create([Plain("该号码与中奖号码不符")]))
+                await selfSendGroupMessage(group, MessageChain.create([Plain("该号码与中奖号码不符")]))
         elif period == int(lottery_period):
-            await app.sendGroupMessage(group, MessageChain.create([Plain("当期奖券请等待每周一开奖后在进行兑换")]))
+            await selfSendGroupMessage(group, MessageChain.create([Plain("当期奖券请等待每周一开奖后在进行兑换")]))
         else:
-            await app.sendGroupMessage(group, MessageChain.create([Plain("该奖券已过期")]))
+            await selfSendGroupMessage(group, MessageChain.create([Plain("该奖券已过期")]))
     else:
-        await app.sendGroupMessage(group, MessageChain.create([Plain("该奖券不为你所有，请勿窃取他人奖券")]))
+        await selfSendGroupMessage(group, MessageChain.create([Plain("该奖券不为你所有，请勿窃取他人奖券")]))
     WAITING.remove(member.id)
 
 
@@ -221,7 +222,7 @@ async def q_lottery(app: Ariadne, group: Group):
     lottery_len = LOTTERY["lastweek"]["len"]
     gold = int(lottery_len * 2 * 0.9)
     received = "已领取" if lottery["lastweek"]["received"] else "未领取"
-    await app.sendGroupMessage(group, MessageChain.create([
+    await selfSendGroupMessage(group, MessageChain.create([
         Plain("上期开奖信息：\n"),
         Plain(f"上期期号：{period}\n"),
         Plain(f"中奖号码：{winner}\n"),

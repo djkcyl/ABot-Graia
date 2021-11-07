@@ -15,6 +15,7 @@ from graia.ariadne.message.element import Plain, Source, Quote, At, Image
 from util.text2image import create_image
 from util.control import Rest, Permission
 from database.db import add_gold, give_all_gold
+from util.sendMessage import selfSendGroupMessage
 from config import save_config, yaml_data, group_list, user_black_list
 
 saya = Saya.current()
@@ -68,7 +69,7 @@ async def Announcement(app: Ariadne, friend: Friend, message: MessageChain):
         for group in groupList:
             if group.id not in [885355617, 780537426, 474769367, 690211045, 855895642]:
                 try:
-                    await app.sendGroupMessage(group.id, MessageChain.create([
+                    await selfSendGroupMessage(group.id, MessageChain.create([
                         Plain(f"公告：{str(group.name)}\n"),
                         Image(data_bytes=image)
                     ]))
@@ -114,7 +115,7 @@ async def remove_white_group(app: Ariadne, friend: Friend, message: MessageChain
             group_list['white'].remove(int(saying[1]))
             save_config()
             try:
-                await app.sendGroupMessage(int(saying[1]), MessageChain.create([Plain("该群已被移出白名单，将在3秒后退出")]))
+                await selfSendGroupMessage(int(saying[1]), MessageChain.create([Plain("该群已被移出白名单，将在3秒后退出")]))
                 await asyncio.sleep(3)
                 await app.quit(int(saying[1]))
             except UnknownTarget:
@@ -163,20 +164,20 @@ async def gadd_black_user(app: Ariadne, group: Group, message: MessageChain):
     if message.has(At):
         user = message.getFirst(At).target
         if user in user_black_list:
-            await app.sendGroupMessage(group, MessageChain.create([
+            await selfSendGroupMessage(group, MessageChain.create([
                 At(user),
                 Plain(" 已在黑名单中")
             ]))
         else:
             user_black_list.append(user)
             save_config()
-            await app.sendGroupMessage(group, MessageChain.create([
+            await selfSendGroupMessage(group, MessageChain.create([
                 Plain("成功将 "),
                 At(user),
                 Plain(" 加入黑名单")
             ]))
     else:
-        await app.sendGroupMessage(group, MessageChain.create([Plain("请at要操作的用户")]))
+        await selfSendGroupMessage(group, MessageChain.create([Plain("请at要操作的用户")]))
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
@@ -186,17 +187,17 @@ async def gremove_block_user(app: Ariadne, group: Group, member: Member, message
     if message.has(At):
         user = message.getFirst(At).target
         if user not in user_black_list:
-            await app.sendGroupMessage(group, MessageChain.create([Plain(f"{user} 未在黑名单中")]))
+            await selfSendGroupMessage(group, MessageChain.create([Plain(f"{user} 未在黑名单中")]))
         else:
             user_black_list.remove(user)
             save_config()
-            await app.sendGroupMessage(group, MessageChain.create([
+            await selfSendGroupMessage(group, MessageChain.create([
                 Plain("成功将 "),
                 At(user),
                 Plain(" 移出黑名单")
             ]))
     else:
-        await app.sendGroupMessage(group, MessageChain.create([Plain("请at要操作的用户")]))
+        await selfSendGroupMessage(group, MessageChain.create([Plain("请at要操作的用户")]))
 
 
 @channel.use(ListenerSchema(listening_events=[FriendMessage],
@@ -220,7 +221,7 @@ async def fset_rest(app: Ariadne, friend: Friend):
                             decorators=[Permission.require(Permission.MASTER)]))
 async def gset_work(app: Ariadne, group: Group):
     Rest.set_sleep(1)
-    await app.sendGroupMessage(group, MessageChain.create([Plain("已进入休息")]))
+    await selfSendGroupMessage(group, MessageChain.create([Plain("已进入休息")]))
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
@@ -228,7 +229,7 @@ async def gset_work(app: Ariadne, group: Group):
                             decorators=[Permission.require(Permission.MASTER)]))
 async def gset_rest(app: Ariadne, group: Group):
     Rest.set_sleep(0)
-    await app.sendGroupMessage(group, MessageChain.create([Plain("已开始工作")]))
+    await selfSendGroupMessage(group, MessageChain.create([Plain("已开始工作")]))
 
 
 @channel.use(ListenerSchema(listening_events=[FriendMessage],
@@ -258,4 +259,4 @@ async def group_card_fix(app: Ariadne, friend: Friend):
                             inline_dispatchers=[Literature("/echo")],
                             decorators=[Permission.require(Permission.MASTER)]))
 async def mute(app: Ariadne, group: Group, message: MessageChain):
-    await app.sendGroupMessage(group, MessageChain.create([Plain(str(message.asDisplay().strip()))]))
+    await selfSendGroupMessage(group, MessageChain.create([Plain(str(message.asDisplay().strip()))]))

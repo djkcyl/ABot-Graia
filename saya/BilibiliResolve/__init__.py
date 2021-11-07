@@ -13,6 +13,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 from config import yaml_data, group_data
 from util.control import Permission, Interval
+from util.sendMessage import selfSendGroupMessage
 
 from .draw_bili_image import binfo_image_create
 
@@ -42,17 +43,17 @@ async def bilibili_main(app: Ariadne, group: Group, member: Member, message: Mes
     if video_info:
         if video_info["code"] != 0:
             await Interval.manual(member.id)
-            return await app.sendGroupMessage(group, MessageChain.create([Plain("视频不存在")]))
+            return await selfSendGroupMessage(group, MessageChain.create([Plain("视频不存在")]))
         else:
             await Interval.manual(int(video_info["data"]["aid"]))
         try:
             image = await asyncio.to_thread(binfo_image_create, video_info)
-            await app.sendGroupMessage(group, MessageChain.create([Image(data_bytes=image.getvalue())]))
+            await selfSendGroupMessage(group, MessageChain.create([Image(data_bytes=image.getvalue())]))
         except Exception as err:
             await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
                 Plain(f"B站视频 {video_number} 解析失败\n{err}")
             ]))
-            await app.sendGroupMessage(group, MessageChain.create([Plain("API 调用频繁，请10分钟后重试")]))
+            await selfSendGroupMessage(group, MessageChain.create([Plain("API 调用频繁，请10分钟后重试")]))
 
 
 async def b23_extract(text):

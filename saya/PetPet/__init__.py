@@ -19,6 +19,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import Sparkle, Twilight
 
 from config import yaml_data, group_data
+from util.sendMessage import selfSendGroupMessage
 from util.control import Interval, Permission, Rest
 
 
@@ -47,7 +48,7 @@ async def petpet_generator(app: Ariadne, message: MessageChain, group: Group):
         if not os.path.exists("./saya/PetPet/temp"):
             os.mkdir("./saya/PetPet/temp")
         await petpet(message.getFirst(At).target)
-        await app.sendGroupMessage(group, MessageChain.create([
+        await selfSendGroupMessage(group, MessageChain.create([
             Image.fromLocalFile(f"./saya/PetPet/temp/tempPetPet-{message.getFirst(At).target}.gif")
         ]))
 
@@ -69,14 +70,14 @@ async def get_nudge(app: Ariadne, nudge: NudgeEvent):
         if not os.path.exists("./saya/PetPet/temp"):
             os.mkdir("./saya/PetPet/temp")
 
-        await app.sendGroupMessage(nudge.group_id, MessageChain.create([
+        await selfSendGroupMessage(nudge.group_id, MessageChain.create([
             Plain("收到 "),
             At(nudge.supplicant),
             Plain(" 的戳一戳，正在制图")
         ]))
 
         await petpet(nudge.target)
-        await app.sendGroupMessage(nudge.group_id, MessageChain.create([
+        await selfSendGroupMessage(nudge.group_id, MessageChain.create([
             Image.fromLocalFile(
                 f"./saya/PetPet/temp/tempPetPet-{nudge.target}.gif")
         ]))

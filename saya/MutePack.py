@@ -14,6 +14,7 @@ from graia.ariadne.message.parser.twilight import Sparkle, Twilight
 
 from util.control import Interval
 from config import group_data, yaml_data
+from util.sendMessage import selfSendGroupMessage
 
 saya = Saya.current()
 channel = Channel.current()
@@ -34,7 +35,7 @@ async def random_mute(app: Ariadne, group: Group, member: Member):
         return
 
     if member.id in yaml_data['Basic']['Permission']['Admin']:
-        await app.sendGroupMessage(group, MessageChain.create([Plain("我不能这样做！")]))
+        await selfSendGroupMessage(group, MessageChain.create([Plain("我不能这样做！")]))
     else:
         time = random.randint(60, yaml_data['Saya']['MutePack']['MaxTime'])
         multiple = random.randint(1, yaml_data['Saya']['MutePack']['MaxMultiple'])
@@ -43,21 +44,21 @@ async def random_mute(app: Ariadne, group: Group, member: Member):
         if random.randint(1, yaml_data['Saya']['MutePack']['MaxJackpotProbability']) == yaml_data['Saya']['MutePack']['MaxJackpotProbability']:
             try:
                 await app.mute(group, member, 2592000)
-                await app.sendGroupMessage(group, MessageChain.create([AtAll(), Plain(f"恭喜{member.name}中了头奖！获得30天禁言！")]))
+                await selfSendGroupMessage(group, MessageChain.create([AtAll(), Plain(f"恭喜{member.name}中了头奖！获得30天禁言！")]))
                 quit()
             except PermissionError:
-                await app.sendGroupMessage(group, MessageChain.create([Plain(f"权限不足，无法使用！\n使用该功能{yaml_data['Basic']['BotName']}需要为管理")]))
+                await selfSendGroupMessage(group, MessageChain.create([Plain(f"权限不足，无法使用！\n使用该功能{yaml_data['Basic']['BotName']}需要为管理")]))
         elif yaml_data['Saya']['MutePack']['SuperDouble'] and random.randint(1, yaml_data['Saya']['MutePack']['MaxSuperDoubleProbability']) == yaml_data['Saya']['MutePack']['MaxSuperDoubleProbability']:
             try:
                 ftime = ftime * yaml_data['Saya']['MutePack']['MaxSuperDoubleMultiple']
                 srtftime = strftime("%d:%H:%M:%S", gmtime(ftime))
                 await app.mute(group, member, ftime)
-                await app.sendGroupMessage(group, MessageChain.create([Plain(f"恭喜你抽中了 {time} 秒禁言套餐！倍率为 {multiple}！\n超级加倍！\n最终时长为 {srtftime}")]))
+                await selfSendGroupMessage(group, MessageChain.create([Plain(f"恭喜你抽中了 {time} 秒禁言套餐！倍率为 {multiple}！\n超级加倍！\n最终时长为 {srtftime}")]))
             except PermissionError:
-                await app.sendGroupMessage(group, MessageChain.create([Plain(f"权限不足，无法使用！\n使用该功能{yaml_data['Basic']['BotName']}需要为管理员权限或更高")]))
+                await selfSendGroupMessage(group, MessageChain.create([Plain(f"权限不足，无法使用！\n使用该功能{yaml_data['Basic']['BotName']}需要为管理员权限或更高")]))
         else:
             try:
                 await app.mute(group, member, ftime)
-                await app.sendGroupMessage(group, MessageChain.create([Plain(f"恭喜你抽中了 {time} 秒禁言套餐！倍率为 {multiple}\n最终时长为 {srtftime}")]))
+                await selfSendGroupMessage(group, MessageChain.create([Plain(f"恭喜你抽中了 {time} 秒禁言套餐！倍率为 {multiple}\n最终时长为 {srtftime}")]))
             except PermissionError:
-                await app.sendGroupMessage(group, MessageChain.create([Plain(f"权限不足，无法使用！\n使用该功能{yaml_data['Basic']['BotName']}需要为管理员权限或更高")]))
+                await selfSendGroupMessage(group, MessageChain.create([Plain(f"权限不足，无法使用！\n使用该功能{yaml_data['Basic']['BotName']}需要为管理员权限或更高")]))

@@ -8,8 +8,8 @@ from graia.ariadne.message.element import Image, Plain
 from graia.broadcast.builtin.event import ExceptionThrowed
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 
-from util.text2image import create_image
 from config import yaml_data
+from util.text2image import create_image
 
 saya = Saya.current()
 channel = Channel.current()
