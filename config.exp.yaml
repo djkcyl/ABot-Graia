@@ -4,7 +4,7 @@ Basic: # 基础配置
   MAH: # Mirai HTTP API配置
     BotQQ: 123456 # 机器人QQ号
     MiraiHost: "http://xxxx:xxxx" # Mirai HTTP API地址
-    MiraiAuthKey: "xxxxx" # Mirai HTTP API AuthKey
+    MiraiAuthKey: "xxxxx" # Mirai HTTP API verifyKey
 
   Permission: # 权限管理
     Master: 123456 # 机器人主人QQ号
