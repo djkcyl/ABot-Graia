@@ -4,11 +4,10 @@
 
 - 为必须
   - 为可选
->如未特殊说明，均已最新版为准
+> 如未特殊说明，均已最新版为准
 - [Python](https://www.python.org/) `3.9`
 - [Poetry](https://python-poetry.org/)
-- [Mirai HTTP API](https://github.com/project-mirai/mirai-api-http)
-- [Redis](https://redis.io/)
+- [Mirai HTTP API](https://github.com/project-mirai/mirai-api-http) `^2.3`
   - [Netease Cloud Music Api](https://github.com/Binaryify/NeteaseCloudMusicApi) `如果你需要点歌姬功能的话需要自行搭建`
   - [QQ Music API](https://github.com/Rain120/qq-music-api) `如果你需要点歌姬功能的话需要自行搭建`
 
@@ -18,12 +17,12 @@
    ```shell
    git clone https://github.com/djkcyl/ABot-Graia
    ```
-1. 使用虚拟容器安装依赖   `本步骤可能需要执行5分钟到5小时，请耐心等待（`
+1. 使用虚拟容器安装依赖 `本步骤可能需要执行5分钟到5小时，请耐心等待（`
    ```shell
    poetry install
    ```
-2. 修改 ABot 配置文件 `config.exp.yaml` 后**并重命名**为 `config.yaml`
-3. 启动 ABot
+1. 修改 ABot 配置文件 `config.exp.yaml` 后**并重命名**为 `config.yaml`
+1. 启动 ABot
    ```shell
    poetry run python main.py
    ```
@@ -43,8 +42,7 @@
 ### **Windows**
 
 > ~~Windows 系统也需要问吗？彳亍~~<br>
-> 按下最小化即可。<br>
-> ~~为什么会有人这个也要教啊（恼）~~<br>
+> 按下最小化即可。<br> > ~~为什么会有人这个也要教啊（恼）~~<br>
 
 ### **Linux**
 

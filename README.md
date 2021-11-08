@@ -1,6 +1,6 @@
 <div align="center">
 
-# ABot for Graia-Ariadne
+# [ABot](https://github.com/djkcyl/ABot-Graia) for [Ariadne](https://github.com/GraiaProject/Ariadne)
 
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fdjkcyl%2FABot-Graia.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fdjkcyl%2FABot-Graia?ref=badge_shield)
 
@@ -74,7 +74,7 @@ ABot 是一个使用 [Graia-Ariadne](https://github.com/GraiaProject/Ariadne) �
 
 ###
 
-[**文件目录结构**](FILES.md)
+[**文件目录结构**](_docs/FILES.md)
 
 > 如果有什么需要的，可以发 issue 或者加我的 QQ：`2948531755`。
 
