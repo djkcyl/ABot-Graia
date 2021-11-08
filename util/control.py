@@ -11,7 +11,7 @@ from typing import DefaultDict, Set, Tuple, Union
 
 from graia.saya import Channel
 from graia.scheduler.timers import crontabify
-from graia.ariadne.message.element import Plain
+from graia.ariadne.message.element import Plain, Source
 from graia.ariadne.model import Friend, Member, MemberPerm
 from graia.broadcast.exceptions import ExecutionStop
 from graia.ariadne.message.chain import MessageChain
@@ -178,7 +178,7 @@ class Interval:
                                         f"之后可再执行{max_exec}次"
                                     )
                                 ]
-                            )
+                            ), quote=event.messageChain.getFirst(Source).id
                         )
                     cls.sent_alert.add(event.sender.id)
                 raise ExecutionStop()

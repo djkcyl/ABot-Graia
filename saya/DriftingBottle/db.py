@@ -53,7 +53,7 @@ def get_bottle() -> dict:
 
 
 def get_bottle_by_id(bottle_id: int):
-    return DriftingBottle.select().where(DriftingBottle.id == bottle_id).get()
+    return DriftingBottle.select().where(DriftingBottle.id == bottle_id)
 
 
 def count_bottle() -> int:
