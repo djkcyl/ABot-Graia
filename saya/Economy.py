@@ -10,7 +10,7 @@ from graia.ariadne.message.parser.pattern import FullMatch, RegexMatch
 from config import yaml_data, group_data
 from util.control import Permission, Interval
 from database.db import reduce_gold, add_gold
-from util.sendMessage import selfSendGroupMessage
+from util.sendMessage import safeSendGroupMessage
 
 saya = Saya.current()
 channel = Channel.current()
@@ -38,49 +38,49 @@ async def adminmain(group: Group, member: Member, message: MessageChain, source:
     print(saying)
 
     if not message.has(At):
-        await selfSendGroupMessage(group, MessageChain.create([
+        await safeSendGroupMessage(group, MessageChain.create([
             Plain("请at需要赠送的对象")
         ]), quote=source.id)
     else:
         to = str(message.getFirst(At).target)
         if int(to) == member.id:
-            return await selfSendGroupMessage(group, MessageChain.create([
+            return await safeSendGroupMessage(group, MessageChain.create([
                 Plain("请勿向自己赠送")
             ]), quote=source.id)
 
         if saying.any1.matched:
             result = saying.any1.result.getFirst(Plain).text
             if len(result) > 20:
-                return await selfSendGroupMessage(group, MessageChain.create("消息过长"))
+                return await safeSendGroupMessage(group, MessageChain.create("消息过长"))
             num = abs(int(result.strip()))
             if "-" in result:
                 if await reduce_gold(str(member.id), num, force=True) is None:
-                    return await selfSendGroupMessage(group, MessageChain.create([
+                    return await safeSendGroupMessage(group, MessageChain.create([
                         At(member.id),
                         Plain(f"你的当前游戏币不足以扣除 {num}，已清零！"),
                     ]))
                 else:
-                    return await selfSendGroupMessage(group, MessageChain.create([
+                    return await safeSendGroupMessage(group, MessageChain.create([
                         Plain("已扣除 "),
                         At(member.id),
                         Plain(f" {num} 游戏币")
                     ]))
             if not 0 < num <= 1000:
-                return await selfSendGroupMessage(group, MessageChain.create([
+                return await safeSendGroupMessage(group, MessageChain.create([
                     Plain("请输入 1-1000 以内的金额")
                 ]), quote=source.id)
             elif await reduce_gold(str(member.id), num):
                 await add_gold(to, num)
-                await selfSendGroupMessage(group, MessageChain.create([
+                await safeSendGroupMessage(group, MessageChain.create([
                     Plain("你已成功向 "),
                     At(int(to)),
                     Plain(f" 赠送 {num} 个游戏币")
                 ]), quote=source.id)
             else:
-                await selfSendGroupMessage(group, MessageChain.create([
+                await safeSendGroupMessage(group, MessageChain.create([
                     Plain("你的游戏币不足，无法赠送")
                 ]), quote=source.id)
         else:
-            return await selfSendGroupMessage(group, MessageChain.create([
+            return await safeSendGroupMessage(group, MessageChain.create([
                 Plain("请输入需要赠送的金额")
             ]), quote=source.id)

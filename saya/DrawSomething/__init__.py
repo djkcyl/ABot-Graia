@@ -19,7 +19,7 @@ from graia.ariadne.event.message import GroupMessage, FriendMessage
 from config import yaml_data, group_data
 from database.db import reduce_gold, add_gold
 from util.control import Permission, Interval
-from util.sendMessage import selfSendGroupMessage
+from util.sendMessage import safeSendGroupMessage
 
 
 saya = Saya.current()
@@ -56,7 +56,7 @@ async def main(app: Ariadne, group: Group, member: Member, source: Source):
             Plain(f"本消息仅用于测试私信是否可用，无需回复\n{time.time()}")
         ]))
     except Exception:
-        await selfSendGroupMessage(group, MessageChain.create([
+        await safeSendGroupMessage(group, MessageChain.create([
             Plain(f"由于你未添加好友，暂时无法发起你画我猜，请自行添加 {yaml_data['Basic']['BotName']} 好友，用于发送题目")
         ]))
         MEMBER_RUNING_LIST.remove(member.id)
@@ -73,7 +73,7 @@ async def main(app: Ariadne, group: Group, member: Member, source: Source):
             elif saying == "否":
                 return False
             else:
-                await selfSendGroupMessage(group, MessageChain.create([
+                await safeSendGroupMessage(group, MessageChain.create([
                     At(confirm_member.id),
                     Plain("请发送是或否来进行确认")
                 ]), quote=confirm_source)
@@ -100,7 +100,7 @@ async def main(app: Ariadne, group: Group, member: Member, source: Source):
                 if saying == question:
                     return [submit_answer_member, submit_answer_source]
             elif group_id["player"][submit_answer_member.id] == 9:
-                await selfSendGroupMessage(group, MessageChain.create([
+                await safeSendGroupMessage(group, MessageChain.create([
                     At(submit_answer_member.id),
                     Plain("你的本回合答题机会已用尽")
                 ]), quote=submit_answer_source)
@@ -108,14 +108,14 @@ async def main(app: Ariadne, group: Group, member: Member, source: Source):
     # 如果当前群有一个正在进行中的游戏
     if group.id in GROUP_RUNING_LIST:
         if group.id not in GROUP_GAME_PROCESS:
-            await selfSendGroupMessage(group, MessageChain.create([
+            await safeSendGroupMessage(group, MessageChain.create([
                 At(member.id),
                 Plain(" 本群正在请求确认开启一场游戏，请稍候")
             ]), quote=source.id)
         else:
             owner = GROUP_GAME_PROCESS[group.id]["owner"]
             owner_name = (await app.getMember(group, owner)).name
-            await selfSendGroupMessage(group, MessageChain.create([
+            await safeSendGroupMessage(group, MessageChain.create([
                 At(member.id),
                 Plain(" 本群存在一场已经开始的游戏，请等待当前游戏结束"),
                 Plain(f"\n发起者：{str(owner)} | {owner_name}")
@@ -124,7 +124,7 @@ async def main(app: Ariadne, group: Group, member: Member, source: Source):
     # 新游戏创建流程
     else:
         GROUP_RUNING_LIST.append(group.id)
-        await selfSendGroupMessage(group, MessageChain.create([
+        await safeSendGroupMessage(group, MessageChain.create([
             Plain("是否确认在本群开启一场你画我猜？这将消耗你 4 个游戏币")
         ]), quote=source.id)
         try:
@@ -139,12 +139,12 @@ async def main(app: Ariadne, group: Group, member: Member, source: Source):
                 if not await reduce_gold(str(member.id), 4):
                     GROUP_RUNING_LIST.remove(group.id)
                     del GROUP_GAME_PROCESS[group.id]
-                    await selfSendGroupMessage(group, MessageChain.create([
+                    await safeSendGroupMessage(group, MessageChain.create([
                         At(member.id),
                         Plain(" 你的游戏币不足，无法开始游戏")]))
                 else:
                     question_len = len(question)
-                    await selfSendGroupMessage(group, MessageChain.create([
+                    await safeSendGroupMessage(group, MessageChain.create([
                         Plain(f"本次题目为 {question_len} 个字，请等待 "),
                         At(member.id),
                         Plain(" 在群中绘图"),
@@ -164,7 +164,7 @@ async def main(app: Ariadne, group: Group, member: Member, source: Source):
                             await add_gold(str(result[0].id), 1)
                             GROUP_RUNING_LIST.remove(group.id)
                             del GROUP_GAME_PROCESS[group.id]
-                            await selfSendGroupMessage(group.id, MessageChain.create([
+                            await safeSendGroupMessage(group.id, MessageChain.create([
                                 Plain("恭喜 "),
                                 At(result[0].id),
                                 Plain(" 成功猜出本次答案，你和创建者分别获得 1 个和 2 个游戏币，本次游戏结束")
@@ -174,7 +174,7 @@ async def main(app: Ariadne, group: Group, member: Member, source: Source):
                             await add_gold(owner, 1)
                             GROUP_RUNING_LIST.remove(group.id)
                             del GROUP_GAME_PROCESS[group.id]
-                            await selfSendGroupMessage(group, MessageChain.create([
+                            await safeSendGroupMessage(group, MessageChain.create([
                                 Plain("本次你画我猜已终止，将返还创建者 1 个游戏币")
                             ]))
                     except asyncio.TimeoutError:
@@ -183,7 +183,7 @@ async def main(app: Ariadne, group: Group, member: Member, source: Source):
                         await add_gold(owner, 1)
                         GROUP_RUNING_LIST.remove(group.id)
                         del GROUP_GAME_PROCESS[group.id]
-                        await selfSendGroupMessage(group, MessageChain.create([
+                        await safeSendGroupMessage(group, MessageChain.create([
                             Plain("由于长时间没有人回答出正确答案，将返还创建者 1 个游戏币，本次你画我猜已结束"),
                             Plain(f"\n本次的答案为：{question}")
                         ]))
@@ -191,13 +191,13 @@ async def main(app: Ariadne, group: Group, member: Member, source: Source):
             # 终止创建流程
             else:
                 GROUP_RUNING_LIST.remove(group.id)
-                await selfSendGroupMessage(group, MessageChain.create([
+                await safeSendGroupMessage(group, MessageChain.create([
                     Plain("已取消")
                 ]))
         # 如果 15 秒内无响应
         except asyncio.TimeoutError:
             GROUP_RUNING_LIST.remove(group.id)
-            await selfSendGroupMessage(group, MessageChain.create([
+            await safeSendGroupMessage(group, MessageChain.create([
                 Plain("确认超时")
             ]))
 
@@ -252,7 +252,7 @@ async def groupDataInit():
     for game_group in GROUP_RUNING_LIST:
         if game_group in GROUP_GAME_PROCESS:
             await add_gold(str(GROUP_GAME_PROCESS[game_group]['owner']), 4)
-            await selfSendGroupMessage(game_group, MessageChain.create([
+            await safeSendGroupMessage(game_group, MessageChain.create([
                 Plain(f"由于 {yaml_data['Basic']['BotName']} 正在重启，本场你画我猜重置，已补偿4个游戏币")
             ]))
             await asyncio.sleep(0.2)

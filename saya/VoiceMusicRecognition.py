@@ -19,7 +19,7 @@ from database.db import reduce_gold
 from config import yaml_data, group_data
 from util.text2image import create_image
 from util.control import Permission, Interval
-from util.sendMessage import selfSendGroupMessage
+from util.sendMessage import safeSendGroupMessage
 
 saya = Saya.current()
 channel = Channel.current()
@@ -63,14 +63,14 @@ async def main(app: Ariadne, group: Group, member: Member, message: MessageChain
             elif waiter1_saying == "取消":
                 return False
             else:
-                await selfSendGroupMessage(group, MessageChain.create([
+                await safeSendGroupMessage(group, MessageChain.create([
                     Plain("请发送语音文件或发送取消")
                 ]))
 
     if member.id not in WAITING:
         saying = message.asDisplay().split()
         if len(saying) != 2:
-            return await selfSendGroupMessage(group, MessageChain.create([
+            return await safeSendGroupMessage(group, MessageChain.create([
                 Plain("使用方法：识曲 <原曲|哼唱>")
             ]))
         elif saying[1] == "原曲":
@@ -78,23 +78,23 @@ async def main(app: Ariadne, group: Group, member: Member, message: MessageChain
         elif saying[1] == "哼唱":
             acr = ACRCloudRecognizer(humming_config)
         else:
-            return await selfSendGroupMessage(group, MessageChain.create([
+            return await safeSendGroupMessage(group, MessageChain.create([
                 Plain("使用方法：识曲 <原曲|哼唱>")
             ]))
         WAITING.append(member.id)
-        await selfSendGroupMessage(group, MessageChain.create([
+        await safeSendGroupMessage(group, MessageChain.create([
             Plain("请尽量将麦克风靠近音源后通过语音发送想要识别的歌曲，5至10秒即可，发送取消可终止识别，无论识别成功与否均需扣除 2 游戏币")
         ]))
         try:
             voice_url = await asyncio.wait_for(inc.wait(waiter), timeout=60)
             if not voice_url:
                 WAITING.remove(member.id)
-                return await selfSendGroupMessage(group, MessageChain.create([
+                return await safeSendGroupMessage(group, MessageChain.create([
                     Plain("已取消识别")
                 ]))
         except asyncio.TimeoutError:
             WAITING.remove(member.id)
-            return await selfSendGroupMessage(group, MessageChain.create([
+            return await safeSendGroupMessage(group, MessageChain.create([
                 Plain("等待语音超时")
             ]), quote=source.id)
 
@@ -127,20 +127,20 @@ async def main(app: Ariadne, group: Group, member: Member, message: MessageChain
                 image = await create_image(str("为你找到以下可能的歌曲：   曲名 ==> 艺术家 ==> 专辑\n" +
                                                "=====================================================\n" +
                                                "\n".join(music_list)), 180)
-                await selfSendGroupMessage(group, MessageChain.create([
+                await safeSendGroupMessage(group, MessageChain.create([
                     Image(data_bytes=image),
                     Plain(str("\n".join(music_list)))
                 ]))
             elif voice_info['status']['code'] == 1001:
-                await selfSendGroupMessage(group, MessageChain.create([
+                await safeSendGroupMessage(group, MessageChain.create([
                     Plain("未从语音中识别到歌曲，请检查语音音量是否过小或音质过于嘈杂")
                 ]))
             else:
-                await selfSendGroupMessage(group, MessageChain.create([
+                await safeSendGroupMessage(group, MessageChain.create([
                     Plain(f"识别错误：{voice_info['status']['code']} {voice_info['status']['msg']}")
                 ]))
         else:
-            await selfSendGroupMessage(group, MessageChain.create([
+            await safeSendGroupMessage(group, MessageChain.create([
                 Plain("你的游戏币不足，无法使用")
             ]))
         WAITING.remove(member.id)

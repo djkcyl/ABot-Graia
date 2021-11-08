@@ -16,7 +16,7 @@ from graia.ariadne.message.parser.literature import Literature
 
 from util.control import Permission
 from config import yaml_data, group_data
-from util.sendMessage import selfSendGroupMessage
+from util.sendMessage import safeSendGroupMessage
 
 saya = Saya.current()
 channel = Channel.current()
@@ -68,7 +68,7 @@ async def send(app: Ariadne):
         if 'DailyNewspaper' in group_data[str(group.id)]['DisabledFunc']:
             continue
         try:
-            await selfSendGroupMessage(group.id, MessageChain.create([
+            await safeSendGroupMessage(group.id, MessageChain.create([
                 Plain(group.name),
                 Image(data_bytes=paperimg)
             ]))

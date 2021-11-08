@@ -17,7 +17,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.element import Plain, At, Source, Image
 
 from config import yaml_data, group_data
-from util.sendMessage import selfSendGroupMessage
+from util.sendMessage import safeSendGroupMessage
 from util.control import Permission, Interval, Rest
 
 
@@ -48,7 +48,7 @@ async def low_poly(app: Ariadne, group: Group, message: MessageChain, member: Me
             elif waiter1_message.has(Image):
                 return waiter1_message.getFirst(Image).url
             else:
-                await selfSendGroupMessage(group, MessageChain.create([Plain("请发送图片")]))
+                await safeSendGroupMessage(group, MessageChain.create([Plain("请发送图片")]))
 
     if member.id not in WAITING:
         WAITING.append(member.id)
@@ -59,7 +59,7 @@ async def low_poly(app: Ariadne, group: Group, message: MessageChain, member: Me
             atid = message.getFirst(At).target
             image_url = f"http://q1.qlogo.cn/g?b=qq&nk={atid}&s=640"
         else:
-            await selfSendGroupMessage(group, MessageChain.create([
+            await safeSendGroupMessage(group, MessageChain.create([
                 At(member.id),
                 Plain(" 请发送图片以进行制作")
             ]))
@@ -67,19 +67,19 @@ async def low_poly(app: Ariadne, group: Group, message: MessageChain, member: Me
                 image_url = await asyncio.wait_for(inc.wait(waiter1), timeout=30)
                 if not image_url:
                     WAITING.remove(member.id)
-                    return await selfSendGroupMessage(group, MessageChain.create([Plain("已取消")]))
+                    return await safeSendGroupMessage(group, MessageChain.create([Plain("已取消")]))
             except asyncio.TimeoutError:
                 WAITING.remove(member.id)
-                return await selfSendGroupMessage(group, MessageChain.create([
+                return await safeSendGroupMessage(group, MessageChain.create([
                     Plain("等待超时")
                 ]), quote=source.id)
 
         async with httpx.AsyncClient() as client:
             resp = await client.get(image_url)
             img_bytes = resp.content
-        await selfSendGroupMessage(group, MessageChain.create([Plain("正在生成，请稍后")]))
+        await safeSendGroupMessage(group, MessageChain.create([Plain("正在生成，请稍后")]))
         image = await asyncio.to_thread(make_low_poly, img_bytes)
-        await selfSendGroupMessage(group, MessageChain.create([
+        await safeSendGroupMessage(group, MessageChain.create([
             Image(data_bytes=image)
         ]))
         WAITING.remove(member.id)

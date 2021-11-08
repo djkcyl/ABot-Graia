@@ -15,7 +15,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.element import FlashImage, Image, Plain, Voice
 
 from util.control import Permission
-from util.sendMessage import selfSendGroupMessage
+from util.sendMessage import safeSendGroupMessage
 from database.usertalk import get_message_analysis, add_talk, archive_exists
 
 from .mapping import get_mapping
@@ -42,7 +42,7 @@ async def get_image(app: Ariadne, group: Group):
     time.reverse()
     image = await get_mapping(talk_num, time)
 
-    await selfSendGroupMessage(group, MessageChain.create([Image(data_bytes=image)]))
+    await safeSendGroupMessage(group, MessageChain.create([Image(data_bytes=image)]))
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],

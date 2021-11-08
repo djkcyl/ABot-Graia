@@ -19,7 +19,7 @@ from graia.ariadne.message.element import Plain, Image, Voice, Source
 from database.db import reduce_gold
 from config import yaml_data, group_data
 from util.text2image import create_image
-from util.sendMessage import selfSendGroupMessage
+from util.sendMessage import safeSendGroupMessage
 from util.control import Permission, Interval, Rest
 
 saya = Saya.current()
@@ -59,7 +59,7 @@ async def sing(app: Ariadne, group: Group, member: Member, message: MessageChain
             if waiter1_saying == "取消":
                 return False
             elif waiter1_saying.replace(" ", "") == "":
-                await selfSendGroupMessage(group, MessageChain.create([Plain("请不要输入空格")]))
+                await safeSendGroupMessage(group, MessageChain.create([Plain("请不要输入空格")]))
             else:
                 return waiter1_saying
 
@@ -72,7 +72,7 @@ async def sing(app: Ariadne, group: Group, member: Member, message: MessageChain
                     "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"]:
                 return waiter2_message.asDisplay()
             else:
-                await selfSendGroupMessage(group, MessageChain.create([Plain("请发送歌曲 id<1-10> 来点歌，发送取消可终止本次点歌")]))
+                await safeSendGroupMessage(group, MessageChain.create([Plain("请发送歌曲 id<1-10> 来点歌，发送取消可终止本次点歌")]))
 
     if member.id not in WAITING:
         WAITING.append(member.id)
@@ -82,17 +82,17 @@ async def sing(app: Ariadne, group: Group, member: Member, message: MessageChain
             musicname = saying[1]
             if musicname is None or musicname.replace(" ", "") == "":
                 WAITING.remove(member.id)
-                return await selfSendGroupMessage(group, MessageChain.create([Plain("歌名输入有误")]))
+                return await safeSendGroupMessage(group, MessageChain.create([Plain("歌名输入有误")]))
         else:
-            waite_musicmessageId = await selfSendGroupMessage(group, MessageChain.create([Plain("请发送歌曲名，发送取消即可终止点歌")]))
+            waite_musicmessageId = await safeSendGroupMessage(group, MessageChain.create([Plain("请发送歌曲名，发送取消即可终止点歌")]))
             try:
                 musicname = await asyncio.wait_for(inc.wait(waiter1), timeout=15)
                 if not musicname:
                     WAITING.remove(member.id)
-                    return await selfSendGroupMessage(group, MessageChain.create([Plain("已取消点歌")]))
+                    return await safeSendGroupMessage(group, MessageChain.create([Plain("已取消点歌")]))
             except asyncio.TimeoutError:
                 WAITING.remove(member.id)
-                return await selfSendGroupMessage(group, MessageChain.create([
+                return await safeSendGroupMessage(group, MessageChain.create([
                     Plain("点歌超时")
                 ]), quote=waite_musicmessageId.messageId)
         times = str(int(time.time()))
@@ -100,10 +100,10 @@ async def sing(app: Ariadne, group: Group, member: Member, message: MessageChain
         try:
             if search["result"]["songCount"] == 0:
                 WAITING.remove(member.id)
-                return await selfSendGroupMessage(group, MessageChain.create([Plain("未找到此歌曲")]))
+                return await safeSendGroupMessage(group, MessageChain.create([Plain("未找到此歌曲")]))
         except KeyError:
             WAITING.remove(member.id)
-            return await selfSendGroupMessage(group, MessageChain.create([Plain("内部错误，本次点歌已终止")]))
+            return await safeSendGroupMessage(group, MessageChain.create([Plain("内部错误，本次点歌已终止")]))
         musiclist = search["result"]["songs"]
         musicIdList = []
         num = 1
@@ -128,7 +128,7 @@ async def sing(app: Ariadne, group: Group, member: Member, message: MessageChain
         search = httpx.get(f"{QQ_HOST}/getSearchByKey?key={musicname}").json()
         if search["response"]["data"]["song"]["curnum"] == 0:
             WAITING.remove(member.id)
-            return await selfSendGroupMessage(group, MessageChain.create([Plain("未找到此歌曲")]))
+            return await safeSendGroupMessage(group, MessageChain.create([Plain("未找到此歌曲")]))
         musiclist = search["response"]["data"]["song"]["list"]
         num = 1
         msg += "\n===============================\n为你在QQ音乐找到以下歌曲！\n==============================="
@@ -149,7 +149,7 @@ async def sing(app: Ariadne, group: Group, member: Member, message: MessageChain
 
         msg += "\n===============================\n发送歌曲id可完成点歌\n发送取消可终止当前点歌\n点歌将消耗 4 个游戏币\n==============================="
         image = await create_image(msg)
-        waite_musicmessageId = await selfSendGroupMessage(group, MessageChain.create([
+        waite_musicmessageId = await safeSendGroupMessage(group, MessageChain.create([
             Image(data_bytes=image)
         ]))
 
@@ -157,10 +157,10 @@ async def sing(app: Ariadne, group: Group, member: Member, message: MessageChain
             wantMusicID = await asyncio.wait_for(inc.wait(waiter2), timeout=30)
             if not wantMusicID:
                 WAITING.remove(member.id)
-                return await selfSendGroupMessage(group, MessageChain.create([Plain("已取消点歌")]))
+                return await safeSendGroupMessage(group, MessageChain.create([Plain("已取消点歌")]))
         except asyncio.TimeoutError:
             WAITING.remove(member.id)
-            return await selfSendGroupMessage(group, MessageChain.create([
+            return await safeSendGroupMessage(group, MessageChain.create([
                 Plain("点歌超时")
             ]), quote=waite_musicmessageId.messageId)
 
@@ -203,7 +203,7 @@ async def sing(app: Ariadne, group: Group, member: Member, message: MessageChain
             logger.info(f"正在缓存歌曲：{music_name}")
             if musicurl is None or musicurl == "":
                 WAITING.remove(member.id)
-                return await selfSendGroupMessage(group, MessageChain.create([Plain(f"该歌曲（{music_name}）由于版权问题无法点歌，请使用客户端播放")]))
+                return await safeSendGroupMessage(group, MessageChain.create([Plain(f"该歌曲（{music_name}）由于版权问题无法点歌，请使用客户端播放")]))
             headers = {
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36 Edg/92.0.902.73"
             }
@@ -213,24 +213,24 @@ async def sing(app: Ariadne, group: Group, member: Member, message: MessageChain
 
         if not await reduce_gold(str(member.id), 4):
             WAITING.remove(member.id)
-            return await selfSendGroupMessage(group, MessageChain.create([Plain("你的游戏币不足，无法使用")]), quote=source.id)
+            return await safeSendGroupMessage(group, MessageChain.create([Plain("你的游戏币不足，无法使用")]), quote=source.id)
 
         try:
-            await selfSendGroupMessage(group, MessageChain.create([
+            await safeSendGroupMessage(group, MessageChain.create([
                 Image(url=music_al),
                 Plain(f"\n曲名：{music_name}\n作者：{music_ar}"),
                 Plain("\n超过9:00的歌曲将被裁切前9:00\n歌曲时长越长音质越差\n超过4分钟的歌曲音质将受到较大程度的损伤\n发送语音需要一定时间，请耐心等待")
             ]))
         except Exception:
-            await selfSendGroupMessage(group, MessageChain.create([
+            await safeSendGroupMessage(group, MessageChain.create([
                 Plain(f"曲名：{music_name}\n作者：{music_ar}"),
                 Plain("\n超过9:00的歌曲将被裁切前9:00\n歌曲时长越长音质越差\n超过4分钟的歌曲音质将受到较大程度的损伤\n发送语音需要一定时间，请耐心等待")
             ]))
 
         if music_lyric:
             music_lyric_image = await create_image(music_lyric, 120)
-            await selfSendGroupMessage(group, MessageChain.create([Image(data_bytes=music_lyric_image)]))
+            await safeSendGroupMessage(group, MessageChain.create([Image(data_bytes=music_lyric_image)]))
 
         music_bytes = await silkcoder.encode(MUSIC_PATH.read_bytes(), t=540)
-        await selfSendGroupMessage(group, MessageChain.create([Voice(data_bytes=music_bytes)]))
+        await safeSendGroupMessage(group, MessageChain.create([Voice(data_bytes=music_bytes)]))
         return WAITING.remove(member.id)

@@ -12,7 +12,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 from config import yaml_data, group_data
 from util.control import Permission, Interval
-from util.sendMessage import selfSendGroupMessage
+from util.sendMessage import safeSendGroupMessage
 
 saya = Saya.current()
 channel = Channel.current()
@@ -30,14 +30,14 @@ async def fun_dict(app: Ariadne, group: Group, message: MessageChain, member: Me
 
     saying = message.asDisplay().split(" ", 1)
     if len(saying) != 2:
-        await selfSendGroupMessage(group, MessageChain.create([
+        await safeSendGroupMessage(group, MessageChain.create([
             Plain("用法：查梗 xxxxx")
         ]))
         return
     else:
         say_name = saying[1]
     if yaml_data['Basic']['Permission']['MasterName'].replace(" ", "").upper() in say_name.replace(" ", "").upper() or yaml_data['Basic']['BotName'].replace(" ", "").upper() in say_name.replace(" ", "").upper():
-        await selfSendGroupMessage(group, MessageChain.create([
+        await safeSendGroupMessage(group, MessageChain.create([
             At(member.id),
             Plain(" 爬")
         ]))
@@ -61,11 +61,11 @@ async def fun_dict(app: Ariadne, group: Group, message: MessageChain, member: Me
     # 数据处理
     # 如果列表为空
     if "size" not in r_fun:
-        await selfSendGroupMessage(group, MessageChain.create([
+        await safeSendGroupMessage(group, MessageChain.create([
             Plain("API 访问错误"),
         ]))
     elif r_fun["size"] == 0:
-        await selfSendGroupMessage(group, MessageChain.create([
+        await safeSendGroupMessage(group, MessageChain.create([
             Plain("未找到相应词条：{say_name}"),
         ]))
     else:
@@ -91,7 +91,7 @@ async def fun_dict(app: Ariadne, group: Group, message: MessageChain, member: Me
                     msg_chain.append(Image(url=image["full"]["path"]))
                 msg_chain.append(
                     Plain("----------------------\n数据来源为小鸡词典\nhttps://jikipedia.com/\n如果发现任何有问题的词条，与本bot无关，请前往小鸡词典官网反馈。"))
-                await selfSendGroupMessage(group, MessageChain.create(msg_chain))
+                await safeSendGroupMessage(group, MessageChain.create(msg_chain))
                 break
         # 如本次请求列表内未找到相同标题内容
         else:
@@ -102,7 +102,7 @@ async def fun_dict(app: Ariadne, group: Group, message: MessageChain, member: Me
                 if n > 20:
                     break
                 n += 1
-            await selfSendGroupMessage(str(group.id), MessageChain.create([
+            await safeSendGroupMessage(str(group.id), MessageChain.create([
                 Plain(f"未找到相应词条：{say_name}"),
                 Plain("\n你可能要找？\n --->" + "\n --->".join(r_fun_titles)),
                 Plain("\n数据来源为小鸡词典\nhttps://jikipedia.com/"),

@@ -10,7 +10,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.literature import Literature
 
 from config import yaml_data, group_data
-from util.sendMessage import selfSendGroupMessage
+from util.sendMessage import safeSendGroupMessage
 from util.control import Permission, Interval, Rest
 
 saya = Saya.current()
@@ -40,7 +40,7 @@ async def fun_dict(app: Ariadne, group: Group, message: MessageChain, member: Me
     async with httpx.AsyncClient as client:
         r = await client.post(api_url, json=api_data, headers=api_headers)
     emoji = r.json()
-    await selfSendGroupMessage(str(group.id), MessageChain.create([
+    await safeSendGroupMessage(str(group.id), MessageChain.create([
         At(member.id),
         Plain("\n" + emoji["translation"])
     ]))

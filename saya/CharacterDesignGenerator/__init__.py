@@ -13,7 +13,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 from config import yaml_data, group_data
 from util.text2image import create_image
-from util.sendMessage import selfSendGroupMessage
+from util.sendMessage import safeSendGroupMessage
 from util.control import Permission, Interval, Rest
 
 saya = Saya.current()
@@ -37,7 +37,7 @@ async def rand_designs(app: Ariadne, group: Group, member: Member, source: Sourc
         msg += f"{type[0]}：{type[1]}\n"
 
     image = await create_image(msg)
-    await selfSendGroupMessage(group, MessageChain.create([
+    await safeSendGroupMessage(group, MessageChain.create([
         Image(data_bytes=image)
     ]), quote=source.id)
 
@@ -66,4 +66,4 @@ def get_rand(qid: int, gid: int):
 async def reoald_designs(app: Ariadne, group: Group, member: Member):
     global Designs
     Designs = json.loads(Path(__file__).parent.joinpath("DesignsDICT.json").read_text("UTF-8"))['Designs']
-    await selfSendGroupMessage(group, MessageChain.create([Plain("重载完成")]))
+    await safeSendGroupMessage(group, MessageChain.create([Plain("重载完成")]))
