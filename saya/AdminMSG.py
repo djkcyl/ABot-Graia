@@ -77,7 +77,7 @@ async def Announcement(app: Ariadne, friend: Friend, message: MessageChain):
                     await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
                         Plain(f"{group.id} 的公告发送失败\n{err}")
                     ]))
-                await asyncio.sleep(random.uniform(5, 7))
+                await asyncio.sleep(random.uniform(1, 3))
         tt = time.time()
         times = str(tt - ft)
         await app.sendFriendMessage(friend, MessageChain.create([Plain(f"群发已完成，耗时 {times} 秒")]))

@@ -86,10 +86,10 @@ class Permission:
             user = member
             user_permission = cls.DEFAULT
 
-        if user in user_black_list:
-            res = cls.BANNED
-        elif user in yaml_data["Basic"]["Permission"]["Admin"]:
+        if user in yaml_data["Basic"]["Permission"]["Admin"]:
             res = cls.MASTER
+        elif user in user_black_list:
+            res = cls.BANNED
         elif user_permission in [MemberPerm.Administrator, MemberPerm.Owner]:
             res = cls.GROUP_ADMIN
         else:

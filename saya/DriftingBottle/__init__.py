@@ -17,12 +17,12 @@ from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import Twilight, Sparkle
 
-from config import yaml_data, group_data
 from util.text2image import create_image
 from util.control import Permission, Interval
 from util.TextModeration import text_moderation
 from util.ImageModeration import image_moderation
 from util.sendMessage import safeSendGroupMessage
+from config import yaml_data, group_data, user_black_list, save_config
 
 from .db import throw_bottle, get_bottle, clear_bottle, count_bottle, delete_bottle, get_bottle_by_id
 
@@ -76,7 +76,12 @@ async def throw_bottle_handler(group: Group, member: Member, message: MessageCha
                     image_type = resp.headers['Content-Type']
                     image = resp.content
                     if qrdecode(image):
-                        return await safeSendGroupMessage(group, MessageChain.create("漂流瓶不能携带二维码哦！"))
+                        if member.id in user_black_list:
+                            pass
+                        else:
+                            user_black_list.append(member.id)
+                            save_config()
+                        return await safeSendGroupMessage(group, MessageChain.create("漂流瓶不能携带二维码哦！你已被拉黑"))
                 image_name = str(time.time()) + "." + image_type.split("/")[1]
                 IMAGE_PATH.joinpath(image_name).write_bytes(image)
 
