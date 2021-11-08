@@ -1,6 +1,6 @@
 <div align="center">
 
-# [ABot](https://github.com/djkcyl/ABot-Graia) for [Ariadne](https://github.com/GraiaProject/Ariadne)
+# [ABot](https://github.com/djkcyl/ABot-Graia) [for](https://github.com/project-mirai/mirai-api-http) [Ariadne](https://github.com/GraiaProject/Ariadne)
 
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fdjkcyl%2FABot-Graia.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fdjkcyl%2FABot-Graia?ref=badge_shield)
 
