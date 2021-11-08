@@ -130,11 +130,11 @@ async def remove_white_group(app: Ariadne, friend: Friend, message: MessageChain
 async def fadd_black_user(app: Ariadne, friend: Friend, message: MessageChain):
     Permission.manual(friend, Permission.MASTER)
     saying = message.asDisplay().split()
-    if len(saying) == 2:
-        if int(saying[1]) in user_black_list:
+    if len(saying) == 3:
+        if int(saying[2]) in user_black_list:
             await app.sendFriendMessage(friend, MessageChain.create([Plain("该用户已在黑名单中")]))
         else:
-            user_black_list.append(int(saying[1]))
+            user_black_list.append(int(saying[2]))
             save_config()
             await app.sendFriendMessage(friend, MessageChain.create([Plain("成功将该用户加入黑名单")]))
     else:
@@ -146,11 +146,11 @@ async def fadd_black_user(app: Ariadne, friend: Friend, message: MessageChain):
 async def fremove_block_user(app: Ariadne, friend: Friend, message: MessageChain):
     Permission.manual(friend, Permission.MASTER)
     saying = message.asDisplay().split()
-    if len(saying) == 2:
-        if int(saying[1]) not in user_black_list:
+    if len(saying) == 3:
+        if int(saying[2]) not in user_black_list:
             await app.sendFriendMessage(friend, MessageChain.create([Plain("该用户未在黑名单中")]))
         else:
-            user_black_list.remove(int(saying[1]))
+            user_black_list.remove(int(saying[2]))
             save_config()
             await app.sendFriendMessage(friend, MessageChain.create([Plain("成功将该用户移出白名单")]))
     else:
@@ -177,7 +177,22 @@ async def gadd_black_user(group: Group, message: MessageChain):
                 Plain(" 加入黑名单")
             ]))
     else:
-        await safeSendGroupMessage(group, MessageChain.create([Plain("请at要操作的用户")]))
+        saying = message.asDisplay().split()
+        if len(saying) == 3:
+            if int(saying[2]) in user_black_list:
+                await safeSendGroupMessage(group, MessageChain.create([
+                    Plain("该用户已在黑名单中")
+                ]))
+            else:
+                user_black_list.append(int(saying[2]))
+                save_config()
+                await safeSendGroupMessage(group, MessageChain.create([
+                    Plain("成功将该用户加入黑名单")
+                ]))
+        else:
+            await safeSendGroupMessage(group, MessageChain.create([
+                Plain("未输入qq号")
+            ]))
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
