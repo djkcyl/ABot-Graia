@@ -60,11 +60,16 @@ async def add_gold(qq: str, num: int):
     return True
 
 
-async def reduce_gold(qq: str, num: int):
+async def reduce_gold(qq: str, num: int, force: bool = False):
     init_user(qq)
     gold_num = User.get(qq=qq).gold
     if gold_num < num:
-        return False
+        if force:
+            p = User.update(gold=0).where(User.qq == qq)
+            p.execute()
+            return
+        else:
+            return False
     else:
         p = User.update(gold=User.gold-num).where(User.qq == qq)
         p.execute()
@@ -104,7 +109,7 @@ async def get_ranking():
     user_list = User.select().order_by(User.gold.desc())
     user_num = len(user_list)
     gold_rank = PrettyTable()
-    gold_rank.field_names = [" ID ", "      QQ      ", "         NICK         ", "  GOLD  ", "  TALK  ", "ANSWER", "RANK"]
+    gold_rank.field_names = [" ID ", "      QQ      ", "             NICK             ", "  GOLD  ", "  TALK  ", "ANSWER", "RANK"]
     gold_rank.align[" ID "] = "r"
     gold_rank.align["  GOLD  "] = "r"
     gold_rank.align["  TALK  "] = "r"
@@ -136,7 +141,7 @@ async def get_ranking():
     user_list = User.select().order_by(User.talk_num.desc())
     user_num = len(user_list)
     talk_rank = PrettyTable()
-    talk_rank.field_names = [" ID ", "      QQ      ", "         NICK         ", "  GOLD  ", "  TALK  ", "ANSWER", "RANK"]
+    talk_rank.field_names = [" ID ", "      QQ      ", "             NICK             ", "  GOLD  ", "  TALK  ", "ANSWER", "RANK"]
     talk_rank.align[" ID "] = "r"
     talk_rank.align["  GOLD  "] = "r"
     talk_rank.align["  TALK  "] = "r"
@@ -168,7 +173,7 @@ async def get_ranking():
     user_list = User.select().order_by(User.english_answer.desc())
     user_num = len(user_list)
     answer_rank = PrettyTable()
-    answer_rank.field_names = [" ID ", "      QQ      ", "         NICK         ", "  GOLD  ", "  TALK  ", "ANSWER", "RANK"]
+    answer_rank.field_names = [" ID ", "      QQ      ", "             NICK             ", "  GOLD  ", "  TALK  ", "ANSWER", "RANK"]
     answer_rank.align[" ID "] = "r"
     answer_rank.align["  GOLD  "] = "r"
     answer_rank.align["  TALK  "] = "r"
@@ -198,7 +203,7 @@ async def get_ranking():
     answer_rank = answer_rank.get_string()
 
     return str(f"ABot 排行榜：\n当前共服务了 {user_num} 位用户\n注意：排行榜每十分钟更新一次\n" +
-               "========================================================================================" +
+               "================================================================================================" +
                f"\n游戏币排行榜\n{gold_rank}\n发言排行榜\n{talk_rank}\n答题排行榜\n{answer_rank}\n")
 
 
