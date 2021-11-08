@@ -326,7 +326,7 @@ reference = "tsinghua"
 
 [[package]]
 name = "graia-ariadne"
-version = "0.3.8.3"
+version = "0.3.9"
 description = "An elegant mirai-api-http v2 Python SDK."
 category = "main"
 optional = false
@@ -1470,7 +1470,7 @@ reference = "tsinghua"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.9,<3.10"
-content-hash = "8acc38340bfc04ed176d8ce03de6b885a519e47175526a31cc1bd904f7e19612"
+content-hash = "2115e17c920dda68b4be074c04d02a3a0c6f3d294f67b4dc0f97e4ea639121a3"
 
 [metadata.files]
 aiohttp = [
@@ -1602,8 +1602,8 @@ func-timeout = [
     {file = "func_timeout-4.3.5.tar.gz", hash = "sha256:74cd3c428ec94f4edfba81f9b2f14904846d5ffccc27c92433b8b5939b5575dd"},
 ]
 graia-ariadne = [
-    {file = "graia-ariadne-0.3.8.3.tar.gz", hash = "sha256:7de706dd37805591100f8a8226a88ace27945a593c0ee45a3b1f86477a0ed828"},
-    {file = "graia_ariadne-0.3.8.3-py3-none-any.whl", hash = "sha256:9f9c86c236f1113e1c4841eded311a228978cf735229ac30ac8162e564d63c06"},
+    {file = "graia-ariadne-0.3.9.tar.gz", hash = "sha256:12f1074e2d7dce7bbc649c8d68a38477497eed2fc60ccd792be21620e1e5e31d"},
+    {file = "graia_ariadne-0.3.9-py3-none-any.whl", hash = "sha256:69d6897f8c97dbbdaae00eb0bc25449eae8c5dbf1a3a758d45ab6a339a48128d"},
 ]
 graia-broadcast = [
     {file = "graia-broadcast-0.13.1.tar.gz", hash = "sha256:a22d2678a1946f9084a5f29c469c3c631e039e60dbefd52d683294db998cb075"},
