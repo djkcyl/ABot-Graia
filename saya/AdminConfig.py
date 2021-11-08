@@ -53,7 +53,8 @@ funcList = [
     {"name": "查战绩", "key": "RecordQuery", "can_disabled": True, "default_disabled": False},
     {"name": "明日方舟蹲饼", "key": "ArkNews", "can_disabled": True, "default_disabled": True},
     {"name": "低多边形图片生成", "key": "LowPolygon", "can_disabled": True, "default_disabled": False},
-    {"name": "计算器", "key": "Calculator", "can_disabled": True, "default_disabled": False}
+    {"name": "计算器", "key": "Calculator", "can_disabled": True, "default_disabled": False},
+    {"name": "漂流瓶", "key": "DriftingBottle", "can_disabled": True, "default_disabled": False}
 
 ]
 
@@ -267,6 +268,12 @@ funcHelp = {
         "usage": "发送指令：\n计算器 <式子>",
         "options": "只支持 加！减！乘！除！！！",
         "example": "计算器 60+2*(-3-40.0+42425/5)*(9-2*5/3)"
+    },
+    "漂流瓶": {
+        "instruction": "嗯，就是漂流瓶而已",
+        "usage": "发送指令：\n捞|捡漂流瓶\n丢漂流瓶\n查漂流瓶",
+        "options": "漂流瓶内只可包含最多 400 个文字和 1 张图片",
+        "example": "丢漂流瓶 Hello World!"
     },
 }
 

@@ -10,8 +10,8 @@ from config import yaml_data
 
 async def image_moderation(url: str):
     try:
-        cred = credential.Credential(yaml_data["Saya"]["AnitRecall"]["Moderation"]["secretId"], 
-                                     yaml_data["Saya"]["AnitRecall"]["Moderation"]["secretKey"])
+        cred = credential.Credential(yaml_data["Basic"]["API"]["Tencent"]["secretId"],
+                                     yaml_data["Basic"]["API"]["Tencent"]["secretKey"])
         httpProfile = HttpProfile()
         httpProfile.endpoint = "ims.tencentcloudapi.com"
 

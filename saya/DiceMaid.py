@@ -19,8 +19,8 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            inline_dispatchers=[Twilight(Sparkle([RegexMatch(r".r(\d+)?d?(\d+)?k?(\d+)?")]))],
-                            decorators=[Permission.require(Permission.MASTER), Interval.require(5)]))
+                            inline_dispatchers=[Twilight(Sparkle([RegexMatch(r".r.*")]))],
+                            decorators=[Permission.require(), Interval.require(5)]))
 async def dice(group: Group, message: MessageChain):
 
     if yaml_data['Saya']['DiceMaid']['Disabled']:

@@ -6,9 +6,9 @@ from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.exception import UnknownTarget
 from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.model import Friend, MemberInfo, Group
 from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.model import Friend, MemberInfo, Group, Member
 from graia.ariadne.event.message import GroupMessage, FriendMessage
 from graia.ariadne.message.element import Plain, Source, Quote, At, Image
 
@@ -36,9 +36,9 @@ async def get_botQueue(app: Ariadne, message: MessageChain, source: Source):
 
 
 @channel.use(ListenerSchema(listening_events=[FriendMessage],
-                            inline_dispatchers=[Literature("全员充值")],
-                            decorators=[Permission.require(Permission.MASTER)]))
+                            inline_dispatchers=[Literature("全员充值")]))
 async def all_recharge(app: Ariadne, friend: Friend, message: MessageChain):
+    Permission.manual(friend, Permission.MASTER)
     saying = message.asDisplay().split()
     await give_all_gold(int(saying[1]))
     await app.sendFriendMessage(friend, MessageChain.create([
@@ -47,9 +47,9 @@ async def all_recharge(app: Ariadne, friend: Friend, message: MessageChain):
 
 
 @channel.use(ListenerSchema(listening_events=[FriendMessage],
-                            inline_dispatchers=[Literature("充值")],
-                            decorators=[Permission.require(Permission.MASTER)]))
+                            inline_dispatchers=[Literature("充值")]))
 async def echarge(app: Ariadne, friend: Friend, message: MessageChain):
+    Permission.manual(friend, Permission.MASTER)
     saying = message.asDisplay().split()
     await add_gold(saying[1], int(saying[2]))
     await app.sendFriendMessage(friend, MessageChain.create([
@@ -58,9 +58,9 @@ async def echarge(app: Ariadne, friend: Friend, message: MessageChain):
 
 
 @channel.use(ListenerSchema(listening_events=[FriendMessage],
-                            inline_dispatchers=[Literature("公告")],
-                            decorators=[Permission.require(Permission.MASTER)]))
+                            inline_dispatchers=[Literature("公告")]))
 async def Announcement(app: Ariadne, friend: Friend, message: MessageChain):
+    Permission.manual(friend, Permission.MASTER)
     ft = time.time()
     saying = message.asDisplay().split(" ", 1)
     if len(saying) == 2:
@@ -84,9 +84,9 @@ async def Announcement(app: Ariadne, friend: Friend, message: MessageChain):
 
 
 @channel.use(ListenerSchema(listening_events=[FriendMessage],
-                            inline_dispatchers=[Literature("添加", "群白名单")],
-                            decorators=[Permission.require(Permission.MASTER)]))
+                            inline_dispatchers=[Literature("添加", "群白名单")]))
 async def add_white_group(app: Ariadne, friend: Friend, message: MessageChain):
+    Permission.manual(friend, Permission.MASTER)
     saying = message.asDisplay().split()
     if len(saying) == 2:
         if int(saying[1]) in group_list['white']:
@@ -100,9 +100,9 @@ async def add_white_group(app: Ariadne, friend: Friend, message: MessageChain):
 
 
 @channel.use(ListenerSchema(listening_events=[FriendMessage],
-                            inline_dispatchers=[Literature("取消", "群白名单")],
-                            decorators=[Permission.require(Permission.MASTER)]))
+                            inline_dispatchers=[Literature("取消", "群白名单")]))
 async def remove_white_group(app: Ariadne, friend: Friend, message: MessageChain):
+    Permission.manual(friend, Permission.MASTER)
     saying = message.asDisplay().split()
     if len(saying) == 2:
         if int(saying[1]) not in group_list['white']:
@@ -126,9 +126,9 @@ async def remove_white_group(app: Ariadne, friend: Friend, message: MessageChain
 
 
 @channel.use(ListenerSchema(listening_events=[FriendMessage],
-                            inline_dispatchers=[Literature("拉黑", "用户")],
-                            decorators=[Permission.require(Permission.MASTER)]))
+                            inline_dispatchers=[Literature("拉黑", "用户")]))
 async def fadd_black_user(app: Ariadne, friend: Friend, message: MessageChain):
+    Permission.manual(friend, Permission.MASTER)
     saying = message.asDisplay().split()
     if len(saying) == 2:
         if int(saying[1]) in user_black_list:
@@ -142,9 +142,9 @@ async def fadd_black_user(app: Ariadne, friend: Friend, message: MessageChain):
 
 
 @channel.use(ListenerSchema(listening_events=[FriendMessage],
-                            inline_dispatchers=[Literature("取消拉黑", "用户")],
-                            decorators=[Permission.require(Permission.MASTER)]))
+                            inline_dispatchers=[Literature("取消拉黑", "用户")]))
 async def fremove_block_user(app: Ariadne, friend: Friend, message: MessageChain):
+    Permission.manual(friend, Permission.MASTER)
     saying = message.asDisplay().split()
     if len(saying) == 2:
         if int(saying[1]) not in user_black_list:
@@ -160,7 +160,7 @@ async def fremove_block_user(app: Ariadne, friend: Friend, message: MessageChain
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("拉黑", "用户")],
                             decorators=[Permission.require(Permission.MASTER)]))
-async def gadd_black_user(app: Ariadne, group: Group, message: MessageChain):
+async def gadd_black_user(group: Group, message: MessageChain):
     if message.has(At):
         user = message.getFirst(At).target
         if user in user_black_list:
@@ -183,7 +183,7 @@ async def gadd_black_user(app: Ariadne, group: Group, message: MessageChain):
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("取消拉黑", "用户")],
                             decorators=[Permission.require(Permission.MASTER)]))
-async def gremove_block_user(app: Ariadne, group: Group, member: Member, message: MessageChain):
+async def gremove_block_user(group: Group, message: MessageChain):
     if message.has(At):
         user = message.getFirst(At).target
         if user not in user_black_list:
@@ -201,17 +201,17 @@ async def gremove_block_user(app: Ariadne, group: Group, member: Member, message
 
 
 @channel.use(ListenerSchema(listening_events=[FriendMessage],
-                            inline_dispatchers=[Literature("休息")],
-                            decorators=[Permission.require(Permission.MASTER)]))
+                            inline_dispatchers=[Literature("休息")]))
 async def fset_work(app: Ariadne, friend: Friend):
+    Permission.manual(friend, Permission.MASTER)
     Rest.set_sleep(1)
     await app.sendFriendMessage(friend, MessageChain.create([Plain("已进入休息")]))
 
 
 @channel.use(ListenerSchema(listening_events=[FriendMessage],
-                            inline_dispatchers=[Literature("工作")],
-                            decorators=[Permission.require(Permission.MASTER)]))
+                            inline_dispatchers=[Literature("工作")]))
 async def fset_rest(app: Ariadne, friend: Friend):
+    Permission.manual(friend, Permission.MASTER)
     Rest.set_sleep(0)
     await app.sendFriendMessage(friend, MessageChain.create([Plain("已开始工作")]))
 
@@ -219,7 +219,7 @@ async def fset_rest(app: Ariadne, friend: Friend):
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("休息")],
                             decorators=[Permission.require(Permission.MASTER)]))
-async def gset_work(app: Ariadne, group: Group):
+async def gset_work(group: Group):
     Rest.set_sleep(1)
     await safeSendGroupMessage(group, MessageChain.create([Plain("已进入休息")]))
 
@@ -227,15 +227,15 @@ async def gset_work(app: Ariadne, group: Group):
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("工作")],
                             decorators=[Permission.require(Permission.MASTER)]))
-async def gset_rest(app: Ariadne, group: Group):
+async def gset_rest(group: Group):
     Rest.set_sleep(0)
     await safeSendGroupMessage(group, MessageChain.create([Plain("已开始工作")]))
 
 
 @channel.use(ListenerSchema(listening_events=[FriendMessage],
-                            inline_dispatchers=[Literature("群名片修正")],
-                            decorators=[Permission.require(Permission.MASTER)]))
+                            inline_dispatchers=[Literature("群名片修正")]))
 async def group_card_fix(app: Ariadne, friend: Friend):
+    Permission.manual(friend, Permission.MASTER)
     grouplits = await app.getGroupList()
     i = 0
     for group in grouplits:

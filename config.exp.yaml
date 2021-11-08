@@ -11,7 +11,14 @@ Basic: # 基础配置
     MasterName: "xxxx" # 机器人主人昵称
     Admin: # 机器人管理员
       - 123456789
-
+  API: # 通用 API 接口
+    Tencent:
+      # 腾讯内容安全 API
+      # 图片内容安全开通： https://console.cloud.tencent.com/cms
+      # 文字内容安全开通： https://console.cloud.tencent.com/cms/text/overview
+      # secret 获取地址： https://console.cloud.tencent.com/cam/capi
+      secretId: "xxxxx"
+      secretKey: "xxxxx"
 Saya: # saya 插件配置
   AzureTTS: # 微软文字转语音
     Disabled: false # 是否禁用
@@ -96,12 +103,6 @@ Saya: # saya 插件配置
 
     Moderation:
       Disabled: false
-      # 腾讯内容安全 API
-      # 图片内容安全开通： https://console.cloud.tencent.com/cms
-      # 文字内容安全开通： https://console.cloud.tencent.com/cms/text/overview
-      # secret 获取地址： https://console.cloud.tencent.com/cam/capi
-      secretId: "xxxxx"
-      secretKey: "xxxxx"
 
   Entertainment: # 娱乐功能
     Disabled: false
@@ -162,6 +163,9 @@ Saya: # saya 插件配置
     Disabled: false
 
   Calculator: # 计算器
+    Disabled: false
+
+  DriftingBottle: # 漂流瓶
     Disabled: false
 
 Final: false

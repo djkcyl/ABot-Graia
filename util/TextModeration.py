@@ -13,8 +13,8 @@ async def text_moderation(text: str):
 
     text_base64 = str(base64.b64encode(text.encode('utf-8')), "utf-8")
     try:
-        cred = credential.Credential(yaml_data["Saya"]["AnitRecall"]["Moderation"]["secretId"],
-                                     yaml_data["Saya"]["AnitRecall"]["Moderation"]["secretKey"])
+        cred = credential.Credential(yaml_data["Basic"]["API"]["Tencent"]["secretId"],
+                                     yaml_data["Basic"]["API"]["Tencent"]["secretKey"])
         httpProfile = HttpProfile()
         httpProfile.endpoint = "tms.tencentcloudapi.com"
 

@@ -12,7 +12,7 @@ from typing import DefaultDict, Set, Tuple, Union
 from graia.saya import Channel
 from graia.scheduler.timers import crontabify
 from graia.ariadne.message.element import Plain
-from graia.ariadne.model import Member, MemberPerm
+from graia.ariadne.model import Friend, Member, MemberPerm
 from graia.broadcast.exceptions import ExecutionStop
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.event.message import GroupMessage
@@ -111,9 +111,11 @@ class Permission:
         return Depend(perm_check)
 
     @classmethod
-    def manual(cls, member: Union[Member, int], level: int = DEFAULT) -> Depend:
+    def manual(cls, member: Union[Member, Friend, int], level: int = DEFAULT) -> Depend:
 
         if isinstance(member, Member):
+            member_id = member.id
+        if isinstance(member, Friend):
             member_id = member.id
         if isinstance(member, int):
             member_id = member
