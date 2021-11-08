@@ -7,12 +7,11 @@ import time
 from asyncio import Lock
 from collections import defaultdict
 from graia.ariadne.app import Ariadne
-from typing import DefaultDict, Set, Tuple
+from typing import DefaultDict, Set, Tuple, Union
 
 from graia.saya import Channel
 from graia.scheduler.timers import crontabify
 from graia.ariadne.message.element import Plain
-from graia.ariadne.context import application_ctx
 from graia.ariadne.model import Member, MemberPerm
 from graia.broadcast.exceptions import ExecutionStop
 from graia.ariadne.message.chain import MessageChain
@@ -72,7 +71,7 @@ class Permission:
     DEFAULT = USER
 
     @classmethod
-    def get(cls, member: Member) -> int:
+    def get(cls, member: Union[Member, int]) -> int:
         """
         获取用户的权限
 
@@ -80,8 +79,12 @@ class Permission:
         :return: 等级，整数
         """
 
-        user = member.id
-        user_permission = member.permission
+        if isinstance(member, Member):
+            user = member.id
+            user_permission = member.permission
+        if isinstance(member, int):
+            user = member
+            user_permission = cls.DEFAULT
 
         if user in user_black_list:
             res = cls.BANNED
@@ -106,6 +109,17 @@ class Permission:
                 raise ExecutionStop()
 
         return Depend(perm_check)
+
+    @classmethod
+    def manual(cls, member: Union[Member, int], level: int = DEFAULT) -> Depend:
+
+        if isinstance(member, Member):
+            member_id = member.id
+        if isinstance(member, int):
+            member_id = member
+
+        if cls.get(member_id) < level:
+            raise ExecutionStop()
 
 
 class Interval:
@@ -136,7 +150,6 @@ class Interval:
         """
 
         async def cd_check(event: GroupMessage):
-            print(event.sender.id)
             if Permission.get(event.sender) >= override_level:
                 return
             current = time.time()
@@ -173,7 +186,7 @@ class Interval:
     @classmethod
     async def manual(
         cls,
-        member: int,
+        member: Union[Member, int],
         suspend_time: float = 10,
         max_exec: int = 1,
         override_level: int = Permission.MASTER,

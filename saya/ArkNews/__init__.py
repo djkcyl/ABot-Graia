@@ -78,6 +78,7 @@ async def get_weibo_news(app: Ariadne):
             Plain(f"{detail_url}\n"),
             Image(data_bytes=image)] + [Image(url=x) for x in pics_list]
 
+        await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create(new_id))
         await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create(msg))
         for group in group_list:
             if 'ArkNews' in group_data[str(group.id)]['DisabledFunc']:

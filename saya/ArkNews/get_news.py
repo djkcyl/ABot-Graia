@@ -1,6 +1,7 @@
 import re
 import httpx
 
+from lxml import etree
 from util.browser import get_browser
 
 
@@ -91,16 +92,23 @@ class Game():
         return [x['webUrl'] for x in result['announceList']]
 
     async def get_screenshot(self, url):
-        browser = await get_browser()
-        page = None
-        try:
-            page = await browser.new_page()
-            await page.goto(url, wait_until='networkidle', timeout=10000)
-            await page.set_viewport_size({"width": 500, "height": 273})
-            image = await page.screenshot(full_page=True, type='jpeg', quality=85)
-            await page.close()
-            return image
-        except Exception:
-            if page:
-                await page.close()
-            raise
+        async with httpx.AsyncClient() as client:
+            r = await client.get(url)
+            if "cover-jumper" in r.text:
+                html = etree.HTML(r.text, etree.HTMLParser())
+                img_req = await client.get(html.xpath("/html/body/div/div/div/a/img/@src")[0])
+                return img_req.content
+            else:
+                browser = await get_browser()
+                page = None
+                try:
+                    page = await browser.new_page()
+                    await page.goto(url, wait_until='networkidle', timeout=10000)
+                    await page.set_viewport_size({"width": 300, "height": 273})
+                    image = await page.screenshot(full_page=True, type='jpeg', quality=85)
+                    await page.close()
+                    return image
+                except Exception:
+                    if page:
+                        await page.close()
+                    raise

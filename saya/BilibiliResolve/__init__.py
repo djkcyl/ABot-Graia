@@ -48,7 +48,7 @@ async def bilibili_main(app: Ariadne, group: Group, member: Member, message: Mes
             await Interval.manual(int(video_info["data"]["aid"]))
         try:
             image = await asyncio.to_thread(binfo_image_create, video_info)
-            await selfSendGroupMessage(group, MessageChain.create([Image(data_bytes=image.getvalue())]))
+            await selfSendGroupMessage(group, MessageChain.create([Image(data_bytes=image)]))
         except Exception as err:
             await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
                 Plain(f"B站视频 {video_number} 解析失败\n{err}")

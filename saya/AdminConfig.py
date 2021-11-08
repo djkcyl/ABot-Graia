@@ -334,7 +334,7 @@ async def funchelp(app: Ariadne, group: Group, message: MessageChain):
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Twilight(Sparkle([RegexMatch(r'^[。./]?help$|^帮助$|^菜单$')]))],
                             decorators=[Permission.require()]))
-async def help(app: Ariadne, group: Group):
+async def help(group: Group):
     msg = f"{yaml_data['Basic']['BotName']} 群菜单 / {str(group.id)}\n{group.name}\n========================================================"
     i = 1
     for func in funcList:

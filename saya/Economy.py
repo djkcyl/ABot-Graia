@@ -1,5 +1,4 @@
 from graia.saya import Saya, Channel
-from graia.ariadne.app import Ariadne
 from graia.ariadne.model import Group, Member
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
@@ -19,23 +18,24 @@ channel = Channel.current()
 
 class Sparkle1(Sparkle):
     perfix = FullMatch("赠送游戏币")
-    any1 = RegexMatch(".*", optional=True)
-
-
-twilight = Twilight(Sparkle1)
+    space1 = FullMatch(" ", optional=True)
+    element1 = RegexMatch("\b\\d+\b", optional=True)
+    space2 = FullMatch(" ", optional=True)
+    any1 = RegexMatch(r"\s*-?\d+", optional=True)
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            inline_dispatchers=[twilight],
+                            inline_dispatchers=[Twilight(Sparkle1)],
                             decorators=[Permission.require(), Interval.require(5)]))
-async def adminmain(app: Ariadne, group: Group, member: Member, message: MessageChain, source: Source):
+async def adminmain(group: Group, member: Member, message: MessageChain, source: Source, sparkle: Sparkle):
 
     if yaml_data['Saya']['Entertainment']['Disabled']:
         return
     elif 'Entertainment' in group_data[str(group.id)]['DisabledFunc']:
         return
 
-    saying: Sparkle1 = twilight.gen_sparkle(message)
+    saying: Sparkle1 = sparkle
+    print(saying)
 
     if not message.has(At):
         await selfSendGroupMessage(group, MessageChain.create([
@@ -48,8 +48,23 @@ async def adminmain(app: Ariadne, group: Group, member: Member, message: Message
                 Plain("请勿向自己赠送")
             ]), quote=source.id)
 
-        if saying.any2.matched:
-            num = int(saying.any2.result.getFirst(Plain).text.strip())
+        if saying.any1.matched:
+            result = saying.any1.result.getFirst(Plain).text
+            if len(result) > 20:
+                return await selfSendGroupMessage(group, MessageChain.create("消息过长"))
+            num = abs(int(result.strip()))
+            if "-" in result:
+                if await reduce_gold(str(member.id), num, force=True) is None:
+                    return await selfSendGroupMessage(group, MessageChain.create([
+                        At(member.id),
+                        Plain(f"你的当前游戏币不足以扣除 {num}，已清零！"),
+                    ]))
+                else:
+                    return await selfSendGroupMessage(group, MessageChain.create([
+                        Plain("已扣除 "),
+                        At(member.id),
+                        Plain(f" {num} 游戏币")
+                    ]))
             if not 0 < num <= 1000:
                 return await selfSendGroupMessage(group, MessageChain.create([
                     Plain("请输入 1-1000 以内的金额")

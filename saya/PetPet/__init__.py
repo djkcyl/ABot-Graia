@@ -55,8 +55,8 @@ async def petpet_generator(app: Ariadne, message: MessageChain, group: Group):
 
 
 @channel.use(ListenerSchema(listening_events=[NudgeEvent],
-                            decorators=[Rest.rest_control(), Permission.require()]))
-async def get_nudge(app: Ariadne, nudge: NudgeEvent):
+                            decorators=[Rest.rest_control()]))
+async def get_nudge(nudge: NudgeEvent):
 
     if nudge.group_id:
 
@@ -65,9 +65,10 @@ async def get_nudge(app: Ariadne, nudge: NudgeEvent):
         elif 'PetPet' in group_data[str(nudge.group_id)]['DisabledFunc']:
             return
 
+        Permission.manual(nudge.supplicant)
         await Interval.manual(nudge.group_id, 3)
 
-        logger.info(f"[{nudge.group_id}] 收到戳一戳事件 -> [{nudge.target}]")
+        logger.info(f"[{nudge.group_id}] 收到戳一戳事件 -> [{nudge.supplicant}] - [{nudge.target}]")
         if not os.path.exists("./saya/PetPet/temp"):
             os.mkdir("./saya/PetPet/temp")
 

@@ -3,7 +3,6 @@ import heapq
 import random
 
 from graia.saya import Saya, Channel
-from graia.ariadne.app import Ariadne
 from graia.ariadne.message.element import Plain
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.event.message import Group, GroupMessage
@@ -22,7 +21,7 @@ channel = Channel.current()
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Twilight(Sparkle([RegexMatch(r".r(\d+)?d?(\d+)?k?(\d+)?")]))],
                             decorators=[Permission.require(Permission.MASTER), Interval.require(5)]))
-async def dice(app: Ariadne, group: Group, message: MessageChain):
+async def dice(group: Group, message: MessageChain):
 
     if yaml_data['Saya']['DiceMaid']['Disabled']:
         return
