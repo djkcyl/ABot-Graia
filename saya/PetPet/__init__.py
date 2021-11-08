@@ -14,7 +14,7 @@ from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
 from moviepy.editor import ImageSequenceClip as imageclip
 from graia.ariadne.message.element import At, Image, Plain
-from graia.ariadne.message.parser.pattern import FullMatch
+from graia.ariadne.message.parser.pattern import FullMatch, RegexMatch
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import Sparkle, Twilight
 
@@ -29,6 +29,7 @@ channel = Channel.current()
 
 class Pet_Sparkle(Sparkle):
     math = FullMatch("摸")
+    arg1 = RegexMatch(".*")
 
 
 math = Twilight(Pet_Sparkle, remove_extra_space=True)
@@ -49,7 +50,7 @@ async def petpet_generator(app: Ariadne, message: MessageChain, group: Group):
             os.mkdir("./saya/PetPet/temp")
         await petpet(message.getFirst(At).target)
         await selfSendGroupMessage(group, MessageChain.create([
-            Image.fromLocalFile(f"./saya/PetPet/temp/tempPetPet-{message.getFirst(At).target}.gif")
+            Image(path=f"./saya/PetPet/temp/tempPetPet-{message.getFirst(At).target}.gif")
         ]))
 
 
@@ -78,8 +79,7 @@ async def get_nudge(app: Ariadne, nudge: NudgeEvent):
 
         await petpet(nudge.target)
         await selfSendGroupMessage(nudge.group_id, MessageChain.create([
-            Image.fromLocalFile(
-                f"./saya/PetPet/temp/tempPetPet-{nudge.target}.gif")
+            Image(path=f"./saya/PetPet/temp/tempPetPet-{nudge.target}.gif")
         ]))
 
 
