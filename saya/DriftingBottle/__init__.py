@@ -1,7 +1,11 @@
 import time
 import httpx
+import numpy as np
 
+from io import BytesIO
 from pathlib import Path
+from pyzbar import pyzbar
+from PIL import Image as IMG
 from graia.saya import Saya, Channel
 from graia.ariadne.model import Group, Member
 from graia.ariadne.message.chain import MessageChain
@@ -71,6 +75,8 @@ async def throw_bottle_handler(group: Group, member: Member, message: MessageCha
                     resp = await client.get(image_url)
                     image_type = resp.headers['Content-Type']
                     image = resp.content
+                    if qrdecode(image):
+                        return await safeSendGroupMessage(group, MessageChain.create("漂流瓶不能携带二维码哦！"))
                 image_name = str(time.time()) + "." + image_type.split("/")[1]
                 IMAGE_PATH.joinpath(image_name).write_bytes(image)
 
@@ -180,3 +186,10 @@ async def search_bottle_handler(group: Group, message: MessageChain):
     if bottle.image is not None:
         msg.append(Image(path=IMAGE_PATH.joinpath(bottle.image)))
     await safeSendGroupMessage(group, MessageChain.create(msg))
+
+
+def qrdecode(img):
+    image = IMG.open(BytesIO(img))
+    image_array = np.array(image)
+    image_data = pyzbar.decode(image_array)
+    return len(image_data)

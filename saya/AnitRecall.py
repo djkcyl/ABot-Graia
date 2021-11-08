@@ -5,7 +5,7 @@ from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.event.mirai import GroupRecallEvent
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.exception import AccountMuted, UnknownTarget
-from graia.ariadne.message.element import Plain, Image, FlashImage, Xml, Json, Voice
+from graia.ariadne.message.element import App, Plain, Image, FlashImage, Xml, Json, Voice
 
 from config import yaml_data, group_data
 from util.TextModeration import text_moderation
@@ -26,12 +26,10 @@ async def anitRecall(app: Ariadne, events: GroupRecallEvent):
             recallMsg = await app.getMessageFromId(events.messageId)
             authorMember = await app.getMember(events.group.id, events.authorId)
             authorName = "自己" if events.operator.id == events.authorId else authorMember.name
-            msg = MessageChain.join(
-                MessageChain.create([
-                    Plain(f"{events.operator.name}({events.operator.id})撤回了{authorName}的一条消息:"),
-                    Plain("\n=====================\n")
-                ]),
-                recallMsg)
+            msg = MessageChain.create([
+                Plain(f"{events.operator.name}({events.operator.id})撤回了{authorName}的一条消息:"),
+                Plain("\n=====================\n")
+            ]).extend(recallMsg)
 
             if recallMsg.has(Image):
                 for image in recallMsg.get(Image):
@@ -64,7 +62,7 @@ async def anitRecall(app: Ariadne, events: GroupRecallEvent):
                             ]))
                             return
             if 'AnitRecall' not in group_data[str(events.group.id)]['DisabledFunc'] and not yaml_data['Saya']['AnitRecall']['Disabled']:
-                if recallMsg.has(Voice) or recallMsg.has(Xml) or recallMsg.has(Json):
+                if recallMsg.has(Voice) or recallMsg.has(Xml) or recallMsg.has(Json) or recallMsg.has(App):
                     pass
                 elif recallMsg.has(FlashImage):
                     await safeSendGroupMessage(events.group, MessageChain.create([
