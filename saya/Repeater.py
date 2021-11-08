@@ -11,7 +11,7 @@ from graia.ariadne.message.element import Face, Image, Plain, At
 from config import yaml_data, group_data
 from util.control import Permission, Rest
 from util.TextModeration import text_moderation
-from util.sendMessage import selfSendGroupMessage
+from util.sendMessage import safeSendGroupMessage
 
 saya = Saya.current()
 channel = Channel.current()
@@ -42,7 +42,7 @@ async def repeater(app: Ariadne, group: Group, message: MessageChain):
             if repdict[group.id]['times'] == yaml_data['Saya']['Repeater']['RepeatTimes'] and saying != repdict[group.id]['last']:
                 res = await text_moderation(saying)
                 if res['Suggestion'] == "Pass":
-                    await selfSendGroupMessage(group, MessageChain.create([Plain(saying)]))
+                    await safeSendGroupMessage(group, MessageChain.create([Plain(saying)]))
                     repdict[group.id] = {'msg': saying, 'times': 1, 'last': saying}
         else:
             repdict[group.id]['msg'] = saying
@@ -70,4 +70,4 @@ async def repeateron(app: Ariadne, group: Group, message: MessageChain):
             repdict[group.id] = {'msg': saying, 'times': 1, 'last': saying}
             res = await text_moderation(saying)
             if res['Suggestion'] == "Pass":
-                await selfSendGroupMessage(group, MessageChain.create([Plain(saying)]))
+                await safeSendGroupMessage(group, MessageChain.create([Plain(saying)]))

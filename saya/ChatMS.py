@@ -15,7 +15,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 from config import yaml_data, group_data
 from util.control import Permission, Interval
-from util.sendMessage import selfSendGroupMessage
+from util.sendMessage import safeSendGroupMessage
 
 
 saya = Saya.current()
@@ -46,6 +46,6 @@ async def main(app: Ariadne, group: Group, member: Member, message: MessageChain
             for key in root:
                 if key in saying:
                     await Interval.manual(member.id)
-                    return await selfSendGroupMessage(group, MessageChain.create([
+                    return await safeSendGroupMessage(group, MessageChain.create([
                         Plain(random.choice(root[key]))
                     ]))

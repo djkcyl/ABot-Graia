@@ -10,7 +10,7 @@ from graia.ariadne.message.element import Plain, Image, FlashImage, Xml, Json, V
 from config import yaml_data, group_data
 from util.TextModeration import text_moderation
 from util.ImageModeration import image_moderation
-from util.sendMessage import selfSendGroupMessage
+from util.sendMessage import safeSendGroupMessage
 
 
 saya = Saya.current()
@@ -42,7 +42,7 @@ async def anitRecall(app: Ariadne, events: GroupRecallEvent):
                                 await app.mute(events.group, events.authorId, 60)
                             except Exception:
                                 pass
-                            await selfSendGroupMessage(events.group, MessageChain.create([
+                            await safeSendGroupMessage(events.group, MessageChain.create([
                                 Plain(f"{events.operator.name}({events.operator.id})撤回了{authorName}的一条消息:"),
                                 Plain("\n=====================\n"),
                                 Plain(f"（由于撤回图片内包含 {res['Label']} / {res['SubLabel']} 违规，不予防撤回）")
@@ -57,7 +57,7 @@ async def anitRecall(app: Ariadne, events: GroupRecallEvent):
                                 await app.mute(events.group, events.authorId, 60)
                             except Exception:
                                 pass
-                            await selfSendGroupMessage(events.group, MessageChain.create([
+                            await safeSendGroupMessage(events.group, MessageChain.create([
                                 Plain(f"{events.operator.name}({events.operator.id})撤回了{authorName}的一条消息:"),
                                 Plain("\n=====================\n"),
                                 Plain(f"\n（由于撤回文字内包含 {res['Label']} 违规，不予防撤回）")
@@ -67,10 +67,10 @@ async def anitRecall(app: Ariadne, events: GroupRecallEvent):
                 if recallMsg.has(Voice) or recallMsg.has(Xml) or recallMsg.has(Json):
                     pass
                 elif recallMsg.has(FlashImage):
-                    await selfSendGroupMessage(events.group, MessageChain.create([
+                    await safeSendGroupMessage(events.group, MessageChain.create([
                         Plain("闪照不予防撤回")
                     ]))
                 else:
-                    await selfSendGroupMessage(events.group, msg.asSendable())
+                    await safeSendGroupMessage(events.group, msg.asSendable())
         except (AccountMuted, UnknownTarget):
             pass

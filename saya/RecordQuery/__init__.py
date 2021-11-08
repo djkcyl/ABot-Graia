@@ -15,7 +15,7 @@ from graia.ariadne.message.element import Image, Source, Plain, At
 
 from config import yaml_data, group_data
 from util.control import Permission, Interval
-from util.sendMessage import selfSendGroupMessage
+from util.sendMessage import safeSendGroupMessage
 
 from .draw_record_image import AUTH, DATABASE, draw_r6
 
@@ -54,7 +54,7 @@ async def main(app: Ariadne, group: Group, member: Member, message: MessageChain
             if waiter1_saying == "取消":
                 return False
             elif waiter1_saying.replace(" ", "") == "":
-                await selfSendGroupMessage(group, MessageChain.create([Plain("请不要输入空格")]))
+                await safeSendGroupMessage(group, MessageChain.create([Plain("请不要输入空格")]))
             else:
                 return waiter1_saying
 
@@ -68,7 +68,7 @@ async def main(app: Ariadne, group: Group, member: Member, message: MessageChain
             elif saying == "否":
                 return False
             else:
-                await selfSendGroupMessage(group, MessageChain.create([
+                await safeSendGroupMessage(group, MessageChain.create([
                     At(confirm_member.id),
                     Plain("请发送是或否来进行确认")
                 ]), quote=confirm_source)
@@ -85,7 +85,7 @@ async def main(app: Ariadne, group: Group, member: Member, message: MessageChain
                 atid = str(message.getFirst(At).target)
                 if atid not in bind:
                     WAITING.remove(member.id)
-                    return await selfSendGroupMessage(group, MessageChain.create([
+                    return await safeSendGroupMessage(group, MessageChain.create([
                         At(atid),
                         Plain(" 暂未绑定账号")
                     ]))
@@ -94,14 +94,14 @@ async def main(app: Ariadne, group: Group, member: Member, message: MessageChain
             elif str(member.id) not in bind:
                 # 等待输入昵称
                 try:
-                    await selfSendGroupMessage(group, MessageChain.create([Plain("未绑定账号，请输入你的游戏昵称，不支持改绑，请谨慎填写")]))
+                    await safeSendGroupMessage(group, MessageChain.create([Plain("未绑定账号，请输入你的游戏昵称，不支持改绑，请谨慎填写")]))
                     nick_name = await asyncio.wait_for(inc.wait(waiter1), timeout=60)
                     if not nick_name:
                         WAITING.remove(member.id)
-                        return await selfSendGroupMessage(group, MessageChain.create([Plain("已取消")]))
+                        return await safeSendGroupMessage(group, MessageChain.create([Plain("已取消")]))
                 except asyncio.TimeoutError:
                     WAITING.remove(member.id)
-                    return await selfSendGroupMessage(group, MessageChain.create([
+                    return await safeSendGroupMessage(group, MessageChain.create([
                         Plain("等待超时")
                     ]), quote=source.id)
 
@@ -114,37 +114,37 @@ async def main(app: Ariadne, group: Group, member: Member, message: MessageChain
                 if resp.status_code == 200:
                     # 询问是否绑定
                     try:
-                        confirm_wait = await selfSendGroupMessage(group, MessageChain.create([
+                        confirm_wait = await safeSendGroupMessage(group, MessageChain.create([
                             Plain(f"已搜索到用户：{player_data['payload']['user']['nickname']}"),
                             Plain(f"\nUUID：{player_data['payload']['user']['id']}"),
                             Plain("\n是否需要绑定此账号？")
                         ]))
                         if not await asyncio.wait_for(inc.wait(confirm), timeout=15):
                             WAITING.remove(member.id)
-                            return await selfSendGroupMessage(group, MessageChain.create([Plain("已取消")]))
+                            return await safeSendGroupMessage(group, MessageChain.create([Plain("已取消")]))
                         else:
                             WAITING.remove(member.id)
                             bind[str(member.id)] = player_data["payload"]["user"]["nickname"]
                             with BINDFILE.open('w', encoding="utf-8") as f:
                                 json.dump(bind, f, indent=2)
-                            return await selfSendGroupMessage(group, MessageChain.create([
+                            return await safeSendGroupMessage(group, MessageChain.create([
                                 Plain(f"绑定成功：{nick_name}")
                             ]))
                     except asyncio.TimeoutError:
                         WAITING.remove(member.id)
-                        return await selfSendGroupMessage(group, MessageChain.create([
+                        return await safeSendGroupMessage(group, MessageChain.create([
                             Plain("等待超时")
                         ]), quote=confirm_wait.messageId)
                 # 如果没搜索到
                 elif resp.status_code == 404:
                     WAITING.remove(member.id)
-                    return await selfSendGroupMessage(group, MessageChain.create([
+                    return await safeSendGroupMessage(group, MessageChain.create([
                         Plain(f"未搜索到该昵称：{nick_name}")
                     ]))
                 # 如果其他错误
                 else:
                     WAITING.remove(member.id)
-                    return await selfSendGroupMessage(group, MessageChain.create([
+                    return await safeSendGroupMessage(group, MessageChain.create([
                         Plain(f"未知错误：{player_data['message']}")
                     ]))
             else:
@@ -152,16 +152,16 @@ async def main(app: Ariadne, group: Group, member: Member, message: MessageChain
         else:
             nick_name = saying[2]
 
-        await selfSendGroupMessage(group, MessageChain.create([
+        await safeSendGroupMessage(group, MessageChain.create([
             Plain(f"正在查询：{nick_name}")
         ]))
         image = await draw_r6(nick_name)
         if image:
-            await selfSendGroupMessage(group, MessageChain.create([
+            await safeSendGroupMessage(group, MessageChain.create([
                 Image(data_bytes=image)
             ]), quote=source.id)
         else:
-            await selfSendGroupMessage(group, MessageChain.create([
+            await safeSendGroupMessage(group, MessageChain.create([
                 Plain(f"未搜索到该昵称：{nick_name}")
             ]))
 

@@ -16,7 +16,7 @@ from graia.ariadne.event.lifecycle import ApplicationLaunched, ApplicationShutdo
 from graia.ariadne.event.mirai import NewFriendRequestEvent, BotInvitedJoinGroupRequestEvent, BotJoinGroupEvent, BotLeaveEventKick, BotGroupPermissionChangeEvent, BotMuteEvent, MemberCardChangeEvent, MemberJoinEvent
 
 from util.control import Rest
-from util.sendMessage import selfSendGroupMessage
+from util.sendMessage import safeSendGroupMessage
 from config import save_config, yaml_data, group_data, group_list
 
 from .AdminConfig import groupInitData
@@ -153,7 +153,7 @@ async def get_BotJoinGroup(app: Ariadne, joingroup: BotJoinGroupEvent):
     ]))
 
     if joingroup.group.id not in group_list['white']:
-        await selfSendGroupMessage(joingroup.group.id, MessageChain.create([
+        await safeSendGroupMessage(joingroup.group.id, MessageChain.create([
             Plain("该群未在白名单中，正在退出")
         ]))
         await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
@@ -165,7 +165,7 @@ async def get_BotJoinGroup(app: Ariadne, joingroup: BotJoinGroupEvent):
         group_data[str(joingroup.group.id)] = groupInitData
         print("已为该群初始化配置文件")
         save_config()
-        await selfSendGroupMessage(joingroup.group.id, MessageChain.create([
+        await safeSendGroupMessage(joingroup.group.id, MessageChain.create([
             Plain(f"我是{yaml_data['Basic']['Permission']['MasterName']}"),
             Plain(f"的机器人{yaml_data['Basic']['BotName']}，"),
             Plain(f"如果有需要可以联系主人QQ”{str(yaml_data['Basic']['Permission']['Master'])}“，"),
@@ -250,11 +250,11 @@ async def get_BotCardChange(app: Ariadne, events: MemberCardChangeEvent):
             await app.modifyMemberInfo(member=yaml_data['Basic']['MAH']['BotQQ'],
                                        info=MemberInfo(name=yaml_data['Basic']['BotName']),
                                        group=events.member.group.id)
-            await selfSendGroupMessage(events.member.group.id, MessageChain.create([
+            await safeSendGroupMessage(events.member.group.id, MessageChain.create([
                 Plain("请不要修改我的群名片")
             ]))
     else:
-        await selfSendGroupMessage(events.member.group, MessageChain.create([
+        await safeSendGroupMessage(events.member.group, MessageChain.create([
             At(events.member.id),
             Plain(f" 的群名片由 {events.origin} 被修改为 {events.current}")
         ]))
@@ -273,4 +273,4 @@ async def getMemberJoinEvent(app: Ariadne, events: MemberJoinEvent):
     if group_data[str(events.member.group.id)]["WelcomeMSG"]["Enabled"]:
         welcomeMsg = group_data[str(events.member.group.id)]["WelcomeMSG"]['Message']
         msg.append(Plain(f"\n{welcomeMsg}"))
-    await selfSendGroupMessage(events.member.group, MessageChain.create(msg))
+    await safeSendGroupMessage(events.member.group, MessageChain.create(msg))

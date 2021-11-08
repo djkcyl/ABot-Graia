@@ -17,7 +17,7 @@ from graia.ariadne.event.lifecycle import ApplicationLaunched
 from graia.ariadne.message.parser.literature import Literature
 
 from util.control import Permission
-from util.sendMessage import selfSendGroupMessage
+from util.sendMessage import safeSendGroupMessage
 
 from .mapping import get_mapping
 
@@ -60,4 +60,4 @@ async def cpuStatus():
                             decorators=[Permission.require(Permission.MASTER)]))
 async def get_image(app: Ariadne, group: Group):
     image = await get_mapping(CPU_USAGE, MEM_USAGE, int(psutil.virtual_memory().total / 1000000))
-    await selfSendGroupMessage(group, MessageChain.create([Image(data_bytes=image)]))
+    await safeSendGroupMessage(group, MessageChain.create([Image(data_bytes=image)]))

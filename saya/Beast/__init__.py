@@ -9,7 +9,7 @@ from graia.ariadne.message.parser.literature import Literature
 
 from config import yaml_data, group_data
 from util.TextModeration import text_moderation
-from util.sendMessage import selfSendGroupMessage
+from util.sendMessage import safeSendGroupMessage
 from util.control import Permission, Interval, Rest
 
 from .beast import encode, decode
@@ -34,11 +34,11 @@ async def main_encode(app: Ariadne, group: Group, message: MessageChain, source:
         try:
             msg = encode(saying[1])
             if (len(msg)) < 500:
-                await selfSendGroupMessage(group, MessageChain.create([Plain(msg)]), quote=source.id)
+                await safeSendGroupMessage(group, MessageChain.create([Plain(msg)]), quote=source.id)
             else:
-                await selfSendGroupMessage(group, MessageChain.create([Plain("文字过长")]), quote=source.id)
+                await safeSendGroupMessage(group, MessageChain.create([Plain("文字过长")]), quote=source.id)
         except Exception:
-            await selfSendGroupMessage(group, MessageChain.create([Plain("明文错误``")]), quote=source.id)
+            await safeSendGroupMessage(group, MessageChain.create([Plain("明文错误``")]), quote=source.id)
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
@@ -57,6 +57,6 @@ async def main_decode(app: Ariadne, group: Group, message: MessageChain, source:
             msg = decode(saying[1])
             res = await text_moderation(msg)
             if res['Suggestion'] == "Pass":
-                await selfSendGroupMessage(group, MessageChain.create([Plain(msg)]), quote=source.id)
+                await safeSendGroupMessage(group, MessageChain.create([Plain(msg)]), quote=source.id)
         except Exception:
-            await selfSendGroupMessage(group, MessageChain.create([Plain("密文错误``")]), quote=source.id)
+            await safeSendGroupMessage(group, MessageChain.create([Plain("密文错误``")]), quote=source.id)

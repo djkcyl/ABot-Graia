@@ -9,7 +9,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.element import At, Plain, Quote, Source
 
 from util.control import Permission
-from util.sendMessage import selfSendGroupMessage
+from util.sendMessage import safeSendGroupMessage
 
 
 saya = Saya.current()
@@ -38,14 +38,14 @@ async def main(app: Ariadne, group: Group, message: MessageChain):
     if message.asDisplay().split()[1] == "on":
         if REPEATER["statu"]:
             repid = REPEATER["member"].id
-            return await selfSendGroupMessage(group, MessageChain.create([
+            return await safeSendGroupMessage(group, MessageChain.create([
                 Plain(f"复读机当前为开启状态\n正在复读的用户：{repid}")
             ]))
         else:
             REPEATER["statu"] = True
             REPEATER["group"] = group.id
             REPEATER["member"] = message.getFirst(At).target
-            return await selfSendGroupMessage(group, MessageChain.create([
+            return await safeSendGroupMessage(group, MessageChain.create([
                 Plain("复读机开始工作")
             ]))
     elif message.asDisplay().split()[1] == "off":
@@ -53,11 +53,11 @@ async def main(app: Ariadne, group: Group, message: MessageChain):
             REPEATER["statu"] = False
             REPEATER["group"] = None
             REPEATER["member"] = None
-            return await selfSendGroupMessage(group, MessageChain.create([
+            return await safeSendGroupMessage(group, MessageChain.create([
                 Plain("复读机已关闭")
             ]))
         else:
-            return await selfSendGroupMessage(group, MessageChain.create([
+            return await safeSendGroupMessage(group, MessageChain.create([
                 Plain("复读机当前未开启")
             ]))
 
@@ -67,7 +67,7 @@ async def rep(app: Ariadne, group: Group, member: Member, message: MessageChain,
 
     if REPEATER["statu"] and REPEATER["group"] == group.id and REPEATER["member"] == member.id:
         quote_id = message.getFirst(Quote).id if message.has(Quote) else None
-        masid = await selfSendGroupMessage(group, message.asSendable(), quote=quote_id)
+        masid = await safeSendGroupMessage(group, message.asSendable(), quote=quote_id)
         MESSAGEID["bot"].append(masid.messageId)
         MESSAGEID["origin"].append(source.id)
 

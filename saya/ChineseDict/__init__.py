@@ -11,7 +11,7 @@ from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 from config import yaml_data, group_data
-from util.sendMessage import selfSendGroupMessage
+from util.sendMessage import safeSendGroupMessage
 from util.control import Permission, Interval, Rest
 
 from .page_screenshot import get_hans_screenshot
@@ -44,8 +44,8 @@ async def dict(app: Ariadne, group: Group, message: MessageChain):
                 "//div[@class='entry_title']/div[@class='ciif noi zisong']")
             if res_c_center_div_z or res_c_center_div_c:
                 image = await get_hans_screenshot(url)
-                await selfSendGroupMessage(group, MessageChain.create([Image(data_bytes=image)]))
+                await safeSendGroupMessage(group, MessageChain.create([Image(data_bytes=image)]))
             else:
-                await selfSendGroupMessage(group, MessageChain.create([Plain(f"未找到该条目\n{dict_name}")]))
+                await safeSendGroupMessage(group, MessageChain.create([Plain(f"未找到该条目\n{dict_name}")]))
         except Exception as error:
-            await selfSendGroupMessage(group, MessageChain.create([Plain(f"截图创建失败\n{error}")]))
+            await safeSendGroupMessage(group, MessageChain.create([Plain(f"截图创建失败\n{error}")]))

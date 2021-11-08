@@ -6,7 +6,7 @@ from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import At, Plain, Source
 
 
-async def selfSendGroupMessage(target: Union[Group, int],
+async def safeSendGroupMessage(target: Union[Group, int],
                                message: MessageChain,
                                quote: Optional[Union[Source, int]] = None) -> BotMessage:
     app = application_ctx.get()

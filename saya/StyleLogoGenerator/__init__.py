@@ -10,7 +10,7 @@ from graia.ariadne.message.parser.twilight import Twilight, Sparkle
 from graia.ariadne.message.parser.pattern import RegexMatch
 
 from config import yaml_data, group_data
-from util.sendMessage import selfSendGroupMessage
+from util.sendMessage import safeSendGroupMessage
 from util.control import Permission, Interval, Rest
 
 
@@ -45,7 +45,7 @@ async def gosencho_handler(app: Ariadne, message: MessageChain, group: Group):
 
     msg = await StylePictureGeneraterHandler.handle(group, message)
     if msg:
-        await selfSendGroupMessage(group, await StylePictureGeneraterHandler.gosencho_en_hoshi_style_image_generator(message))
+        await safeSendGroupMessage(group, await StylePictureGeneraterHandler.gosencho_en_hoshi_style_image_generator(message))
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
@@ -60,7 +60,7 @@ async def pornhub_handler(app: Ariadne, message: MessageChain, group: Group):
 
     msg = await StylePictureGeneraterHandler.handle(group, message)
     if msg:
-        await selfSendGroupMessage(group, await StylePictureGeneraterHandler.pornhub_style_image_generator(message))
+        await safeSendGroupMessage(group, await StylePictureGeneraterHandler.pornhub_style_image_generator(message))
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
@@ -75,7 +75,7 @@ async def youtube_handler(app: Ariadne, message: MessageChain, group: Group):
 
     msg = await StylePictureGeneraterHandler.handle(group, message)
     if msg:
-        await selfSendGroupMessage(group, await StylePictureGeneraterHandler.youtube_style_image_generator(message))
+        await safeSendGroupMessage(group, await StylePictureGeneraterHandler.youtube_style_image_generator(message))
 
 
 class StylePictureGeneraterHandler():

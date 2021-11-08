@@ -90,7 +90,7 @@ def binfo_image_create(video_info: str):
     draw.text((5 + 154, 100), view, "#474747", info_font)
     draw.text((5 + 100 + 210, 93), "\uE6E7", icon_color, icon_font)
     draw.text((5 + 154 + 210, 100), danmaku, "#474747", info_font)
-    
+
     info_bg_y = info_bg.size[1]
     bg_y += info_bg_y
 

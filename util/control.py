@@ -20,7 +20,7 @@ from graia.broadcast.builtin.decorators import Depend
 from graia.scheduler.saya.schema import SchedulerSchema
 
 from config import user_black_list, yaml_data
-from .sendMessage import selfSendGroupMessage
+from .sendMessage import safeSendGroupMessage
 
 channel = Channel.current()
 
@@ -167,7 +167,7 @@ class Interval:
                     return
                 if event.sender.id not in cls.sent_alert:
                     if not silent:
-                        await selfSendGroupMessage(
+                        await safeSendGroupMessage(
                             event.sender.group,
                             MessageChain.create(
                                 [

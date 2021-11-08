@@ -15,7 +15,7 @@ from graia.ariadne.event.message import GroupMessage, FriendMessage
 
 from config import yaml_data, group_data
 from util.control import Permission, Interval
-from util.sendMessage import selfSendGroupMessage
+from util.sendMessage import safeSendGroupMessage
 from database.db import sign, add_gold, get_info, add_talk, reset_sign, all_sign_num
 
 saya = Saya.current()
@@ -57,7 +57,7 @@ async def main(app: Ariadne, group: Group, member: Member):
     else:
         time_nick = f"（假装现在是晚上11点）唔。。还没睡吗？要像{yaml_data['Basic']['BotName']}一样做一个乖孩子，早睡早起身体好喔！晚安❤"
 
-    await selfSendGroupMessage(group, MessageChain.create([
+    await safeSendGroupMessage(group, MessageChain.create([
         Plain(f"{time_nick}，{member.name}"),
         Plain(f"\n{sign_text}"),
         Plain(f"\n当前共有 {str(user_info[3])} 个游戏币"),
