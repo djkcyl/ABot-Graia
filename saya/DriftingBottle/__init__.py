@@ -7,15 +7,15 @@ from graia.ariadne.model import Group, Member
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.event.message import GroupMessage
 from graia.broadcast.interrupt import InterruptControl
-from graia.ariadne.message.element import Image, Plain, At
+from graia.ariadne.message.element import Image, Plain, At, Source
 from graia.ariadne.message.parser.pattern import RegexMatch
 from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import Twilight, Sparkle
 
 from config import yaml_data, group_data
-from util.control import Permission, Interval
 from util.text2image import create_image
+from util.control import Permission, Interval
 from util.TextModeration import text_moderation
 from util.ImageModeration import image_moderation
 from util.sendMessage import safeSendGroupMessage
@@ -34,7 +34,7 @@ IMAGE_PATH.mkdir(exist_ok=True)
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("丢漂流瓶")],
                             decorators=[Permission.require(), Interval.require(600)]))
-async def throw_bottle_handler(group: Group, member: Member, message: MessageChain):
+async def throw_bottle_handler(group: Group, member: Member, message: MessageChain, source: Source):
 
     if yaml_data['Saya']['DriftingBottle']['Disabled']:
         return
@@ -58,8 +58,7 @@ async def throw_bottle_handler(group: Group, member: Member, message: MessageCha
                     return await safeSendGroupMessage(group, MessageChain.create("你的漂流瓶内包含违规内容，请检查后重新丢漂流瓶！"))
             elif text_len := len(text) > 400:
                 return await safeSendGroupMessage(group, MessageChain.create(f"你的漂流瓶内容过长（{text_len} / 400）！"))
-            else:
-                return await safeSendGroupMessage(group, MessageChain.create("丢漂流瓶的话，请加上漂流瓶的内容！"))
+
         if message.has(Image):
             if len(message.get(Image)) > 1:
                 return await safeSendGroupMessage(group, MessageChain.create("丢漂流瓶的话，只能携带一张图片哦！"))
@@ -75,10 +74,13 @@ async def throw_bottle_handler(group: Group, member: Member, message: MessageCha
                 image_name = str(time.time()) + "." + image_type.split("/")[1]
                 IMAGE_PATH.joinpath(image_name).write_bytes(image)
 
+        if text is None and image_name is None:
+            return await safeSendGroupMessage(group, MessageChain.create("丢漂流瓶的话，请加上漂流瓶的内容！"))
+
         bottle = throw_bottle(member, text, image_name)
         await safeSendGroupMessage(group, MessageChain.create([
             At(member.id), Plain(f" 丢出了一个漂流瓶！\n瓶子编号为：{bottle}")
-        ]))
+        ]), quote=source)
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
@@ -107,22 +109,6 @@ async def pick_bottle_handler(group: Group):
         if bottle['image'] is not None:
             msg.append(Image(path=IMAGE_PATH.joinpath(bottle['image'])))
         await safeSendGroupMessage(group, MessageChain.create(msg))
-
-
-@channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            inline_dispatchers=[Literature("查漂流瓶")],
-                            decorators=[Permission.require(), Interval.require()]))
-async def check_bottle_handler(group: Group):
-
-    if yaml_data['Saya']['DriftingBottle']['Disabled']:
-        return
-    elif 'DriftingBottle' in group_data[str(group.id)]['DisabledFunc']:
-        return
-
-    count = count_bottle()
-    msg = f"目前有 {count} 个漂流瓶在漂流" if count > 0 else "目前没有漂流瓶在漂流"
-
-    await safeSendGroupMessage(group, MessageChain.create([Plain(msg)]))
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
@@ -163,8 +149,34 @@ async def delete_bottle_handler(group: Group, message: MessageChain):
 
     bottle_id = int(saying[1])
     bottle = get_bottle_by_id(bottle_id)
-    if bottle is None:
+    if not bottle:
         return await safeSendGroupMessage(group, MessageChain.create("没有这个漂流瓶！"))
 
     delete_bottle(bottle_id)
     await safeSendGroupMessage(group, MessageChain.create("漂流瓶已经删除！"))
+
+
+@channel.use(ListenerSchema(listening_events=[GroupMessage],
+                            inline_dispatchers=[Literature("查漂流瓶")],
+                            decorators=[Permission.require(Permission.MASTER)]))
+async def search_bottle_handler(group: Group, message: MessageChain):
+
+    saying = message.asDisplay().split(" ", 1)
+
+    if len(saying) == 1:
+        return await safeSendGroupMessage(group, MessageChain.create("请输入要查找的漂流瓶编号！"))
+
+    bottle_id = int(saying[1])
+    bottle = get_bottle_by_id(bottle_id)
+    if not bottle:
+        return await safeSendGroupMessage(group, MessageChain.create("没有这个漂流瓶！"))
+
+    bottle = bottle[0]
+    msg = [Plain(f"漂流瓶编号为：{bottle.id}\n"
+                 f"漂流瓶来自 {bottle.group} 群的 {bottle.member}\n")]
+    if bottle.text is not None:
+        image = await create_image(bottle.text)
+        msg.append(Image(data_bytes=image))
+    if bottle.image is not None:
+        msg.append(Image(path=IMAGE_PATH.joinpath(bottle.image)))
+    await safeSendGroupMessage(group, MessageChain.create(msg))

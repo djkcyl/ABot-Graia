@@ -348,7 +348,6 @@ async def sub_list(app: Ariadne, group: Group):
 
     sublist = []
     for subid in get_group_sublist(group.id):
-        remove_uid(subid, group.id)
         sublist.append(subid)
     sublist_count = len(sublist)
     if sublist_count == 0:
