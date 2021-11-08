@@ -1,8 +1,10 @@
+import time
 import httpx
 import datetime
 
 from pathlib import Path
 from loguru import logger
+from graiax import silkcoder
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.model import Group, Member
@@ -53,16 +55,27 @@ async def add_talk_word(app: Ariadne, group: Group, member: Member, message: Mes
     elif message.has(Image):
         image_list = message.get(Image)
         for image in image_list:
-            await download(app, image.url, image.id, "image", 2)
-            await add_talk(str(member.id), str(group.id), 2, image.id, image.url)
+            image_id = image.url.split('/')[5].split("-")[2]
+            async with httpx.AsyncClient() as client:
+                rep = await client.get(image.url)
+            content_type = rep.headers["content-type"].split("/")[1]
+            image_name = f"{image_id}.{content_type}"
+            await download(image.url, image_name, "image", 2)
+            await add_talk(str(member.id), str(group.id), 2, image_name, image.url)
     elif message.has(FlashImage):
         flash_image = message.getFirst(FlashImage)
-        await download(app, flash_image.url, flash_image.id, "flashimage", 3)
-        await add_talk(str(member.id), str(group.id), 3, flash_image.id, flash_image.url)
+        image_id = flash_image.url.split('/')[5].split("-")[2]
+        async with httpx.AsyncClient() as client:
+            rep = await client.get(flash_image.url)
+        content_type = rep.headers["content-type"].split("/")[1]
+        image_name = f"{image_id}.{content_type}"
+        await download(flash_image.url, image_name, "flashimage", 3)
+        await add_talk(str(member.id), str(group.id), 3, image_name, flash_image.url)
     elif message.has(Voice):
         voice = message.getFirst(Voice)
-        await download(app, voice.url, voice.id, "voice", 4)
-        await add_talk(str(member.id), str(group.id), 4, voice.id, voice.url)
+        voice_id = f"{member.id}-{int(time.time() * 100)}"
+        await download(voice.url, voice_id, "voice", 4)
+        await add_talk(str(member.id), str(group.id), 4, voice_id, voice.url)
 
 
 async def download(url, name, path, type):
@@ -72,6 +85,10 @@ async def download(url, name, path, type):
     if not await archive_exists(name, type):
         async with httpx.AsyncClient() as client:
             r = await client.get(url)
-            now_path.joinpath(name).write_bytes(r.content)
+            if type == 4:
+                f = await silkcoder.decode(r.content, audio_format="mp3")
+            else:
+                f = r.content
+            now_path.joinpath(f"{name}.mp3").write_bytes(f)
     else:
         logger.info(f"已存在的文件 - {name}")

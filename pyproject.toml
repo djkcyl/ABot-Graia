@@ -1,6 +1,6 @@
 [tool.poetry]
-name = "abot-v5"
-version = "0.1.0"
+name = "abot-mahv2"
+version = "2.0.0"
 description = ""
 authors = ["djkcyl <cyl@cyllive.cn>"]
 

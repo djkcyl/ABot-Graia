@@ -11,7 +11,7 @@ async def selfSendGroupMessage(target: Union[Group, int],
                                quote: Optional[Union[Source, int]] = None) -> BotMessage:
     app = application_ctx.get()
     try:
-        return await selfSendGroupMessage(target, message, quote=quote)
+        return await app.sendGroupMessage(target, message, quote=quote)
     except UnknownTarget:
         msg = []
         for element in message.__root__:
@@ -25,6 +25,6 @@ async def selfSendGroupMessage(target: Union[Group, int],
                 continue
             msg.append(element)
         try:
-            return await selfSendGroupMessage(target, MessageChain.create(msg), quote=quote)
+            return await app.sendGroupMessage(target, MessageChain.create(msg), quote=quote)
         except UnknownTarget:
-            return await selfSendGroupMessage(target, MessageChain.create(msg))
+            return await app.sendGroupMessage(target, MessageChain.create(msg))

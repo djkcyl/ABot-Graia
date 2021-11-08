@@ -19,10 +19,7 @@ channel = Channel.current()
 
 class Sparkle1(Sparkle):
     perfix = FullMatch("赠送游戏币")
-    space1 = FullMatch(" ", optional=True)
     any1 = RegexMatch(".*", optional=True)
-    space2 = FullMatch(" ", optional=True)
-    any2 = RegexMatch(".*", optional=True)
 
 
 twilight = Twilight(Sparkle1)

@@ -21,6 +21,7 @@ from graia.broadcast.builtin.decorators import Depend
 from graia.scheduler.saya.schema import SchedulerSchema
 
 from config import user_black_list, yaml_data
+from .sendMessage import selfSendGroupMessage
 
 channel = Channel.current()
 
@@ -135,6 +136,7 @@ class Interval:
         """
 
         async def cd_check(event: GroupMessage):
+            print(event.sender.id)
             if Permission.get(event.sender) >= override_level:
                 return
             current = time.time()
@@ -151,7 +153,6 @@ class Interval:
                         cls.sent_alert.remove(event.sender.id)
                     return
                 if event.sender.id not in cls.sent_alert:
-                    app: Ariadne = application_ctx.get()
                     if not silent:
                         await selfSendGroupMessage(
                             event.sender.group,

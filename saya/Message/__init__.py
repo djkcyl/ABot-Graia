@@ -22,7 +22,7 @@ HOME = Path(__file__).parent
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            decorators=[Permission.require(), Interval.require(3, silent=True)]))
+                            decorators=[Permission.require()]))
 async def az(app: Ariadne, group: Group, message: MessageChain):
 
     if yaml_data['Saya']['Message']['Disabled']:
@@ -32,14 +32,17 @@ async def az(app: Ariadne, group: Group, message: MessageChain):
 
     saying = message.asDisplay()
     if saying == "草":
+        await Interval.manual(5)
         await selfSendGroupMessage(group, MessageChain.create([
             Plain("一种植物（")
         ]))
     if saying == "好耶":
+        await Interval.manual(5)
         await selfSendGroupMessage(group, MessageChain.create([
             Image(path=HOME.joinpath("haoye.png"))
         ]))
     if saying == "流汗黄豆.jpg":
+        await Interval.manual(5)
         await selfSendGroupMessage(group, MessageChain.create([
             Image(path=HOME.joinpath("jpg"))
         ]))

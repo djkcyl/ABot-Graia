@@ -62,7 +62,7 @@ def get_rand(qid: int, gid: int):
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("/reload", "人设")],
-                            decorators=[Permission.require(Permission.MASTER), Interval.require()]))
+                            decorators=[Permission.require(Permission.MASTER)]))
 async def reoald_designs(app: Ariadne, group: Group, member: Member):
     global Designs
     Designs = json.loads(Path(__file__).parent.joinpath("DesignsDICT.json").read_text("UTF-8"))['Designs']

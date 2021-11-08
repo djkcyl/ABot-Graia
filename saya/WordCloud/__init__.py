@@ -15,8 +15,9 @@ from wordcloud import WordCloud, ImageColorGenerator
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import At, Plain, Image
-from graia.ariadne.message.parser.literature import Literature
+from graia.ariadne.message.parser.pattern import RegexMatch
 from graia.saya.builtins.broadcast.schema import ListenerSchema
+from graia.ariadne.message.parser.twilight import Twilight, Sparkle
 
 from config import yaml_data, group_data
 from util.control import Permission, Interval
@@ -36,12 +37,12 @@ RUNNING_LIST = []
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            inline_dispatchers=[Literature("查看个人词云"), Literature("查看本群词云")],
+                            inline_dispatchers=[Twilight(Sparkle([RegexMatch(r"^查看(个人|本群)词云")]))],
                             decorators=[Permission.require(), Interval.require(150)]))
 async def wordcloud(app: Ariadne, group: Group, member: Member, message: MessageChain):
 
     global RUNNING, RUNNING_LIST
-    pattern = re.compile("^查看(个人|本群)词云")
+    pattern = re.compile(r"^查看(个人|本群)词云")
     match = pattern.match(message.asDisplay())
 
     if match:
