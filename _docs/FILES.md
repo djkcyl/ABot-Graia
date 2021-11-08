@@ -1,7 +1,6 @@
 
 ```
 ABot  根目录
-├── FILE.md
 ├── README.md
 ├── config.exp.yaml  配置文件示例
 ├── config.py  配置管理
@@ -18,8 +17,8 @@ ABot  根目录
 │   ├── sarasa-mono-sc-regular.ttf
 │   ├── sarasa-mono-sc-semibold.ttf
 │   └── vanfont.ttf  哔哩哔哩符号
-├── groupdata.yaml  群配置
-├── grouplist.yaml  群黑白名单
+├── groupdata.json  群配置
+├── grouplist.json  群黑白名单
 ├── main.py  Bot 总入口
 ├── poetry.lock
 ├── pyproject.toml
@@ -27,7 +26,6 @@ ABot  根目录
 ├── saya  插件目录
 │   ├── AdminConfig.py  用于进行一些配置的操作
 │   ├── AdminMSG.py  机器人管理员可用的指令
-│   ├── AliTTS  阿里云文字转语音（已废弃）
 │   ├── AnitRecall.py  防撤回
 │   ├── AzureTTS  微软文字转语音
 │   ├── Beast  兽语转换
@@ -69,12 +67,9 @@ ABot  根目录
     ├── cut_string.py  文字切割（自动换行）
     ├── ImageModeration.py  图片安全审核
     ├── QRGeneration.py  二维码生成
-    ├── RestControl.py  作息控制
     ├── TextModeration.py  文字安全审核
-    ├── UserBlock.py  用户黑名单
-    ├── aiorequests.py  异步http（已废弃）
+    ├── control.py  指令控制（权限、冷却、作息）
     ├── browser  无头浏览器
-    ├── limit.py  消息频率控制
-    ├── md2image  Markdown转图片
+    ├── sendMessage.py  消息重发
     └── text2image.py  文字转图片
 ```
