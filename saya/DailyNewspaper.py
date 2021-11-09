@@ -11,8 +11,8 @@ from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.event.message import FriendMessage
 from graia.ariadne.message.element import Plain, Image
 from graia.scheduler.saya.schema import SchedulerSchema
-from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.literature import Literature
+from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 from util.control import Permission
 from config import yaml_data, group_data
@@ -30,9 +30,9 @@ async def something_scheduled(app: Ariadne):
 
 
 @channel.use(ListenerSchema(listening_events=[FriendMessage],
-                            inline_dispatchers=[Literature("发送早报")],
-                            decorators=[Permission.require(Permission.MASTER)]))
+                            inline_dispatchers=[Literature("发送早报")]))
 async def main(app: Ariadne, friend: Friend):
+    Permission.manual(friend, Permission.MASTER)
     await send(app)
 
 
