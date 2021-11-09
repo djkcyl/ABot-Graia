@@ -18,8 +18,11 @@ from database.db import add_gold, give_all_gold
 from util.sendMessage import safeSendGroupMessage
 from config import save_config, yaml_data, group_list, user_black_list
 
+from .AdminConfig import funcList
+
 saya = Saya.current()
 channel = Channel.current()
+funcList = funcList
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
@@ -271,7 +274,44 @@ async def group_card_fix(app: Ariadne, friend: Friend):
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            inline_dispatchers=[Literature("/echo")],
+                            inline_dispatchers=[Literature("全局关闭")],
                             decorators=[Permission.require(Permission.MASTER)]))
-async def mute(app: Ariadne, group: Group, message: MessageChain):
-    await safeSendGroupMessage(group, MessageChain.create([Plain(str(message.asDisplay().strip()))]))
+async def gset_close(group: Group, message: MessageChain):
+
+    func_List = funcList.copy()
+
+    saying = message.asDisplay().split()
+    if len(saying) == 2:
+        sayfunc = func_List[int(saying[1]) - 1]
+        if yaml_data['Saya'][sayfunc['key']]['Disabled']:
+            return await safeSendGroupMessage(group, MessageChain.create([
+                Plain(f"{sayfunc['name']} 已处于全局关闭状态")
+            ]))
+        else:
+            yaml_data['Saya'][sayfunc['key']]['Disabled'] = True
+            save_config()
+            return await safeSendGroupMessage(group, MessageChain.create([
+                Plain(f"{sayfunc['name']} 已全局关闭")
+            ]))
+
+
+@channel.use(ListenerSchema(listening_events=[GroupMessage],
+                            inline_dispatchers=[Literature("全局开启")],
+                            decorators=[Permission.require(Permission.MASTER)]))
+async def gset_open(group: Group, message: MessageChain):
+
+    func_List = funcList.copy()
+
+    saying = message.asDisplay().split()
+    if len(saying) == 2:
+        sayfunc = func_List[int(saying[1]) - 1]
+        if not yaml_data['Saya'][sayfunc['key']]['Disabled']:
+            return await safeSendGroupMessage(group, MessageChain.create([
+                Plain(f"{sayfunc['name']} 已处于全局开启状态")
+            ]))
+        else:
+            yaml_data['Saya'][sayfunc['key']]['Disabled'] = False
+            save_config()
+            return await safeSendGroupMessage(group, MessageChain.create([
+                Plain(f"{sayfunc['name']} 已全局开启")
+            ]))

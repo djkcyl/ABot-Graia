@@ -88,6 +88,7 @@ async def low_poly(app: Ariadne, group: Group, message: MessageChain, member: Me
 def make_low_poly(img_bytes):
 
     img = IMG.open(BytesIO(img_bytes)).convert("RGB")
+    img.thumbnail((600, 600))
     imgx, imgy = img.size
     t = triangler.Triangler(sample_method=triangler.SampleMethod.POISSON_DISK, points=max(imgx, imgy))
     img = plt.imsave(bio := BytesIO(), t.convert(img.__array__()))

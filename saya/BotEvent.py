@@ -1,8 +1,11 @@
 import time
+import httpx
 import asyncio
 
+from io import BytesIO
 from loguru import logger
 from typing import Optional
+from PIL import Image as IMG
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
 from graia.broadcast.interrupt.waiter import Waiter
@@ -13,7 +16,9 @@ from graia.ariadne.model import Group, Friend, MemberInfo
 from graia.ariadne.message.element import At, Plain, Image
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.lifecycle import ApplicationLaunched, ApplicationShutdowned
-from graia.ariadne.event.mirai import NewFriendRequestEvent, BotInvitedJoinGroupRequestEvent, BotJoinGroupEvent, BotLeaveEventKick, BotGroupPermissionChangeEvent, BotMuteEvent, MemberCardChangeEvent, MemberJoinEvent
+from graia.ariadne.event.mirai import (NewFriendRequestEvent, BotInvitedJoinGroupRequestEvent, BotJoinGroupEvent, BotLeaveEventKick,
+                                       BotGroupPermissionChangeEvent, BotMuteEvent, MemberCardChangeEvent, MemberJoinEvent,
+                                       MemberLeaveEventKick, MemberLeaveEventQuit)
 
 from util.control import Rest
 from util.sendMessage import safeSendGroupMessage
@@ -262,7 +267,7 @@ async def get_BotCardChange(app: Ariadne, events: MemberCardChangeEvent):
 
 # 群内事件
 @channel.use(ListenerSchema(listening_events=[MemberJoinEvent]))
-async def getMemberJoinEvent(app: Ariadne, events: MemberJoinEvent):
+async def getMemberJoinEvent(events: MemberJoinEvent):
     '''
     有人加入群聊
     '''
@@ -271,6 +276,48 @@ async def getMemberJoinEvent(app: Ariadne, events: MemberJoinEvent):
         Plain(f"\n欢迎 {events.member.name} 加入本群")
     ]
     if group_data[str(events.member.group.id)]["WelcomeMSG"]["Enabled"]:
-        welcomeMsg = group_data[str(events.member.group.id)]["WelcomeMSG"]['Message']
-        msg.append(Plain(f"\n{welcomeMsg}"))
-    await safeSendGroupMessage(events.member.group, MessageChain.create(msg))
+        if welcomeMsg := group_data[str(events.member.group.id)]["WelcomeMSG"]['Message']:
+            msg.append(Plain(f"\n{welcomeMsg}"))
+        await safeSendGroupMessage(events.member.group, MessageChain.create(msg))
+
+
+@channel.use(ListenerSchema(listening_events=[MemberLeaveEventKick]))
+async def getMemberLeaveEventKick(events: MemberLeaveEventKick):
+    '''
+    有人被踢出群聊
+    '''
+
+    msg = [
+        Image(data_bytes=await avater_blackandwhite(events.member.id)),
+        Plain(f"\n{events.member.name} 被 "),
+        At(events.operator.id),
+        Plain(" 踢出本群")
+    ]
+    if group_data[str(events.member.group.id)]["WelcomeMSG"]["Enabled"]:
+        await safeSendGroupMessage(events.member.group, MessageChain.create(msg))
+
+
+@channel.use(ListenerSchema(listening_events=[MemberLeaveEventQuit]))
+async def getMemberLeaveEventQuit(events: MemberLeaveEventQuit):
+    '''
+    有人退出群聊
+    '''
+    msg = [
+        Image(data_bytes=await avater_blackandwhite(events.member.id)),
+        Plain(f"\n{events.member.name} 退出本群")
+    ]
+    if group_data[str(events.member.group.id)]["WelcomeMSG"]["Enabled"]:
+        await safeSendGroupMessage(events.member.group, MessageChain.create(msg))
+
+
+async def avater_blackandwhite(qq: int) -> bytes:
+    '''
+    获取群成员头像黑白化
+    '''
+    url = f"http://q1.qlogo.cn/g?b=qq&nk={str(qq)}&s=4"
+    async with httpx.AsyncClient() as client:
+        resp = await client.get(url)
+    img = IMG.open(BytesIO(resp.content))
+    img = img.convert("L")
+    img.save(imgbio := BytesIO(), "JPEG")
+    return imgbio.getvalue()

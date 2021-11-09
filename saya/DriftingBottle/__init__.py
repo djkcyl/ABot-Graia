@@ -124,8 +124,12 @@ async def throw_bottle_handler(group: Group, member: Member, source: Source, spe
     if text or image_name:
         if await reduce_gold(str(member.id), 8):
             bottle = throw_bottle(member, text, image_name)
+            in_bottle_text = "一段文字" if text else ""
+            in_bottle_image = "一张图片" if image_name else ""
+            in_bottle_and = "和" if in_bottle_text and in_bottle_image else ""
+            in_bottle = in_bottle_text + in_bottle_and + in_bottle_image
             await safeSendGroupMessage(group, MessageChain.create([
-                At(member.id), Plain(f" 成功购买漂流瓶并丢出！\n瓶子编号为：{bottle}")
+                At(member.id), Plain(f" 成功购买漂流瓶并丢出！\n瓶子里有{in_bottle}\n瓶子编号为：{bottle}")
             ]), quote=source)
         else:
             await safeSendGroupMessage(group, MessageChain.create("你的游戏币不足，无法丢漂流瓶！"), quote=source)
