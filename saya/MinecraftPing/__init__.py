@@ -1,5 +1,4 @@
 from graia.saya import Saya, Channel
-from graia.ariadne.app import Ariadne
 from graia.ariadne.model import Group
 from graia.ariadne.message.element import Plain
 from graia.ariadne.event.message import GroupMessage
@@ -20,7 +19,7 @@ channel = Channel.current()
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Literature("/mcping")],
                             decorators=[Permission.require(), Interval.require()]))
-async def minecraft_ping(app: Ariadne, group: Group, message: MessageChain):
+async def minecraft_ping(group: Group, message: MessageChain):
 
     if yaml_data['Saya']['MinecraftPing']['Disabled']:
         return

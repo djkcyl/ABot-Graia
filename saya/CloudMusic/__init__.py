@@ -6,15 +6,15 @@ from pathlib import Path
 from loguru import logger
 from graiax import silkcoder
 from graia.saya import Saya, Channel
-from graia.ariadne.app import Ariadne
 from graia.ariadne.model import Group, Member
 from graia.broadcast.interrupt.waiter import Waiter
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.event.message import GroupMessage
 from graia.broadcast.interrupt import InterruptControl
-from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
+from graia.ariadne.message.parser.twilight import Twilight, Sparkle
 from graia.ariadne.message.element import Plain, Image, Voice, Source
+from graia.ariadne.message.parser.pattern import FullMatch, RegexMatch
 
 from database.db import reduce_gold
 from config import yaml_data, group_data
@@ -42,10 +42,15 @@ QQ_HOST = "http://127.0.0.1:3200"
 WAITING = []
 
 
+class CloudMusic(Sparkle):
+    header = FullMatch("点歌")
+    music_name = RegexMatch(r".*")
+
+
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            inline_dispatchers=[Literature("点歌")],
+                            inline_dispatchers=[Twilight(CloudMusic)],
                             decorators=[Rest.rest_control(), Permission.require(), Interval.require(120)]))
-async def sing(app: Ariadne, group: Group, member: Member, message: MessageChain, source: Source):
+async def sing(group: Group, member: Member, message: MessageChain, source: Source, sparkle: Sparkle):
 
     if yaml_data['Saya']['CloudMusic']['Disabled']:
         return
@@ -77,16 +82,16 @@ async def sing(app: Ariadne, group: Group, member: Member, message: MessageChain
     if member.id not in WAITING:
         WAITING.append(member.id)
 
-        saying = message.asDisplay().split(" ", 1)
-        if len(saying) == 2:
-            musicname = saying[1]
+        saying: CloudMusic = sparkle
+        if saying.music_name.matched:
+            musicname = saying.music_name.result.getFirst(Plain).text
             if musicname is None or musicname.replace(" ", "") == "":
                 WAITING.remove(member.id)
                 return await safeSendGroupMessage(group, MessageChain.create([Plain("歌名输入有误")]))
         else:
             waite_musicmessageId = await safeSendGroupMessage(group, MessageChain.create([Plain("请发送歌曲名，发送取消即可终止点歌")]))
             try:
-                musicname = await asyncio.wait_for(inc.wait(waiter1), timeout=15)
+                musicname = await asyncio.wait_for(inc.wait(waiter1), timeout=30)
                 if not musicname:
                     WAITING.remove(member.id)
                     return await safeSendGroupMessage(group, MessageChain.create([Plain("已取消点歌")]))

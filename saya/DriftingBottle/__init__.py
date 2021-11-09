@@ -45,11 +45,8 @@ class BottleSparkle(Sparkle):
     arg_pic2 = FullMatch("-p", optional=True)
 
 
-twilight = Twilight(BottleSparkle)
-
-
 @ channel.use(ListenerSchema(listening_events=[GroupMessage],
-                             inline_dispatchers=[twilight],
+                             inline_dispatchers=[Twilight(BottleSparkle)],
                              decorators=[Permission.require(), Interval.require(300)]))
 async def throw_bottle_handler(group: Group, member: Member, source: Source, speaker: Sparkle):
 
@@ -152,7 +149,7 @@ async def pick_bottle_handler(group: Group):
         return await safeSendGroupMessage(group, MessageChain.create("没有漂流瓶可以捡哦！"))
     else:
         times = bottle['fishing_times']
-        times_msg = "捡到的漂流瓶已经被捞了" + str(times) + "次" if times > 0 else "捡到的漂流瓶还没有被捞到过"
+        times_msg = "本漂流瓶已经被捞了" + str(times) + "次" if times > 0 else "本漂流瓶还没有被捞到过"
         msg = [Plain(f"你捡到了一个漂流瓶！\n瓶子编号为：{bottle['id']}\n{times_msg}\n"
                      #  f"漂流瓶来自 {bottle['group']} 群的 {bottle['member']}\n"
                      "漂流瓶内容为：\n")]

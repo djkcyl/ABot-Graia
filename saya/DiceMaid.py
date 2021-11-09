@@ -19,7 +19,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            inline_dispatchers=[Twilight(Sparkle([RegexMatch(r".r.*")]))],
+                            inline_dispatchers=[Twilight(Sparkle([RegexMatch(r"^\.r(\d+)?d?(\d+)?k?(\d+)?")]))],
                             decorators=[Permission.require(), Interval.require(5)]))
 async def dice(group: Group, message: MessageChain):
 
@@ -63,7 +63,7 @@ async def dice(group: Group, message: MessageChain):
         dk = int(k)
     else:
         return await safeSendGroupMessage(group, MessageChain.create([
-            Plain("你输入的值有误，取最大数（k）不可大于总骰子数（r）或小于 2")
+            Plain("你输入的值有误，取最大数（k）需小于总骰子数（r）或小于 2")
         ]))
 
     dice_list = []
