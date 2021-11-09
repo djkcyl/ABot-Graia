@@ -37,6 +37,10 @@ async def main(app: Ariadne, friend: Friend):
 
 
 async def send(app: Ariadne):
+
+    if yaml_data['Saya']['DailyNewspaper']['Disabled']:
+        return
+
     ts = time.time()
     groupList = await app.getGroupList()
     groupNum = len(groupList)
