@@ -67,13 +67,22 @@ async def reduce_gold(qq: str, num: int, force: bool = False):
         if force:
             p = User.update(gold=0).where(User.qq == qq)
             p.execute()
-            return True
+            return
         else:
             return False
     else:
         p = User.update(gold=User.gold-num).where(User.qq == qq)
         p.execute()
         return True
+
+
+async def trans_all_gold(from_qq: str, to_qq: str) -> int:
+    init_user(from_qq)
+    init_user(to_qq)
+    from_user_gold = User.get(qq=from_qq).gold
+    await reduce_gold(from_qq, from_user_gold)
+    await add_gold(to_qq, from_user_gold)
+    return from_user_gold
 
 
 async def add_talk(qq: str):
