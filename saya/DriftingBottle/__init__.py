@@ -1,5 +1,6 @@
 import time
 import httpx
+import asyncio
 import numpy as np
 
 from io import BytesIO
@@ -8,15 +9,17 @@ from pyzbar import pyzbar
 from PIL import Image as IMG
 from graia.saya import Saya, Channel
 from graia.ariadne.model import Group, Member
+from graia.broadcast.interrupt.waiter import Waiter
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.event.message import GroupMessage
 from graia.broadcast.interrupt import InterruptControl
-from graia.ariadne.message.element import Image, Plain, At, Source
-from graia.ariadne.message.parser.pattern import RegexMatch
 from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
+from graia.ariadne.message.element import Image, Plain, At, Source
 from graia.ariadne.message.parser.twilight import Twilight, Sparkle
+from graia.ariadne.message.parser.pattern import RegexMatch, FullMatch
 
+from database.db import reduce_gold
 from util.text2image import create_image
 from util.control import Permission, Interval
 from util.TextModeration import text_moderation
@@ -35,68 +38,107 @@ IMAGE_PATH = Path(__file__).parent.joinpath('image')
 IMAGE_PATH.mkdir(exist_ok=True)
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            inline_dispatchers=[Literature("丢漂流瓶")],
-                            decorators=[Permission.require(), Interval.require(600)]))
-async def throw_bottle_handler(group: Group, member: Member, message: MessageChain, source: Source):
+class BottleSparkle(Sparkle):
+    header = RegexMatch(r'^(扔|丢)(漂流瓶|瓶子)')
+    arg_pic1 = FullMatch("-p", optional=True)
+    anythings1 = RegexMatch(r'.*?', optional=True)
+    arg_pic2 = FullMatch("-p", optional=True)
+
+
+twilight = Twilight(BottleSparkle)
+
+
+@ channel.use(ListenerSchema(listening_events=[GroupMessage],
+                             inline_dispatchers=[twilight],
+                             decorators=[Permission.require(), Interval.require(300)]))
+async def throw_bottle_handler(group: Group, member: Member, source: Source, speaker: Sparkle):
 
     if yaml_data['Saya']['DriftingBottle']['Disabled']:
         return
     elif 'DriftingBottle' in group_data[str(group.id)]['DisabledFunc']:
         return
 
-    saying = message.asDisplay().split(" ", 1)
+    @Waiter.create_using_function([GroupMessage])
+    async def image_waiter(waiter1_group: Group, waiter1_member: Member, waiter1_message: MessageChain):
+        if waiter1_group.id == group.id and waiter1_member.id == member.id:
+            if waiter1_message.has(Image):
+                return waiter1_message.getFirst(Image).url
+            else:
+                return False
 
-    if len(saying) == 1:
-        return await safeSendGroupMessage(group, MessageChain.create("丢漂流瓶的话，请加上漂流瓶的内容！"))
-    else:
-        text = None
-        image_name = None
-        if message.has(Plain):
-            text = MessageChain.create(message.get(Plain)).merge(True).asDisplay()[4:].strip()
+    speaker: BottleSparkle = speaker
+    saying = speaker.anythings1
+    arg_matched = speaker.arg_pic1.matched or speaker.arg_pic2.matched
+    text = None
+    image_name = None
+    image_url = None
+
+    if saying.matched:
+        message_chain = saying.result
+        if message_chain.has(Plain):
+            text = MessageChain.create(message_chain.get(Plain)).merge(True).asDisplay().strip()
             if text:
-                if "magnet:" in text:
-                    return await safeSendGroupMessage(group, MessageChain.create("您？"))
+                for i in ["magnet:", "http"]:
+                    if i in text:
+                        return await safeSendGroupMessage(group, MessageChain.create("您？"), quote=source)
                 moderation = await text_moderation(text)
                 if moderation["Suggestion"] != "Pass":
-                    return await safeSendGroupMessage(group, MessageChain.create("你的漂流瓶内包含违规内容，请检查后重新丢漂流瓶！"))
+                    return await safeSendGroupMessage(group, MessageChain.create("你的漂流瓶内包含违规内容，请检查后重新丢漂流瓶！"), quote=source)
             elif text_len := len(text) > 400:
-                return await safeSendGroupMessage(group, MessageChain.create(f"你的漂流瓶内容过长（{text_len} / 400）！"))
+                return await safeSendGroupMessage(group, MessageChain.create(f"你的漂流瓶内容过长（{text_len} / 400）！"), quote=source)
 
-        if message.has(Image):
-            if len(message.get(Image)) > 1:
-                return await safeSendGroupMessage(group, MessageChain.create("丢漂流瓶的话，只能携带一张图片哦！"))
+        if message_chain.has(Image):
+            if arg_matched:
+                return await safeSendGroupMessage(group, MessageChain.create("使用手动发图参数后不可附带图片"), quote=source)
+            elif len(message_chain.get(Image)) > 1:
+                return await safeSendGroupMessage(group, MessageChain.create("丢漂流瓶只能携带一张图片哦！"), quote=source)
             else:
-                image_url = message.getFirst(Image).url
-                moderation = await image_moderation(image_url)
-                if moderation["Suggestion"] != "Pass":
-                    return await safeSendGroupMessage(group, MessageChain.create("你的漂流瓶包含违规内容，请检查后重新丢漂流瓶！"))
-                async with httpx.AsyncClient() as client:
-                    resp = await client.get(image_url)
-                    image_type = resp.headers['Content-Type']
-                    image = resp.content
-                    if qrdecode(image):
-                        if member.id in user_black_list:
-                            pass
-                        else:
-                            user_black_list.append(member.id)
-                            save_config()
-                        return await safeSendGroupMessage(group, MessageChain.create("漂流瓶不能携带二维码哦！你已被拉黑"))
-                image_name = str(time.time()) + "." + image_type.split("/")[1]
-                IMAGE_PATH.joinpath(image_name).write_bytes(image)
+                image_url = message_chain.getFirst(Image).url
 
-        if text is None and image_name is None:
-            return await safeSendGroupMessage(group, MessageChain.create("丢漂流瓶的话，请加上漂流瓶的内容！"))
+    if arg_matched:
+        await safeSendGroupMessage(group, MessageChain.create("请在 30 秒内发送你要附带的图片"), quote=source)
+        try:
+            image_url = await asyncio.wait_for(inc.wait(image_waiter), 30)
+            if image_url:
+                await safeSendGroupMessage(group, MessageChain.create("图片已接收，请稍等"), quote=source)
+            else:
+                return await safeSendGroupMessage(group, MessageChain.create("你发送的不是“一张”图片，请重试"), quote=source)
+        except asyncio.TimeoutError:
+            return await safeSendGroupMessage(group, MessageChain.create("图片等待超时"), quote=source)
 
-        bottle = throw_bottle(member, text, image_name)
-        await safeSendGroupMessage(group, MessageChain.create([
-            At(member.id), Plain(f" 丢出了一个漂流瓶！\n瓶子编号为：{bottle}")
-        ]), quote=source)
+    if image_url:
+        moderation = await image_moderation(image_url)
+        if moderation["Suggestion"] != "Pass":
+            return await safeSendGroupMessage(group, MessageChain.create("你的漂流瓶包含违规内容，请检查后重新丢漂流瓶！"))
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(image_url)
+            image_type = resp.headers['Content-Type']
+            image = resp.content
+            if qrdecode(image):
+                if member.id in user_black_list:
+                    pass
+                else:
+                    user_black_list.append(member.id)
+                    save_config()
+                return await safeSendGroupMessage(group, MessageChain.create("漂流瓶不能携带二维码哦！你已被拉黑"))
+        image_name = str(time.time()) + "." + image_type.split("/")[1]
+        IMAGE_PATH.joinpath(image_name).write_bytes(image)
+
+    if text or image_name:
+        if await reduce_gold(str(member.id), 8):
+            bottle = throw_bottle(member, text, image_name)
+            await safeSendGroupMessage(group, MessageChain.create([
+                At(member.id), Plain(f" 成功购买漂流瓶并丢出！\n瓶子编号为：{bottle}")
+            ]), quote=source)
+        else:
+            await safeSendGroupMessage(group, MessageChain.create("你的游戏币不足，无法丢漂流瓶！"), quote=source)
+    else:
+        return await safeSendGroupMessage(group, MessageChain.create("丢漂流瓶请加上漂流瓶的内容！"), quote=source)
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            inline_dispatchers=[Twilight(Sparkle([RegexMatch(r"[捞|捡]漂流瓶")]))],
-                            decorators=[Permission.require(), Interval.require(30)]))
+@ channel.use(ListenerSchema(listening_events=[GroupMessage],
+                             inline_dispatchers=[Twilight(Sparkle([RegexMatch(r"^(捡|打?捞)(漂流瓶|瓶子)$")]))],
+                             decorators=[Permission.require(), Interval.require(30)]))
 async def pick_bottle_handler(group: Group):
 
     if yaml_data['Saya']['DriftingBottle']['Disabled']:
@@ -122,18 +164,18 @@ async def pick_bottle_handler(group: Group):
         await safeSendGroupMessage(group, MessageChain.create(msg))
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            inline_dispatchers=[Literature("清空漂流瓶")],
-                            decorators=[Permission.require(Permission.MASTER), Interval.require()]))
+@ channel.use(ListenerSchema(listening_events=[GroupMessage],
+                             inline_dispatchers=[Literature("清空漂流瓶")],
+                             decorators=[Permission.require(Permission.MASTER), Interval.require()]))
 async def clear_bottle_handler(group: Group):
 
     clear_bottle()
     await safeSendGroupMessage(group, MessageChain.create("漂流瓶已经清空！"))
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            inline_dispatchers=[Literature("漂流瓶")],
-                            decorators=[Permission.require(), Interval.require()]))
+@ channel.use(ListenerSchema(listening_events=[GroupMessage],
+                             inline_dispatchers=[Literature("漂流瓶")],
+                             decorators=[Permission.require(), Interval.require()]))
 async def drifting_bottle_handler(group: Group):
 
     if yaml_data['Saya']['DriftingBottle']['Disabled']:
@@ -148,9 +190,9 @@ async def drifting_bottle_handler(group: Group):
     await safeSendGroupMessage(group, MessageChain.create([Plain(msg)]))
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            inline_dispatchers=[Literature("删漂流瓶")],
-                            decorators=[Permission.require(Permission.MASTER)]))
+@ channel.use(ListenerSchema(listening_events=[GroupMessage],
+                             inline_dispatchers=[Literature("删漂流瓶")],
+                             decorators=[Permission.require(Permission.MASTER)]))
 async def delete_bottle_handler(group: Group, message: MessageChain):
 
     saying = message.asDisplay().split(" ", 1)
@@ -167,9 +209,9 @@ async def delete_bottle_handler(group: Group, message: MessageChain):
     await safeSendGroupMessage(group, MessageChain.create("漂流瓶已经删除！"))
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            inline_dispatchers=[Literature("查漂流瓶")],
-                            decorators=[Permission.require(Permission.MASTER)]))
+@ channel.use(ListenerSchema(listening_events=[GroupMessage],
+                             inline_dispatchers=[Literature("查漂流瓶")],
+                             decorators=[Permission.require(Permission.MASTER)]))
 async def search_bottle_handler(group: Group, message: MessageChain):
 
     saying = message.asDisplay().split(" ", 1)

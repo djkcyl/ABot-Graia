@@ -271,9 +271,9 @@ funcHelp = {
     },
     "漂流瓶": {
         "instruction": "嗯，就是漂流瓶而已",
-        "usage": "发送指令：\n捞|捡漂流瓶\n丢漂流瓶\n漂流瓶",
-        "options": "漂流瓶内只可包含最多 400 个文字和 1 张图片",
-        "example": "丢漂流瓶 Hello World!"
+        "usage": "发送指令：\n捞漂流瓶\n丢漂流瓶\n漂流瓶",
+        "options": "漂流瓶需消耗 10 个游戏币购买！\n漂流瓶内只可包含最多 400 个文字和 1 张图片\n如果无法发送图片可在命令后添加参数 -p",
+        "example": "丢漂流瓶 Hello World!\n丢漂流瓶 -p This is Picture"
     },
 }
 

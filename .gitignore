@@ -12,6 +12,7 @@ grouplist.json
 qr.jpg
 data.json
 *.pem
+/virtualenvs
 /util/browser/data/*
 
 /saya/Ark/

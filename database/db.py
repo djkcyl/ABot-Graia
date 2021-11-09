@@ -67,7 +67,7 @@ async def reduce_gold(qq: str, num: int, force: bool = False):
         if force:
             p = User.update(gold=0).where(User.qq == qq)
             p.execute()
-            return
+            return True
         else:
             return False
     else:

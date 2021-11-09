@@ -1,13 +1,12 @@
 from io import BytesIO
 from graia.saya import Saya, Channel
-from graia.ariadne.app import Ariadne
 from graia.ariadne.model import Group
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.element import Plain, Image
+from graia.ariadne.message.parser.pattern import RegexMatch
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import Twilight, Sparkle
-from graia.ariadne.message.parser.pattern import RegexMatch
 
 from config import yaml_data, group_data
 from util.sendMessage import safeSendGroupMessage
@@ -36,46 +35,40 @@ channel = Channel.current()
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Twilight(Sparkle([RegexMatch("5000兆 .* .*")]))],
                             decorators=[Rest.rest_control(), Permission.require(), Interval.require()]))
-async def gosencho_handler(app: Ariadne, message: MessageChain, group: Group):
+async def gosencho_handler(message: MessageChain, group: Group):
 
     if yaml_data['Saya']['StyleLogoGenerator']['Disabled']:
         return
     elif 'StyleLogoGenerator' in group_data[str(group.id)]['DisabledFunc']:
         return
 
-    msg = await StylePictureGeneraterHandler.handle(group, message)
-    if msg:
-        await safeSendGroupMessage(group, await StylePictureGeneraterHandler.gosencho_en_hoshi_style_image_generator(message))
+    await safeSendGroupMessage(group, await StylePictureGeneraterHandler.gosencho_en_hoshi_style_image_generator(message))
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Twilight(Sparkle([RegexMatch("ph .* .*")]))],
                             decorators=[Rest.rest_control(), Permission.require(), Interval.require()]))
-async def pornhub_handler(app: Ariadne, message: MessageChain, group: Group):
+async def pornhub_handler(message: MessageChain, group: Group):
 
     if yaml_data['Saya']['StyleLogoGenerator']['Disabled']:
         return
     elif 'StyleLogoGenerator' in group_data[str(group.id)]['DisabledFunc']:
         return
 
-    msg = await StylePictureGeneraterHandler.handle(group, message)
-    if msg:
-        await safeSendGroupMessage(group, await StylePictureGeneraterHandler.pornhub_style_image_generator(message))
+    await safeSendGroupMessage(group, await StylePictureGeneraterHandler.pornhub_style_image_generator(message))
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage],
                             inline_dispatchers=[Twilight(Sparkle([RegexMatch("yt .* .*")]))],
                             decorators=[Rest.rest_control(), Permission.require(), Interval.require()]))
-async def youtube_handler(app: Ariadne, message: MessageChain, group: Group):
+async def youtube_handler(message: MessageChain, group: Group):
 
     if yaml_data['Saya']['StyleLogoGenerator']['Disabled']:
         return
     elif 'StyleLogoGenerator' in group_data[str(group.id)]['DisabledFunc']:
         return
 
-    msg = await StylePictureGeneraterHandler.handle(group, message)
-    if msg:
-        await safeSendGroupMessage(group, await StylePictureGeneraterHandler.youtube_style_image_generator(message))
+    await safeSendGroupMessage(group, await StylePictureGeneraterHandler.youtube_style_image_generator(message))
 
 
 class StylePictureGeneraterHandler():
@@ -90,7 +83,7 @@ class StylePictureGeneraterHandler():
             try:
                 img_byte = BytesIO()
                 gsGenImage(word_a=left_text, word_b=right_text).save(img_byte, format='PNG')
-                return MessageChain.create([Image.fromUnsafeBytes(img_byte.getvalue())])
+                return MessageChain.create([Image(data_bytes=img_byte.getvalue())])
             except TypeError:
                 return MessageChain.create([Plain(text="不支持的内容！不要给我一些稀奇古怪的东西！")])
         except ValueError:
