@@ -179,6 +179,8 @@ async def init(app: Ariadne):
     i = 1
     for up_id in subid_list:
         res = await dynamic_svr(up_id)
+        if not res:
+            return logger.error("[BiliBili推送] 寄！")
         if "cards" in res["data"]:
             last_dynid = res["data"]["cards"][0]["desc"]["dynamic_id"]
             DYNAMIC_OFFSET[up_id] = last_dynid
@@ -249,7 +251,7 @@ async def update_scheduled(app: Ariadne):
                         await safeSendGroupMessage(groupid, MessageChain.create([
                             Plain(f"本群订阅的UP {up_name}（{up_id}）在 {room_area} 开播啦 ！\n"),
                             Plain(title),
-                            Image(data_bytes=cover_from_user),
+                            Image(url=cover_from_user),
                             Plain(f"\nhttps://live.bilibili.com/{room_id}")
                         ]))
                         await asyncio.sleep(0.3)
