@@ -85,5 +85,5 @@ class PornhubStyleUtils:
     @staticmethod
     async def make_ph_style_logo(left_text: str, right_text: str) -> MessageChain:
         return MessageChain.create([
-            Image.fromUnsafeBytes(await PornhubStyleUtils.combine_img(left_text, right_text, FONT_SIZE))
+            Image(data_bytes=await PornhubStyleUtils.combine_img(left_text, right_text, FONT_SIZE))
         ])

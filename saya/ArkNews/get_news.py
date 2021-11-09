@@ -25,7 +25,7 @@ class Weibo():
         item_id = target_blog['itemid']
 
         if only_id:
-            return item_id
+            return item_id.split('-')[0]
 
         # 获取完整正文
         url = 'https://m.weibo.cn/statuses/extend?id=' + blog['id']

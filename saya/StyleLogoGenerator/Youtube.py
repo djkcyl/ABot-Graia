@@ -93,5 +93,5 @@ class YoutubeStyleUtils:
     async def make_yt_style_logo(left_text: str, right_text: str) -> MessageChain:
         print(1)
         return MessageChain.create([
-            Image.fromUnsafeBytes(await YoutubeStyleUtils.combine_img(left_text, right_text, FONT_SIZE))
+            Image(data_bytes=await YoutubeStyleUtils.combine_img(left_text, right_text, FONT_SIZE))
         ])
