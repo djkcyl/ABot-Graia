@@ -12,9 +12,9 @@ def numf(num: int):
     if num < 10000:
         view = str(num)
     elif num < 100000000:
-        view = ('%.2f' % (num / 10000)) + "万"
+        view = ("%.2f" % (num / 10000)) + "万"
     else:
-        view = ('%.2f' % (num / 100000000)) + "亿"
+        view = ("%.2f" % (num / 100000000)) + "亿"
     return view
 
 
@@ -34,19 +34,19 @@ def binfo_image_create(video_info: str):
     minutes, seconds = divmod(video_info["data"]["duration"], 60)
     hours, minutes = divmod(minutes, 60)
     video_time = f"{hours:02d}:{minutes:02d}:{seconds:02d}"
-    tiem_font = ImageFont.truetype('./font/sarasa-mono-sc-bold.ttf', 30)
+    tiem_font = ImageFont.truetype("./font/sarasa-mono-sc-bold.ttf", 30)
     draw = ImageDraw.Draw(pic)
     draw.text((10, 305), video_time, "white", tiem_font)
 
     # 分区
-    tname = video_info['data']['tname']
+    tname = video_info["data"]["tname"]
     tname_x, _ = tiem_font.getsize(tname)
     draw.text((560 - tname_x - 10, 305), tname, "white", tiem_font)
 
     # 标题
-    title = video_info['data']['title']
-    title_font = ImageFont.truetype('./font/sarasa-mono-sc-bold.ttf', 25)
-    title_cut_str = '\n'.join(get_cut_str(title, 40))
+    title = video_info["data"]["title"]
+    title_font = ImageFont.truetype("./font/sarasa-mono-sc-bold.ttf", 25)
+    title_cut_str = "\n".join(get_cut_str(title, 40))
     _, title_text_y = title_font.getsize_multiline(title_cut_str)
     title_bg = Image.new("RGB", (560, title_text_y + 23), "#F5F5F7")
     draw = ImageDraw.Draw(title_bg)
@@ -55,9 +55,11 @@ def binfo_image_create(video_info: str):
     bg_y += title_bg_y
 
     # 简介
-    dynamic = "该视频没有简介" if video_info['data']['desc'] == "" else video_info['data']['desc']
-    dynamic_font = ImageFont.truetype('./font/sarasa-mono-sc-semibold.ttf', 18)
-    dynamic_cut_str = '\n'.join(get_cut_str(dynamic, 58))
+    dynamic = (
+        "该视频没有简介" if video_info["data"]["desc"] == "" else video_info["data"]["desc"]
+    )
+    dynamic_font = ImageFont.truetype("./font/sarasa-mono-sc-semibold.ttf", 18)
+    dynamic_cut_str = "\n".join(get_cut_str(dynamic, 58))
     _, dynamic_text_y = dynamic_font.getsize_multiline(dynamic_cut_str)
     dynamic_bg = Image.new("RGB", (560, dynamic_text_y + 24), "#F5F5F7")
     draw = ImageDraw.Draw(dynamic_bg)
@@ -67,15 +69,15 @@ def binfo_image_create(video_info: str):
     bg_y += dynamic_bg_y
 
     # 视频数据
-    icon_font = ImageFont.truetype('./font/vanfont.ttf', 46)
+    icon_font = ImageFont.truetype("./font/vanfont.ttf", 46)
     icon_color = (247, 145, 185)
-    info_font = ImageFont.truetype('./font/sarasa-mono-sc-bold.ttf', 26)
+    info_font = ImageFont.truetype("./font/sarasa-mono-sc-bold.ttf", 26)
 
-    view = numf(video_info['data']['stat']['view'])             # 播放 \uE6E6
-    danmaku = numf(video_info['data']['stat']['danmaku'])       # 弹幕 \uE6E7
-    favorite = numf(video_info['data']['stat']['favorite'])     # 收藏 \uE6E1
-    coin = numf(video_info['data']['stat']['coin'])             # 投币 \uE6E4
-    like = numf(video_info['data']['stat']['like'])             # 点赞 \uE6E0
+    view = numf(video_info["data"]["stat"]["view"])  # 播放 \uE6E6
+    danmaku = numf(video_info["data"]["stat"]["danmaku"])  # 弹幕 \uE6E7
+    favorite = numf(video_info["data"]["stat"]["favorite"])  # 收藏 \uE6E1
+    coin = numf(video_info["data"]["stat"]["coin"])  # 投币 \uE6E4
+    like = numf(video_info["data"]["stat"]["like"])  # 点赞 \uE6E0
 
     info_bg = Image.new("RGB", (560, 170), "#F5F5F7")
     draw = ImageDraw.Draw(info_bg)
@@ -98,41 +100,55 @@ def binfo_image_create(video_info: str):
     # 等级 0-4 \uE6CB-F 5-6\uE6D0-1
     # UP \uE723
 
-    if 'staff' in video_info["data"]:
+    if "staff" in video_info["data"]:
         up_list = []
-        for up in video_info["data"]['staff']:
-            up_mid = up['mid']
-            up_data = httpx.get(f"https://api.bilibili.com/x/space/acc/info?mid={up_mid}").json()
-            up_list.append({
-                "name": up['name'],
-                "up_title": up['title'],
-                "face": up['face'],
-                "color": up_data['data']['vip']['nickname_color'] if up_data['data']['vip']['nickname_color'] != "" else "black",
-                "follower": up['follower'],
-                "level": up_data['data']['level']
-            })
+        for up in video_info["data"]["staff"]:
+            up_mid = up["mid"]
+            up_data = httpx.get(
+                f"https://api.bilibili.com/x/space/acc/info?mid={up_mid}"
+            ).json()
+            up_list.append(
+                {
+                    "name": up["name"],
+                    "up_title": up["title"],
+                    "face": up["face"],
+                    "color": up_data["data"]["vip"]["nickname_color"]
+                    if up_data["data"]["vip"]["nickname_color"] != ""
+                    else "black",
+                    "follower": up["follower"],
+                    "level": up_data["data"]["level"],
+                }
+            )
     else:
         up_mid = video_info["data"]["owner"]["mid"]
-        up_data = httpx.get(f"https://api.bilibili.com/x/space/acc/info?mid={up_mid}").json()
-        up_stat = httpx.get(f"https://api.bilibili.com/x/relation/stat?vmid={up_mid}").json()
-        up_list = [{
-            "name": up_data['data']['name'],
-            "up_title": "UP主",
-            "face": up_data['data']['face'],
-            "color": up_data['data']['vip']['nickname_color'] if up_data['data']['vip']['nickname_color'] != "" else "black",
-            "follower": up_stat['data']['follower'],
-            "level": up_data['data']['level']
-        }]
+        up_data = httpx.get(
+            f"https://api.bilibili.com/x/space/acc/info?mid={up_mid}"
+        ).json()
+        up_stat = httpx.get(
+            f"https://api.bilibili.com/x/relation/stat?vmid={up_mid}"
+        ).json()
+        up_list = [
+            {
+                "name": up_data["data"]["name"],
+                "up_title": "UP主",
+                "face": up_data["data"]["face"],
+                "color": up_data["data"]["vip"]["nickname_color"]
+                if up_data["data"]["vip"]["nickname_color"] != ""
+                else "black",
+                "follower": up_stat["data"]["follower"],
+                "level": up_data["data"]["level"],
+            }
+        ]
     up_num = len(up_list)
-    up_bg = Image.new("RGB", (560, 20 + (up_num * 120) + 20), '#F5F5F7')
+    up_bg = Image.new("RGB", (560, 20 + (up_num * 120) + 20), "#F5F5F7")
     draw = ImageDraw.Draw(up_bg)
     face_size = (80, 80)
-    mask = Image.new('RGBA', face_size, color=(0, 0, 0, 0))
+    mask = Image.new("RGBA", face_size, color=(0, 0, 0, 0))
     mask_draw = ImageDraw.Draw(mask)
     mask_draw.ellipse((0, 0, face_size[0], face_size[1]), fill=(0, 0, 0, 255))
-    name_font = ImageFont.truetype('./font/sarasa-mono-sc-bold.ttf', 24)
-    up_title_font = ImageFont.truetype('./font/sarasa-mono-sc-bold.ttf', 20)
-    follower_font = ImageFont.truetype('./font/sarasa-mono-sc-semibold.ttf', 22)
+    name_font = ImageFont.truetype("./font/sarasa-mono-sc-bold.ttf", 24)
+    up_title_font = ImageFont.truetype("./font/sarasa-mono-sc-bold.ttf", 20)
+    follower_font = ImageFont.truetype("./font/sarasa-mono-sc-semibold.ttf", 22)
 
     i = 0
     for up in up_list:
@@ -170,13 +186,30 @@ def binfo_image_create(video_info: str):
         draw.text((160, 25 + (i * 120)), up["name"], up["color"], name_font)
         name_size_x, _ = name_font.getsize(up["name"])
         # 等级
-        draw.text((160 + name_size_x + 10, 16 + (i * 120)), up_level, level_color, icon_font)
+        draw.text(
+            (160 + name_size_x + 10, 16 + (i * 120)), up_level, level_color, icon_font
+        )
         # 身份
         up_title_size_x, up_title_size_y = up_title_font.getsize(up["up_title"])
-        draw.rectangle((60, 10 + (i * 120), 73 + up_title_size_x, 18 + (i * 120) + up_title_size_y), "white", icon_color, 3)
+        draw.rectangle(
+            (
+                60,
+                10 + (i * 120),
+                73 + up_title_size_x,
+                18 + (i * 120) + up_title_size_y,
+            ),
+            "white",
+            icon_color,
+            3,
+        )
         draw.text((67, 13 + (i * 120)), up["up_title"], icon_color, up_title_font)
         # 粉丝量
-        draw.text((162, 66 + (i * 120)), "粉丝 " + numf(up['follower']), "#474747", follower_font)
+        draw.text(
+            (162, 66 + (i * 120)),
+            "粉丝 " + numf(up["follower"]),
+            "#474747",
+            follower_font,
+        )
         i += 1
 
     up_bg_y = up_bg.size[1]
@@ -193,7 +226,7 @@ def binfo_image_create(video_info: str):
     baner_bg.paste(qr_image, (50, 10))
     # Logo
     # LOGO \uE725
-    logo_font = ImageFont.truetype('./font/vanfont.ttf', 100)
+    logo_font = ImageFont.truetype("./font/vanfont.ttf", 100)
     draw.text((300, 28), "\uE725", "#F5F5F7", logo_font)
     bg_y += 170
 
@@ -203,7 +236,9 @@ def binfo_image_create(video_info: str):
     video.paste(dynamic_bg, (20, 390 + title_bg_y + 20))
     video.paste(info_bg, (20, 390 + title_bg_y + 20 + dynamic_bg_y + 20))
     video.paste(up_bg, (20, 390 + title_bg_y + 20 + dynamic_bg_y + 10 + info_bg_y))
-    video.paste(baner_bg, (0, 390 + title_bg_y + 20 + dynamic_bg_y + 10 + info_bg_y + up_bg_y))
+    video.paste(
+        baner_bg, (0, 390 + title_bg_y + 20 + dynamic_bg_y + 10 + info_bg_y + up_bg_y)
+    )
 
     image = BytesIO()
     video.save(image, "JPEG")

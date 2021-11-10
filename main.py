@@ -31,11 +31,11 @@ app = Ariadne(
     adapter=DebugAdapter(
         bcc,
         MiraiSession(
-            host=yaml_data['Basic']['MAH']['MiraiHost'],
-            account=yaml_data['Basic']['MAH']['BotQQ'],
-            verify_key=yaml_data['Basic']['MAH']['MiraiAuthKey']
-        )
-    )
+            host=yaml_data["Basic"]["MAH"]["MiraiHost"],
+            account=yaml_data["Basic"]["MAH"]["BotQQ"],
+            verify_key=yaml_data["Basic"]["MAH"]["MiraiAuthKey"],
+        ),
+    ),
 )
 
 with saya.module_context():
@@ -54,7 +54,7 @@ async def main():
     await app.lifecycle()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     try:
         loop.run_until_complete(main())
     except KeyboardInterrupt:

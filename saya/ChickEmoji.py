@@ -17,30 +17,32 @@ saya = Saya.current()
 channel = Channel.current()
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            inline_dispatchers=[Literature("emoji")],
-                            decorators=[Rest.rest_control(), Permission.require(), Interval.require(30)]))
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[Literature("emoji")],
+        decorators=[Rest.rest_control(), Permission.require(), Interval.require(30)],
+    )
+)
 async def fun_dict(app: Ariadne, group: Group, message: MessageChain, member: Member):
 
-    if yaml_data['Saya']['ChickEmoji']['Disabled']:
+    if yaml_data["Saya"]["ChickEmoji"]["Disabled"]:
         return
-    elif 'ChickEmoji' in group_data[str(group.id)]['DisabledFunc']:
+    elif "ChickEmoji" in group_data[str(group.id)]["DisabledFunc"]:
         return
 
     saying = message.asDisplay().split()
     api_url = "https://api.jikipedia.com/go/translate_plaintext"
-    api_data = {
-        "content": saying[1]
-    }
+    api_data = {"content": saying[1]}
     api_headers = {
         "Client": "web",
         "Content-Type": "application/json;charset=UTF-8",
-        "Origin": "https://jikipedia.com"
+        "Origin": "https://jikipedia.com",
     }
     async with httpx.AsyncClient as client:
         r = await client.post(api_url, json=api_data, headers=api_headers)
     emoji = r.json()
-    await safeSendGroupMessage(str(group.id), MessageChain.create([
-        At(member.id),
-        Plain("\n" + emoji["translation"])
-    ]))
+    await safeSendGroupMessage(
+        str(group.id),
+        MessageChain.create([At(member.id), Plain("\n" + emoji["translation"])]),
+    )

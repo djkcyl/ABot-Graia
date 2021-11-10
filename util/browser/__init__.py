@@ -19,7 +19,7 @@ async def init() -> Browser:
             f"--disable-extensions-except={path_to_extension}",
             f"--load-extension={path_to_extension}",
         ],
-        device_scale_factor=1.5
+        device_scale_factor=1.5,
     )
     return _browser
 
@@ -31,6 +31,7 @@ async def get_browser() -> Browser:
 def install():
     print("正在检查 Chromium 更新")
     import os
+
     os.system("poetry run playwright install chromium")
 
 

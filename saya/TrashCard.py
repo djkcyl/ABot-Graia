@@ -18,18 +18,19 @@ saya = Saya.current()
 channel = Channel.current()
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            inline_dispatchers=[Literature("我是废物")],
-                            decorators=[Permission.require(), Interval.require()]))
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[Literature("我是废物")],
+        decorators=[Permission.require(), Interval.require()],
+    )
+)
 async def trashCard(app: Ariadne, group: Group, member: Member, source: Source):
-    if yaml_data['Saya']['TrashCard']['Disabled']:
+    if yaml_data["Saya"]["TrashCard"]["Disabled"]:
         return
 
-    url = 'http://a60.one:11451/getCard'
-    data = {
-        "qqid": member.id,
-        "groupname": group.name
-    }
+    url = "http://a60.one:11451/getCard"
+    data = {"qqid": member.id, "groupname": group.name}
 
     async with httpx.AsyncClient() as client:
         r = await client.post(url, json=data)
@@ -37,10 +38,11 @@ async def trashCard(app: Ariadne, group: Group, member: Member, source: Source):
     logger.info(card)
 
     if "code" in card:
-        await safeSendGroupMessage(group, MessageChain.create([
-            At(member.id),
-            Plain(" "),
-            Plain(card['msg']),
-            Plain(card['id'])
-        ]), quote=source.id)
-        await safeSendGroupMessage(group, MessageChain.create([Image(url=card['pic'])]))
+        await safeSendGroupMessage(
+            group,
+            MessageChain.create(
+                [At(member.id), Plain(" "), Plain(card["msg"]), Plain(card["id"])]
+            ),
+            quote=source.id,
+        )
+        await safeSendGroupMessage(group, MessageChain.create([Image(url=card["pic"])]))

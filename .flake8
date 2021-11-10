@@ -1,0 +1,12 @@
+[flake8]
+exclude = 
+    .git,
+    __pycache__,
+    virtualenvs,
+    .vscode,
+    test.py
+max-line-length = 200
+statistics = True
+ignore =
+    W503,
+    E203

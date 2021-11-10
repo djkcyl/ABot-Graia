@@ -19,14 +19,20 @@ saya = Saya.current()
 channel = Channel.current()
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            inline_dispatchers=[Literature("嗷")],
-                            decorators=[Rest.rest_control(), Permission.require(), Interval.require()]))
-async def main_encode(app: Ariadne, group: Group, message: MessageChain, source: Source):
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[Literature("嗷")],
+        decorators=[Rest.rest_control(), Permission.require(), Interval.require()],
+    )
+)
+async def main_encode(
+    app: Ariadne, group: Group, message: MessageChain, source: Source
+):
 
-    if yaml_data['Saya']['Beast']['Disabled']:
+    if yaml_data["Saya"]["Beast"]["Disabled"]:
         return
-    elif 'Beast' in group_data[str(group.id)]['DisabledFunc']:
+    elif "Beast" in group_data[str(group.id)]["DisabledFunc"]:
         return
 
     saying = message.asDisplay().split(" ", 1)
@@ -34,21 +40,33 @@ async def main_encode(app: Ariadne, group: Group, message: MessageChain, source:
         try:
             msg = encode(saying[1])
             if (len(msg)) < 500:
-                await safeSendGroupMessage(group, MessageChain.create([Plain(msg)]), quote=source.id)
+                await safeSendGroupMessage(
+                    group, MessageChain.create([Plain(msg)]), quote=source.id
+                )
             else:
-                await safeSendGroupMessage(group, MessageChain.create([Plain("文字过长")]), quote=source.id)
+                await safeSendGroupMessage(
+                    group, MessageChain.create([Plain("文字过长")]), quote=source.id
+                )
         except Exception:
-            await safeSendGroupMessage(group, MessageChain.create([Plain("明文错误``")]), quote=source.id)
+            await safeSendGroupMessage(
+                group, MessageChain.create([Plain("明文错误``")]), quote=source.id
+            )
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            inline_dispatchers=[Literature("呜")],
-                            decorators=[Rest.rest_control(), Permission.require(), Interval.require()]))
-async def main_decode(app: Ariadne, group: Group, message: MessageChain, source: Source):
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[Literature("呜")],
+        decorators=[Rest.rest_control(), Permission.require(), Interval.require()],
+    )
+)
+async def main_decode(
+    app: Ariadne, group: Group, message: MessageChain, source: Source
+):
 
-    if yaml_data['Saya']['Beast']['Disabled']:
+    if yaml_data["Saya"]["Beast"]["Disabled"]:
         return
-    elif 'Beast' in group_data[str(group.id)]['DisabledFunc']:
+    elif "Beast" in group_data[str(group.id)]["DisabledFunc"]:
         return
 
     saying = message.asDisplay().split(" ", 1)
@@ -56,7 +74,11 @@ async def main_decode(app: Ariadne, group: Group, message: MessageChain, source:
         try:
             msg = decode(saying[1])
             res = await text_moderation(msg)
-            if res['Suggestion'] == "Pass":
-                await safeSendGroupMessage(group, MessageChain.create([Plain(msg)]), quote=source.id)
+            if res["Suggestion"] == "Pass":
+                await safeSendGroupMessage(
+                    group, MessageChain.create([Plain(msg)]), quote=source.id
+                )
         except Exception:
-            await safeSendGroupMessage(group, MessageChain.create([Plain("密文错误``")]), quote=source.id)
+            await safeSendGroupMessage(
+                group, MessageChain.create([Plain("密文错误``")]), quote=source.id
+            )

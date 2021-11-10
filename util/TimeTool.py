@@ -17,17 +17,15 @@ class TimeRecorder:
 def calc_time_total(seconds):
     timedelta = datetime.timedelta(seconds=seconds)
     day = timedelta.days
-    hour, mint, sec = tuple([
-        int(n) for n in str(timedelta).split(',')[-1].split(':')
-    ])
-    total = ''
+    hour, mint, sec = tuple([int(n) for n in str(timedelta).split(",")[-1].split(":")])
+    total = ""
     if day:
-        total += '%d天' % day
+        total += "%d天" % day
     if hour:
-        total += '%d小时' % hour
+        total += "%d小时" % hour
     if mint:
-        total += '%d分钟' % mint
+        total += "%d分钟" % mint
     if sec and not (day or hour):
-        total += '%d秒' % sec
+        total += "%d秒" % sec
 
     return total

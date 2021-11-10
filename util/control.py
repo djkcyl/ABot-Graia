@@ -31,23 +31,26 @@ SLEEP = 0
 @channel.use(SchedulerSchema(crontabify("30 7 * * *")))
 async def work_scheduled(app: Ariadne):
     Rest.set_sleep(0)
-    await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
-        Plain("已退出休息时间")
-    ]))
+    await app.sendFriendMessage(
+        yaml_data["Basic"]["Permission"]["Master"],
+        MessageChain.create([Plain("已退出休息时间")]),
+    )
 
 
 @channel.use(SchedulerSchema(crontabify("0 0 * * *")))
 async def rest_scheduled(app: Ariadne):
     Rest.set_sleep(1)
-    await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
-        Plain("已进入休息时间")
-    ]))
+    await app.sendFriendMessage(
+        yaml_data["Basic"]["Permission"]["Master"],
+        MessageChain.create([Plain("已进入休息时间")]),
+    )
 
 
 class Rest:
     """
     用于控制睡眠的类，不应被实例化
     """
+
     def set_sleep(set):
         global SLEEP
         SLEEP = set
@@ -56,6 +59,7 @@ class Rest:
         async def sleep():
             if SLEEP:
                 raise ExecutionStop()
+
         return Depend(sleep)
 
 
@@ -139,7 +143,7 @@ class Interval:
         suspend_time: float = 10,
         max_exec: int = 1,
         override_level: int = Permission.MASTER,
-        silent: bool = False
+        silent: bool = False,
     ):
         """
         指示用户每执行 `max_exec` 次后需要至少相隔 `suspend_time` 秒才能再次触发功能
@@ -178,7 +182,8 @@ class Interval:
                                         f"之后可再执行{max_exec}次"
                                     )
                                 ]
-                            ), quote=event.messageChain.getFirst(Source).id
+                            ),
+                            quote=event.messageChain.getFirst(Source).id,
                         )
                     cls.sent_alert.add(event.sender.id)
                 raise ExecutionStop()

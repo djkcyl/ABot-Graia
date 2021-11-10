@@ -23,7 +23,7 @@ httpx = "^0.20.0"
 playwright = "^1.16.0"
 lxml = "^4.6.4"
 PyYAML = "^5.4.1"
-tencentcloud-sdk-python = "^3.0.521"
+tencentcloud-sdk-python = "^3.0.522"
 xmltodict = "^0.12.0"
 azure-cognitiveservices-speech = "^1.19.0"
 redis = "^3.5.3"
@@ -49,9 +49,9 @@ build-backend = "poetry.core.masonry.api"
 
 
 [tool.poetry.dev-dependencies]
-flake8 = "^4.0.1"
-autopep8 = "^1.6.0"
 devtools = "^0.8.0"
+black = "^21.10b0"
+flake8 = "^4.0.1"
 
 [[tool.poetry.source]]
 name = "tsinghua"

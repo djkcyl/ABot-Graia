@@ -32,10 +32,7 @@ if PUSHED_LIST_FILE.exists():
         pushed_list = json.load(f)
 else:
     with PUSHED_LIST_FILE.open("w") as f:
-        pushed_list = {
-            "weibo": None,
-            "game": None
-        }
+        pushed_list = {"weibo": None, "game": None}
         json.dump(pushed_list, f, indent=2)
 
 
@@ -48,7 +45,7 @@ def save_pushed_list():
 @channel.use(ListenerSchema(listening_events=[ApplicationLaunched]))
 async def get_weibo_news(app: Ariadne):
 
-    if yaml_data['Saya']['ArkNews']['Disabled']:
+    if yaml_data["Saya"]["ArkNews"]["Disabled"]:
         return
 
     try:
@@ -76,19 +73,25 @@ async def get_weibo_news(app: Ariadne):
         msg = [
             Plain("明日方舟更新了新的微博\n"),
             Plain(f"{detail_url}\n"),
-            Image(data_bytes=image)] + [Image(url=x) for x in pics_list]
+            Image(data_bytes=image),
+        ] + [Image(url=x) for x in pics_list]
 
-        await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create(new_id))
-        await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create(msg))
+        await app.sendFriendMessage(
+            yaml_data["Basic"]["Permission"]["Master"], MessageChain.create(new_id)
+        )
+        await app.sendFriendMessage(
+            yaml_data["Basic"]["Permission"]["Master"], MessageChain.create(msg)
+        )
         for group in group_list:
-            if 'ArkNews' in group_data[str(group.id)]['DisabledFunc']:
+            if "ArkNews" in group_data[str(group.id)]["DisabledFunc"]:
                 continue
             await safeSendGroupMessage(group, MessageChain.create(msg))
             await asyncio.sleep(random.randint(3, 5))
 
-        await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
-            Plain(f'微博推送结束，耗时{time_rec.total()}')
-        ]))
+        await app.sendFriendMessage(
+            yaml_data["Basic"]["Permission"]["Master"],
+            MessageChain.create([Plain(f"微博推送结束，耗时{time_rec.total()}")]),
+        )
 
     except IndexError:
         pass
@@ -98,7 +101,7 @@ async def get_weibo_news(app: Ariadne):
 @channel.use(ListenerSchema(listening_events=[ApplicationLaunched]))
 async def get_game_news(app: Ariadne):
 
-    if yaml_data['Saya']['ArkNews']['Disabled']:
+    if yaml_data["Saya"]["ArkNews"]["Disabled"]:
         return
 
     pushed = pushed_list["game"] if pushed_list["game"] else []
@@ -126,20 +129,20 @@ async def get_game_news(app: Ariadne):
         time_rec = TimeRecorder()
         logger.info(f"[明日方舟蹲饼] 游戏公告已更新：{announce}")
         image = await game.get_screenshot(announce)
-        msg = [
-            Plain("明日方舟更新了新的游戏公告\n"),
-            Image(data_bytes=image)
-        ]
+        msg = [Plain("明日方舟更新了新的游戏公告\n"), Image(data_bytes=image)]
 
-        await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create(msg))
+        await app.sendFriendMessage(
+            yaml_data["Basic"]["Permission"]["Master"], MessageChain.create(msg)
+        )
         for group in group_list:
-            if 'ArkNews' in group_data[str(group.id)]['DisabledFunc']:
+            if "ArkNews" in group_data[str(group.id)]["DisabledFunc"]:
                 continue
             await safeSendGroupMessage(group, MessageChain.create(msg))
             await asyncio.sleep(random.randint(3, 5))
 
-        await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
-            Plain(f'游戏公告推送结束，耗时{time_rec.total()}')
-        ]))
+        await app.sendFriendMessage(
+            yaml_data["Basic"]["Permission"]["Master"],
+            MessageChain.create([Plain(f"游戏公告推送结束，耗时{time_rec.total()}")]),
+        )
 
         await asyncio.sleep(3)

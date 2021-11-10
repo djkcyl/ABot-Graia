@@ -29,18 +29,26 @@ inc = InterruptControl(bcc)
 WAITING = []
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            inline_dispatchers=[Literature("低多边形")],
-                            decorators=[Rest.rest_control(), Permission.require(), Interval.require()]))
-async def low_poly(app: Ariadne, group: Group, message: MessageChain, member: Member, source: Source):
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[Literature("低多边形")],
+        decorators=[Rest.rest_control(), Permission.require(), Interval.require()],
+    )
+)
+async def low_poly(
+    app: Ariadne, group: Group, message: MessageChain, member: Member, source: Source
+):
 
-    if yaml_data['Saya']['LowPolygon']['Disabled']:
+    if yaml_data["Saya"]["LowPolygon"]["Disabled"]:
         return
-    elif 'LowPolygon' in group_data[str(group.id)]['DisabledFunc']:
+    elif "LowPolygon" in group_data[str(group.id)]["DisabledFunc"]:
         return
 
     @Waiter.create_using_function([GroupMessage])
-    async def waiter1(waiter1_group: Group, waiter1_member: Member, waiter1_message: MessageChain):
+    async def waiter1(
+        waiter1_group: Group, waiter1_member: Member, waiter1_message: MessageChain
+    ):
         if waiter1_group.id == group.id and waiter1_member.id == member.id:
             waiter1_saying = waiter1_message.asDisplay()
             if waiter1_saying == "取消":
@@ -59,29 +67,30 @@ async def low_poly(app: Ariadne, group: Group, message: MessageChain, member: Me
             atid = message.getFirst(At).target
             image_url = f"http://q1.qlogo.cn/g?b=qq&nk={atid}&s=640"
         else:
-            await safeSendGroupMessage(group, MessageChain.create([
-                At(member.id),
-                Plain(" 请发送图片以进行制作")
-            ]))
+            await safeSendGroupMessage(
+                group, MessageChain.create([At(member.id), Plain(" 请发送图片以进行制作")])
+            )
             try:
                 image_url = await asyncio.wait_for(inc.wait(waiter1), timeout=30)
                 if not image_url:
                     WAITING.remove(member.id)
-                    return await safeSendGroupMessage(group, MessageChain.create([Plain("已取消")]))
+                    return await safeSendGroupMessage(
+                        group, MessageChain.create([Plain("已取消")])
+                    )
             except asyncio.TimeoutError:
                 WAITING.remove(member.id)
-                return await safeSendGroupMessage(group, MessageChain.create([
-                    Plain("等待超时")
-                ]), quote=source.id)
+                return await safeSendGroupMessage(
+                    group, MessageChain.create([Plain("等待超时")]), quote=source.id
+                )
 
         async with httpx.AsyncClient() as client:
             resp = await client.get(image_url)
             img_bytes = resp.content
         await safeSendGroupMessage(group, MessageChain.create([Plain("正在生成，请稍后")]))
         image = await asyncio.to_thread(make_low_poly, img_bytes)
-        await safeSendGroupMessage(group, MessageChain.create([
-            Image(data_bytes=image)
-        ]))
+        await safeSendGroupMessage(
+            group, MessageChain.create([Image(data_bytes=image)])
+        )
         WAITING.remove(member.id)
 
 
@@ -90,7 +99,9 @@ def make_low_poly(img_bytes):
     img = IMG.open(BytesIO(img_bytes)).convert("RGB")
     img.thumbnail((600, 600))
     imgx, imgy = img.size
-    t = triangler.Triangler(sample_method=triangler.SampleMethod.POISSON_DISK, points=max(imgx, imgy))
+    t = triangler.Triangler(
+        sample_method=triangler.SampleMethod.POISSON_DISK, points=max(imgx, imgy)
+    )
     img = plt.imsave(bio := BytesIO(), t.convert(img.__array__()))
     img = IMG.open(bio).convert("RGB")
     img.save(bio := BytesIO(), "JPEG")

@@ -16,14 +16,18 @@ saya = Saya.current()
 channel = Channel.current()
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            inline_dispatchers=[Literature("/mcping")],
-                            decorators=[Permission.require(), Interval.require()]))
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[Literature("/mcping")],
+        decorators=[Permission.require(), Interval.require()],
+    )
+)
 async def minecraft_ping(group: Group, message: MessageChain):
 
-    if yaml_data['Saya']['MinecraftPing']['Disabled']:
+    if yaml_data["Saya"]["MinecraftPing"]["Disabled"]:
         return
-    elif 'MinecraftPing' in group_data[str(group.id)]['DisabledFunc']:
+    elif "MinecraftPing" in group_data[str(group.id)]["DisabledFunc"]:
         return
 
     saying = message.asDisplay().split()
@@ -31,4 +35,6 @@ async def minecraft_ping(group: Group, message: MessageChain):
         send_msg = await mcping(saying[1])
         await safeSendGroupMessage(str(group.id), MessageChain.create(send_msg))
     else:
-        await safeSendGroupMessage(str(group.id), MessageChain.create([Plain("用法：/mcping 服务器地址")]))
+        await safeSendGroupMessage(
+            str(group.id), MessageChain.create([Plain("用法：/mcping 服务器地址")])
+        )

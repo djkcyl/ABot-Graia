@@ -24,33 +24,42 @@ bookid = {
 
 
 def replaceFran(str):
-    fr_en = [['é', 'e'], ['ê', 'e'],
-             ['è', 'e'], ['ë', 'e'],
-             ['à', 'a'], ['â', 'a'],
-             ['ç', 'c'], ['î', 'i'],
-             ['ï', 'i'], ['ô', 'o'],
-             ['ù', 'u'], ['û', 'u'],
-             ['ü', 'u'], ['ÿ', 'y']]
+    fr_en = [
+        ["é", "e"],
+        ["ê", "e"],
+        ["è", "e"],
+        ["ë", "e"],
+        ["à", "a"],
+        ["â", "a"],
+        ["ç", "c"],
+        ["î", "i"],
+        ["ï", "i"],
+        ["ô", "o"],
+        ["ù", "u"],
+        ["û", "u"],
+        ["ü", "u"],
+        ["ÿ", "y"],
+    ]
     for i in fr_en:
         str = str.replace(i[0], i[1])
     return str
 
 
 for filename in os.listdir("./saya/EnglishTest/worddict"):
-    with open("./saya/EnglishTest/worddict/" + filename, 'r', encoding='utf-8') as f:
+    with open("./saya/EnglishTest/worddict/" + filename, "r", encoding="utf-8") as f:
         for line in f.readlines():
             words = line.strip()
             word_json = json.loads(words)
             word_pop = []
             word_tran = []
-            for tran in word_json['content']['word']['content']['trans']:
-                if 'pos' in tran:
-                    word_pop.append(tran['pos'])
-                word_tran.append(tran['tranCn'])
+            for tran in word_json["content"]["word"]["content"]["trans"]:
+                if "pos" in tran:
+                    word_pop.append(tran["pos"])
+                word_tran.append(tran["tranCn"])
             data = [
                 replaceFran(word_json["headWord"]),
                 "&".join(word_pop),
                 "&".join(word_tran),
-                bookid[word_json['bookId']]['id']
+                bookid[word_json["bookId"]]["id"],
             ]
             add_word(data)

@@ -2,7 +2,7 @@ import time
 
 from peewee import IntegerField, SqliteDatabase, Model, CharField, BigIntegerField
 
-db = SqliteDatabase('./database/talkData.db')
+db = SqliteDatabase("./database/talkData.db")
 
 
 class BaseModel(Model):
@@ -19,20 +19,20 @@ class UserTalk(BaseModel):
     url = CharField(null=True)
 
     class Meta:
-        table_name = 'user_talk'
+        table_name = "user_talk"
 
 
 db.create_tables([UserTalk], safe=True)
 
 
 async def add_talk(qq, group, type, msg, url=None):
-    '''
+    """
     type
     >>> 1 为文字
     >>> 2 为图片
     >>> 3 为闪照
     >>> 4 为语音
-    '''
+    """
     p = UserTalk(qq=qq, group=group, type=type, url=url, msg=msg, time=int(time.time()))
     p.save()
 
@@ -46,10 +46,12 @@ async def archive_exists(msg, type):
 
 
 async def get_user_talk(qq, group, time=0):
-    talklist = UserTalk.select().where(UserTalk.qq == qq,
-                                       UserTalk.group == group,
-                                       UserTalk.type == 1,
-                                       UserTalk.time > time)
+    talklist = UserTalk.select().where(
+        UserTalk.qq == qq,
+        UserTalk.group == group,
+        UserTalk.type == 1,
+        UserTalk.time > time,
+    )
     talk_list = []
     for talk in talklist:
         talk_list.append(talk.msg)
@@ -57,9 +59,9 @@ async def get_user_talk(qq, group, time=0):
 
 
 async def get_group_talk(group, time=0):
-    talklist = UserTalk.select().where(UserTalk.group == group,
-                                       UserTalk.type == 1,
-                                       UserTalk.time > time)
+    talklist = UserTalk.select().where(
+        UserTalk.group == group, UserTalk.type == 1, UserTalk.time > time
+    )
     talk_list = []
     for talk in talklist:
         talk_list.append(talk.msg)
@@ -87,12 +89,12 @@ async def get_message_analysis():
     for _ in range(24):
         if hour == 0:
             hour = 24
-        res[f'{hour}:00'] = 0
+        res[f"{hour}:00"] = 0
         hour -= 1
 
     for item in data:
         item: UserTalk
-        hour = f'{time.localtime(item.time).tm_hour or 24}:00'
+        hour = f"{time.localtime(item.time).tm_hour or 24}:00"
         if hour in res:
             res[hour] += 1
 

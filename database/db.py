@@ -5,7 +5,7 @@ from prettytable import PrettyTable
 from peewee import SqliteDatabase, Model, CharField, IntegerField
 
 
-db = SqliteDatabase('./database/userData.db')
+db = SqliteDatabase("./database/userData.db")
 
 
 class BaseModel(Model):
@@ -22,7 +22,7 @@ class User(BaseModel):
     talk_num = IntegerField(default=0)
 
     class Meta:
-        table_name = 'user_info'
+        table_name = "user_info"
 
 
 db.create_tables([User], safe=True)
@@ -42,7 +42,7 @@ async def sign(qq):
     if user.is_sign:
         return False
     else:
-        p = User.update(is_sign=1, sign_num=User.sign_num+1).where(User.qq == qq)
+        p = User.update(is_sign=1, sign_num=User.sign_num + 1).where(User.qq == qq)
         p.execute()
         return True
 
@@ -55,7 +55,7 @@ async def get_info(qq):
 
 async def add_gold(qq: str, num: int):
     init_user(qq)
-    p = User.update(gold=User.gold+num).where(User.qq == qq)
+    p = User.update(gold=User.gold + num).where(User.qq == qq)
     p.execute()
     return True
 
@@ -71,7 +71,7 @@ async def reduce_gold(qq: str, num: int, force: bool = False):
         else:
             return False
     else:
-        p = User.update(gold=User.gold-num).where(User.qq == qq)
+        p = User.update(gold=User.gold - num).where(User.qq == qq)
         p.execute()
         return True
 
@@ -87,7 +87,7 @@ async def trans_all_gold(from_qq: str, to_qq: str) -> int:
 
 async def add_talk(qq: str):
     init_user(qq)
-    User.update(talk_num=User.talk_num+1).where(User.qq == qq).execute()
+    User.update(talk_num=User.talk_num + 1).where(User.qq == qq).execute()
     return
 
 
@@ -105,12 +105,12 @@ async def all_sign_num():
 
 
 async def give_all_gold(num: int):
-    User.update(gold=User.gold+num).execute()
+    User.update(gold=User.gold + num).execute()
     return
 
 
 async def add_answer(qq: str):
-    User.update(english_answer=User.english_answer+1).where(User.qq == qq).execute()
+    User.update(english_answer=User.english_answer + 1).where(User.qq == qq).execute()
     return
 
 
@@ -118,7 +118,15 @@ async def get_ranking():
     user_list = User.select().order_by(User.gold.desc())
     user_num = len(user_list)
     gold_rank = PrettyTable()
-    gold_rank.field_names = [" ID ", "      QQ      ", "             NICK             ", "  GOLD  ", "  TALK  ", "ANSWER", "RANK"]
+    gold_rank.field_names = [
+        " ID ",
+        "      QQ      ",
+        "             NICK             ",
+        "  GOLD  ",
+        "  TALK  ",
+        "ANSWER",
+        "RANK",
+    ]
     gold_rank.align[" ID "] = "r"
     gold_rank.align["  GOLD  "] = "r"
     gold_rank.align["  TALK  "] = "r"
@@ -131,8 +139,10 @@ async def get_ranking():
         user_qq = user_info.qq
 
         async with httpx.AsyncClient(timeout=10) as client:
-            r = await client.get(f"https://r.qzone.qq.com/fcg-bin/cgi_get_portrait.fcg?uins={user_qq}")
-            r.encoding = 'GBK'
+            r = await client.get(
+                f"https://r.qzone.qq.com/fcg-bin/cgi_get_portrait.fcg?uins={user_qq}"
+            )
+            r.encoding = "GBK"
             qqdata = r.text
 
         qqdata = json.loads(qqdata[17:-1])
@@ -142,7 +152,9 @@ async def get_ranking():
         user_gold = user_info.gold
         user_talk = user_info.talk_num
         user_answer = user_info.english_answer
-        gold_rank.add_row([user_id, user_qq, user_nick, user_gold, user_talk, user_answer, i])
+        gold_rank.add_row(
+            [user_id, user_qq, user_nick, user_gold, user_talk, user_answer, i]
+        )
         i += 1
 
     gold_rank = gold_rank.get_string()
@@ -150,7 +162,15 @@ async def get_ranking():
     user_list = User.select().order_by(User.talk_num.desc())
     user_num = len(user_list)
     talk_rank = PrettyTable()
-    talk_rank.field_names = [" ID ", "      QQ      ", "             NICK             ", "  GOLD  ", "  TALK  ", "ANSWER", "RANK"]
+    talk_rank.field_names = [
+        " ID ",
+        "      QQ      ",
+        "             NICK             ",
+        "  GOLD  ",
+        "  TALK  ",
+        "ANSWER",
+        "RANK",
+    ]
     talk_rank.align[" ID "] = "r"
     talk_rank.align["  GOLD  "] = "r"
     talk_rank.align["  TALK  "] = "r"
@@ -163,8 +183,10 @@ async def get_ranking():
         user_qq = user_info.qq
 
         async with httpx.AsyncClient(timeout=10) as client:
-            r = await client.get(f"https://r.qzone.qq.com/fcg-bin/cgi_get_portrait.fcg?uins={user_qq}")
-            r.encoding = 'GBK'
+            r = await client.get(
+                f"https://r.qzone.qq.com/fcg-bin/cgi_get_portrait.fcg?uins={user_qq}"
+            )
+            r.encoding = "GBK"
             qqdata = r.text
 
         qqdata = json.loads(qqdata[17:-1])
@@ -174,7 +196,9 @@ async def get_ranking():
         user_gold = user_info.gold
         user_talk = user_info.talk_num
         user_answer = user_info.english_answer
-        talk_rank.add_row([user_id, user_qq, user_nick, user_gold, user_talk, user_answer, i])
+        talk_rank.add_row(
+            [user_id, user_qq, user_nick, user_gold, user_talk, user_answer, i]
+        )
         i += 1
 
     talk_rank = talk_rank.get_string()
@@ -182,7 +206,15 @@ async def get_ranking():
     user_list = User.select().order_by(User.english_answer.desc())
     user_num = len(user_list)
     answer_rank = PrettyTable()
-    answer_rank.field_names = [" ID ", "      QQ      ", "             NICK             ", "  GOLD  ", "  TALK  ", "ANSWER", "RANK"]
+    answer_rank.field_names = [
+        " ID ",
+        "      QQ      ",
+        "             NICK             ",
+        "  GOLD  ",
+        "  TALK  ",
+        "ANSWER",
+        "RANK",
+    ]
     answer_rank.align[" ID "] = "r"
     answer_rank.align["  GOLD  "] = "r"
     answer_rank.align["  TALK  "] = "r"
@@ -195,8 +227,10 @@ async def get_ranking():
         user_qq = user_info.qq
 
         async with httpx.AsyncClient(timeout=10) as client:
-            r = await client.get(f"https://r.qzone.qq.com/fcg-bin/cgi_get_portrait.fcg?uins={user_qq}")
-            r.encoding = 'GBK'
+            r = await client.get(
+                f"https://r.qzone.qq.com/fcg-bin/cgi_get_portrait.fcg?uins={user_qq}"
+            )
+            r.encoding = "GBK"
             qqdata = r.text
 
         qqdata = json.loads(qqdata[17:-1])
@@ -206,27 +240,31 @@ async def get_ranking():
         user_gold = user_info.gold
         user_talk = user_info.talk_num
         user_answer = user_info.english_answer
-        answer_rank.add_row([user_id, user_qq, user_nick, user_gold, user_talk, user_answer, i])
+        answer_rank.add_row(
+            [user_id, user_qq, user_nick, user_gold, user_talk, user_answer, i]
+        )
         i += 1
 
     answer_rank = answer_rank.get_string()
 
-    return str(f"ABot 排行榜：\n当前共服务了 {user_num} 位用户\n注意：排行榜每十分钟更新一次\n" +
-               "================================================================================================" +
-               f"\n游戏币排行榜\n{gold_rank}\n发言排行榜\n{talk_rank}\n答题排行榜\n{answer_rank}\n")
+    return str(
+        f"ABot 排行榜：\n当前共服务了 {user_num} 位用户\n注意：排行榜每十分钟更新一次\n"
+        + "================================================================================================"
+        + f"\n游戏币排行榜\n{gold_rank}\n发言排行榜\n{talk_rank}\n答题排行榜\n{answer_rank}\n"
+    )
 
 
 def getCutStr(str, cut):
     si = 0
     i = 0
     for s in str:
-        if '\u4e00' <= s <= '\u9fff':
+        if "\u4e00" <= s <= "\u9fff":
             si += 2
         else:
             si += 1
         i += 1
         if si > cut:
-            cutStr = str[:i] + '....'
+            cutStr = str[:i] + "...."
             break
         else:
             cutStr = str

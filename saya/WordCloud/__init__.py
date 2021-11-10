@@ -28,17 +28,21 @@ saya = Saya.current()
 channel = Channel.current()
 
 BASEPATH = Path(__file__).parent
-MASK = numpy.array(IMG.open(BASEPATH.joinpath('bgg.jpg')))
+MASK = numpy.array(IMG.open(BASEPATH.joinpath("bgg.jpg")))
 FONT_PATH = Path("font").joinpath("sarasa-mono-sc-regular.ttf").__str__()
-STOPWORDS = BASEPATH.joinpath('stopwords')
+STOPWORDS = BASEPATH.joinpath("stopwords")
 
 RUNNING = 0
 RUNNING_LIST = []
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            inline_dispatchers=[Twilight(Sparkle([RegexMatch(r"^查看(个人|本群)词云")]))],
-                            decorators=[Permission.require(), Interval.require(150)]))
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[Twilight(Sparkle([RegexMatch(r"^查看(个人|本群)词云")]))],
+        decorators=[Permission.require(), Interval.require(150)],
+    )
+)
 async def wordcloud(app: Ariadne, group: Group, member: Member, message: MessageChain):
 
     global RUNNING, RUNNING_LIST
@@ -47,9 +51,9 @@ async def wordcloud(app: Ariadne, group: Group, member: Member, message: Message
 
     if match:
 
-        if yaml_data['Saya']['WordCloud']['Disabled']:
+        if yaml_data["Saya"]["WordCloud"]["Disabled"]:
             return
-        elif 'WordCloud' in group_data[str(group.id)]['DisabledFunc']:
+        elif "WordCloud" in group_data[str(group.id)]["DisabledFunc"]:
             return
 
         if RUNNING < 5:
@@ -58,32 +62,37 @@ async def wordcloud(app: Ariadne, group: Group, member: Member, message: Message
             mode = match.group(1)
             before_week = int(time.time() - 604800)
             if mode == "个人":
-                talk_list = await get_user_talk(str(member.id), str(group.id), before_week)
+                talk_list = await get_user_talk(
+                    str(member.id), str(group.id), before_week
+                )
             elif mode == "本群":
                 talk_list = await get_group_talk(str(group.id), before_week)
             if len(talk_list) < 10:
-                await safeSendGroupMessage(group, MessageChain.create([
-                    Plain("当前样本量较少，无法制作")
-                ]))
+                await safeSendGroupMessage(
+                    group, MessageChain.create([Plain("当前样本量较少，无法制作")])
+                )
                 RUNNING -= 1
                 return RUNNING_LIST.remove(member.id)
-            await safeSendGroupMessage(group, MessageChain.create([
-                At(member.id),
-                Plain(f" 正在制作词云，一周内共 {len(talk_list)} 条记录")
-            ]))
+            await safeSendGroupMessage(
+                group,
+                MessageChain.create(
+                    [At(member.id), Plain(f" 正在制作词云，一周内共 {len(talk_list)} 条记录")]
+                ),
+            )
             words = await get_frequencies(talk_list)
             image = await asyncio.to_thread(make_wordcloud, words)
-            await safeSendGroupMessage(group, MessageChain.create([
-                At(member.id),
-                Plain(f" 已成功制作{mode}词云"),
-                Image(data_bytes=image)
-            ]))
+            await safeSendGroupMessage(
+                group,
+                MessageChain.create(
+                    [At(member.id), Plain(f" 已成功制作{mode}词云"), Image(data_bytes=image)]
+                ),
+            )
             RUNNING -= 1
             RUNNING_LIST.remove(member.id)
         else:
-            await safeSendGroupMessage(group, MessageChain.create([
-                Plain("词云生成进程正忙，请稍后")
-            ]))
+            await safeSendGroupMessage(
+                group, MessageChain.create([Plain("词云生成进程正忙，请稍后")])
+            )
 
 
 async def get_frequencies(msg_list):
@@ -95,11 +104,7 @@ async def get_frequencies(msg_list):
 def make_wordcloud(words):
 
     wordcloud = WordCloud(
-        font_path=FONT_PATH,
-        background_color='white',
-        mask=MASK,
-        max_words=800,
-        scale=2
+        font_path=FONT_PATH, background_color="white", mask=MASK, max_words=800, scale=2
     )
     wordcloud.generate_from_frequencies(words)
     image_colors = ImageColorGenerator(MASK, default_color=(255, 255, 255))

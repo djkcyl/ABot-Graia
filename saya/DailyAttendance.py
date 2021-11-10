@@ -22,9 +22,13 @@ saya = Saya.current()
 channel = Channel.current()
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            inline_dispatchers=[Literature("签到")],
-                            decorators=[Permission.require(), Interval.require()]))
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[Literature("签到")],
+        decorators=[Permission.require(), Interval.require()],
+    )
+)
 async def main(app: Ariadne, group: Group, member: Member):
     if await sign(str(member.id)):
         i = random.randint(1, 10)
@@ -37,9 +41,9 @@ async def main(app: Ariadne, group: Group, member: Member):
     else:
         sign_text = "今天你已经签到过了，不能贪心，凌晨4点以后再来吧！"
 
-    if yaml_data['Saya']['Entertainment']['Disabled']:
+    if yaml_data["Saya"]["Entertainment"]["Disabled"]:
         return
-    elif 'Entertainment' in group_data[str(group.id)]['DisabledFunc']:
+    elif "Entertainment" in group_data[str(group.id)]["DisabledFunc"]:
         return
 
     user_info = await get_info(str(member.id))
@@ -57,13 +61,18 @@ async def main(app: Ariadne, group: Group, member: Member):
     else:
         time_nick = f"（假装现在是晚上11点）唔。。还没睡吗？要像{yaml_data['Basic']['BotName']}一样做一个乖孩子，早睡早起身体好喔！晚安❤"
 
-    await safeSendGroupMessage(group, MessageChain.create([
-        Plain(f"{time_nick}，{member.name}"),
-        Plain(f"\n{sign_text}"),
-        Plain(f"\n当前共有 {str(user_info[3])} 个游戏币"),
-        Plain(f"\n你已累计签到 {str(user_info[2])} 天"),
-        Plain(f"\n从有记录以来你共有 {str(user_info[4])} 次发言")
-    ]))
+    await safeSendGroupMessage(
+        group,
+        MessageChain.create(
+            [
+                Plain(f"{time_nick}，{member.name}"),
+                Plain(f"\n{sign_text}"),
+                Plain(f"\n当前共有 {str(user_info[3])} 个游戏币"),
+                Plain(f"\n你已累计签到 {str(user_info[2])} 天"),
+                Plain(f"\n从有记录以来你共有 {str(user_info[4])} 次发言"),
+            ]
+        ),
+    )
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
@@ -75,18 +84,32 @@ async def add_talk_event(member: Member):
 async def reset(app: Ariadne):
     sign_info = await all_sign_num()
     await reset_sign()
-    await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
-        Plain(f"签到重置成功，昨日共有 {str(sign_info[0])} / {str(sign_info[1])} 人完成了签到，"),
-        Plain(f"签到率为 {'{:.2%}'.format(sign_info[0]/sign_info[1])}")
-    ]))
+    await app.sendFriendMessage(
+        yaml_data["Basic"]["Permission"]["Master"],
+        MessageChain.create(
+            [
+                Plain(f"签到重置成功，昨日共有 {str(sign_info[0])} / {str(sign_info[1])} 人完成了签到，"),
+                Plain(f"签到率为 {'{:.2%}'.format(sign_info[0]/sign_info[1])}"),
+            ]
+        ),
+    )
 
 
-@channel.use(ListenerSchema(listening_events=[FriendMessage],
-                            inline_dispatchers=[Literature("签到率查询")],
-                            decorators=[Permission.require(Permission.MASTER)]))
+@channel.use(
+    ListenerSchema(
+        listening_events=[FriendMessage],
+        inline_dispatchers=[Literature("签到率查询")],
+        decorators=[Permission.require(Permission.MASTER)],
+    )
+)
 async def inquire(app: Ariadne, friend: Friend):
     sign_info = await all_sign_num()
-    await app.sendFriendMessage(friend, MessageChain.create([
-        Plain(f"共有 {str(sign_info[0])} / {str(sign_info[1])} 人完成了签到，"),
-        Plain(f"签到率为 {'{:.2%}'.format(sign_info[0]/sign_info[1])}")
-    ]))
+    await app.sendFriendMessage(
+        friend,
+        MessageChain.create(
+            [
+                Plain(f"共有 {str(sign_info[0])} / {str(sign_info[1])} 人完成了签到，"),
+                Plain(f"签到率为 {'{:.2%}'.format(sign_info[0]/sign_info[1])}"),
+            ]
+        ),
+    )

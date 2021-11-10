@@ -22,56 +22,77 @@ LEFT_PART_HORIZONTAL_BLANK_MULTIPLY_FONT_WIDTH = 1 / 4
 RIGHT_PART_VERTICAL_BLANK_MULTIPLY_FONT_HEIGHT = 1
 RIGHT_PART_HORIZONTAL_BLANK_MULTIPLY_FONT_WIDTH = 1 / 4
 RIGHT_PART_RADII = 10
-BG_COLOR = '#000000'
-BOX_COLOR = '#F7971D'
-LEFT_TEXT_COLOR = '#FFFFFF'
-RIGHT_TEXT_COLOR = '#000000'
+BG_COLOR = "#000000"
+BOX_COLOR = "#F7971D"
+LEFT_TEXT_COLOR = "#FFFFFF"
+RIGHT_TEXT_COLOR = "#000000"
 FONT_SIZE = 50
 
 saya = Saya.current()
 channel = Channel.current()
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            inline_dispatchers=[Twilight(Sparkle([RegexMatch("5000兆 .* .*")]))],
-                            decorators=[Rest.rest_control(), Permission.require(), Interval.require()]))
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[Twilight(Sparkle([RegexMatch("5000兆 .* .*")]))],
+        decorators=[Rest.rest_control(), Permission.require(), Interval.require()],
+    )
+)
 async def gosencho_handler(message: MessageChain, group: Group):
 
-    if yaml_data['Saya']['StyleLogoGenerator']['Disabled']:
+    if yaml_data["Saya"]["StyleLogoGenerator"]["Disabled"]:
         return
-    elif 'StyleLogoGenerator' in group_data[str(group.id)]['DisabledFunc']:
+    elif "StyleLogoGenerator" in group_data[str(group.id)]["DisabledFunc"]:
         return
 
-    await safeSendGroupMessage(group, await StylePictureGeneraterHandler.gosencho_en_hoshi_style_image_generator(message))
+    await safeSendGroupMessage(
+        group,
+        await StylePictureGeneraterHandler.gosencho_en_hoshi_style_image_generator(
+            message
+        ),
+    )
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            inline_dispatchers=[Twilight(Sparkle([RegexMatch("ph .* .*")]))],
-                            decorators=[Rest.rest_control(), Permission.require(), Interval.require()]))
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[Twilight(Sparkle([RegexMatch("ph .* .*")]))],
+        decorators=[Rest.rest_control(), Permission.require(), Interval.require()],
+    )
+)
 async def pornhub_handler(message: MessageChain, group: Group):
 
-    if yaml_data['Saya']['StyleLogoGenerator']['Disabled']:
+    if yaml_data["Saya"]["StyleLogoGenerator"]["Disabled"]:
         return
-    elif 'StyleLogoGenerator' in group_data[str(group.id)]['DisabledFunc']:
+    elif "StyleLogoGenerator" in group_data[str(group.id)]["DisabledFunc"]:
         return
 
-    await safeSendGroupMessage(group, await StylePictureGeneraterHandler.pornhub_style_image_generator(message))
+    await safeSendGroupMessage(
+        group, await StylePictureGeneraterHandler.pornhub_style_image_generator(message)
+    )
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            inline_dispatchers=[Twilight(Sparkle([RegexMatch("yt .* .*")]))],
-                            decorators=[Rest.rest_control(), Permission.require(), Interval.require()]))
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[Twilight(Sparkle([RegexMatch("yt .* .*")]))],
+        decorators=[Rest.rest_control(), Permission.require(), Interval.require()],
+    )
+)
 async def youtube_handler(message: MessageChain, group: Group):
 
-    if yaml_data['Saya']['StyleLogoGenerator']['Disabled']:
+    if yaml_data["Saya"]["StyleLogoGenerator"]["Disabled"]:
         return
-    elif 'StyleLogoGenerator' in group_data[str(group.id)]['DisabledFunc']:
+    elif "StyleLogoGenerator" in group_data[str(group.id)]["DisabledFunc"]:
         return
 
-    await safeSendGroupMessage(group, await StylePictureGeneraterHandler.youtube_style_image_generator(message))
+    await safeSendGroupMessage(
+        group, await StylePictureGeneraterHandler.youtube_style_image_generator(message)
+    )
 
 
-class StylePictureGeneraterHandler():
+class StylePictureGeneraterHandler:
     """
     风格图片生成Handler
     """
@@ -82,7 +103,9 @@ class StylePictureGeneraterHandler():
             _, left_text, right_text = message.asDisplay().split(" ")
             try:
                 img_byte = BytesIO()
-                gsGenImage(word_a=left_text, word_b=right_text).save(img_byte, format='PNG')
+                gsGenImage(word_a=left_text, word_b=right_text).save(
+                    img_byte, format="PNG"
+                )
                 return MessageChain.create([Image(data_bytes=img_byte.getvalue())])
             except TypeError:
                 return MessageChain.create([Plain(text="不支持的内容！不要给我一些稀奇古怪的东西！")])
@@ -92,7 +115,7 @@ class StylePictureGeneraterHandler():
     @staticmethod
     async def pornhub_style_image_generator(message):
         message_text = message.asDisplay()
-        if '/' in message_text or '\\' in message_text:
+        if "/" in message_text or "\\" in message_text:
             return MessageChain.create([Plain(text="不支持 '/' 与 '\\' ！")])
         try:
             _, left_text, right_text = message_text.split(" ")
@@ -107,7 +130,7 @@ class StylePictureGeneraterHandler():
     @staticmethod
     async def youtube_style_image_generator(message):
         message_text = message.asDisplay()
-        if '/' in message_text or '\\' in message_text:
+        if "/" in message_text or "\\" in message_text:
             return MessageChain.create([Plain(text="不支持 '/' 与 '\\' ！")])
         try:
             _, left_text, right_text = message_text.split(" ")

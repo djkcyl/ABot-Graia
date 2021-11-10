@@ -3,7 +3,7 @@ import random
 from peewee import SqliteDatabase, Model, CharField, IntegerField
 
 
-db = SqliteDatabase('./saya/EnglishTest/database/WordData.db')
+db = SqliteDatabase("./saya/EnglishTest/database/WordData.db")
 
 
 class BaseModel(Model):
@@ -18,7 +18,7 @@ class Word(BaseModel):
     bookId = IntegerField()
 
     class Meta:
-        table_name = 'word_dict'
+        table_name = "word_dict"
 
 
 db.create_tables([Word], safe=True)
