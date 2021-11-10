@@ -1,6 +1,6 @@
 from config import yaml_data
 
-beast = yaml_data['Saya']['Beast']['BeastPhrase']
+beast = yaml_data["Saya"]["Beast"]["BeastPhrase"]
 if len(beast) != 4:
     print("兽语转换词组有误，请检查配置文件")
     exit()
@@ -21,7 +21,7 @@ def str2hex(text: str):
 def hex2str(text: str):
     ret = ""
     for i in range(0, len(text), 4):
-        unicodeHexStr = text[i:i + 4]
+        unicodeHexStr = text[i : i + 4]
         charStr = chr(int(unicodeHexStr, 16))
         ret += charStr
     return ret

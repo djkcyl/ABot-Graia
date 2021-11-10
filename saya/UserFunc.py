@@ -22,11 +22,17 @@ channel = Channel.current()
 RANK_LIST = None
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            inline_dispatchers=[Literature("查看排行榜")],
-                            decorators=[Permission.require(), Interval.require()]))
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[Literature("查看排行榜")],
+        decorators=[Permission.require(), Interval.require()],
+    )
+)
 async def main(app: Ariadne, group: Group):
-    await safeSendGroupMessage(group, MessageChain.create([Image(data_bytes=RANK_LIST)]))
+    await safeSendGroupMessage(
+        group, MessageChain.create([Image(data_bytes=RANK_LIST)])
+    )
 
 
 @channel.use(SchedulerSchema(every_custom_minutes(10)))

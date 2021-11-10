@@ -20,13 +20,17 @@ channel = Channel.current()
 repdict = {}
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            decorators=[Rest.rest_control(), Permission.require()]))
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        decorators=[Rest.rest_control(), Permission.require()],
+    )
+)
 async def repeater(app: Ariadne, group: Group, message: MessageChain):
 
-    if yaml_data['Saya']['Repeater']['Disabled']:
+    if yaml_data["Saya"]["Repeater"]["Disabled"]:
         return
-    elif 'Repeater' in group_data[str(group.id)]['DisabledFunc']:
+    elif "Repeater" in group_data[str(group.id)]["DisabledFunc"]:
         return
 
     global repdict
@@ -36,38 +40,48 @@ async def repeater(app: Ariadne, group: Group, message: MessageChain):
     ifat = not message.has(At)
     if ifpic & ifface & ifat:
         if group.id not in repdict:
-            repdict[group.id] = {'msg': saying, 'times': 1, 'last': ""}
-        elif saying == repdict[group.id]['msg']:
-            repdict[group.id]['times'] = repdict[group.id]['times'] + 1
-            if repdict[group.id]['times'] == yaml_data['Saya']['Repeater']['RepeatTimes'] and saying != repdict[group.id]['last']:
+            repdict[group.id] = {"msg": saying, "times": 1, "last": ""}
+        elif saying == repdict[group.id]["msg"]:
+            repdict[group.id]["times"] = repdict[group.id]["times"] + 1
+            if (
+                repdict[group.id]["times"]
+                == yaml_data["Saya"]["Repeater"]["RepeatTimes"]
+                and saying != repdict[group.id]["last"]
+            ):
                 res = await text_moderation(saying)
-                if res['Suggestion'] == "Pass":
-                    await safeSendGroupMessage(group, MessageChain.create([Plain(saying)]))
-                    repdict[group.id] = {'msg': saying, 'times': 1, 'last': saying}
+                if res["Suggestion"] == "Pass":
+                    await safeSendGroupMessage(
+                        group, MessageChain.create([Plain(saying)])
+                    )
+                    repdict[group.id] = {"msg": saying, "times": 1, "last": saying}
         else:
-            repdict[group.id]['msg'] = saying
-            repdict[group.id]['times'] = 1
+            repdict[group.id]["msg"] = saying
+            repdict[group.id]["times"] = 1
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            decorators=[Rest.rest_control(), Permission.require()]))
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        decorators=[Rest.rest_control(), Permission.require()],
+    )
+)
 async def repeateron(app: Ariadne, group: Group, message: MessageChain):
 
-    if yaml_data['Saya']['Repeater']['Disabled']:
+    if yaml_data["Saya"]["Repeater"]["Disabled"]:
         return
-    elif 'Repeater' in group_data[str(group.id)]['DisabledFunc']:
+    elif "Repeater" in group_data[str(group.id)]["DisabledFunc"]:
         return
-    elif yaml_data['Saya']['Repeater']['Random']['Disabled']:
+    elif yaml_data["Saya"]["Repeater"]["Random"]["Disabled"]:
         return
 
     saying = message.asDisplay()
-    randint = random.randint(1, yaml_data['Saya']['Repeater']['Random']['Probability'])
-    if randint == yaml_data['Saya']['Repeater']['Random']['Probability']:
+    randint = random.randint(1, yaml_data["Saya"]["Repeater"]["Random"]["Probability"])
+    if randint == yaml_data["Saya"]["Repeater"]["Random"]["Probability"]:
         ifpic = not message.has(Image)
         ifface = not message.has(Face)
         ifat = not message.has(At)
         if ifpic & ifface & ifat:
-            repdict[group.id] = {'msg': saying, 'times': 1, 'last': saying}
+            repdict[group.id] = {"msg": saying, "times": 1, "last": saying}
             res = await text_moderation(saying)
-            if res['Suggestion'] == "Pass":
+            if res["Suggestion"] == "Pass":
                 await safeSendGroupMessage(group, MessageChain.create([Plain(saying)]))

@@ -19,17 +19,23 @@ from util.control import Permission, Interval, Rest
 saya = Saya.current()
 channel = Channel.current()
 
-Designs = json.loads(Path(__file__).parent.joinpath("DesignsDICT.json").read_text("UTF-8"))['Designs']
+Designs = json.loads(
+    Path(__file__).parent.joinpath("DesignsDICT.json").read_text("UTF-8")
+)["Designs"]
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            inline_dispatchers=[Literature("查看人设")],
-                            decorators=[Rest.rest_control(), Permission.require(), Interval.require()]))
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[Literature("查看人设")],
+        decorators=[Rest.rest_control(), Permission.require(), Interval.require()],
+    )
+)
 async def rand_designs(app: Ariadne, group: Group, member: Member, source: Source):
 
-    if yaml_data['Saya']['CharacterDesignGenerator']['Disabled']:
+    if yaml_data["Saya"]["CharacterDesignGenerator"]["Disabled"]:
         return
-    elif 'CharacterDesignGenerator' in group_data[str(group.id)]['DisabledFunc']:
+    elif "CharacterDesignGenerator" in group_data[str(group.id)]["DisabledFunc"]:
         return
 
     msg = "你的人设：\n"
@@ -37,9 +43,9 @@ async def rand_designs(app: Ariadne, group: Group, member: Member, source: Sourc
         msg += f"{type[0]}：{type[1]}\n"
 
     image = await create_image(msg)
-    await safeSendGroupMessage(group, MessageChain.create([
-        Image(data_bytes=image)
-    ]), quote=source.id)
+    await safeSendGroupMessage(
+        group, MessageChain.create([Image(data_bytes=image)]), quote=source.id
+    )
 
 
 def get_rand(qid: int, gid: int):
@@ -52,18 +58,21 @@ def get_rand(qid: int, gid: int):
 
     for type in Designs:
         random.seed(qid + gid + i + s)
-        designs_list.append([
-            type,
-            random.choice(Designs[type])
-        ])
+        designs_list.append([type, random.choice(Designs[type])])
         i += 1
     return designs_list
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            inline_dispatchers=[Literature("/reload", "人设")],
-                            decorators=[Permission.require(Permission.MASTER)]))
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[Literature("/reload", "人设")],
+        decorators=[Permission.require(Permission.MASTER)],
+    )
+)
 async def reoald_designs(app: Ariadne, group: Group, member: Member):
     global Designs
-    Designs = json.loads(Path(__file__).parent.joinpath("DesignsDICT.json").read_text("UTF-8"))['Designs']
+    Designs = json.loads(
+        Path(__file__).parent.joinpath("DesignsDICT.json").read_text("UTF-8")
+    )["Designs"]
     await safeSendGroupMessage(group, MessageChain.create([Plain("重载完成")]))

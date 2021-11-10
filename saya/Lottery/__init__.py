@@ -32,7 +32,7 @@ bcc = saya.broadcast
 inc = InterruptControl(bcc)
 
 WAITING = []
-if not yaml_data['Saya']['Entertainment']['Lottery']:
+if not yaml_data["Saya"]["Entertainment"]["Lottery"]:
     pass
 elif os.path.exists("./saya/Lottery/data.json"):
     with open("./saya/Lottery/data.json", "r") as f:
@@ -42,30 +42,32 @@ else:
         print("正在初始化奖券数据")
         LOTTERY = {
             "period": 1,
-            "lastweek": {
-                "received": False,
-                "number": None,
-                "len": None
-            },
-            "week_lottery_list": []
+            "lastweek": {"received": False, "number": None, "len": None},
+            "week_lottery_list": [],
         }
         json.dump(LOTTERY, f, indent=2, ensure_ascii=False)
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            inline_dispatchers=[Literature("购买奖券")],
-                            decorators=[Permission.require()]))
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[Literature("购买奖券")],
+        decorators=[Permission.require()],
+    )
+)
 async def buy_lottery(app: Ariadne, group: Group, member: Member, source: Source):
 
-    if not yaml_data['Saya']['Entertainment']['Lottery']:
+    if not yaml_data["Saya"]["Entertainment"]["Lottery"]:
         return
-    elif yaml_data['Saya']['Entertainment']['Disabled']:
+    elif yaml_data["Saya"]["Entertainment"]["Disabled"]:
         return
-    elif 'Entertainment' in group_data[str(group.id)]['DisabledFunc']:
+    elif "Entertainment" in group_data[str(group.id)]["DisabledFunc"]:
         return
 
     if await reduce_gold(str(member.id), 2):
-        number = ''.join(random.sample(string.digits+string.digits+string.digits, 24))
+        number = "".join(
+            random.sample(string.digits + string.digits + string.digits, 24)
+        )
         period = str(LOTTERY["period"])
         lottery = qrgen(str(member.id), number, member.name, period)
 
@@ -74,57 +76,71 @@ async def buy_lottery(app: Ariadne, group: Group, member: Member, source: Source
 
         with open("./saya/Lottery/data.json", "w") as f:
             json.dump(LOTTERY, f, indent=2, ensure_ascii=False)
-        await safeSendGroupMessage(group, MessageChain.create([
-            Plain("购买成功，编号为："),
-            Plain(f"\n{number}"),
-            Plain(f"\n当前卡池已有 {lottery_len} 张"),
-            Plain("\n请妥善保管，丢失一概不补"),
-            Image(data_bytes=lottery)
-        ]), quote=source.id)
+        await safeSendGroupMessage(
+            group,
+            MessageChain.create(
+                [
+                    Plain("购买成功，编号为："),
+                    Plain(f"\n{number}"),
+                    Plain(f"\n当前卡池已有 {lottery_len} 张"),
+                    Plain("\n请妥善保管，丢失一概不补"),
+                    Image(data_bytes=lottery),
+                ]
+            ),
+            quote=source.id,
+        )
     else:
-        await safeSendGroupMessage(group, MessageChain.create([
-            At(member.id),
-            Plain("你的游戏币不够，无法购买")
-        ]), quote=source.id)
+        await safeSendGroupMessage(
+            group,
+            MessageChain.create([At(member.id), Plain("你的游戏币不够，无法购买")]),
+            quote=source.id,
+        )
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            inline_dispatchers=[Literature("兑换奖券")],
-                            decorators=[Permission.require()]))
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[Literature("兑换奖券")],
+        decorators=[Permission.require()],
+    )
+)
 async def redeem_lottery(app: Ariadne, group: Group, member: Member, source: Source):
 
     if member.id in WAITING:
         return
 
-    if not yaml_data['Saya']['Entertainment']['Lottery']:
+    if not yaml_data["Saya"]["Entertainment"]["Lottery"]:
         return
-    elif yaml_data['Saya']['Entertainment']['Disabled']:
+    elif yaml_data["Saya"]["Entertainment"]["Disabled"]:
         return
-    elif 'Entertainment' in group_data[str(group.id)]['DisabledFunc']:
+    elif "Entertainment" in group_data[str(group.id)]["DisabledFunc"]:
         return
 
     WAITING.append(member.id)
 
     @Waiter.create_using_function([GroupMessage])
-    async def waiter(waiter_group: Group, waiter_member: Member, waiter_message: MessageChain):
+    async def waiter(
+        waiter_group: Group, waiter_member: Member, waiter_message: MessageChain
+    ):
         if all([waiter_group.id == group.id, waiter_member.id == member.id]):
             has_pic = waiter_message.has(Image)
             if has_pic:
                 get_pic = waiter_message.getFirst(Image).url
                 return get_pic
 
-    await safeSendGroupMessage(group, MessageChain.create([
-        Plain("请发送需要兑换的奖券")
-    ]), quote=source.id)
+    await safeSendGroupMessage(
+        group, MessageChain.create([Plain("请发送需要兑换的奖券")]), quote=source.id
+    )
 
     try:
         waite_pic = await asyncio.wait_for(inc.wait(waiter), timeout=30)
     except asyncio.TimeoutError:
         WAITING.remove(member.id)
-        return await safeSendGroupMessage(group, MessageChain.create([
-            At(member.id),
-            Plain(" 奖券兑换等待超时")
-        ]), quote=source.id)
+        return await safeSendGroupMessage(
+            group,
+            MessageChain.create([At(member.id), Plain(" 奖券兑换等待超时")]),
+            quote=source.id,
+        )
 
     qrinfo = qrdecode(waite_pic)
     image_info = decrypt(qrinfo)
@@ -140,17 +156,30 @@ async def redeem_lottery(app: Ariadne, group: Group, member: Member, source: Sou
                     LOTTERY["lastweek"]["received"] = True
                     with open("./saya/Lottery/data.json", "w") as f:
                         json.dump(LOTTERY, f, indent=2, ensure_ascii=False)
-                    await safeSendGroupMessage(group, MessageChain.create([Plain(f"你已成功兑换上期奖券，共获得 {str(gold)} 个游戏币")]))
+                    await safeSendGroupMessage(
+                        group,
+                        MessageChain.create(
+                            [Plain(f"你已成功兑换上期奖券，共获得 {str(gold)} 个游戏币")]
+                        ),
+                    )
                 else:
-                    await safeSendGroupMessage(group, MessageChain.create([Plain("该奖券已被兑换")]))
+                    await safeSendGroupMessage(
+                        group, MessageChain.create([Plain("该奖券已被兑换")])
+                    )
             else:
-                await safeSendGroupMessage(group, MessageChain.create([Plain("该号码与中奖号码不符")]))
+                await safeSendGroupMessage(
+                    group, MessageChain.create([Plain("该号码与中奖号码不符")])
+                )
         elif period == int(lottery_period):
-            await safeSendGroupMessage(group, MessageChain.create([Plain("当期奖券请等待每周一开奖后在进行兑换")]))
+            await safeSendGroupMessage(
+                group, MessageChain.create([Plain("当期奖券请等待每周一开奖后在进行兑换")])
+            )
         else:
             await safeSendGroupMessage(group, MessageChain.create([Plain("该奖券已过期")]))
     else:
-        await safeSendGroupMessage(group, MessageChain.create([Plain("该奖券不为你所有，请勿窃取他人奖券")]))
+        await safeSendGroupMessage(
+            group, MessageChain.create([Plain("该奖券不为你所有，请勿窃取他人奖券")])
+        )
     WAITING.remove(member.id)
 
 
@@ -161,59 +190,59 @@ async def something_scheduled(app: Ariadne):
     lottery["period"] += 1
     lottery_len = len(lottery["week_lottery_list"])
     winner = secrets.choice(lottery["week_lottery_list"])
-    lottery["lastweek"] = {
-        "received": False,
-        "number": winner,
-        "len": lottery_len
-    }
+    lottery["lastweek"] = {"received": False, "number": winner, "len": lottery_len}
     lottery["week_lottery_list"] = []
 
     LOTTERY = lottery
     with open("./saya/Lottery/data.json", "w") as f:
         json.dump(LOTTERY, f, indent=2, ensure_ascii=False)
 
-    await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
-        Plain("本期奖券开奖完毕，中奖号码为\n"),
-        Plain(str(winner))
-    ]))
+    await app.sendFriendMessage(
+        yaml_data["Basic"]["Permission"]["Master"],
+        MessageChain.create([Plain("本期奖券开奖完毕，中奖号码为\n"), Plain(str(winner))]),
+    )
 
 
-@channel.use(ListenerSchema(listening_events=[FriendMessage],
-                            inline_dispatchers=[Literature("开奖")],
-                            decorators=[Permission.require(Permission.MASTER)]))
+@channel.use(
+    ListenerSchema(
+        listening_events=[FriendMessage],
+        inline_dispatchers=[Literature("开奖")],
+        decorators=[Permission.require(Permission.MASTER)],
+    )
+)
 async def lo(app: Ariadne):
     global LOTTERY
     lottery = LOTTERY
     lottery["period"] += 1
     lottery_len = len(lottery["week_lottery_list"])
     winner = secrets.choice(lottery["week_lottery_list"])
-    lottery["lastweek"] = {
-        "received": False,
-        "number": winner,
-        "len": lottery_len
-    }
+    lottery["lastweek"] = {"received": False, "number": winner, "len": lottery_len}
     lottery["week_lottery_list"] = []
 
     LOTTERY = lottery
     with open("./saya/Lottery/data.json", "w") as f:
         json.dump(LOTTERY, f, indent=2, ensure_ascii=False)
 
-    await app.sendFriendMessage(yaml_data['Basic']['Permission']['Master'], MessageChain.create([
-        Plain("本期奖券开奖完毕，中奖号码为\n"),
-        Plain(str(winner))
-    ]))
+    await app.sendFriendMessage(
+        yaml_data["Basic"]["Permission"]["Master"],
+        MessageChain.create([Plain("本期奖券开奖完毕，中奖号码为\n"), Plain(str(winner))]),
+    )
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            inline_dispatchers=[Literature("开奖查询")],
-                            decorators=[Permission.require(), Interval.require()]))
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[Literature("开奖查询")],
+        decorators=[Permission.require(), Interval.require()],
+    )
+)
 async def q_lottery(app: Ariadne, group: Group):
 
-    if not yaml_data['Saya']['Entertainment']['Lottery']:
+    if not yaml_data["Saya"]["Entertainment"]["Lottery"]:
         return
-    elif yaml_data['Saya']['Entertainment']['Disabled']:
+    elif yaml_data["Saya"]["Entertainment"]["Disabled"]:
         return
-    elif 'Entertainment' in group_data[str(group.id)]['DisabledFunc']:
+    elif "Entertainment" in group_data[str(group.id)]["DisabledFunc"]:
         return
 
     lottery = LOTTERY
@@ -222,10 +251,15 @@ async def q_lottery(app: Ariadne, group: Group):
     lottery_len = LOTTERY["lastweek"]["len"]
     gold = int(lottery_len * 2 * 0.9)
     received = "已领取" if lottery["lastweek"]["received"] else "未领取"
-    await safeSendGroupMessage(group, MessageChain.create([
-        Plain("上期开奖信息：\n"),
-        Plain(f"上期期号：{period}\n"),
-        Plain(f"中奖号码：{winner}\n"),
-        Plain(f"奖励：{gold} 个游戏币\n"),
-        Plain(f"状态：{received}")
-    ]))
+    await safeSendGroupMessage(
+        group,
+        MessageChain.create(
+            [
+                Plain("上期开奖信息：\n"),
+                Plain(f"上期期号：{period}\n"),
+                Plain(f"中奖号码：{winner}\n"),
+                Plain(f"奖励：{gold} 个游戏币\n"),
+                Plain(f"状态：{received}"),
+            ]
+        ),
+    )

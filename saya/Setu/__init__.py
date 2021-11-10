@@ -17,16 +17,20 @@ saya = Saya.current()
 channel = Channel.current()
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            inline_dispatchers=[Literature("色图")],
-                            decorators=[Rest.rest_control(), Permission.require(), Interval.require()]))
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[Literature("色图")],
+        decorators=[Rest.rest_control(), Permission.require(), Interval.require()],
+    )
+)
 async def main(app: Ariadne, group: Group):
 
-    if yaml_data['Saya']['Setu']['Disabled']:
+    if yaml_data["Saya"]["Setu"]["Disabled"]:
         return
-    elif 'Setu' in group_data[str(group.id)]['DisabledFunc']:
+    elif "Setu" in group_data[str(group.id)]["DisabledFunc"]:
         return
 
-    await safeSendGroupMessage(group, MessageChain.create([
-        Image(data_bytes=await create_setu())
-    ]))
+    await safeSendGroupMessage(
+        group, MessageChain.create([Image(data_bytes=await create_setu())])
+    )

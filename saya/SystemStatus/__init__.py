@@ -48,16 +48,24 @@ async def cpuStatus():
     logger.info("=========================")
     logger.info(f"当前系统：{platform.system()}")
     logger.info(f"CPU核心数：{psutil.cpu_count()}")
-    logger.info(f"内存：{int(virtual_memory.used / 1000000)}MB / {int(virtual_memory.total / 1000000)}MB")
+    logger.info(
+        f"内存：{int(virtual_memory.used / 1000000)}MB / {int(virtual_memory.total / 1000000)}MB"
+    )
     logger.info(f"硬盘：{int(disk.used / 1000000)}MB / {int(disk.total / 1000000)}MB")
     logger.info("已开始记录 CPU 占用率")
     logger.info("已开始记录内存占用率")
     logger.info("=========================")
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            inline_dispatchers=[Literature("查看性能统计")],
-                            decorators=[Permission.require(Permission.MASTER)]))
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[Literature("查看性能统计")],
+        decorators=[Permission.require(Permission.MASTER)],
+    )
+)
 async def get_image(app: Ariadne, group: Group):
-    image = await get_mapping(CPU_USAGE, MEM_USAGE, int(psutil.virtual_memory().total / 1000000))
+    image = await get_mapping(
+        CPU_USAGE, MEM_USAGE, int(psutil.virtual_memory().total / 1000000)
+    )
     await safeSendGroupMessage(group, MessageChain.create([Image(data_bytes=image)]))

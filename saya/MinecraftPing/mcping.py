@@ -20,17 +20,19 @@ async def mcping(say):
         get_status = StatusPing(host=host, port=int(port)).get_status()
     except Exception:
         try:
-            srv_records = dns.resolver.query('_minecraft._tcp.'+host, 'SRV')
+            srv_records = dns.resolver.query("_minecraft._tcp." + host, "SRV")
             srvInfo = {}
             for srv in srv_records:
-                srvInfo['host'] = str(srv.target).rstrip('.')
-                srvInfo['port'] = srv.port
-            get_status = StatusPing(host=srvInfo['host'], port=int(srvInfo['port'])).get_status()
+                srvInfo["host"] = str(srv.target).rstrip(".")
+                srvInfo["port"] = srv.port
+            get_status = StatusPing(
+                host=srvInfo["host"], port=int(srvInfo["port"])
+            ).get_status()
         except Exception:
             get_status = StatusPing(host=host).get_status()
 
     get_status = json.dumps(get_status)
-    get_status = re.sub(r'\\u00a7.', "", get_status)
+    get_status = re.sub(r"\\u00a7.", "", get_status)
     get_status = json.loads(get_status)
     print(get_status)
 
@@ -45,7 +47,7 @@ async def mcping(say):
     if "favicon" in get_status:
         favicon = get_status["favicon"][22:-1] + "="
         byte_data = base64.b64decode(favicon)
-        img = IMG.open(BytesIO(byte_data)).convert('RGB')
+        img = IMG.open(BytesIO(byte_data)).convert("RGB")
         img.save(image := BytesIO(), format="JPEG", quality=90)
         msg_send.append(Image(data_bytes=image.getvalue()))
 
@@ -89,7 +91,9 @@ async def mcping(say):
             sVer = get_status["version"]["name"]
 
     sDevVer = str(get_status["version"]["protocol"])
-    sPlayer = str(get_status["players"]["online"]) + " / " + str(get_status["players"]["max"])
+    sPlayer = (
+        str(get_status["players"]["online"]) + " / " + str(get_status["players"]["max"])
+    )
 
     msg_send.append(Plain("游戏版本：" + sVer + "\n"))
     msg_send.append(Plain("协议版本：" + sDevVer + "\n"))

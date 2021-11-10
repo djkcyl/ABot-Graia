@@ -21,28 +21,27 @@ inc = InterruptControl(bcc)
 HOME = Path(__file__).parent
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            decorators=[Permission.require()]))
+@channel.use(
+    ListenerSchema(listening_events=[GroupMessage], decorators=[Permission.require()])
+)
 async def az(app: Ariadne, group: Group, message: MessageChain):
 
-    if yaml_data['Saya']['Message']['Disabled']:
+    if yaml_data["Saya"]["Message"]["Disabled"]:
         return
-    elif 'Message' in group_data[str(group.id)]['DisabledFunc']:
+    elif "Message" in group_data[str(group.id)]["DisabledFunc"]:
         return
 
     saying = message.asDisplay()
     if saying == "草":
         await Interval.manual(5)
-        await safeSendGroupMessage(group, MessageChain.create([
-            Plain("一种植物（")
-        ]))
+        await safeSendGroupMessage(group, MessageChain.create([Plain("一种植物（")]))
     if saying == "好耶":
         await Interval.manual(5)
-        await safeSendGroupMessage(group, MessageChain.create([
-            Image(path=HOME.joinpath("haoye.png"))
-        ]))
+        await safeSendGroupMessage(
+            group, MessageChain.create([Image(path=HOME.joinpath("haoye.png"))])
+        )
     if saying == "流汗黄豆.jpg":
         await Interval.manual(5)
-        await safeSendGroupMessage(group, MessageChain.create([
-            Image(path=HOME.joinpath("jpg"))
-        ]))
+        await safeSendGroupMessage(
+            group, MessageChain.create([Image(path=HOME.joinpath("jpg"))])
+        )

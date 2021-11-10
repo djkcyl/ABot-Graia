@@ -1,16 +1,14 @@
 import httpx
 
 from loguru import logger
-from graia.ariadne.app import Ariadne
-
 
 from config import yaml_data
 from .get_proxy import get_proxy, next_proxy
 
 
 head = {
-    'user-agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36',
-    'Referer': 'https://www.bilibili.com/'
+    "user-agent": "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36",
+    "Referer": "https://www.bilibili.com/",
 }
 
 
@@ -18,8 +16,12 @@ async def dynamic_svr(uid):
     for _ in range(2):
         for retry in range(3):
             try:
-                async with httpx.AsyncClient(proxies=get_proxy(), headers=head) as client:
-                    r = await client.get(f"https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/space_history?host_uid={uid}")
+                async with httpx.AsyncClient(
+                    proxies=get_proxy(), headers=head
+                ) as client:
+                    r = await client.get(
+                        f"https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/space_history?host_uid={uid}"
+                    )
             except httpx.HTTPError as e:
                 logger.error(f"[BiliBili推送] API 访问失败，正在第 {retry + 1} 重试 {str(type(e))}")
                 pass
@@ -41,8 +43,13 @@ async def get_status_info_by_uids(uids):
     for _ in range(2):
         for retry in range(3):
             try:
-                async with httpx.AsyncClient(proxies=get_proxy(), headers=head) as client:
-                    r = await client.post("https://api.live.bilibili.com/room/v1/Room/get_status_info_by_uids", json=uids)
+                async with httpx.AsyncClient(
+                    proxies=get_proxy(), headers=head
+                ) as client:
+                    r = await client.post(
+                        "https://api.live.bilibili.com/room/v1/Room/get_status_info_by_uids",
+                        json=uids,
+                    )
             except httpx.HTTPError as e:
                 logger.error(f"[BiliBili推送] API 访问失败，正在第 {retry + 1} 重试 {str(type(e))}")
                 pass

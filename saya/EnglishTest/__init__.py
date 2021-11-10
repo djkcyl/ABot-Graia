@@ -14,6 +14,7 @@ from graia.ariadne.event.message import GroupMessage, FriendMessage
 from database.db import add_answer
 from util.control import Permission
 from util.text2image import create_image
+from util.sendMessage import safeSendGroupMessage
 
 from .database.database import random_word
 
@@ -52,13 +53,18 @@ Process = [1, 2, 3, 4]
 RUNNING = {}
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            inline_dispatchers=[Literature("背单词")],
-                            decorators=[Permission.require()]))
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[Literature("背单词")],
+        decorators=[Permission.require()],
+    )
+)
 async def group_learn(app: Ariadne, group: Group, member: Member):
-
     @Waiter.create_using_function([GroupMessage])
-    async def confirm(waiter_group: Group, waiter_member: Member, waiter_message: MessageChain):
+    async def confirm(
+        waiter_group: Group, waiter_member: Member, waiter_message: MessageChain
+    ):
         if all([waiter_group.id == group.id, waiter_member.id == member.id]):
             waiter_saying = waiter_message.asDisplay()
             if waiter_saying == "取消":
@@ -69,12 +75,14 @@ async def group_learn(app: Ariadne, group: Group, member: Member):
                     if 1 <= bookid <= 15:
                         return bookid
                 except Exception:
-                    await selfSendGroupMessage(group, MessageChain.create([
-                        Plain("请输入1-15以内的数字")
-                    ]))
+                    await safeSendGroupMessage(
+                        group, MessageChain.create([Plain("请输入1-15以内的数字")])
+                    )
 
     @Waiter.create_using_function([GroupMessage])
-    async def waiter(waiter_group: Group, waiter_member: Member, waiter_message: MessageChain):
+    async def waiter(
+        waiter_group: Group, waiter_member: Member, waiter_message: MessageChain
+    ):
         if waiter_group.id == group.id:
             waiter_saying = waiter_message.asDisplay()
             if waiter_saying == "取消":
@@ -87,21 +95,25 @@ async def group_learn(app: Ariadne, group: Group, member: Member):
 
     RUNNING[group.id] = None
     bookid_image = await create_image("\n".join(booklist))
-    await selfSendGroupMessage(group, MessageChain.create([
-        Plain("请输入你想要选择的词库ID"),
-        Image(data_bytes=bookid_image)
-    ]))
+    await safeSendGroupMessage(
+        group,
+        MessageChain.create([Plain("请输入你想要选择的词库ID"), Image(data_bytes=bookid_image)]),
+    )
 
     try:
         bookid = await asyncio.wait_for(inc.wait(confirm), timeout=30)
         if not bookid:
             del RUNNING[group.id]
-            return await selfSendGroupMessage(group, MessageChain.create([Plain("已取消")]))
+            return await safeSendGroupMessage(
+                group, MessageChain.create([Plain("已取消")])
+            )
     except asyncio.TimeoutError:
         del RUNNING[group.id]
-        return await selfSendGroupMessage(group, MessageChain.create([Plain("等待超时")]))
+        return await safeSendGroupMessage(group, MessageChain.create([Plain("等待超时")]))
 
-    await selfSendGroupMessage(group, MessageChain.create([Plain("已开启本次答题，可随时发送“取消”以终止进程")]))
+    await safeSendGroupMessage(
+        group, MessageChain.create([Plain("已开启本次答题，可随时发送“取消”以终止进程")])
+    )
 
     while True:
         word_data = await random_word(bookid)
@@ -116,50 +128,69 @@ async def group_learn(app: Ariadne, group: Group, member: Member):
         for p in pop:
             wordinfo.append(f"[ {p} ] {tran[tran_num]}")
             tran_num += 1
-        await selfSendGroupMessage(group, MessageChain.create([
-            Plain("本回合题目：\n"),
-            Plain("\n".join(wordinfo))
-        ]))
+        await safeSendGroupMessage(
+            group, MessageChain.create([Plain("本回合题目：\n"), Plain("\n".join(wordinfo))])
+        )
         for process in Process:
             try:
                 answer_qq = await asyncio.wait_for(inc.wait(waiter), timeout=15)
                 if answer_qq:
                     await add_answer(str(answer_qq))
-                    await selfSendGroupMessage(group, MessageChain.create([
-                        Plain("恭喜 "),
-                        At(answer_qq),
-                        Plain(f" 回答正确 {word_data[0]}")
-                    ]))
+                    await safeSendGroupMessage(
+                        group,
+                        MessageChain.create(
+                            [
+                                Plain("恭喜 "),
+                                At(answer_qq),
+                                Plain(f" 回答正确 {word_data[0]}"),
+                            ]
+                        ),
+                    )
                     await asyncio.sleep(2)
                     break
                 else:
                     del RUNNING[group.id]
-                    return await selfSendGroupMessage(group, MessageChain.create([Plain("已结束本次答题")]))
+                    return await safeSendGroupMessage(
+                        group, MessageChain.create([Plain("已结束本次答题")])
+                    )
 
             except asyncio.TimeoutError:
                 if process == 1:
-                    await selfSendGroupMessage(group, MessageChain.create([
-                        Plain(f"提示1\n这个单词由 {word_len} 个字母构成")
-                    ]))
+                    await safeSendGroupMessage(
+                        group,
+                        MessageChain.create([Plain(f"提示1\n这个单词由 {word_len} 个字母构成")]),
+                    )
                 elif process == 2:
-                    await selfSendGroupMessage(group, MessageChain.create([
-                        Plain(f"提示2\n这个单词的首字母是 {word_data[0][0]}")
-                    ]))
+                    await safeSendGroupMessage(
+                        group,
+                        MessageChain.create(
+                            [Plain(f"提示2\n这个单词的首字母是 {word_data[0][0]}")]
+                        ),
+                    )
                 elif process == 3:
                     half = int(word_len / 2)
-                    await selfSendGroupMessage(group, MessageChain.create([
-                        Plain(f"提示3\n这个单词的前半部分为\n{word_data[0][:half]}")]))
+                    await safeSendGroupMessage(
+                        group,
+                        MessageChain.create(
+                            [Plain(f"提示3\n这个单词的前半部分为\n{word_data[0][:half]}")]
+                        ),
+                    )
                 elif process == 4:
                     del RUNNING[group.id]
-                    return await selfSendGroupMessage(group, MessageChain.create([
-                        Plain(f"本次答案为：{word_data[0]}\n答题已结束，请重新开启")
-                    ]))
+                    return await safeSendGroupMessage(
+                        group,
+                        MessageChain.create(
+                            [Plain(f"本次答案为：{word_data[0]}\n答题已结束，请重新开启")]
+                        ),
+                    )
 
 
-@channel.use(ListenerSchema(listening_events=[FriendMessage],
-                            inline_dispatchers=[Literature("背单词")]))
+@channel.use(
+    ListenerSchema(
+        listening_events=[FriendMessage], inline_dispatchers=[Literature("背单词")]
+    )
+)
 async def friend_learn(app: Ariadne, friend: Friend):
-
     @Waiter.create_using_function([FriendMessage])
     async def confirm(waiter_friend: Friend, waiter_message: MessageChain):
         if all([waiter_friend.id == friend.id]):
@@ -172,9 +203,9 @@ async def friend_learn(app: Ariadne, friend: Friend):
                     if 1 <= bookid <= 15:
                         return bookid
                 except Exception:
-                    await app.sendFriendMessage(friend, MessageChain.create([
-                        Plain("请输入1-15以内的数字")
-                    ]))
+                    await app.sendFriendMessage(
+                        friend, MessageChain.create([Plain("请输入1-15以内的数字")])
+                    )
 
     @Waiter.create_using_function([FriendMessage])
     async def waiter(waiter_friend: Friend, waiter_message: MessageChain):
@@ -189,21 +220,27 @@ async def friend_learn(app: Ariadne, friend: Friend):
 
     RUNNING[friend.id] = None
     bookid_image = await create_image("\n".join(booklist))
-    await app.sendFriendMessage(friend, MessageChain.create([
-        Plain("请输入你想要选择的词库ID"),
-        Image(data_bytes=bookid_image.getvalue())
-    ]))
+    await app.sendFriendMessage(
+        friend,
+        MessageChain.create(
+            [Plain("请输入你想要选择的词库ID"), Image(data_bytes=bookid_image.getvalue())]
+        ),
+    )
 
     try:
         bookid = await asyncio.wait_for(inc.wait(confirm), timeout=30)
         if not bookid:
             del RUNNING[friend.id]
-            return await app.sendFriendMessage(friend, MessageChain.create([Plain("已取消")]))
+            return await app.sendFriendMessage(
+                friend, MessageChain.create([Plain("已取消")])
+            )
     except asyncio.TimeoutError:
         del RUNNING[friend.id]
         return await app.sendFriendMessage(friend, MessageChain.create([Plain("等待超时")]))
 
-    await app.sendFriendMessage(friend, MessageChain.create([Plain("已开启本次答题，可随时发送“取消”以终止进程")]))
+    await app.sendFriendMessage(
+        friend, MessageChain.create([Plain("已开启本次答题，可随时发送“取消”以终止进程")])
+    )
 
     while True:
         word_data = await random_word(bookid)
@@ -218,42 +255,54 @@ async def friend_learn(app: Ariadne, friend: Friend):
         for p in pop:
             wordinfo.append(f"[ {p} ] {tran[tran_num]}")
             tran_num += 1
-        await app.sendFriendMessage(friend, MessageChain.create([
-            Plain("本回合题目：\n"),
-            Plain("\n".join(wordinfo))
-        ]))
+        await app.sendFriendMessage(
+            friend, MessageChain.create([Plain("本回合题目：\n"), Plain("\n".join(wordinfo))])
+        )
         for process in Process:
             try:
                 answer_qq = await asyncio.wait_for(inc.wait(waiter), timeout=15)
                 if answer_qq:
                     await add_answer(str(answer_qq))
-                    await app.sendFriendMessage(friend, MessageChain.create([
-                        Plain("恭喜你"),
-                        Plain(f"回答正确 {word_data[0]}")
-                    ]))
+                    await app.sendFriendMessage(
+                        friend,
+                        MessageChain.create(
+                            [Plain("恭喜你"), Plain(f"回答正确 {word_data[0]}")]
+                        ),
+                    )
                     await asyncio.sleep(2)
                     break
                 else:
                     del RUNNING[friend.id]
-                    return await app.sendFriendMessage(friend, MessageChain.create([
-                        Plain("已结束本次答题")
-                    ]))
+                    return await app.sendFriendMessage(
+                        friend, MessageChain.create([Plain("已结束本次答题")])
+                    )
 
             except asyncio.TimeoutError:
                 if process == 1:
-                    await app.sendFriendMessage(friend, MessageChain.create([
-                        Plain(f"提示1\n这个单词由 {word_len} 个字母构成")
-                    ]))
+                    await app.sendFriendMessage(
+                        friend,
+                        MessageChain.create([Plain(f"提示1\n这个单词由 {word_len} 个字母构成")]),
+                    )
                 elif process == 2:
-                    await app.sendFriendMessage(friend, MessageChain.create([
-                        Plain(f"提示2\n这个单词的首字母是 {word_data[0][0]}")
-                    ]))
+                    await app.sendFriendMessage(
+                        friend,
+                        MessageChain.create(
+                            [Plain(f"提示2\n这个单词的首字母是 {word_data[0][0]}")]
+                        ),
+                    )
                 elif process == 3:
                     half = int(word_len / 2)
-                    await app.sendFriendMessage(friend, MessageChain.create([
-                        Plain(f"提示3\n这个单词的前半部分为\n{word_data[0][:half]}")]))
+                    await app.sendFriendMessage(
+                        friend,
+                        MessageChain.create(
+                            [Plain(f"提示3\n这个单词的前半部分为\n{word_data[0][:half]}")]
+                        ),
+                    )
                 elif process == 4:
                     del RUNNING[friend.id]
-                    return await app.sendFriendMessage(friend, MessageChain.create([
-                        Plain(f"本次答案为：{word_data[0]}\n答题已结束，请重新开启")
-                    ]))
+                    return await app.sendFriendMessage(
+                        friend,
+                        MessageChain.create(
+                            [Plain(f"本次答案为：{word_data[0]}\n答题已结束，请重新开启")]
+                        ),
+                    )

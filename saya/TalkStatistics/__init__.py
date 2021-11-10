@@ -32,9 +32,13 @@ if not data_path.exists():
     voice = data_path.joinpath("voice").mkdir()
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            inline_dispatchers=[Literature("查看消息量统计")],
-                            decorators=[Permission.require(Permission.MASTER)]))
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[Literature("查看消息量统计")],
+        decorators=[Permission.require(Permission.MASTER)],
+    )
+)
 async def get_image(app: Ariadne, group: Group):
 
     talk_num, time = await get_message_analysis()
@@ -45,9 +49,12 @@ async def get_image(app: Ariadne, group: Group):
     await safeSendGroupMessage(group, MessageChain.create([Image(data_bytes=image)]))
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage],
-                            decorators=[Permission.require()]))
-async def add_talk_word(app: Ariadne, group: Group, member: Member, message: MessageChain):
+@channel.use(
+    ListenerSchema(listening_events=[GroupMessage], decorators=[Permission.require()])
+)
+async def add_talk_word(
+    app: Ariadne, group: Group, member: Member, message: MessageChain
+):
     if message.has(Plain):
         plain_list = message.get(Plain)
         plain = MessageChain.create(plain_list).asDisplay()
@@ -55,7 +62,7 @@ async def add_talk_word(app: Ariadne, group: Group, member: Member, message: Mes
     elif message.has(Image):
         image_list = message.get(Image)
         for image in image_list:
-            image_id = image.url.split('/')[5].split("-")[2]
+            image_id = image.url.split("/")[5].split("-")[2]
             async with httpx.AsyncClient() as client:
                 rep = await client.get(image.url)
             content_type = rep.headers["content-type"].split("/")[1]
@@ -64,7 +71,7 @@ async def add_talk_word(app: Ariadne, group: Group, member: Member, message: Mes
             await add_talk(str(member.id), str(group.id), 2, image_name, image.url)
     elif message.has(FlashImage):
         flash_image = message.getFirst(FlashImage)
-        image_id = flash_image.url.split('/')[5].split("-")[2]
+        image_id = flash_image.url.split("/")[5].split("-")[2]
         async with httpx.AsyncClient() as client:
             rep = await client.get(flash_image.url)
         content_type = rep.headers["content-type"].split("/")[1]
@@ -80,7 +87,9 @@ async def add_talk_word(app: Ariadne, group: Group, member: Member, message: Mes
 
 async def download(url, name, path, type):
     now_time = datetime.datetime.now()
-    now_path = data_path.joinpath(path, str(now_time.year), str(now_time.month), str(now_time.day))
+    now_path = data_path.joinpath(
+        path, str(now_time.year), str(now_time.month), str(now_time.day)
+    )
     now_path.mkdir(0o775, True, True)
     if not await archive_exists(name, type):
         async with httpx.AsyncClient() as client:

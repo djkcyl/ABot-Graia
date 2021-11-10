@@ -22,7 +22,9 @@ saya = Saya.current()
 channel = Channel.current()
 
 print("正在下载词库")
-root = httpx.get("https://raw.githubusercontents.com/Kyomotoi/AnimeThesaurus/main/data.json").json()
+root = httpx.get(
+    "https://raw.githubusercontents.com/Kyomotoi/AnimeThesaurus/main/data.json"
+).json()
 
 
 @channel.use(SchedulerSchema(crontabify("0 0 * * *")))
@@ -32,20 +34,22 @@ async def updateDict():
     logger.info(msg=f"已更新完成聊天词库，共计：{len(root)}条")
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage], decorators=[Permission.require()]))
+@channel.use(
+    ListenerSchema(listening_events=[GroupMessage], decorators=[Permission.require()])
+)
 async def main(app: Ariadne, group: Group, member: Member, message: MessageChain):
 
-    if yaml_data['Saya']['ChatMS']['Disabled']:
+    if yaml_data["Saya"]["ChatMS"]["Disabled"]:
         return
-    elif 'ChatMS' in group_data[str(group.id)]['DisabledFunc']:
+    elif "ChatMS" in group_data[str(group.id)]["DisabledFunc"]:
         return
 
     if message.has(At):
-        if message.getFirst(At).target == yaml_data['Basic']['MAH']['BotQQ']:
+        if message.getFirst(At).target == yaml_data["Basic"]["MAH"]["BotQQ"]:
             saying = message.getFirst(Plain).text
             for key in root:
                 if key in saying:
                     await Interval.manual(member.id)
-                    return await safeSendGroupMessage(group, MessageChain.create([
-                        Plain(random.choice(root[key]))
-                    ]))
+                    return await safeSendGroupMessage(
+                        group, MessageChain.create([Plain(random.choice(root[key]))])
+                    )

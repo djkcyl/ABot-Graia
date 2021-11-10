@@ -6,9 +6,11 @@ from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import At, Plain, Source
 
 
-async def safeSendGroupMessage(target: Union[Group, int],
-                               message: MessageChain,
-                               quote: Optional[Union[Source, int]] = None) -> BotMessage:
+async def safeSendGroupMessage(
+    target: Union[Group, int],
+    message: MessageChain,
+    quote: Optional[Union[Source, int]] = None,
+) -> BotMessage:
     app = application_ctx.get()
     try:
         return await app.sendGroupMessage(target, message, quote=quote)
@@ -25,6 +27,8 @@ async def safeSendGroupMessage(target: Union[Group, int],
                 continue
             msg.append(element)
         try:
-            return await app.sendGroupMessage(target, MessageChain.create(msg), quote=quote)
+            return await app.sendGroupMessage(
+                target, MessageChain.create(msg), quote=quote
+            )
         except UnknownTarget:
             return await app.sendGroupMessage(target, MessageChain.create(msg))
