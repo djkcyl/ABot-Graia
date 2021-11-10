@@ -25,7 +25,10 @@ channel = Channel.current()
 )
 async def minecraft_ping(group: Group, message: MessageChain):
 
-    if yaml_data["Saya"]["MinecraftPing"]["Disabled"]:
+    if (
+        yaml_data["Saya"]["MinecraftPing"]["Disabled"]
+        and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
+    ):
         return
     elif "MinecraftPing" in group_data[str(group.id)]["DisabledFunc"]:
         return

@@ -114,13 +114,13 @@ async def Announcement(app: Ariadne, friend: Friend, message: MessageChain):
 async def add_white_group(app: Ariadne, friend: Friend, message: MessageChain):
     Permission.manual(friend, Permission.MASTER)
     saying = message.asDisplay().split()
-    if len(saying) == 2:
-        if int(saying[1]) in group_list["white"]:
+    if len(saying) == 3:
+        if int(saying[2]) in group_list["white"]:
             await app.sendFriendMessage(
                 friend, MessageChain.create([Plain("该群已在白名单中")])
             )
         else:
-            group_list["white"].append(int(saying[1]))
+            group_list["white"].append(int(saying[2]))
             save_config()
             await app.sendFriendMessage(
                 friend, MessageChain.create([Plain("成功将该群加入白名单")])
@@ -137,10 +137,10 @@ async def add_white_group(app: Ariadne, friend: Friend, message: MessageChain):
 async def remove_white_group(app: Ariadne, friend: Friend, message: MessageChain):
     Permission.manual(friend, Permission.MASTER)
     saying = message.asDisplay().split()
-    if len(saying) == 2:
-        if int(saying[1]) not in group_list["white"]:
+    if len(saying) == 3:
+        if int(saying[2]) not in group_list["white"]:
             try:
-                await app.quit(int(saying[1]))
+                await app.quitGroup(int(saying[2]))
                 await app.sendFriendMessage(
                     friend, MessageChain.create([Plain("该群未在白名单中，但成功退出")])
                 )
@@ -149,14 +149,14 @@ async def remove_white_group(app: Ariadne, friend: Friend, message: MessageChain
                     friend, MessageChain.create([Plain("该群未在白名单中，且退出失败")])
                 )
         else:
-            group_list["white"].remove(int(saying[1]))
+            group_list["white"].remove(int(saying[2]))
             save_config()
             try:
                 await safeSendGroupMessage(
-                    int(saying[1]), MessageChain.create([Plain("该群已被移出白名单，将在3秒后退出")])
+                    int(saying[2]), MessageChain.create([Plain("该群已被移出白名单，将在3秒后退出")])
                 )
                 await asyncio.sleep(3)
-                await app.quit(int(saying[1]))
+                await app.quitGroup(int(saying[2]))
             except UnknownTarget:
                 pass
             await app.sendFriendMessage(

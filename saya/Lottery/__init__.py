@@ -5,6 +5,7 @@ import string
 import asyncio
 import secrets
 
+from loguru import logger
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
 from graia.scheduler.timers import crontabify
@@ -39,7 +40,7 @@ elif os.path.exists("./saya/Lottery/data.json"):
         LOTTERY = json.load(f)
 else:
     with open("./saya/Lottery/data.json", "w") as f:
-        print("正在初始化奖券数据")
+        logger.info("正在初始化奖券数据")
         LOTTERY = {
             "period": 1,
             "lastweek": {"received": False, "number": None, "len": None},
@@ -55,11 +56,17 @@ else:
         decorators=[Permission.require()],
     )
 )
-async def buy_lottery(app: Ariadne, group: Group, member: Member, source: Source):
+async def buy_lottery(group: Group, member: Member, source: Source):
 
-    if not yaml_data["Saya"]["Entertainment"]["Lottery"]:
+    if (
+        not yaml_data["Saya"]["Entertainment"]["Lottery"]
+        and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
+    ):
         return
-    elif yaml_data["Saya"]["Entertainment"]["Disabled"]:
+    elif (
+        yaml_data["Saya"]["Entertainment"]["Disabled"]
+        and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
+    ):
         return
     elif "Entertainment" in group_data[str(group.id)]["DisabledFunc"]:
         return
@@ -109,9 +116,15 @@ async def redeem_lottery(app: Ariadne, group: Group, member: Member, source: Sou
     if member.id in WAITING:
         return
 
-    if not yaml_data["Saya"]["Entertainment"]["Lottery"]:
+    if (
+        not yaml_data["Saya"]["Entertainment"]["Lottery"]
+        and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
+    ):
         return
-    elif yaml_data["Saya"]["Entertainment"]["Disabled"]:
+    elif (
+        yaml_data["Saya"]["Entertainment"]["Disabled"]
+        and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
+    ):
         return
     elif "Entertainment" in group_data[str(group.id)]["DisabledFunc"]:
         return
@@ -236,11 +249,17 @@ async def lo(app: Ariadne):
         decorators=[Permission.require(), Interval.require()],
     )
 )
-async def q_lottery(app: Ariadne, group: Group):
+async def q_lottery(group: Group):
 
-    if not yaml_data["Saya"]["Entertainment"]["Lottery"]:
+    if (
+        not yaml_data["Saya"]["Entertainment"]["Lottery"]
+        and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
+    ):
         return
-    elif yaml_data["Saya"]["Entertainment"]["Disabled"]:
+    elif (
+        yaml_data["Saya"]["Entertainment"]["Disabled"]
+        and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
+    ):
         return
     elif "Entertainment" in group_data[str(group.id)]["DisabledFunc"]:
         return

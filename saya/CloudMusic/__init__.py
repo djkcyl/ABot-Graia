@@ -59,12 +59,14 @@ class CloudMusic(Sparkle):
 async def sing(
     group: Group,
     member: Member,
-    message: MessageChain,
     source: Source,
     sparkle: Sparkle,
 ):
 
-    if yaml_data["Saya"]["CloudMusic"]["Disabled"]:
+    if (
+        yaml_data["Saya"]["CloudMusic"]["Disabled"]
+        and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
+    ):
         return
     elif "CloudMusic" in group_data[str(group.id)]["DisabledFunc"]:
         return

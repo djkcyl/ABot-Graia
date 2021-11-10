@@ -28,7 +28,10 @@ async def bilibili_main(
     app: Ariadne, group: Group, member: Member, message: MessageChain
 ):
 
-    if yaml_data["Saya"]["BilibiliResolve"]["Disabled"]:
+    if (
+        yaml_data["Saya"]["BilibiliResolve"]["Disabled"]
+        and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
+    ):
         return
     elif "BilibiliResolve" in group_data[str(group.id)]["DisabledFunc"]:
         return

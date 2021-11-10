@@ -17,7 +17,7 @@ from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.element import Image, Plain, At, Source
 from graia.ariadne.message.parser.twilight import Twilight, Sparkle
-from graia.ariadne.message.parser.pattern import RegexMatch, FullMatch
+from graia.ariadne.message.parser.pattern import RegexMatch, ArgumentMatch
 
 from database.db import reduce_gold
 from util.text2image import create_image
@@ -47,9 +47,8 @@ IMAGE_PATH.mkdir(exist_ok=True)
 
 class BottleSparkle(Sparkle):
     header = RegexMatch(r"^(扔|丢)(漂流瓶|瓶子)")
-    arg_pic1 = FullMatch("-p", optional=True)
+    arg_pic = ArgumentMatch("-P", action="store_true", optional=True)
     anythings1 = RegexMatch(r".*?", optional=True)
-    arg_pic2 = FullMatch("-p", optional=True)
 
 
 @channel.use(
@@ -63,7 +62,10 @@ async def throw_bottle_handler(
     group: Group, member: Member, source: Source, speaker: Sparkle
 ):
 
-    if yaml_data["Saya"]["DriftingBottle"]["Disabled"]:
+    if (
+        yaml_data["Saya"]["DriftingBottle"]["Disabled"]
+        and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
+    ):
         return
     elif "DriftingBottle" in group_data[str(group.id)]["DisabledFunc"]:
         return
@@ -80,7 +82,6 @@ async def throw_bottle_handler(
 
     speaker: BottleSparkle = speaker
     saying = speaker.anythings1
-    arg_matched = speaker.arg_pic1.matched or speaker.arg_pic2.matched
     text = None
     image_name = None
     image_url = None
@@ -115,7 +116,7 @@ async def throw_bottle_handler(
                 )
 
         if message_chain.has(Image):
-            if arg_matched:
+            if speaker.arg_pic.matched:
                 return await safeSendGroupMessage(
                     group, MessageChain.create("使用手动发图参数后不可附带图片"), quote=source
                 )
@@ -126,7 +127,7 @@ async def throw_bottle_handler(
             else:
                 image_url = message_chain.getFirst(Image).url
 
-    if arg_matched:
+    if speaker.arg_pic.matched:
         await safeSendGroupMessage(
             group, MessageChain.create("请在 30 秒内发送你要附带的图片"), quote=source
         )
@@ -147,9 +148,14 @@ async def throw_bottle_handler(
 
     if image_url:
         moderation = await image_moderation(image_url)
-        if moderation["Suggestion"] != "Pass":
+        try:
+            if moderation["Suggestion"] != "Pass":
+                return await safeSendGroupMessage(
+                    group, MessageChain.create("你的漂流瓶包含违规内容，请检查后重新丢漂流瓶！")
+                )
+        except TypeError:
             return await safeSendGroupMessage(
-                group, MessageChain.create("你的漂流瓶包含违规内容，请检查后重新丢漂流瓶！")
+                group, MessageChain.create("图片审核失败，请稍后重试！")
             )
         async with httpx.AsyncClient() as client:
             resp = await client.get(image_url)
@@ -203,7 +209,10 @@ async def throw_bottle_handler(
 )
 async def pick_bottle_handler(group: Group):
 
-    if yaml_data["Saya"]["DriftingBottle"]["Disabled"]:
+    if (
+        yaml_data["Saya"]["DriftingBottle"]["Disabled"]
+        and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
+    ):
         return
     elif "DriftingBottle" in group_data[str(group.id)]["DisabledFunc"]:
         return
@@ -252,7 +261,10 @@ async def clear_bottle_handler(group: Group):
 )
 async def drifting_bottle_handler(group: Group):
 
-    if yaml_data["Saya"]["DriftingBottle"]["Disabled"]:
+    if (
+        yaml_data["Saya"]["DriftingBottle"]["Disabled"]
+        and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
+    ):
         return
     elif "DriftingBottle" in group_data[str(group.id)]["DisabledFunc"]:
         return

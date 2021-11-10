@@ -1,6 +1,7 @@
 import json
 import httpx
 
+from loguru import logger
 from prettytable import PrettyTable
 from peewee import SqliteDatabase, Model, CharField, IntegerField
 
@@ -33,7 +34,7 @@ def init_user(qq):
     if not user.exists():
         p = User(qq=qq)
         p.save()
-        print("已初始化" + str(qq))
+        logger.info("已初始化" + str(qq))
 
 
 async def sign(qq):

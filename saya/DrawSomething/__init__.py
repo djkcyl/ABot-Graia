@@ -43,7 +43,10 @@ GROUP_GAME_PROCESS = {}
 async def main(app: Ariadne, group: Group, member: Member, source: Source):
 
     # 判断插件是否处于禁用状态
-    if yaml_data["Saya"]["Entertainment"]["Disabled"]:
+    if (
+        yaml_data["Saya"]["Entertainment"]["Disabled"]
+        and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
+    ):
         return
     elif "Entertainment" in group_data[str(group.id)]["DisabledFunc"]:
         return

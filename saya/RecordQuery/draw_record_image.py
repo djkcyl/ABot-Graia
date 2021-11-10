@@ -2,6 +2,7 @@ import httpx
 
 from io import BytesIO
 from pathlib import Path
+from loguru import logger
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 from config import yaml_data
@@ -117,7 +118,7 @@ async def get_pic(type, name):
                     break
                 except httpx.HTTPError:
                     continue
-        print(f"图片下载完成：{type} - {name}")
+        logger.info(f"图片下载完成：{type} - {name}")
         PICPATH.write_bytes(r.content)
         return Image.open(BytesIO(r.content)).convert("RGBA")
 

@@ -33,12 +33,14 @@ class EconomySparkle(Sparkle):
 async def adminmain(
     group: Group,
     member: Member,
-    message: MessageChain,
     source: Source,
     sparkle: Sparkle,
 ):
 
-    if yaml_data["Saya"]["Entertainment"]["Disabled"]:
+    if (
+        yaml_data["Saya"]["Entertainment"]["Disabled"]
+        and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
+    ):
         return
     elif "Entertainment" in group_data[str(group.id)]["DisabledFunc"]:
         return

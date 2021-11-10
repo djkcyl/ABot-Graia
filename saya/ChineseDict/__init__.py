@@ -2,7 +2,6 @@ import httpx
 
 from lxml import etree
 from graia.saya import Saya, Channel
-from graia.ariadne.app import Ariadne
 from graia.ariadne.model import Group
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
@@ -28,9 +27,12 @@ channel = Channel.current()
         decorators=[Rest.rest_control(), Permission.require(), Interval.require()],
     )
 )
-async def dict(app: Ariadne, group: Group, message: MessageChain):
+async def dict(group: Group, message: MessageChain):
 
-    if yaml_data["Saya"]["ChineseDict"]["Disabled"]:
+    if (
+        yaml_data["Saya"]["ChineseDict"]["Disabled"]
+        and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
+    ):
         return
     elif "ChineseDict" in group_data[str(group.id)]["DisabledFunc"]:
         return

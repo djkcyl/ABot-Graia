@@ -30,7 +30,10 @@ async def calculator_main(
     app: Ariadne, group: Group, message: MessageChain, source: Source
 ):
 
-    if yaml_data["Saya"]["Calculator"]["Disabled"]:
+    if (
+        yaml_data["Saya"]["Calculator"]["Disabled"]
+        and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
+    ):
         return
     elif "Calculator" in group_data[str(group.id)]["DisabledFunc"]:
         return

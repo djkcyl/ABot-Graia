@@ -76,10 +76,13 @@ saucenao_usage = None
     )
 )
 async def anime_search(
-    app: Ariadne, group: Group, member: Member, message: MessageChain, source: Source
+    group: Group, member: Member, message: MessageChain, source: Source
 ):
 
-    if yaml_data["Saya"]["AnimeSceneSearch"]["Disabled"]:
+    if (
+        yaml_data["Saya"]["AnimeSceneSearch"]["Disabled"]
+        and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
+    ):
         return
     elif "AnimeSceneSearch" in group_data[str(group.id)]["DisabledFunc"]:
         return
@@ -203,11 +206,12 @@ async def anime_search(
         decorators=[Permission.require(), Interval.require()],
     )
 )
-async def saucenao(
-    app: Ariadne, group: Group, member: Member, message: MessageChain, source: Source
-):
+async def saucenao(group: Group, member: Member, message: MessageChain, source: Source):
 
-    if yaml_data["Saya"]["AnimeSceneSearch"]["Disabled"]:
+    if (
+        yaml_data["Saya"]["AnimeSceneSearch"]["Disabled"]
+        and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
+    ):
         return
     elif "AnimeSceneSearch" in group_data[str(group.id)]["DisabledFunc"]:
         return
@@ -275,7 +279,6 @@ async def saucenao(
 
             results_list = []
             for results in results.results:
-                print(results.urls)
                 url_list = []
                 for url in results.urls:
                     url_list.append(url)

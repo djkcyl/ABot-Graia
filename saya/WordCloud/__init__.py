@@ -9,7 +9,6 @@ from pathlib import Path
 from PIL import Image as IMG
 from matplotlib import pyplot
 from graia.saya import Saya, Channel
-from graia.ariadne.app import Ariadne
 from graia.ariadne.model import Group, Member
 from wordcloud import WordCloud, ImageColorGenerator
 from graia.ariadne.event.message import GroupMessage
@@ -43,7 +42,7 @@ RUNNING_LIST = []
         decorators=[Permission.require(), Interval.require(150)],
     )
 )
-async def wordcloud(app: Ariadne, group: Group, member: Member, message: MessageChain):
+async def wordcloud(group: Group, member: Member, message: MessageChain):
 
     global RUNNING, RUNNING_LIST
     pattern = re.compile(r"^查看(个人|本群)词云")
@@ -51,7 +50,10 @@ async def wordcloud(app: Ariadne, group: Group, member: Member, message: Message
 
     if match:
 
-        if yaml_data["Saya"]["WordCloud"]["Disabled"]:
+        if (
+            yaml_data["Saya"]["WordCloud"]["Disabled"]
+            and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
+        ):
             return
         elif "WordCloud" in group_data[str(group.id)]["DisabledFunc"]:
             return

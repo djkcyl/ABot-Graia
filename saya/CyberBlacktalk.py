@@ -2,7 +2,6 @@ import json
 import httpx
 
 from graia.saya import Saya, Channel
-from graia.ariadne.app import Ariadne
 from graia.ariadne.model import Group, Member
 from graia.ariadne.message.element import Plain, At
 from graia.ariadne.event.message import GroupMessage
@@ -25,11 +24,12 @@ channel = Channel.current()
         decorators=[Rest.rest_control(), Permission.require(), Interval.require()],
     )
 )
-async def what_are_you_saying(
-    app: Ariadne, group: Group, member: Member, message: MessageChain
-):
+async def what_are_you_saying(group: Group, member: Member, message: MessageChain):
 
-    if yaml_data["Saya"]["CyberBlacktalk"]["Disabled"]:
+    if (
+        yaml_data["Saya"]["CyberBlacktalk"]["Disabled"]
+        and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
+    ):
         return
     elif "CyberBlacktalk" in group_data[str(group.id)]["DisabledFunc"]:
         return

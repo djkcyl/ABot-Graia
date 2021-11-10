@@ -15,7 +15,7 @@ cycler==0.11.0; python_version >= "3.7"
 decorator==4.4.2; python_version >= "2.6" and python_full_version < "3.0.0" or python_full_version >= "3.2.0"
 dnspython==2.1.0; python_version >= "3.6"
 func-timeout==4.3.5
-graia-ariadne==0.3.9; python_version >= "3.7" and python_version < "4.0"
+graia-ariadne==0.4.0a4; python_version >= "3.7" and python_version < "4.0"
 graia-broadcast==0.13.1; python_version >= "3.7" and python_version < "4.0"
 graia-saya==0.0.13; python_version >= "3.7" and python_version < "4.0"
 graia-scheduler @ git+https://github.com/djkcyl/Scheduler@master ; python_version >= "3.7" and python_version < "4.0"
@@ -68,7 +68,7 @@ scikit-image==0.18.3; python_version >= "3.7"
 scipy==1.7.2; python_version >= "3.7" and python_version < "3.11"
 six==1.16.0; python_version >= "3.7" and python_full_version < "3.0.0" or python_full_version >= "3.3.0" and python_version >= "3.7"
 sniffio==1.2.0; python_full_version >= "3.6.2" and python_version >= "3.6"
-tencentcloud-sdk-python==3.0.521
+tencentcloud-sdk-python==3.0.520
 tifffile==2021.11.2; python_version >= "3.7"
 tqdm==4.62.3; python_version >= "2.7" and python_full_version < "3.0.0" or python_full_version >= "3.4.0"
 triangler @ git+https://github.com/djkcyl/triangler@master ; python_version >= "3.6"

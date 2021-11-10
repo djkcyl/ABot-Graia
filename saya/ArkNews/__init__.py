@@ -54,7 +54,6 @@ async def get_weibo_news(app: Ariadne):
 
         if not pushed:
             pushed_list["weibo"] = new_id
-            print(pushed_list)
             save_pushed_list()
             await asyncio.sleep(1)
             return logger.info(f"[明日方舟蹲饼] 微博初始化成功，当前最新微博：{new_id}")
@@ -107,10 +106,6 @@ async def get_game_news(app: Ariadne):
     pushed = pushed_list["game"] if pushed_list["game"] else []
     latest_list = await game.get_announce()
     new_list = list(set(latest_list) - set(pushed))
-
-    # print(len(pushed))
-    # print(len(latest_list))
-    # print(len(new_list))
 
     if not pushed:
         pushed_list["game"] = latest_list

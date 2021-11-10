@@ -4,7 +4,6 @@ import jieba
 import jieba.posseg as pseg
 
 from graia.saya import Saya, Channel
-from graia.ariadne.app import Ariadne
 from graia.ariadne.model import Group
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
@@ -48,9 +47,12 @@ def chs2yin(s, 淫乱度=0.5):
         decorators=[Rest.rest_control(), Permission.require(), Interval.require()],
     )
 )
-async def main(app: Ariadne, group: Group, message: MessageChain, source: Source):
+async def main(group: Group, message: MessageChain, source: Source):
 
-    if yaml_data["Saya"]["Yinglish"]["Disabled"]:
+    if (
+        yaml_data["Saya"]["Yinglish"]["Disabled"]
+        and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
+    ):
         return
     elif "Yinglish" in group_data[str(group.id)]["DisabledFunc"]:
         return

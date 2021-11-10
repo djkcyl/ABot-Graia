@@ -3,7 +3,6 @@ import random
 
 from pathlib import Path
 from graia.saya import Saya, Channel
-from graia.ariadne.app import Ariadne
 from graia.ariadne.model import Group, Member
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
@@ -31,9 +30,12 @@ Designs = json.loads(
         decorators=[Rest.rest_control(), Permission.require(), Interval.require()],
     )
 )
-async def rand_designs(app: Ariadne, group: Group, member: Member, source: Source):
+async def rand_designs(group: Group, member: Member, source: Source):
 
-    if yaml_data["Saya"]["CharacterDesignGenerator"]["Disabled"]:
+    if (
+        yaml_data["Saya"]["CharacterDesignGenerator"]["Disabled"]
+        and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
+    ):
         return
     elif "CharacterDesignGenerator" in group_data[str(group.id)]["DisabledFunc"]:
         return
@@ -70,7 +72,7 @@ def get_rand(qid: int, gid: int):
         decorators=[Permission.require(Permission.MASTER)],
     )
 )
-async def reoald_designs(app: Ariadne, group: Group, member: Member):
+async def reoald_designs(group: Group):
     global Designs
     Designs = json.loads(
         Path(__file__).parent.joinpath("DesignsDICT.json").read_text("UTF-8")

@@ -2,7 +2,6 @@ import httpx
 
 from loguru import logger
 from graia.saya import Saya, Channel
-from graia.ariadne.app import Ariadne
 from graia.ariadne.model import Group, Member
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
@@ -25,8 +24,11 @@ channel = Channel.current()
         decorators=[Permission.require(), Interval.require()],
     )
 )
-async def trashCard(app: Ariadne, group: Group, member: Member, source: Source):
-    if yaml_data["Saya"]["TrashCard"]["Disabled"]:
+async def trashCard(group: Group, member: Member, source: Source):
+    if (
+        yaml_data["Saya"]["TrashCard"]["Disabled"]
+        and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
+    ):
         return
 
     url = "http://a60.one:11451/getCard"

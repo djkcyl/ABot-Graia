@@ -3,7 +3,6 @@ import httpx
 import asyncio
 
 from graia.saya import Saya, Channel
-from graia.ariadne.app import Ariadne
 from graia.ariadne.model import Group, Member
 from graia.broadcast.interrupt.waiter import Waiter
 from graia.ariadne.event.message import GroupMessage
@@ -44,11 +43,12 @@ WAITING = []
         decorators=[Permission.require, Interval.require(30)],
     )
 )
-async def main(
-    app: Ariadne, group: Group, member: Member, message: MessageChain, source: Source
-):
+async def main(group: Group, member: Member, message: MessageChain, source: Source):
 
-    if yaml_data["Saya"]["RecordQuery"]["Disabled"]:
+    if (
+        yaml_data["Saya"]["RecordQuery"]["Disabled"]
+        and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
+    ):
         return
     elif "RecordQuery" in group_data[str(group.id)]["DisabledFunc"]:
         return

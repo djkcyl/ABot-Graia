@@ -4,7 +4,6 @@ import asyncio
 
 from graiax import silkcoder
 from graia.saya import Saya, Channel
-from graia.ariadne.app import Ariadne
 from graia.ariadne.model import Group, Member
 from graia.broadcast.interrupt.waiter import Waiter
 from graia.ariadne.event.message import GroupMessage
@@ -55,11 +54,12 @@ WAITING = []
         decorators=[Permission.require(), Interval.require(30)],
     )
 )
-async def main(
-    app: Ariadne, group: Group, member: Member, message: MessageChain, source: Source
-):
+async def main(group: Group, member: Member, message: MessageChain, source: Source):
 
-    if yaml_data["Saya"]["VoiceMusicRecognition"]["Disabled"]:
+    if (
+        yaml_data["Saya"]["VoiceMusicRecognition"]["Disabled"]
+        and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
+    ):
         return
     elif "VoiceMusicRecognition" in group_data[str(group.id)]["DisabledFunc"]:
         return
@@ -125,7 +125,6 @@ async def main(
             voice_info = acr.recognize_by_filebuffer(voice, 0)
             voice_info = json.loads(voice_info)
             music_list = []
-            print(voice_info)
             if voice_info["status"]["code"] == 0:
                 i = 1
                 if saying[1] == "原曲":

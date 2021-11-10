@@ -25,7 +25,7 @@ channel = Channel.current()
 data_path = Path("archive")
 
 if not data_path.exists():
-    print("存档目录不存在，正在创建")
+    logger.warning("存档目录不存在，正在创建")
     data_path.mkdir()
     image = data_path.joinpath("image").mkdir()
     flashimage = data_path.joinpath("flashimage").mkdir()

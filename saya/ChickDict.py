@@ -1,7 +1,6 @@
 import httpx
 
 from graia.saya import Saya, Channel
-from graia.ariadne.app import Ariadne
 from graia.ariadne.model import Group, Member
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
@@ -25,9 +24,12 @@ channel = Channel.current()
         decorators=[Permission.require(), Interval.require(80)],
     )
 )
-async def fun_dict(app: Ariadne, group: Group, message: MessageChain, member: Member):
+async def fun_dict(group: Group, message: MessageChain, member: Member):
 
-    if yaml_data["Saya"]["ChickDict"]["Disabled"]:
+    if (
+        yaml_data["Saya"]["ChickDict"]["Disabled"]
+        and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
+    ):
         return
     elif "ChickDict" in group_data[str(group.id)]["DisabledFunc"]:
         return

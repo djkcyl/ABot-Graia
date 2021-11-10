@@ -2,6 +2,7 @@ import random
 
 from time import strftime, gmtime
 
+from loguru import logger
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.model import Group, Member
@@ -25,7 +26,7 @@ if (
     * yaml_data["Saya"]["MutePack"]["MaxSuperDoubleMultiple"]
     > 2592000
 ):
-    print("禁言套餐最大时长设定超过30天，请检查配置文件")
+    logger.error("禁言套餐最大时长设定超过30天，请检查配置文件")
     exit()
 
 
@@ -40,7 +41,10 @@ if (
 )
 async def random_mute(app: Ariadne, group: Group, member: Member):
 
-    if yaml_data["Saya"]["MutePack"]["Disabled"]:
+    if (
+        yaml_data["Saya"]["MutePack"]["Disabled"]
+        and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
+    ):
         return
     elif "MutePack" in group_data[str(group.id)]["DisabledFunc"]:
         return

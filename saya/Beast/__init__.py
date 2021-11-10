@@ -1,11 +1,10 @@
 from graia.saya import Saya, Channel
-from graia.ariadne.app import Ariadne
 from graia.ariadne.model import Group
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import Source, Plain
-from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.literature import Literature
+from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 from config import yaml_data, group_data
 from util.TextModeration import text_moderation
@@ -26,11 +25,12 @@ channel = Channel.current()
         decorators=[Rest.rest_control(), Permission.require(), Interval.require()],
     )
 )
-async def main_encode(
-    app: Ariadne, group: Group, message: MessageChain, source: Source
-):
+async def main_encode(group: Group, message: MessageChain, source: Source):
 
-    if yaml_data["Saya"]["Beast"]["Disabled"]:
+    if (
+        yaml_data["Saya"]["Beast"]["Disabled"]
+        and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
+    ):
         return
     elif "Beast" in group_data[str(group.id)]["DisabledFunc"]:
         return
@@ -60,11 +60,12 @@ async def main_encode(
         decorators=[Rest.rest_control(), Permission.require(), Interval.require()],
     )
 )
-async def main_decode(
-    app: Ariadne, group: Group, message: MessageChain, source: Source
-):
+async def main_decode(group: Group, message: MessageChain, source: Source):
 
-    if yaml_data["Saya"]["Beast"]["Disabled"]:
+    if (
+        yaml_data["Saya"]["Beast"]["Disabled"]
+        and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
+    ):
         return
     elif "Beast" in group_data[str(group.id)]["DisabledFunc"]:
         return
