@@ -41,7 +41,10 @@ channel = Channel.current()
 )
 async def gosencho_handler(message: MessageChain, group: Group):
 
-    if yaml_data["Saya"]["StyleLogoGenerator"]["Disabled"]:
+    if (
+        yaml_data["Saya"]["StyleLogoGenerator"]["Disabled"]
+        and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
+    ):
         return
     elif "StyleLogoGenerator" in group_data[str(group.id)]["DisabledFunc"]:
         return
@@ -63,7 +66,10 @@ async def gosencho_handler(message: MessageChain, group: Group):
 )
 async def pornhub_handler(message: MessageChain, group: Group):
 
-    if yaml_data["Saya"]["StyleLogoGenerator"]["Disabled"]:
+    if (
+        yaml_data["Saya"]["StyleLogoGenerator"]["Disabled"]
+        and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
+    ):
         return
     elif "StyleLogoGenerator" in group_data[str(group.id)]["DisabledFunc"]:
         return
@@ -82,7 +88,10 @@ async def pornhub_handler(message: MessageChain, group: Group):
 )
 async def youtube_handler(message: MessageChain, group: Group):
 
-    if yaml_data["Saya"]["StyleLogoGenerator"]["Disabled"]:
+    if (
+        yaml_data["Saya"]["StyleLogoGenerator"]["Disabled"]
+        and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
+    ):
         return
     elif "StyleLogoGenerator" in group_data[str(group.id)]["DisabledFunc"]:
         return

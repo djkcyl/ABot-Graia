@@ -4,7 +4,7 @@ from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 
 
-async def create_setu():
+def create_setu():
     color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
 
     ccolor = (

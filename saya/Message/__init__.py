@@ -1,7 +1,6 @@
 from pathlib import Path
 from graia.saya import Saya, Channel
 from graia.ariadne.model import Group
-from graia.ariadne.app import Ariadne
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
 from graia.broadcast.interrupt import InterruptControl
@@ -24,9 +23,12 @@ HOME = Path(__file__).parent
 @channel.use(
     ListenerSchema(listening_events=[GroupMessage], decorators=[Permission.require()])
 )
-async def az(app: Ariadne, group: Group, message: MessageChain):
+async def az(group: Group, message: MessageChain):
 
-    if yaml_data["Saya"]["Message"]["Disabled"]:
+    if (
+        yaml_data["Saya"]["Message"]["Disabled"]
+        and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
+    ):
         return
     elif "Message" in group_data[str(group.id)]["DisabledFunc"]:
         return

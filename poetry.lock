@@ -354,7 +354,7 @@ reference = "tsinghua"
 
 [[package]]
 name = "graia-ariadne"
-version = "0.4.0a3"
+version = "0.4.0a6"
 description = "Anelegant mirai-api-http v2 Python SDK."
 category = "main"
 optional = false
@@ -1343,7 +1343,7 @@ reference = "tsinghua"
 
 [[package]]
 name = "tencentcloud-sdk-python"
-version = "3.0.522"
+version = "3.0.520"
 description = "Tencent Cloud SDK for Python"
 category = "main"
 optional = false
@@ -1554,7 +1554,7 @@ reference = "tsinghua"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.9,<3.10"
-content-hash = "a8bfcddf9fc205d22923a009c58111c72a38aa5839fdc19eb2f9c88b7f090af3"
+content-hash = "4422ad213676510599678cc4e42bd3dfc9ba461fae56f52285070b2661472dab"
 
 [metadata.files]
 aiohttp = [
@@ -1692,8 +1692,8 @@ func-timeout = [
     {file = "func_timeout-4.3.5.tar.gz", hash = "sha256:74cd3c428ec94f4edfba81f9b2f14904846d5ffccc27c92433b8b5939b5575dd"},
 ]
 graia-ariadne = [
-    {file = "graia-ariadne-0.4.0a3.tar.gz", hash = "sha256:996d01032a6643304f56de16baa904be394b709fc28f1184a4912f6aceec9636"},
-    {file = "graia_ariadne-0.4.0a3-py3-none-any.whl", hash = "sha256:391eaf6d143edd2777de9458967515698de9724d58f4705dfb43841b21814377"},
+    {file = "graia-ariadne-0.4.0a6.tar.gz", hash = "sha256:a559a3badcd237fbfb334f079f13d8821262cd778e36d0303fa8cfab78bf1582"},
+    {file = "graia_ariadne-0.4.0a6-py3-none-any.whl", hash = "sha256:0d0b376084ed627eded5c664761b18feee5f1e582697c61fcae053fbf586dd35"},
 ]
 graia-broadcast = [
     {file = "graia-broadcast-0.13.1.tar.gz", hash = "sha256:a22d2678a1946f9084a5f29c469c3c631e039e60dbefd52d683294db998cb075"},
@@ -2471,8 +2471,8 @@ sniffio = [
     {file = "sniffio-1.2.0.tar.gz", hash = "sha256:c4666eecec1d3f50960c6bdf61ab7bc350648da6c126e3cf6898d8cd4ddcd3de"},
 ]
 tencentcloud-sdk-python = [
-    {file = "tencentcloud-sdk-python-3.0.522.tar.gz", hash = "sha256:4e4f9617a9433551e8cfeec772d266599cc860637499913e7e8973437ce30a6a"},
-    {file = "tencentcloud_sdk_python-3.0.522-py2.py3-none-any.whl", hash = "sha256:9dc5b925308aa2a2407e28d69b1ad57063bee22eef23a2c362116853dfd8846f"},
+    {file = "tencentcloud-sdk-python-3.0.520.tar.gz", hash = "sha256:0604722bc5c74f5caa57f720d59d16c698f81d92a970a8693badf3df5d2fabce"},
+    {file = "tencentcloud_sdk_python-3.0.520-py2.py3-none-any.whl", hash = "sha256:14c382e0ab7867ccb5be84bf62d2a7d22145d0b39be1b853ccce58532c48de48"},
 ]
 tifffile = [
     {file = "tifffile-2021.11.2-py3-none-any.whl", hash = "sha256:2e0066f90e2dbeb3e6a287cfd78bafbd2f142fabbca4a76a8ff809573baf5ad5"},

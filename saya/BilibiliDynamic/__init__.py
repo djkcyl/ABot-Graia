@@ -31,13 +31,13 @@ channel = Channel.current()
 
 if yaml_data["Saya"]["BilibiliDynamic"]["EnabledProxy"]:
     if yaml_data["Saya"]["BilibiliDynamic"]["Intervals"] < 30:
-        print("动态更新间隔时间过短（不得低于30秒），请重新设置")
+        logger.error("动态更新间隔时间过短（不得低于30秒），请重新设置")
         exit()
     else:
         TIME_INTERVALS = 1
 else:
     if yaml_data["Saya"]["BilibiliDynamic"]["Intervals"] < 200:
-        print("由于你未使用代理，动态更新间隔时间过短（不得低于200秒），请重新设置")
+        logger.error("由于你未使用代理，动态更新间隔时间过短（不得低于200秒），请重新设置")
         exit()
     else:
         TIME_INTERVALS = 30

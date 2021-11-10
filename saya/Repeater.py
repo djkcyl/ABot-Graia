@@ -1,7 +1,6 @@
 import random
 
 from graia.saya import Saya, Channel
-from graia.ariadne.app import Ariadne
 from graia.ariadne.model import Group
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
@@ -26,9 +25,12 @@ repdict = {}
         decorators=[Rest.rest_control(), Permission.require()],
     )
 )
-async def repeater(app: Ariadne, group: Group, message: MessageChain):
+async def repeater(group: Group, message: MessageChain):
 
-    if yaml_data["Saya"]["Repeater"]["Disabled"]:
+    if (
+        yaml_data["Saya"]["Repeater"]["Disabled"]
+        and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
+    ):
         return
     elif "Repeater" in group_data[str(group.id)]["DisabledFunc"]:
         return
@@ -65,9 +67,12 @@ async def repeater(app: Ariadne, group: Group, message: MessageChain):
         decorators=[Rest.rest_control(), Permission.require()],
     )
 )
-async def repeateron(app: Ariadne, group: Group, message: MessageChain):
+async def repeateron(group: Group, message: MessageChain):
 
-    if yaml_data["Saya"]["Repeater"]["Disabled"]:
+    if (
+        yaml_data["Saya"]["Repeater"]["Disabled"]
+        and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
+    ):
         return
     elif "Repeater" in group_data[str(group.id)]["DisabledFunc"]:
         return

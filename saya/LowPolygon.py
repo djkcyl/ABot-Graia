@@ -4,17 +4,18 @@ import triangler
 import matplotlib.pyplot as plt
 
 from io import BytesIO
+from typing import Optional
 from PIL import Image as IMG
 from graia.saya import Saya, Channel
-from graia.ariadne.app import Ariadne
 from graia.ariadne.model import Group, Member
 from graia.broadcast.interrupt.waiter import Waiter
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
 from graia.broadcast.interrupt import InterruptControl
-from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.element import Plain, At, Source, Image
+from graia.ariadne.message.parser.twilight import Twilight, Sparkle
+from graia.ariadne.message.parser.pattern import FullMatch, ArgumentMatch, RegexMatch
 
 from config import yaml_data, group_data
 from util.sendMessage import safeSendGroupMessage
@@ -29,18 +30,30 @@ inc = InterruptControl(bcc)
 WAITING = []
 
 
+class LowPolySparkle(Sparkle):
+    header = FullMatch("低多边形")
+    args = ArgumentMatch("-P", action="store", regex="\\d+", optional=True)
+    anythings1 = RegexMatch(".*")
+
+
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Literature("低多边形")],
+        inline_dispatchers=[Twilight(LowPolySparkle)],
         decorators=[Rest.rest_control(), Permission.require(), Interval.require()],
     )
 )
 async def low_poly(
-    app: Ariadne, group: Group, message: MessageChain, member: Member, source: Source
+    group: Group,
+    member: Member,
+    source: Source,
+    sparkle: Sparkle,
 ):
 
-    if yaml_data["Saya"]["LowPolygon"]["Disabled"]:
+    if (
+        yaml_data["Saya"]["LowPolygon"]["Disabled"]
+        and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
+    ):
         return
     elif "LowPolygon" in group_data[str(group.id)]["DisabledFunc"]:
         return
@@ -61,12 +74,27 @@ async def low_poly(
     if member.id not in WAITING:
         WAITING.append(member.id)
 
-        if message.has(Image):
-            image_url = message.getFirst(Image).url
-        elif message.has(At):
-            atid = message.getFirst(At).target
-            image_url = f"http://q1.qlogo.cn/g?b=qq&nk={atid}&s=640"
-        else:
+        saying: LowPolySparkle = sparkle
+        image_url = None
+        point = None
+
+        if saying.args.matched:
+            point = int(saying.args.result)
+            if 99 < point < 1001:
+                point = point
+            else:
+                return await safeSendGroupMessage(
+                    group, MessageChain.create([Plain("-P ：请输入100-1000之间的整数")])
+                )
+
+        if saying.anythings1.matched:
+            if saying.anythings1.result.has(Image):
+                image_url = saying.anythings1.result.getFirst(Image).url
+            elif saying.anythings1.result.has(At):
+                atid = saying.anythings1.result.getFirst(At).target
+                image_url = f"http://q1.qlogo.cn/g?b=qq&nk={atid}&s=640"
+
+        if not image_url:
             await safeSendGroupMessage(
                 group, MessageChain.create([At(member.id), Plain(" 请发送图片以进行制作")])
             )
@@ -86,7 +114,9 @@ async def low_poly(
         async with httpx.AsyncClient() as client:
             resp = await client.get(image_url)
             img_bytes = resp.content
-        await safeSendGroupMessage(group, MessageChain.create([Plain("正在生成，请稍后")]))
+        await safeSendGroupMessage(
+            group, MessageChain.create([Plain(f"正在生成{point if point else '默认'}切面，请稍后")])
+        )
         image = await asyncio.to_thread(make_low_poly, img_bytes)
         await safeSendGroupMessage(
             group, MessageChain.create([Image(data_bytes=image)])
@@ -94,13 +124,14 @@ async def low_poly(
         WAITING.remove(member.id)
 
 
-def make_low_poly(img_bytes):
+def make_low_poly(img_bytes, point: Optional[int] = None):
 
     img = IMG.open(BytesIO(img_bytes)).convert("RGB")
     img.thumbnail((600, 600))
     imgx, imgy = img.size
     t = triangler.Triangler(
-        sample_method=triangler.SampleMethod.POISSON_DISK, points=max(imgx, imgy)
+        sample_method=triangler.SampleMethod.POISSON_DISK,
+        points=point if point else max(imgx, imgy),
     )
     img = plt.imsave(bio := BytesIO(), t.convert(img.__array__()))
     img = IMG.open(bio).convert("RGB")

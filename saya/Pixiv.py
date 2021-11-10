@@ -2,12 +2,12 @@ import httpx
 
 from graia.saya import Saya, Channel
 from graia.ariadne.model import Group
-from graia.ariadne.app import Ariadne
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import Image, Plain
-from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
+from graia.ariadne.message.parser.twilight import Twilight, Sparkle
+from graia.ariadne.message.parser.pattern import FullMatch, RegexMatch
 
 from config import yaml_data, group_data
 from util.sendMessage import safeSendGroupMessage
@@ -17,27 +17,39 @@ saya = Saya.current()
 channel = Channel.current()
 
 
+class PixivSparkle(Sparkle):
+    tag1 = RegexMatch(r".+", optional=True)
+    header = FullMatch("涩图")
+    tag2 = RegexMatch(r".+", optional=True)
+
+
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Literature("涩图")],
+        inline_dispatchers=[Twilight(PixivSparkle)],
         decorators=[Rest.rest_control(), Permission.require(), Interval.require()],
     )
 )
-async def main(app: Ariadne, group: Group, message: MessageChain):
+async def main(group: Group, sparkle: Sparkle):
 
-    if yaml_data["Saya"]["Pixiv"]["Disabled"]:
+    if (
+        yaml_data["Saya"]["Pixiv"]["Disabled"]
+        and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
+    ):
         return
     elif "Pixiv" in group_data[str(group.id)]["DisabledFunc"]:
         return
 
-    saying = message.asDisplay().split(" ", 1)
+    saying: PixivSparkle = sparkle
 
-    if len(saying) == 1:
+    if saying.tag1.matched or saying.tag2.matched:
+        tag = (
+            saying.tag1.result.getFirst(Plain).text
+            if saying.tag1.matched
+            else saying.tag2.result.getFirst(Plain).text
+        )
         async with httpx.AsyncClient() as client:
-            r = await client.get(
-                f"http://a60.one:404/get/tags/{saying[1].strip()}?num=1"
-            )
+            r = await client.get(f"http://a60.one:404/get/tags/{tag}?num=1")
             res = r.json()
         if res.get("code", False) == 200:
             pic = res["data"]["pic_list"][0]

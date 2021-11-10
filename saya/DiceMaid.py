@@ -29,7 +29,10 @@ channel = Channel.current()
 )
 async def dice(group: Group, message: MessageChain):
 
-    if yaml_data["Saya"]["DiceMaid"]["Disabled"]:
+    if (
+        yaml_data["Saya"]["DiceMaid"]["Disabled"]
+        and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
+    ):
         return
     elif "DiceMaid" in group_data[str(group.id)]["DisabledFunc"]:
         return

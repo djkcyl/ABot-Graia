@@ -29,7 +29,7 @@ channel = Channel.current()
         decorators=[Permission.require(), Interval.require()],
     )
 )
-async def main(app: Ariadne, group: Group, member: Member):
+async def main(group: Group, member: Member):
     if await sign(str(member.id)):
         i = random.randint(1, 10)
         if i == 1:
@@ -41,7 +41,10 @@ async def main(app: Ariadne, group: Group, member: Member):
     else:
         sign_text = "今天你已经签到过了，不能贪心，凌晨4点以后再来吧！"
 
-    if yaml_data["Saya"]["Entertainment"]["Disabled"]:
+    if (
+        yaml_data["Saya"]["Entertainment"]["Disabled"]
+        and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
+    ):
         return
     elif "Entertainment" in group_data[str(group.id)]["DisabledFunc"]:
         return

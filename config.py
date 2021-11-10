@@ -2,6 +2,8 @@ import os
 import yaml
 import json
 
+from loguru import logger
+
 
 class NoAliasDumper(yaml.SafeDumper):
     def ignore_aliases(self, data):
@@ -9,12 +11,12 @@ class NoAliasDumper(yaml.SafeDumper):
 
 
 if not os.path.exists("config.yaml") and os.path.exists("config.exp.yaml"):
-    print("请修改 config.exp.yaml 并重命名为 config.yaml ！")
-    print("请修改 config.exp.yaml 并重命名为 config.yaml ！")
-    print("请修改 config.exp.yaml 并重命名为 config.yaml ！")
+    logger.error("请修改 config.exp.yaml 并重命名为 config.yaml ！")
+    logger.error("请修改 config.exp.yaml 并重命名为 config.yaml ！")
+    logger.error("请修改 config.exp.yaml 并重命名为 config.yaml ！")
     exit()
 elif not os.path.exists("config.yaml") and not os.path.exists("config.exp.yaml"):
-    print("在？宁的配置文件呢?¿?¿")
+    logger.error("在？宁的配置文件呢?¿?¿")
     exit()
 else:
     with open("config.yaml", "r", encoding="utf-8") as f:
@@ -49,7 +51,7 @@ else:
 user_black_list = user_list["black"]
 
 if not bool(yaml_data["Final"]):
-    print("配置文件未修改完成，请手动编辑 config.exp.ymal 进行修改并重命名为 config.yaml")
+    logger.error("配置文件未修改完成，请手动编辑 config.exp.ymal 进行修改并重命名为 config.yaml")
     exit()
 
 if (
@@ -61,11 +63,11 @@ if (
     )
     with open("config.yaml", "w", encoding="utf-8") as f:
         yaml.dump(yaml_data, f, allow_unicode=True)
-    print("管理员内未包含主人，已自动添加")
+    logger.warning("管理员内未包含主人，已自动添加")
 
 
 def save_config():
-    print("正在保存配置文件")
+    logger.info("正在保存配置文件")
     with open("config.yaml", "w", encoding="utf-8") as f:
         yaml.dump(yaml_data, f, allow_unicode=True, Dumper=NoAliasDumper)
     with open("groupdata.json", "w", encoding="utf-8") as f:

@@ -3,8 +3,9 @@ import json
 import base64
 import dns.resolver
 
-from PIL import Image as IMG
 from io import BytesIO
+from loguru import logger
+from PIL import Image as IMG
 from graia.ariadne.message.element import Image, Plain
 
 
@@ -13,7 +14,6 @@ from .statusping import StatusPing
 
 async def mcping(say):
     # 获取 ping 信息
-    # print(say)
     host = say.split(":")[0]
     try:
         port = say.split(":")[1]
@@ -34,7 +34,7 @@ async def mcping(say):
     get_status = json.dumps(get_status)
     get_status = re.sub(r"\\u00a7.", "", get_status)
     get_status = json.loads(get_status)
-    print(get_status)
+    logger.info(get_status[300:])
 
     msg_send = []
     # 服务器信息解析
@@ -55,24 +55,25 @@ async def mcping(say):
     msg_send.append(Plain("延迟：" + str(get_status["ping"]) + "ms\n"))
 
     # 描述
-    # print(get_status["description"])
+    logger.debug(get_status["description"])
     if type(get_status["description"]) == str:
         sMotd = get_status["description"]
         msg_send.append(Plain("描述：" + sMotd + "\n"))
+        logger.debug(sMotd)
     elif get_status["description"].get("text", "") != "":
         sMotd = get_status["description"]["text"]
         msg_send.append(Plain("描述：" + sMotd + "\n"))
-        # print(sMotd)
+        logger.debug(sMotd)
     elif "extra" in get_status["description"]:
         sMotd = ""
         for extra in get_status["description"]["extra"]:
             sMotd = sMotd + extra["text"]
         msg_send.append(Plain("描述：" + sMotd + "\n"))
-        # print(sMotd)
+        logger.debug(sMotd)
     elif "translate" in get_status["description"]:
         sMotd = get_status["description"]["translate"]
         msg_send.append(Plain("描述：" + sMotd + "\n"))
-        # print(sMotd)
+        logger.debug(sMotd)
 
     # 服务端版本判断
     if "Requires" in get_status["version"]["name"]:
@@ -83,9 +84,9 @@ async def mcping(say):
             serType = get_status["version"]["name"].rsplit(" ", 1)
             sType = serType[0]
             sVer = serType[1]
-            # print(serType)
-            # print(sType)
-            # print(sVer)
+            logger.debug(serType)
+            logger.debug(sType)
+            logger.debug(sVer)
         else:
             sType = "Vanilla"
             sVer = get_status["version"]["name"]

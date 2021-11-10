@@ -6,7 +6,6 @@ import xmltodict
 from pathlib import Path
 from graiax import silkcoder
 from graia.saya import Saya, Channel
-from graia.ariadne.app import Ariadne
 from graia.ariadne.model import Member, Group
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
@@ -39,11 +38,12 @@ BASEPATH.mkdir(exist_ok=True)
         decorators=[Rest.rest_control(), Permission.require(), Interval.require(60)],
     )
 )
-async def azuretts(
-    app: Ariadne, group: Group, member: Member, message: MessageChain, source: Source
-):
+async def azuretts(group: Group, member: Member, message: MessageChain, source: Source):
 
-    if yaml_data["Saya"]["AzureTTS"]["Disabled"]:
+    if (
+        yaml_data["Saya"]["AzureTTS"]["Disabled"]
+        and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
+    ):
         return
     elif "AzureTTS" in group_data[str(group.id)]["DisabledFunc"]:
         return

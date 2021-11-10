@@ -28,9 +28,13 @@
 > cacheSize: 4096
 > adapterSettings:
 >   http:
->     port: 8060 #
+>     host: localhost
+>     port: 8066
+>     cors: [*]
 >   ws:
->     port: 8060 # 此端口请与 http 端口保持一致
+>     host: localhost
+>     port: 8066 # 此端口请与 http 端口保持一致
+>     reservedSyncId: -1
 > ```
 
 1. 克隆 ABot 到本地

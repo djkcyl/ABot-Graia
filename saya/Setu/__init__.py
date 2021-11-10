@@ -1,5 +1,6 @@
+import asyncio
+
 from graia.saya import Saya, Channel
-from graia.ariadne.app import Ariadne
 from graia.ariadne.model import Group
 from graia.ariadne.message.element import Image
 from graia.ariadne.message.chain import MessageChain
@@ -24,13 +25,17 @@ channel = Channel.current()
         decorators=[Rest.rest_control(), Permission.require(), Interval.require()],
     )
 )
-async def main(app: Ariadne, group: Group):
+async def main(group: Group):
 
-    if yaml_data["Saya"]["Setu"]["Disabled"]:
+    if (
+        yaml_data["Saya"]["Setu"]["Disabled"]
+        and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
+    ):
         return
     elif "Setu" in group_data[str(group.id)]["DisabledFunc"]:
         return
 
     await safeSendGroupMessage(
-        group, MessageChain.create([Image(data_bytes=await create_setu())])
+        group,
+        MessageChain.create([Image(data_bytes=await asyncio.to_thread(create_setu))]),
     )

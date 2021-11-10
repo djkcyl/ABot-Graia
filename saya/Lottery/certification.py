@@ -2,13 +2,14 @@ import os
 import rsa
 import base64
 
+from loguru import logger
 
 PRIVATE = "./saya/Lottery/server-private.pem"
 PUBLIC = "./saya/Lottery/server-public.pem"
 
 
 if not os.path.exists(PRIVATE) or not os.path.exists(PUBLIC):
-    print("未找到私钥或公钥，正在重新生成")
+    logger.warning("未找到私钥或公钥，正在重新生成")
     public, private = rsa.newkeys(1024)
     PUBLIC_PEM = public
     PRIVATE_PEM = private

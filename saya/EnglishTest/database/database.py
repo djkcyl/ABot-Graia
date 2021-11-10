@@ -31,11 +31,9 @@ def add_word(data):
     book = data[3]
     p = Word(word=word, pos=pos, tran=tran, bookId=book)
     p.save()
-    print(p.id)
 
 
 async def random_word(bookid):
     p = Word.select().where(Word.bookId == bookid)
     data = random.choice(p)
-    print(data.word)
     return [data.word, data.pos, data.tran]

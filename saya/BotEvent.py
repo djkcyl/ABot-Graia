@@ -207,11 +207,11 @@ async def get_BotJoinGroup(app: Ariadne, joingroup: BotJoinGroupEvent):
             yaml_data["Basic"]["Permission"]["Master"],
             MessageChain.create([Plain("该群未在白名单中，正在退出")]),
         )
-        return await app.quit(joingroup.group.id)
+        return await app.quitGroup(joingroup.group.id)
 
     if joingroup.group.id not in group_data:
         group_data[str(joingroup.group.id)] = groupInitData
-        print("已为该群初始化配置文件")
+        logger.info("已为该群初始化配置文件")
         save_config()
         await safeSendGroupMessage(
             joingroup.group.id,
@@ -303,7 +303,7 @@ async def get_BotMuteGroup(app: Ariadne, group: Group, mute: BotMuteEvent):
                 ]
             ),
         )
-        await app.quit(group)
+        await app.quitGroup(group)
 
 
 @channel.use(ListenerSchema(listening_events=[MemberCardChangeEvent]))

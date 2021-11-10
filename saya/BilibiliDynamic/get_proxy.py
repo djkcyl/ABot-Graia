@@ -1,3 +1,5 @@
+from loguru import logger
+
 from config import yaml_data
 
 proxys = []
@@ -5,9 +7,9 @@ proxys = []
 if yaml_data["Saya"]["BilibiliDynamic"]["EnabledProxy"]:
     for proxy in yaml_data["Saya"]["BilibiliDynamic"]["Proxy"]:
         proxys.append({"all://": f"{proxy}"})
-        print(proxy)
+        logger.info(proxy)
     proxy_count = len(yaml_data["Saya"]["BilibiliDynamic"]["Proxy"])
-    print(f"当前共有 {proxy_count} 个代理")
+    logger.info(f"当前共有 {proxy_count} 个代理")
 else:
     proxys = [None]
 

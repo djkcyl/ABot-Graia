@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "abot-mahv2"
-version = "2.1.0"
+version = "2.1.1"
 description = ""
 authors = ["djkcyl <cyl@cyllive.cn>"]
 
@@ -8,7 +8,6 @@ authors = ["djkcyl <cyl@cyllive.cn>"]
 python = ">=3.9,<3.10"
 graia-broadcast = "^0.13.1"
 graia-saya = "^0.0.13"
-requests = "2.23"
 Pillow = "^8.4.0"
 numpy = "^1.21.4"
 matplotlib = "^3.4.2"
@@ -23,7 +22,7 @@ httpx = "^0.20.0"
 playwright = "^1.16.0"
 lxml = "^4.6.4"
 PyYAML = "^5.4.1"
-tencentcloud-sdk-python = "^3.0.522"
+tencentcloud-sdk-python = "3.0.520"
 xmltodict = "^0.12.0"
 azure-cognitiveservices-speech = "^1.19.0"
 redis = "^3.5.3"
@@ -39,7 +38,7 @@ scipy = "^1.7.2"
 pillow = "^8.4.0"
 saucenao-api = "^2.4.0"
 triangler = {git = "https://github.com/djkcyl/triangler"}
-graia-ariadne = "0.4.0a3"
+graia-ariadne = "0.4.0a6"
 graia-scheduler = {git = "https://github.com/djkcyl/Scheduler"}
 pixivpy = "^3.6.1"
 

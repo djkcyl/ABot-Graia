@@ -7,6 +7,7 @@ Basic: # 基础配置
     MiraiAuthKey: "xxxxx" # Mirai HTTP API verifyKey
 
   Permission: # 权限管理
+    DebugGroup: 1223456 # 测试群，将忽略功能关闭
     Master: 123456 # 机器人主人QQ号
     MasterName: "xxxx" # 机器人主人昵称
     Admin: # 机器人管理员
