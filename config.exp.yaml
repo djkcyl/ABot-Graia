@@ -172,6 +172,9 @@ Saya: # saya 插件配置
   GroupConfig: # 本KEY不需要修改
     Disabled: false
 
+  ArkGuessOperator: # 明日方舟猜干员
+    Disabled: false
+    
 Final: false
 # 配置完成后请调整为 true
 # 配置完成后请调整为 true

@@ -3,7 +3,6 @@ import asyncio
 
 from graia.saya import Saya, Channel
 from graia.ariadne.model import Group
-from graia.ariadne.app import Ariadne
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import Plain, Source
@@ -26,9 +25,7 @@ channel = Channel.current()
         decorators=[Permission.require(), Interval.require()],
     )
 )
-async def calculator_main(
-    app: Ariadne, group: Group, message: MessageChain, source: Source
-):
+async def calculator_main(group: Group, message: MessageChain, source: Source):
 
     if (
         yaml_data["Saya"]["Calculator"]["Disabled"]

@@ -190,6 +190,12 @@ funcList = [
         "can_disabled": False,
         "default_disabled": False,
     },
+    {
+        "name": "明日方舟猜干员",
+        "key": "ArkGuessOperator",
+        "can_disabled": False,
+        "default_disabled": False,
+    },
 ]
 
 configList = [
@@ -287,7 +293,7 @@ funcHelp = {
     },
     "涩图": {
         "instruction": "随机发送P站涩图",
-        "usage": "发送指令：\n涩图\n色图\n瑟图\nsetu",
+        "usage": "发送指令：\n涩图",
         "options": "由于近期腾讯严查，GHS封号比较频繁，再加上举报的内鬼太多了，涩图功能就先不开了，过段时间看情况再开",
         "example": "（这也需要示例吗？",
     },
@@ -311,7 +317,7 @@ funcHelp = {
     },
     "色图": {
         "instruction": "随机生成色图",
-        "usage": "发送指令：\n涩图\n色图\n瑟图\nsetu",
+        "usage": "发送指令：\n色图",
         "options": "无",
         "example": "（这也需要示例吗？",
     },
@@ -409,6 +415,12 @@ funcHelp = {
         "instruction": "群内可调节的功能",
         "usage": "发送指令：\n群功能",
         "options": "详细情况请输入“群功能”查看，后续会逐步添加新的可配置项",
+        "example": "（这也需要示例吗？",
+    },
+    "明日方舟猜干员": {
+        "instruction": "根据语音猜干员名",
+        "usage": "发送指令：\n方舟猜干员",
+        "options": "无",
         "example": "（这也需要示例吗？",
     },
 }

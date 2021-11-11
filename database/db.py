@@ -1,4 +1,5 @@
 import json
+import math
 import httpx
 
 from loguru import logger
@@ -32,7 +33,7 @@ db.create_tables([User], safe=True)
 def init_user(qq):
     user = User.select().where(User.qq == qq)
     if not user.exists():
-        p = User(qq=qq)
+        p = User(qq=qq, gold=60)
         p.save()
         logger.info("已初始化" + str(qq))
 
@@ -271,3 +272,25 @@ def getCutStr(str, cut):
             cutStr = str
 
     return cutStr
+
+
+def ladder_rent_collection():
+    """按梯度收取租金"""
+    user_list = User.select().where(User.gold >= 1000).order_by(User.gold.desc())
+    total_rent = 0
+    for user in user_list:
+        leadder_rent = 1 - (math.floor(user.gold / 1000) / 100)
+        User.update(gold=user.gold * leadder_rent).where(User.id == user.id).execute()
+        gold = User.get(User.id == user.id).gold
+        total_rent += user.gold - gold
+        logger.info(f"{user.id} 被收取 {user.gold - gold} 游戏币")
+
+    return total_rent
+
+
+def set_all_user_gold(gold: int):
+    """设置所有用户游戏币"""
+    User.update(gold=gold).execute()
+
+
+print(ladder_rent_collection())

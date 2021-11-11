@@ -63,6 +63,7 @@ ABot 是一个使用 [Graia-Ariadne](https://github.com/GraiaProject/Ariadne) �
 > - 低多边形图片生成
 > - 计算器（？
 > - **漂流瓶**
+> - 明日方舟猜干员
 > - 亿些杂七杂八没整理的小功能
 >   - ABot 事件提醒
 >   - ABot 被禁言后自动退群
