@@ -26,6 +26,7 @@ data.json
 util/UpImage.py
 saya/BilibiliDynamic/dynamic_list.json
 archive/
+cache/
 data/
 saya/ArkNews/pushed_list.json
 saya/DriftingBottle/image

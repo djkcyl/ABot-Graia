@@ -109,8 +109,8 @@ async def add_uid(uid, groupid):
                 dynamic_list["subscription"][uid] = []
                 last_dynid = r["data"]["cards"][0]["desc"]["dynamic_id"]
                 DYNAMIC_OFFSET[uid] = last_dynid
-            if get_group_sub(groupid) == 8:
-                return Plain("每个群聊最多仅可订阅 8 个 UP")
+            if get_group_sub(groupid) == 12:
+                return Plain("每个群聊最多仅可订阅 12 个 UP")
             dynamic_list["subscription"][uid].append(groupid)
             with dynamic_list_json.open("w", encoding="utf-8") as f:
                 json.dump(dynamic_list, f, indent=2)
