@@ -153,18 +153,28 @@ async def draw_r6(nick_name):
             draw.point((x, y), fill=(bg_r, bg_g, bg_b))
 
     # 用户基本信息
+    logger.info(data["payload"]["user"]["avatar"])
     for _ in range(3):
         try:
-            avatar = Image.open(
-                BytesIO(httpx.get(data["payload"]["user"]["avatar"]).content)
-            )
-            break
+            async with httpx.AsyncClient() as client:
+                avatar = await client.get(data["payload"]["user"]["avatar"], timeout=15)
+            if avatar.status_code == 200:
+                avatar = Image.open(BytesIO(avatar.content))
+                avatar.thumbnail((128, 128))
+                circle_avatar = circle_corner(avatar, 20)
+                bg.paste(circle_avatar, (40, 40), circle_avatar)
+                break
+            else:
+                logger.error(f"头像下载失败：{nick_name}")
+                continue
         except httpx.HTTPError:
-            continue
-    avatar.thumbnail((128, 128))
-    circle_avatar = circle_corner(avatar, 20)
-    bg.paste(circle_avatar, (40, 40), circle_avatar)
-    draw.text((220, 50), data["payload"]["user"]["nickname"], "white", font_bold_46)
+            logger.error(f"头像下载失败：{nick_name}")
+    draw.text(
+        (220, 50),
+        data["payload"]["user"]["nickname"],
+        "white",
+        font_bold_46,
+    )
     level = data["payload"]["stats"]["progression"]["level"]
     time = sec_to_minsec(data["payload"]["stats"]["general"]["timeplayed"])
     mmr = data["payload"]["stats"]["seasonal"]["ranked"]["mmr"]
@@ -174,7 +184,6 @@ async def draw_r6(nick_name):
         (200, 200, 200),
         font_regular_28,
     )
-
     # 战绩板
     record_bg = Image.new("RGB", (720, 380), (26, 27, 31))
     circle_record_bg = circle_corner(record_bg, 12)
@@ -353,7 +362,6 @@ async def draw_r6(nick_name):
     draw.text((364, 1380), str(weapons["headshots"]), "white", font_bold_32)
     draw.text((554, 1380), str(weapon_kd), "white", font_bold_32)
 
-    bio = BytesIO()
-    bg.save(bio, "JPEG")
+    bg.save(bio := BytesIO(), "JPEG")
 
     return bio.getvalue()

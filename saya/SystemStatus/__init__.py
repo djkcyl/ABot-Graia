@@ -12,9 +12,9 @@ from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
 from graia.scheduler.timers import every_custom_seconds
 from graia.scheduler.saya.schema import SchedulerSchema
-from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.lifecycle import ApplicationLaunched
 from graia.ariadne.message.parser.literature import Literature
+from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 from util.control import Permission
 from util.sendMessage import safeSendGroupMessage
@@ -37,7 +37,7 @@ async def update_scheduled():
     CPU_USAGE.append(psutil.cpu_percent())
     if len(MEM_USAGE) == 300:
         MEM_USAGE = MEM_USAGE[-299:]
-    MEM_USAGE.append(int(psutil.virtual_memory().used / 1000000))
+    MEM_USAGE.append(int(psutil.virtual_memory().used / 1048576))
 
 
 @channel.use(ListenerSchema(listening_events=[ApplicationLaunched]))
@@ -49,9 +49,9 @@ async def cpuStatus():
     logger.info(f"当前系统：{platform.system()}")
     logger.info(f"CPU核心数：{psutil.cpu_count()}")
     logger.info(
-        f"内存：{int(virtual_memory.used / 1000000)}MB / {int(virtual_memory.total / 1000000)}MB"
+        f"内存：{int(virtual_memory.used / 1048576)}MB / {int(virtual_memory.total / 1048576)}MB"
     )
-    logger.info(f"硬盘：{int(disk.used / 1000000)}MB / {int(disk.total / 1000000)}MB")
+    logger.info(f"硬盘：{int(disk.used / 1048576)}MB / {int(disk.total / 1048576)}MB")
     logger.info("已开始记录 CPU 占用率")
     logger.info("已开始记录内存占用率")
     logger.info("=========================")

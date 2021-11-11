@@ -275,7 +275,6 @@ def getCutStr(str, cut):
 
 
 def ladder_rent_collection():
-    """按梯度收取租金"""
     user_list = User.select().where(User.gold >= 1000).order_by(User.gold.desc())
     total_rent = 0
     for user in user_list:
@@ -289,8 +288,4 @@ def ladder_rent_collection():
 
 
 def set_all_user_gold(gold: int):
-    """设置所有用户游戏币"""
     User.update(gold=gold).execute()
-
-
-print(ladder_rent_collection())

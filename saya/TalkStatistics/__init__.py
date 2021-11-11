@@ -6,7 +6,6 @@ from pathlib import Path
 from loguru import logger
 from graiax import silkcoder
 from graia.saya import Saya, Channel
-from graia.ariadne.app import Ariadne
 from graia.ariadne.model import Group, Member
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.event.message import GroupMessage
@@ -15,6 +14,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.element import FlashImage, Image, Plain, Voice
 
 from util.control import Permission
+from database.db import add_talk as add_talk_db
 from util.sendMessage import safeSendGroupMessage
 from database.usertalk import get_message_analysis, add_talk, archive_exists
 
@@ -39,7 +39,7 @@ if not data_path.exists():
         decorators=[Permission.require(Permission.MASTER)],
     )
 )
-async def get_image(app: Ariadne, group: Group):
+async def get_image(group: Group):
 
     talk_num, time = await get_message_analysis()
     talk_num.reverse()
@@ -52,9 +52,8 @@ async def get_image(app: Ariadne, group: Group):
 @channel.use(
     ListenerSchema(listening_events=[GroupMessage], decorators=[Permission.require()])
 )
-async def add_talk_word(
-    app: Ariadne, group: Group, member: Member, message: MessageChain
-):
+async def add_talk_word(group: Group, member: Member, message: MessageChain):
+    await add_talk_db(str(member.id))
     if message.has(Plain):
         plain_list = message.get(Plain)
         plain = MessageChain.create(plain_list).asDisplay()

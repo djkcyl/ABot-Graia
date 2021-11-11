@@ -3,20 +3,18 @@ import random
 
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
-from graia.scheduler.timers import crontabify
 from graia.ariadne.message.element import Plain
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.model import Friend, Group, Member
-from graia.scheduler.saya.schema import SchedulerSchema
-from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.literature import Literature
+from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.message import GroupMessage, FriendMessage
 
 
 from config import yaml_data, group_data
 from util.control import Permission, Interval
 from util.sendMessage import safeSendGroupMessage
-from database.db import sign, add_gold, get_info, add_talk, reset_sign, all_sign_num
+from database.db import sign, add_gold, get_info, all_sign_num
 
 saya = Saya.current()
 channel = Channel.current()
@@ -73,26 +71,6 @@ async def main(group: Group, member: Member):
                 Plain(f"\n当前共有 {str(user_info[3])} 个游戏币"),
                 Plain(f"\n你已累计签到 {str(user_info[2])} 天"),
                 Plain(f"\n从有记录以来你共有 {str(user_info[4])} 次发言"),
-            ]
-        ),
-    )
-
-
-@channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def add_talk_event(member: Member):
-    await add_talk(str(member.id))
-
-
-@channel.use(SchedulerSchema(crontabify("0 4 * * *")))
-async def reset(app: Ariadne):
-    sign_info = await all_sign_num()
-    await reset_sign()
-    await app.sendFriendMessage(
-        yaml_data["Basic"]["Permission"]["Master"],
-        MessageChain.create(
-            [
-                Plain(f"签到重置成功，昨日共有 {str(sign_info[0])} / {str(sign_info[1])} 人完成了签到，"),
-                Plain(f"签到率为 {'{:.2%}'.format(sign_info[0]/sign_info[1])}"),
             ]
         ),
     )

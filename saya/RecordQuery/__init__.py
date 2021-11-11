@@ -201,7 +201,8 @@ async def main(group: Group, member: Member, message: MessageChain, source: Sour
             )
         else:
             await safeSendGroupMessage(
-                group, MessageChain.create([Plain(f"未搜索到该昵称：{nick_name}")])
+                group,
+                MessageChain.create([Plain(f"未搜索到该昵称：{nick_name}")], quote=source.id),
             )
 
         WAITING.remove(member.id)

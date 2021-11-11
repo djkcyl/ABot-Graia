@@ -33,7 +33,7 @@ RUNNING = {}
         inline_dispatchers=[
             Twilight(Sparkle([FullMatch("明日", optional=True), FullMatch("方舟猜干员")]))
         ],
-        decorators=[Permission.require(), Interval.require()],
+        decorators=[Permission.require(), Interval.require(30)],
     )
 )
 async def guess_operator(group: Group, source: Source):
@@ -99,11 +99,6 @@ async def guess_operator(group: Group, source: Source):
         del RUNNING[group.id]
         await safeSendGroupMessage(
             group,
-            MessageChain.create(
-                [
-                    Plain(f"干员名称：{operator_name}\n没有人猜中，真可惜！"),
-                    At(source),
-                ]
-            ),
+            MessageChain.create([Plain(f"干员名称：{operator_name}\n没有人猜中，真可惜！")]),
             quote=source,
         )
