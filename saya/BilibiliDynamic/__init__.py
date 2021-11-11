@@ -398,7 +398,7 @@ async def remove_sub(app: Ariadne, group: Group, message: MessageChain):
         decorators=[Permission.require(Permission.GROUP_ADMIN), Interval.require()],
     )
 )
-async def sub_list(app: Ariadne, group: Group):
+async def sub_list(group: Group):
 
     sublist = []
     for subid in get_group_sublist(group.id):

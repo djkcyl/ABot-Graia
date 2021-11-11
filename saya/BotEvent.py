@@ -30,6 +30,7 @@ from graia.ariadne.event.mirai import (
 )
 
 from util.control import Rest
+from util.TextModeration import text_moderation
 from util.sendMessage import safeSendGroupMessage
 from config import save_config, yaml_data, group_data, group_list
 
@@ -335,15 +336,18 @@ async def get_BotCardChange(app: Ariadne, events: MemberCardChangeEvent):
                 events.member.group.id, MessageChain.create([Plain("请不要修改我的群名片")])
             )
     else:
-        await safeSendGroupMessage(
-            events.member.group,
-            MessageChain.create(
-                [
-                    At(events.member.id),
-                    Plain(f" 的群名片由 {events.origin} 被修改为 {events.current}"),
-                ]
-            ),
-        )
+        resp = await text_moderation(events.origin)
+        resp_current = await text_moderation(events.current)
+        if resp["Suggestion"] == "Pass" and resp_current["Suggestion"] == "Pass":
+            await safeSendGroupMessage(
+                events.member.group,
+                MessageChain.create(
+                    [
+                        At(events.member.id),
+                        Plain(f" 的群名片由 {events.origin} 被修改为 {events.current}"),
+                    ]
+                ),
+            )
 
 
 # 群内事件

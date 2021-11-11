@@ -34,7 +34,7 @@ async def mcping(say):
     get_status = json.dumps(get_status)
     get_status = re.sub(r"\\u00a7.", "", get_status)
     get_status = json.loads(get_status)
-    logger.info(get_status[300:])
+    logger.debug(get_status)
 
     msg_send = []
     # 服务器信息解析
