@@ -16,9 +16,9 @@ from graia.ariadne.message.element import (
 )
 
 from config import yaml_data, group_data
-from util.TextModeration import text_moderation
 from util.ImageModeration import image_moderation
 from util.sendMessage import safeSendGroupMessage
+from util.TextModeration import text_moderation_async
 
 
 saya = Saya.current()
@@ -51,7 +51,7 @@ async def anitRecall(app: Ariadne, events: GroupRecallEvent):
             if recallMsg.has(Image):
                 for image in recallMsg.get(Image):
                     res = await image_moderation(image.url)
-                    if res["Suggestion"] != "Pass":
+                    if not res["status"]:
                         if (
                             "AnitRecall"
                             not in group_data[str(events.group.id)]["DisabledFunc"]
@@ -70,7 +70,7 @@ async def anitRecall(app: Ariadne, events: GroupRecallEvent):
                                         ),
                                         Plain("\n=====================\n"),
                                         Plain(
-                                            f"（由于撤回图片内包含 {res['Label']} / {res['SubLabel']} 违规，不予防撤回）"
+                                            f"（由于撤回图片内包含 {res['message']} 违规，不予防撤回）"
                                         ),
                                     ]
                                 ),
@@ -78,8 +78,8 @@ async def anitRecall(app: Ariadne, events: GroupRecallEvent):
                             return
             if recallMsg.has(Plain):
                 for text in recallMsg.get(Plain):
-                    res = await text_moderation(text.text)
-                    if res["Suggestion"] != "Pass":
+                    res = await text_moderation_async(text.text)
+                    if not res["status"]:
                         if (
                             "AnitRecall"
                             not in group_data[str(events.group.id)]["DisabledFunc"]
@@ -97,7 +97,9 @@ async def anitRecall(app: Ariadne, events: GroupRecallEvent):
                                             f"{events.operator.name}({events.operator.id})撤回了{authorName}的一条消息:"
                                         ),
                                         Plain("\n=====================\n"),
-                                        Plain(f"\n（由于撤回文字内包含 {res['Label']} 违规，不予防撤回）"),
+                                        Plain(
+                                            f"\n（由于撤回文字内包含 {res['message']} 违规，不予防撤回）"
+                                        ),
                                     ]
                                 ),
                             )

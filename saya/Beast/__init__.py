@@ -7,9 +7,9 @@ from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 from config import yaml_data, group_data
-from util.TextModeration import text_moderation
 from util.sendMessage import safeSendGroupMessage
 from util.control import Permission, Interval, Rest
+from util.TextModeration import text_moderation_async
 
 from .beast import encode, decode
 
@@ -74,8 +74,8 @@ async def main_decode(group: Group, message: MessageChain, source: Source):
     if len(saying) == 2:
         try:
             msg = decode(saying[1])
-            res = await text_moderation(msg)
-            if res["Suggestion"] == "Pass":
+            res = await text_moderation_async(msg)
+            if res["status"]:
                 await safeSendGroupMessage(
                     group, MessageChain.create([Plain(msg)]), quote=source.id
                 )
