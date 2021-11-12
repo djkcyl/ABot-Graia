@@ -13,7 +13,7 @@ head = {
 
 
 async def dynamic_svr(uid):
-    for _ in range(2):
+    for _ in range(3):
         for retry in range(3):
             try:
                 async with httpx.AsyncClient(
@@ -40,7 +40,7 @@ async def dynamic_svr(uid):
 
 
 async def get_status_info_by_uids(uids):
-    for _ in range(2):
+    for _ in range(3):
         for retry in range(3):
             try:
                 async with httpx.AsyncClient(
