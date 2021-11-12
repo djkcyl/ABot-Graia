@@ -209,7 +209,7 @@ for func in funcList:
 
 groupInitData = {
     "DisabledFunc": DisabledFunc,
-    "WelcomeMSG": {"Enabled": False, "Message": None},
+    "WelcomeMSG": {"Enabled": True, "Message": None},
 }
 
 funcHelp = {
@@ -227,7 +227,7 @@ funcHelp = {
     },
     "小鸡词典emoji转换": {
         "instruction": "吧文字转换为emoji表情",
-        "usage": "发送指令：\nemoji <文字>",
+        "usage": "发送指令：\n/emoji <文字>",
         "options": "文字：任意可能被转换为emoji的文字",
         "example": "emoji 差不多的了",
     },

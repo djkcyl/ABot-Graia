@@ -22,9 +22,9 @@ from graia.ariadne.message.parser.pattern import RegexMatch, ArgumentMatch
 from database.db import reduce_gold
 from util.text2image import create_image
 from util.control import Permission, Interval
-from util.TextModeration import text_moderation
 from util.ImageModeration import image_moderation
 from util.sendMessage import safeSendGroupMessage
+from util.TextModeration import text_moderation_async
 from config import yaml_data, group_data, user_black_list, save_config
 
 from .db import (
@@ -101,11 +101,21 @@ async def throw_bottle_handler(
                         return await safeSendGroupMessage(
                             group, MessageChain.create("您？"), quote=source
                         )
-                moderation = await text_moderation(text)
-                if moderation["Suggestion"] != "Pass":
+                moderation = await text_moderation_async(text)
+                if moderation["status"] == "error":
                     return await safeSendGroupMessage(
                         group,
-                        MessageChain.create("你的漂流瓶内包含违规内容，请检查后重新丢漂流瓶！"),
+                        MessageChain.create(
+                            f"漂流瓶内容审核失败，{moderation['message']}，请稍后重新丢漂流瓶！"
+                        ),
+                        quote=source,
+                    )
+                elif not moderation["status"]:
+                    return await safeSendGroupMessage(
+                        group,
+                        MessageChain.create(
+                            f"你的漂流瓶内可能包含违规内容{moderation['message']}，请检查后重新丢漂流瓶！"
+                        ),
                         quote=source,
                     )
             elif text_len := len(text) > 400:
