@@ -48,7 +48,7 @@ def _create_image(text: str, cut: int) -> bytes:
 
 
 async def delete_old_cache():
-    cache_files = cache.glob("t2i/**/*.jpg")
+    cache_files = cache.glob("**/*")
     i = 0
     r = 0
     for cache_file in cache_files:
