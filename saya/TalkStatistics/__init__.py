@@ -95,8 +95,9 @@ async def download(url, name, path, type):
             r = await client.get(url)
             if type == 4:
                 f = await silkcoder.decode(r.content, audio_format="mp3")
+                now_path.joinpath(f"{name}.mp3").write_bytes(f)
             else:
                 f = r.content
-            now_path.joinpath(f"{name}.mp3").write_bytes(f)
+                now_path.joinpath(name).write_bytes(f)
     else:
         logger.info(f"已存在的文件 - {name}")

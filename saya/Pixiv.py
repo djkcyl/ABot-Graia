@@ -18,9 +18,9 @@ channel = Channel.current()
 
 
 class PixivSparkle(Sparkle):
-    tag1 = RegexMatch(r".+", optional=True)
+    tag1 = RegexMatch(r".*", optional=True)
     header = FullMatch("涩图")
-    tag2 = RegexMatch(r".+", optional=True)
+    tag2 = RegexMatch(r".*", optional=True)
 
 
 @channel.use(

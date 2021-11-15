@@ -26,6 +26,7 @@ saya.install_behaviours(BroadcastBehaviour(bcc))
 saya.install_behaviours(GraiaSchedulerBehaviour(scheduler))
 saya.install_behaviours(InterruptControl(bcc))
 
+
 app = Ariadne(
     broadcast=bcc,
     adapter=DebugAdapter(
