@@ -55,7 +55,7 @@
    poetry run python main.py
    ```
 
-> 你可能还需要执行下面这条命令才能正常使用词典功能
+> 你可能还需要执行下面这条命令才能正常使用某些功能
 >
 > ```shell
 > npx playwright install-deps
