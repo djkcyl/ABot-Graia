@@ -40,6 +40,13 @@ async def main(group: Group, sparkle: Sparkle):
     elif "Pixiv" in group_data[str(group.id)]["DisabledFunc"]:
         return
 
+    if yaml_data["Saya"]["Pixiv"]["san"] == "r18":
+        san = 6
+    elif yaml_data["Saya"]["Pixiv"]["san"] == "r16":
+        san = 4
+    else:
+        san = 2
+
     saying: PixivSparkle = sparkle
 
     if saying.tag1.matched or saying.tag2.matched:
@@ -49,7 +56,7 @@ async def main(group: Group, sparkle: Sparkle):
             else saying.tag2.result.getFirst(Plain).text
         )
         async with httpx.AsyncClient() as client:
-            r = await client.get(f"http://a60.one:404/get/tags/{tag}?num=1")
+            r = await client.get(f"http://a60.one:404/get/tags/{tag}?num=1&san={san}")
             res = r.json()
         if res.get("code", False) == 200:
             pic = res["data"]["pic_list"][0]
@@ -57,8 +64,9 @@ async def main(group: Group, sparkle: Sparkle):
                 group,
                 MessageChain.create(
                     [
-                        Plain(f"ID：{pic['pic']}"),
-                        Plain(f"\nNAME：{pic['name']}"),
+                        Plain(f"ID：{pic['pic']}\n"),
+                        Plain(f"NAME：{pic['name']}\n"),
+                        Plain(f"SAN: {pic['sanity_level']}\n"),
                         Image(url=pic["url"]),
                     ]
                 ),
@@ -73,15 +81,16 @@ async def main(group: Group, sparkle: Sparkle):
             )
     else:
         async with httpx.AsyncClient() as client:
-            r = await client.get("http://a60.one:404/")
+            r = await client.get(f"http://a60.one:404/?san={san}")
             res = r.json()
         if res.get("code", False) == 200:
             await safeSendGroupMessage(
                 group,
                 MessageChain.create(
                     [
-                        Plain(f"ID：{res['pic']}"),
-                        Plain(f"\nNAME：{res['name']}"),
+                        Plain(f"ID：{res['pic']}\n"),
+                        Plain(f"NAME：{res['name']}\n"),
+                        Plain(f"SAN: {res['sanity_level']}\n"),
                         Image(url=res["url"]),
                     ]
                 ),
