@@ -86,6 +86,7 @@ Saya: # saya 插件配置
 
   Pixiv: # 色图
     Disabled: false
+    san: xxx # 可填 r18, r16, xxx
 
   ChatMS: # 聊天？？
     Disabled: false

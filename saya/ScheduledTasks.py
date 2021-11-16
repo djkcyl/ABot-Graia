@@ -15,7 +15,7 @@ saya = Saya.current()
 channel = Channel.current()
 
 
-@channel.use(SchedulerSchema(crontabify("0 8 * * *")))
+@channel.use(SchedulerSchema(crontabify("0 4 * * *")))
 async def tasks(app: Ariadne):
     sign_info = await all_sign_num()
     await reset_sign()
