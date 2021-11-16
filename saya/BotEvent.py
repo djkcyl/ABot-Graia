@@ -202,11 +202,14 @@ async def get_BotJoinGroup(app: Ariadne, joingroup: BotJoinGroupEvent):
 
     if joingroup.group.id not in group_list["white"]:
         await safeSendGroupMessage(
-            joingroup.group.id, MessageChain.create([Plain("该群未在白名单中，正在退出")])
+            joingroup.group.id,
+            MessageChain.create(
+                f"该群未在白名单中，正在退出，如有需要请联系{yaml_data['Basic']['Permission']['Master']}申请白名单"
+            ),
         )
         await app.sendFriendMessage(
             yaml_data["Basic"]["Permission"]["Master"],
-            MessageChain.create([Plain("该群未在白名单中，正在退出")]),
+            MessageChain.create("该群未在白名单中，正在退出"),
         )
         return await app.quitGroup(joingroup.group.id)
 
@@ -217,20 +220,14 @@ async def get_BotJoinGroup(app: Ariadne, joingroup: BotJoinGroupEvent):
         await safeSendGroupMessage(
             joingroup.group.id,
             MessageChain.create(
-                [
-                    Plain(f"我是{yaml_data['Basic']['Permission']['MasterName']}"),
-                    Plain(f"的机器人{yaml_data['Basic']['BotName']}，"),
-                    Plain(
-                        f"如果有需要可以联系主人QQ”{str(yaml_data['Basic']['Permission']['Master'])}“，"
-                    ),
-                    Plain(
-                        f"添加{yaml_data['Basic']['BotName']}好友后请私聊说明用途后即可拉进其他群，主人看到后会选择是否同意入群"
-                    ),
-                    Plain(f"\n{yaml_data['Basic']['BotName']}被群禁言后会自动退出该群。"),
-                    Plain("\n发送 <菜单> 可以查看功能列表"),
-                    Plain("\n拥有管理员以上权限可以开关功能"),
-                    Plain(f"\n\n注：@{yaml_data['Basic']['BotName']}不会触发任何功能"),
-                ]
+                f"我是{yaml_data['Basic']['Permission']['MasterName']}"
+                f"的机器人{yaml_data['Basic']['BotName']}，"
+                f"如果有需要可以联系主人QQ”{yaml_data['Basic']['Permission']['Master']}“，"
+                f"添加{yaml_data['Basic']['BotName']}好友后请私聊说明用途后即可拉进其他群，主人看到后会选择是否同意入群"
+                f"\n{yaml_data['Basic']['BotName']}被群禁言后会自动退出该群。"
+                "\n发送 <菜单> 可以查看功能列表"
+                "\n拥有管理员以上权限可以开关功能"
+                f"\n注：@{yaml_data['Basic']['BotName']}不会触发任何功能"
             ),
         )
 
@@ -250,12 +247,10 @@ async def get_BotKickGroup(app: Ariadne, kickgroup: BotLeaveEventKick):
         await app.sendFriendMessage(
             qq,
             MessageChain.create(
-                [
-                    Plain("收到被踢出群聊事件"),
-                    Plain(f"\n群号：{kickgroup.group.id}"),
-                    Plain(f"\n群名：{kickgroup.group.name}"),
-                    Plain("\n已移出白名单"),
-                ]
+                "收到被踢出群聊事件"
+                f"\n群号：{kickgroup.group.id}"
+                f"\n群名：{kickgroup.group.name}"
+                "\n已移出白名单"
             ),
         )
 
