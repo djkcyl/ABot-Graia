@@ -80,11 +80,11 @@ async def low_poly(
 
         if saying.args.matched:
             point = int(saying.args.result)
-            if 99 < point < 1001:
+            if 99 < point < 3001:
                 point = point
             else:
                 return await safeSendGroupMessage(
-                    group, MessageChain.create([Plain("-P ：请输入100-1000之间的整数")])
+                    group, MessageChain.create([Plain("-P ：请输入100-3000之间的整数")])
                 )
 
         if saying.anythings1.matched:
@@ -117,7 +117,7 @@ async def low_poly(
         await safeSendGroupMessage(
             group, MessageChain.create([Plain(f"正在生成{point if point else '默认'}切面，请稍后")])
         )
-        image = await asyncio.to_thread(make_low_poly, img_bytes)
+        image = await asyncio.to_thread(make_low_poly, img_bytes, point)
         await safeSendGroupMessage(
             group, MessageChain.create([Image(data_bytes=image)])
         )
@@ -127,7 +127,7 @@ async def low_poly(
 def make_low_poly(img_bytes, point: Optional[int] = None):
 
     img = IMG.open(BytesIO(img_bytes)).convert("RGB")
-    img.thumbnail((600, 600))
+    img.thumbnail((1000, 1000))
     imgx, imgy = img.size
     t = triangler.Triangler(
         sample_method=triangler.SampleMethod.POISSON_DISK,

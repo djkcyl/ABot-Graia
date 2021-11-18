@@ -9,7 +9,6 @@ from peewee import (
     Model,
     TextField,
     DateTimeField,
-    fn,
 )
 
 
@@ -49,7 +48,9 @@ def get_bottle() -> dict:
     if DriftingBottle.select().count() == 0:
         return None
     else:
-        bottle: DriftingBottle = DriftingBottle.select().order_by(fn.Random()).get()
+        bottle: DriftingBottle = (
+            DriftingBottle.select().order_by(DriftingBottle.fishing_times).get()
+        )
         DriftingBottle.update(fishing_times=DriftingBottle.fishing_times + 1).where(
             DriftingBottle.id == bottle.id
         ).execute()
