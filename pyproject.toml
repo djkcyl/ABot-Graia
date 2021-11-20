@@ -38,8 +38,8 @@ scipy = "^1.7.2"
 pillow = "^8.4.0"
 saucenao-api = "^2.4.0"
 triangler = {git = "https://github.com/djkcyl/triangler"}
-graia-ariadne = "0.4.0a6"
-graia-scheduler = {git = "https://github.com/djkcyl/Scheduler"}
+graia-ariadne = "0.4.0a15"
+graia-scheduler = "^0.0.6"
 pixivpy = "^3.6.1"
 
 [build-system]

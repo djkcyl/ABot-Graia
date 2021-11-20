@@ -4,11 +4,11 @@ from graia.saya import Saya, Channel
 from graia.ariadne.model import Group
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.event.message import GroupMessage
-from graia.ariadne.message.parser.pattern import FullMatch, RegexMatch
 from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.element import Quote, At, Plain, Image
 from graia.ariadne.message.parser.twilight import Twilight, Sparkle
+from graia.ariadne.message.parser.pattern import FullMatch, RegexMatch
 
 
 from util.text2image import create_image
@@ -199,7 +199,7 @@ funcList = [
 ]
 
 configList = [
-    {"name": "入群欢迎", "key": "WelcomeMSG", "can_edit": True},
+    {"name": "事件播报", "key": "EventBroadcast", "can_edit": True},
 ]
 
 DisabledFunc = []
@@ -209,7 +209,7 @@ for func in funcList:
 
 groupInitData = {
     "DisabledFunc": DisabledFunc,
-    "WelcomeMSG": {"Enabled": True, "Message": None},
+    "EventBroadcast": {"Enabled": True, "Message": None},
 }
 
 funcHelp = {
@@ -378,7 +378,7 @@ funcHelp = {
     "以图搜番 / 以图搜图": {
         "instruction": "发送图片来搜索出处",
         "usage": "发送指令：\n以图搜番\n以图搜图",
-        "options": "清晰度太低的图可能搜不到，无论成功与否均会扣除 4 个游戏币",
+        "options": "可能会搜不到，无论成功与否均会扣除 4 个游戏币",
         "example": "（这也需要示例吗？",
     },
     "查战绩": {
@@ -396,8 +396,8 @@ funcHelp = {
     "低多边形图片生成": {
         "instruction": "吧图片转换为低多边形风格化",
         "usage": "发送指令：\n低多边形",
-        "options": "图片越大生成越慢，请耐心等待",
-        "example": "（这也需要示例吗？",
+        "options": "图片越大生成越慢，请耐心等待，可以增加参数 -P 来确定需要生成的边数，可以at其他人来直接获取头像",
+        "example": "低多边形\n低多边形@xxx",
     },
     "计算器": {
         "instruction": "一个只支持 “加减乘除()” 的计算器功能",
