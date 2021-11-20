@@ -354,7 +354,7 @@ reference = "tsinghua"
 
 [[package]]
 name = "graia-ariadne"
-version = "0.4.0a6"
+version = "0.4.0a15"
 description = "Anelegant mirai-api-http v2 Python SDK."
 category = "main"
 optional = false
@@ -362,7 +362,7 @@ python-versions = ">=3.7,<4.0"
 
 [package.dependencies]
 aiohttp = ">=3.7.4,<4.0.0"
-graia-broadcast = ">=0.12.1"
+graia-broadcast = ">=0.12.1,<0.14.0 || >0.14.0"
 loguru = ">=0.5.3,<0.6.0"
 pydantic = ">=1.8.2,<2.0.0"
 typing-extensions = ">=3.10.0,<4.0.0"
@@ -409,21 +409,16 @@ version = "0.0.6"
 description = "a scheduler for graia framework"
 category = "main"
 optional = false
-python-versions = "^3.7"
-develop = false
+python-versions = ">=3.7,<4.0"
 
 [package.dependencies]
-croniter = "^1.0.0"
+croniter = ">=1.0.0,<2.0.0"
 graia-broadcast = ">=0.12.1"
 
-[package.extras]
-saya = []
-
 [package.source]
-type = "git"
-url = "https://github.com/djkcyl/Scheduler"
-reference = "master"
-resolved_reference = "3598de5fda46618a0fd8642688b9f0143f420ab5"
+type = "legacy"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+reference = "tsinghua"
 
 [[package]]
 name = "graiax-silkcoder"
@@ -1554,7 +1549,7 @@ reference = "tsinghua"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.9,<3.10"
-content-hash = "4422ad213676510599678cc4e42bd3dfc9ba461fae56f52285070b2661472dab"
+content-hash = "a6f34be22091cbe65fe036ae5f34504934560ac410d4b4508651c13338357aa1"
 
 [metadata.files]
 aiohttp = [
@@ -1692,8 +1687,8 @@ func-timeout = [
     {file = "func_timeout-4.3.5.tar.gz", hash = "sha256:74cd3c428ec94f4edfba81f9b2f14904846d5ffccc27c92433b8b5939b5575dd"},
 ]
 graia-ariadne = [
-    {file = "graia-ariadne-0.4.0a6.tar.gz", hash = "sha256:a559a3badcd237fbfb334f079f13d8821262cd778e36d0303fa8cfab78bf1582"},
-    {file = "graia_ariadne-0.4.0a6-py3-none-any.whl", hash = "sha256:0d0b376084ed627eded5c664761b18feee5f1e582697c61fcae053fbf586dd35"},
+    {file = "graia-ariadne-0.4.0a15.tar.gz", hash = "sha256:9945e537e2c58336bd5a9e5ee725387c36248cb6261788bc9b897ad8f82a8750"},
+    {file = "graia_ariadne-0.4.0a15-py3-none-any.whl", hash = "sha256:ba44dbfe2f80f27adf016c7a7a98b143af3ed4861b0a41c487792ce9ebc610da"},
 ]
 graia-broadcast = [
     {file = "graia-broadcast-0.13.1.tar.gz", hash = "sha256:a22d2678a1946f9084a5f29c469c3c631e039e60dbefd52d683294db998cb075"},
@@ -1703,7 +1698,10 @@ graia-saya = [
     {file = "graia-saya-0.0.13.tar.gz", hash = "sha256:07b4fe4c5e9b82212b63207e6264f5fa296375bdebeb6e972f50eb5825d52547"},
     {file = "graia_saya-0.0.13-py3-none-any.whl", hash = "sha256:9ffcef9b5ed17c1032d77e199b9718c05b41b76c12888a368a0d234b0771b91c"},
 ]
-graia-scheduler = []
+graia-scheduler = [
+    {file = "graia-scheduler-0.0.6.tar.gz", hash = "sha256:aa4a40a7841709638cc98fe7a093ae0582858ba1326d67961de73e91bc5617b5"},
+    {file = "graia_scheduler-0.0.6-py3-none-any.whl", hash = "sha256:bc29952bbb1c2f8c8875c32bec9dcdedc0fa22ba89b94804498963b491eed1e5"},
+]
 graiax-silkcoder = [
     {file = "graiax-silkcoder-0.0.19.tar.gz", hash = "sha256:9a5b48a53db9452e5826a6c45e16480e1057afeb84783d856dad722195d4d155"},
     {file = "graiax_silkcoder-0.0.19-cp310-cp310-win32.whl", hash = "sha256:a0f8c162cc8637c66e53a758a0336758c4575a6204280f2e80f4547bbac9320c"},

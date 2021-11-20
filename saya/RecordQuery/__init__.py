@@ -110,7 +110,9 @@ async def main(group: Group, member: Member, message: MessageChain, source: Sour
                 try:
                     await safeSendGroupMessage(
                         group,
-                        MessageChain.create([Plain("未绑定账号，请输入你的游戏昵称，不支持改绑，请谨慎填写")]),
+                        MessageChain.create(
+                            "未绑定账号，请在一分钟内发送你的游戏昵称，不支持改绑，请谨慎填写，如需取消绑定请发送“取消”"
+                        ),
                     )
                     nick_name = await asyncio.wait_for(inc.wait(waiter1), timeout=60)
                     if not nick_name:
@@ -140,15 +142,11 @@ async def main(group: Group, member: Member, message: MessageChain, source: Sour
                         confirm_wait = await safeSendGroupMessage(
                             group,
                             MessageChain.create(
-                                [
-                                    Plain(
-                                        f"已搜索到用户：{player_data['payload']['user']['nickname']}"
-                                    ),
-                                    Plain(
-                                        f"\nUUID：{player_data['payload']['user']['id']}"
-                                    ),
-                                    Plain("\n是否需要绑定此账号？"),
-                                ]
+                                Plain(
+                                    f"已搜索到用户：{player_data['payload']['user']['nickname']}"
+                                ),
+                                Plain(f"\nUUID：{player_data['payload']['user']['id']}"),
+                                Plain("\n是否需要绑定此账号？"),
                             ),
                         )
                         if not await asyncio.wait_for(inc.wait(confirm), timeout=15):
@@ -202,7 +200,8 @@ async def main(group: Group, member: Member, message: MessageChain, source: Sour
         else:
             await safeSendGroupMessage(
                 group,
-                MessageChain.create([Plain(f"未搜索到该昵称：{nick_name}")], quote=source.id),
+                MessageChain.create([Plain(f"未搜索到该昵称：{nick_name}")]),
+                quote=source.id,
             )
 
         WAITING.remove(member.id)

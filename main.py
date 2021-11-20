@@ -29,7 +29,7 @@ saya.install_behaviours(InterruptControl(bcc))
 
 app = Ariadne(
     broadcast=bcc,
-    adapter=DebugAdapter(
+    connect_info=DebugAdapter(
         bcc,
         MiraiSession(
             host=yaml_data["Basic"]["MAH"]["MiraiHost"],

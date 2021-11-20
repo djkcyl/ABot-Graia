@@ -355,11 +355,11 @@ async def getMemberJoinEvent(events: MemberJoinEvent):
         Image(url=f"http://q1.qlogo.cn/g?b=qq&nk={str(events.member.id)}&s=4"),
         Plain(f"\n欢迎 {events.member.name} 加入本群"),
     ]
-    if group_data[str(events.member.group.id)]["WelcomeMSG"]["Enabled"]:
-        if welcomeMsg := group_data[str(events.member.group.id)]["WelcomeMSG"][
+    if group_data[str(events.member.group.id)]["EventBroadcast"]["Enabled"]:
+        if EventBroadcast := group_data[str(events.member.group.id)]["EventBroadcast"][
             "Message"
         ]:
-            msg.append(Plain(f"\n{welcomeMsg}"))
+            msg.append(Plain(f"\n{EventBroadcast}"))
         await safeSendGroupMessage(events.member.group, MessageChain.create(msg))
 
 
@@ -375,7 +375,7 @@ async def getMemberLeaveEventKick(events: MemberLeaveEventKick):
         At(events.operator.id),
         Plain(" 踢出本群"),
     ]
-    if group_data[str(events.member.group.id)]["WelcomeMSG"]["Enabled"]:
+    if group_data[str(events.member.group.id)]["EventBroadcast"]["Enabled"]:
         await safeSendGroupMessage(events.member.group, MessageChain.create(msg))
 
 
@@ -388,7 +388,7 @@ async def getMemberLeaveEventQuit(events: MemberLeaveEventQuit):
         Image(data_bytes=await avater_blackandwhite(events.member.id)),
         Plain(f"\n{events.member.name} 退出本群"),
     ]
-    if group_data[str(events.member.group.id)]["WelcomeMSG"]["Enabled"]:
+    if group_data[str(events.member.group.id)]["EventBroadcast"]["Enabled"]:
         await safeSendGroupMessage(events.member.group, MessageChain.create(msg))
 
 
