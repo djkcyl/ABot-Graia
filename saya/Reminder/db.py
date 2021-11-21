@@ -48,3 +48,30 @@ def get_undone_reminder() -> list[Reminder]:
 
 def set_reminder_completed(id: int) -> None:
     Reminder.update(completed=True).where(Reminder.id == id).execute()
+
+
+def set_reminder_deleted(id: int) -> None:
+    if (
+        Reminder.select()
+        .where(
+            Reminder.id == id,
+            Reminder.isdeleted == 0,
+            Reminder.completed == 0,
+        )
+        .count()
+        == 0
+    ):
+        return False
+    else:
+        Reminder.update(isdeleted=True).where(
+            Reminder.id == id,
+            Reminder.isdeleted == 0,
+            Reminder.completed == 0,
+        ).execute()
+        return True
+
+
+def get_all_reminder(member: int) -> list[Reminder]:
+    return Reminder.select().where(
+        Reminder.isdeleted == 0, Reminder.completed == 0, Reminder.member == member
+    )
