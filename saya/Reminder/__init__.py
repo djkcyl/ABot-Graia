@@ -37,13 +37,16 @@ inc = InterruptControl(bcc)
 @channel.use(SchedulerSchema(every_custom_seconds(10)))
 async def scheduler():
     for thing in get_undone_reminder():
-        await safeSendGroupMessage(
-            thing.group,
-            MessageChain.create(
-                At(thing.member),
-                f" 你在 {thing.start_date} 创建了这个提醒，请注意查看\n==================\n{thing.thing}",
-            ),
-        )
+        try:
+            await safeSendGroupMessage(
+                thing.group,
+                MessageChain.create(
+                    At(thing.member),
+                    f" 你在 {thing.start_date} 创建了这个提醒，请注意查看\n==================\n{thing.thing}",
+                ),
+            )
+        except Exception:
+            pass
         set_reminder_completed(thing.id)
         await asyncio.sleep(0.3)
 
@@ -132,13 +135,19 @@ async def main(group: Group, member: Member):
                             time,
                             content_waiter,
                         )
-                        await safeSendGroupMessage(
-                            group,
-                            MessageChain.create(
-                                At(member.id),
-                                f" 提醒事件 ID:{thing} 创建成功，将在 {time} 提醒你 {content_waiter}",
-                            ),
-                        )
+                        if thing:
+                            await safeSendGroupMessage(
+                                group,
+                                MessageChain.create(
+                                    At(member.id),
+                                    f" 提醒事件 ID:{thing} 创建成功，将在 {time} 提醒你 {content_waiter}",
+                                ),
+                            )
+                        else:
+                            await safeSendGroupMessage(
+                                group,
+                                MessageChain.create(At(member.id), "每人最多创建 5 个定时任务"),
+                            )
                     else:
                         await safeSendGroupMessage(group, MessageChain.create("已取消"))
             else:
