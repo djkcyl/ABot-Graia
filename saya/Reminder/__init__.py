@@ -2,7 +2,7 @@ import asyncio
 
 from datetime import datetime
 from graia.saya import Saya, Channel
-from graia.ariadne.message.element import At
+from graia.ariadne.message.element import At, Plain
 from graia.ariadne.model import Group, Member
 from graia.broadcast.interrupt.waiter import Waiter
 from graia.ariadne.message.chain import MessageChain
@@ -19,13 +19,65 @@ from util.control import Permission, Interval
 from util.sendMessage import safeSendGroupMessage
 
 from .time_parser import time_parser
-from .db import add_reminder, get_undone_reminder, set_reminder_completed
+from .db import (
+    add_reminder,
+    get_undone_reminder,
+    set_reminder_completed,
+    get_all_reminder,
+    set_reminder_deleted,
+)
 
 
 saya = Saya.current()
 channel = Channel.current()
 bcc = saya.broadcast
 inc = InterruptControl(bcc)
+
+
+@channel.use(SchedulerSchema(every_custom_seconds(10)))
+async def scheduler():
+    for thing in get_undone_reminder():
+        await safeSendGroupMessage(
+            thing.group,
+            MessageChain.create(
+                At(thing.member),
+                f" 你在 {thing.start_date} 创建了这个提醒，请注意查看\n==================\n{thing.thing}",
+            ),
+        )
+        set_reminder_completed(thing.id)
+        await asyncio.sleep(0.3)
+
+
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[Literature("定时提醒")],
+        decorators=[Permission().require(), Interval().require()],
+    )
+)
+async def get_reminder(group: Group, member: Member):
+
+    if (
+        yaml_data["Saya"]["Reminder"]["Disabled"]
+        and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
+    ):
+        return
+    elif "Reminder" in group_data[str(group.id)]["DisabledFunc"]:
+        return
+
+    reminders = get_all_reminder(member.id)
+    if len(reminders) == 0:
+        msg = "你没有创建需要提醒的内容，如需创建请发送“新建提醒”"
+    else:
+        msg = [At(member.id), Plain("你当前有以下提醒内容")]
+        for reminder in reminders:
+            msg.append(
+                Plain(
+                    f"\n===============\nID：{reminder.id}\n创建时间：{reminder.start_date}\n内容：{reminder.thing}\n到期时间：{reminder.end_date}"
+                )
+            )
+        msg.append(Plain("\n===============\n如需删除请发送“删除提醒 <ID>”"))
+    await safeSendGroupMessage(group, MessageChain.create(msg))
 
 
 @channel.use(
@@ -99,15 +151,46 @@ async def main(group: Group, member: Member):
         await safeSendGroupMessage(group, MessageChain.create("等待超时"))
 
 
-@channel.use(SchedulerSchema(every_custom_seconds(10)))
-async def scheduler():
-    for thing in get_undone_reminder():
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[Literature("删除提醒")],
+        decorators=[Permission().require(), Interval().require()],
+    )
+)
+async def del_reminder(group: Group, member: Member, message: MessageChain):
+
+    if (
+        yaml_data["Saya"]["Reminder"]["Disabled"]
+        and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
+    ):
+        return
+    elif "Reminder" in group_data[str(group.id)]["DisabledFunc"]:
+        return
+
+    saying = message.asDisplay()
+
+    if len(saying.split()) == 2:
+        try:
+            thing = int(saying.split()[1])
+            if set_reminder_deleted(thing):
+                await safeSendGroupMessage(
+                    group,
+                    MessageChain.create(At(member.id), f" 提醒事件 ID:{thing} 删除成功"),
+                )
+            else:
+                await safeSendGroupMessage(
+                    group,
+                    MessageChain.create(At(member.id), f" 提醒事件 ID:{thing} 不存在"),
+                )
+        except ValueError:
+            await safeSendGroupMessage(
+                group,
+                MessageChain.create(
+                    At(member.id), f" 提醒事件 ID:{saying.split()[1]} 格式错误"
+                ),
+            )
+    else:
         await safeSendGroupMessage(
-            thing.group,
-            MessageChain.create(
-                At(thing.member),
-                f" 你在 {thing.start_date} 创建了这个提醒，请注意查看\n==================\n{thing.thing}",
-            ),
+            group, MessageChain.create(At(member.id), " 请输入“删除提醒 <ID>”")
         )
-        set_reminder_completed(thing.id)
-        await asyncio.sleep(0.3)

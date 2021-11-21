@@ -196,6 +196,12 @@ funcList = [
         "can_disabled": False,
         "default_disabled": False,
     },
+    {
+        "name": "定时提醒",
+        "key": "Reminder",
+        "can_disabled": False,
+        "default_disabled": False,
+    },
 ]
 
 configList = [
@@ -420,6 +426,12 @@ funcHelp = {
     "明日方舟猜干员": {
         "instruction": "根据语音猜干员名",
         "usage": "发送指令：\n方舟猜干员",
+        "options": "无",
+        "example": "（这也需要示例吗？",
+    },
+    "定时提醒": {
+        "instruction": "可以创建定时提醒事件",
+        "usage": "发送指令：\n定时提醒\n创建提醒\n删除提醒",
         "options": "无",
         "example": "（这也需要示例吗？",
     },
