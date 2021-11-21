@@ -1,14 +1,15 @@
 <div align="center">
 
-# [ABot](https://github.com/djkcyl/ABot-Graia) [for](https://github.com/project-mirai/mirai-api-http) [Ariadne](https://github.com/GraiaProject/Ariadne)
+# ABot for Ariadne
 
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fdjkcyl%2FABot-Graia.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fdjkcyl%2FABot-Graia?ref=badge_shield)
 
 ![!](https://count.getloli.com/get/@ABot-Graia?theme=rule34)
 
-ABot 是一个使用 [Graia-Ariadne](https://github.com/GraiaProject/Ariadne) 搭建的 QQ 功能性<del>究极缝合怪</del>机器人
+基于 [mirai-api-http](../../../../project-mirai/mirai-api-http) 和 [Graia-Ariadne](../../../../GraiaProject/Ariadne) 的 QQ 功能性<del>究极缝合怪</del>机器人
 
 </div>
+
 
 ## ABot 现在能干什么
 
@@ -80,9 +81,9 @@ ABot 是一个使用 [Graia-Ariadne](https://github.com/GraiaProject/Ariadne) �
 
 > 如果有什么需要的，可以发 issue 或者加我的 QQ：`2948531755`。
 
-感谢[SAGIRI-BOT](https://github.com/SAGIRI-kawaii/sagiri-bot)的一堆功能以及 saya 转型启发
+感谢[SAGIRI-BOT](../../../../SAGIRI-kawaii/sagiri-bot)的一堆功能以及 saya 转型启发
 
-感谢[HarukaBot](https://github.com/SK-415/HarukaBot)提供的哔哩哔哩推送灵感及部分实现思路
+感谢[HarukaBot](../../../../SK-415/HarukaBot)提供的哔哩哔哩推送灵感及部分实现思路
 
 ## License
 
