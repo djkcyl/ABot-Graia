@@ -87,6 +87,8 @@ Saya: # saya 插件配置
   Pixiv: # 色图
     Disabled: false
     san: xxx # 可填 r18, r16, xxx
+    Recall: true # 是否自动撤回
+    Interval: 10 # 撤回间隔
 
   ChatMS: # 聊天？？
     Disabled: false
@@ -174,6 +176,9 @@ Saya: # saya 插件配置
     Disabled: false
 
   ArkGuessOperator: # 明日方舟猜干员
+    Disabled: false
+
+  Reminder: # 定时提醒
     Disabled: false
     
 Final: false

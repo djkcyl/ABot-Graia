@@ -3,7 +3,7 @@ __pycache__/
 temp/
 voice_file
 config.json
-*.db
+*.db*
 test.py
 config.yaml
 groupdata.json

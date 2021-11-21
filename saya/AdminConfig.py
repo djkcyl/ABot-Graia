@@ -4,9 +4,9 @@ from graia.saya import Saya, Channel
 from graia.ariadne.model import Group
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.event.message import GroupMessage
+from graia.ariadne.message.element import At, Plain, Image
 from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.element import Quote, At, Plain, Image
 from graia.ariadne.message.parser.twilight import Twilight, Sparkle
 from graia.ariadne.message.parser.pattern import FullMatch, RegexMatch
 
@@ -430,16 +430,11 @@ funcHelp = {
     ListenerSchema(listening_events=[GroupMessage], decorators=[Permission.require()])
 )
 async def atrep(group: Group, message: MessageChain):
-    if message.has(At):
-        ifa = message.get(At)[0].target == yaml_data["Basic"]["MAH"]["BotQQ"]
-    else:
-        ifa = False
-    ifquote = not message.has(Quote)
-    ifasdisplay = (
-        message.asDisplay().replace(" ", "") == f"@{yaml_data['Basic']['MAH']['BotQQ']}"
-    )
-    # 判断是否为空消息，判断是否at，判断是否回复
-    if ifa and ifasdisplay and ifquote:
+    if At(yaml_data["Basic"]["MAH"]["BotQQ"]) in message and (
+        MessageChain.create(message.get(Plain)).asDisplay() == " "
+        if message.get(Plain)
+        else True
+    ):
         now_localtime = time.strftime("%H:%M:%S", time.localtime())
         if "00:00:00" < now_localtime < "07:30:00":
             msg = Plain("Zzzzzz~")

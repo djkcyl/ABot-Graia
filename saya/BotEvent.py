@@ -353,7 +353,9 @@ async def getMemberJoinEvent(events: MemberJoinEvent):
     """
     msg = [
         Image(url=f"http://q1.qlogo.cn/g?b=qq&nk={str(events.member.id)}&s=4"),
-        Plain(f"\n欢迎 {events.member.name} 加入本群"),
+        Plain("\n欢迎 "),
+        At(events.member.id),
+        Plain(" 加入本群"),
     ]
     if group_data[str(events.member.group.id)]["EventBroadcast"]["Enabled"]:
         if EventBroadcast := group_data[str(events.member.group.id)]["EventBroadcast"][

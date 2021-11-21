@@ -111,7 +111,7 @@ async def anime_search(
             image_url = message.getFirst(Image).url
         else:
             WAITING.append(member.id)
-            waite = safeSendGroupMessage(
+            waite = await safeSendGroupMessage(
                 group, MessageChain.create([Plain("请发送图片以继续，发送取消可终止搜番")])
             )
             try:
