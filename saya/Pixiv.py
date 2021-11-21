@@ -1,7 +1,9 @@
 import httpx
+import asyncio
 
 from graia.saya import Saya, Channel
 from graia.ariadne.model import Group
+from graia.ariadne.app import Ariadne
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import Image, Plain
@@ -30,7 +32,7 @@ class PixivSparkle(Sparkle):
         decorators=[Rest.rest_control(), Permission.require(), Interval.require()],
     )
 )
-async def main(group: Group, sparkle: Sparkle):
+async def main(app: Ariadne, group: Group, sparkle: Sparkle):
 
     if (
         yaml_data["Saya"]["Pixiv"]["Disabled"]
@@ -60,7 +62,7 @@ async def main(group: Group, sparkle: Sparkle):
             res = r.json()
         if res.get("code", False) == 200:
             pic = res["data"]["pic_list"][0]
-            await safeSendGroupMessage(
+            msg = await safeSendGroupMessage(
                 group,
                 MessageChain.create(
                     [
@@ -71,6 +73,9 @@ async def main(group: Group, sparkle: Sparkle):
                     ]
                 ),
             )
+            if yaml_data["Saya"]["Pixiv"]["Recall"]:
+                await asyncio.sleep(yaml_data["Saya"]["Pixiv"]["Interval"])
+                await app.recallMessage(msg)
         elif res.get("code", False) == 404:
             await safeSendGroupMessage(
                 group, MessageChain.create([Plain("未找到相应tag的色图")])
@@ -84,7 +89,7 @@ async def main(group: Group, sparkle: Sparkle):
             r = await client.get(f"http://a60.one:404/?san={san}")
             res = r.json()
         if res.get("code", False) == 200:
-            await safeSendGroupMessage(
+            msg = await safeSendGroupMessage(
                 group,
                 MessageChain.create(
                     [
@@ -95,6 +100,9 @@ async def main(group: Group, sparkle: Sparkle):
                     ]
                 ),
             )
+            if yaml_data["Saya"]["Pixiv"]["Recall"]:
+                await asyncio.sleep(yaml_data["Saya"]["Pixiv"]["Interval"])
+                await app.recallMessage(msg)
         else:
             await safeSendGroupMessage(
                 group, MessageChain.create([Plain("慢一点慢一点，别冲辣！")])

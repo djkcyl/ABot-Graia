@@ -46,12 +46,12 @@ async def anitRecall(app: Ariadne, events: GroupRecallEvent):
                     ),
                     Plain("\n=====================\n"),
                 ]
-            ).extend(recallMsg)
+            ).extend(recallMsg.messageChain)
 
-            if recallMsg.has(Image):
-                for image in recallMsg.get(Image):
+            if recallMsg.messageChain.has(Image):
+                for image in recallMsg.messageChain.get(Image):
                     res = await image_moderation(image.url)
-                    if not res["status"]:
+                    if res["Suggestion"] != "Pass":
                         if (
                             "AnitRecall"
                             not in group_data[str(events.group.id)]["DisabledFunc"]
@@ -69,15 +69,13 @@ async def anitRecall(app: Ariadne, events: GroupRecallEvent):
                                             f"{events.operator.name}({events.operator.id})撤回了{authorName}的一条消息:"
                                         ),
                                         Plain("\n=====================\n"),
-                                        Plain(
-                                            f"（由于撤回图片内包含 {res['message']} 违规，不予防撤回）"
-                                        ),
+                                        Plain(f"（由于撤回图片内包含 {res['message']} 违规，不予防撤回）"),
                                     ]
                                 ),
                             )
                             return
-            if recallMsg.has(Plain):
-                for text in recallMsg.get(Plain):
+            if recallMsg.messageChain.has(Plain):
+                for text in recallMsg.messageChain.get(Plain):
                     res = await text_moderation_async(text.text)
                     if not res["status"]:
                         if (
@@ -109,13 +107,13 @@ async def anitRecall(app: Ariadne, events: GroupRecallEvent):
                 and not yaml_data["Saya"]["AnitRecall"]["Disabled"]
             ):
                 if (
-                    recallMsg.has(Voice)
-                    or recallMsg.has(Xml)
-                    or recallMsg.has(Json)
-                    or recallMsg.has(App)
+                    recallMsg.messageChain.has(Voice)
+                    or recallMsg.messageChain.has(Xml)
+                    or recallMsg.messageChain.has(Json)
+                    or recallMsg.messageChain.has(App)
                 ):
                     pass
-                elif recallMsg.has(FlashImage):
+                elif recallMsg.messageChain.has(FlashImage):
                     await safeSendGroupMessage(
                         events.group, MessageChain.create([Plain("闪照不予防撤回")])
                     )
