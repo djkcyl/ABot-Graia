@@ -41,16 +41,18 @@
    ```shell
    git clone https://github.com/djkcyl/ABot-Graia
    ```
-2. 创建虚拟容器
+2. 下载 ABot 所需字体资源 [ABot Font](https://github.com/djkcyl/ABot-Resource/releases/tag/Font) 并解压至 ABot 根目录
+
+3. 创建虚拟容器
    ```shell
    poetry env use 3.9
    ```
-3. 使用虚拟容器安装依赖 `本步骤可能需要执行5分钟到5小时，请耐心等待（`
+4. 使用虚拟容器安装依赖 `本步骤可能需要执行5分钟到5小时，请耐心等待（`
    ```shell
    poetry install
    ```
-4. 修改 ABot 配置文件 `config.exp.yaml` 后**并重命名**为 `config.yaml`
-5. 启动 ABot
+5. 修改 ABot 配置文件 `config/config.exp.yaml` 后**并重命名**为 `config/config.yaml`
+6. 启动 ABot
    ```shell
    poetry run python main.py
    ```
@@ -62,6 +64,10 @@
 > ```
 
 > 你也可能在执行 `poetry install` 的时候出现装不上 `graiax-silkcoder` 的情况，请自行解决编译环境问题
+
+> 你也可能没有安装 `poetry` 没关系，你可以使用 `pip install -r requirements.txt` 来安装依赖。但请注意这样很容易导致依赖错误，所以请尽可能使用类似 `poetry` 或 `vnev` 之类的虚拟环境！
+
+如果你是 Windows 系统且你并不想自己配置 Python 环境，可以使用 [ABot WindowsRuntime](https://github.com/djkcyl/ABot-Resource/releases/tag/Windows-Runtime)
 
 **尽情享用吧~**
 
