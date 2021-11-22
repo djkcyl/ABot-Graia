@@ -30,16 +30,30 @@ inc = InterruptControl(bcc)
 BASEPATH = Path(__file__).parent.joinpath("temp")
 BASEPATH.mkdir(exist_ok=True)
 
-
 CLOUD_HOST = "http://127.0.0.1:3000"
+QQ_HOST = "http://127.0.0.1:3200"
+
 if not yaml_data["Saya"]["CloudMusic"]["Disabled"]:
     phone = yaml_data["Saya"]["CloudMusic"]["ApiConfig"]["PhoneNumber"]
     password = yaml_data["Saya"]["CloudMusic"]["ApiConfig"]["Password"]
-    login = httpx.get(
-        f"{CLOUD_HOST}/login/cellphone?phone={phone}&password={password}"
-    ).cookies
-
-QQ_HOST = "http://127.0.0.1:3200"
+    try:
+        login = httpx.get(
+            f"{CLOUD_HOST}/login/cellphone?phone={phone}&password={password}"
+        ).cookies
+        logger.info("网易云音乐登录成功")
+    except httpx.ConnectError:
+        logger.error(
+            "无法连接网易云音乐后端，请检查是否完成搭建并成功启动 https://github.com/Binaryify/NeteaseCloudMusicApi"
+        )
+        exit(1)
+    try:
+        httpx.get(QQ_HOST)
+        logger.info("QQ音乐登录成功")
+    except httpx.ConnectError:
+        logger.error(
+            "无法连接QQ音乐后端，请检查是否完成搭建并成功启动 https://github.com/Rain120/qq-music-api"
+        )
+        exit(1)
 
 WAITING = []
 

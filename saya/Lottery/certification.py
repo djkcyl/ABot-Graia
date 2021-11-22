@@ -1,31 +1,29 @@
-import os
 import rsa
 import base64
 
+from pathlib import Path
 from loguru import logger
 
-PRIVATE = "./saya/Lottery/server-private.pem"
-PUBLIC = "./saya/Lottery/server-public.pem"
+PRIVATE = Path(__file__).parent.joinpath("server-private.pem")
+PUBLIC = Path(__file__).parent.joinpath("server-public.pem")
 
 
-if not os.path.exists(PRIVATE) or not os.path.exists(PUBLIC):
+if not PRIVATE.exists() or not PUBLIC.exists():
     logger.warning("未找到私钥或公钥，正在重新生成")
     public, private = rsa.newkeys(1024)
     PUBLIC_PEM = public
     PRIVATE_PEM = private
     public = public.save_pkcs1()
     private = private.save_pkcs1()
-    with open(PRIVATE, "wb") as x:  # 保存私钥
-        x.write(private)
-    with open(PUBLIC, "wb") as x:  # 保存公钥
-        x.write(public)
+    PUBLIC.write_bytes(public, encoding="utf-8", mode="wb")
+    PRIVATE.write_bytes(private, encoding="utf-8", mode="wb")
 else:
-    with open(PRIVATE, "rb") as f:
-        p = f.read()
-        PRIVATE_PEM = rsa.PrivateKey.load_pkcs1(p)
-    with open(PUBLIC, "rb") as f:
-        p = f.read()
-        PUBLIC_PEM = rsa.PublicKey.load_pkcs1(p)
+    PUBLIC_PEM = rsa.PublicKey.load_pkcs1(
+        PUBLIC.read_bytes(encoding="utf-8", mode="rb")
+    )
+    PRIVATE_PEM = rsa.PrivateKey.load_pkcs1(
+        PRIVATE.read_bytes(encoding="utf-8", mode="rb")
+    )
 
 
 def encrypt(text):

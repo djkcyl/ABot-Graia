@@ -1,8 +1,7 @@
-import os
-import numpy
 import httpx
 
 from io import BytesIO
+from pathlib import Path
 from PIL import ImageOps
 from loguru import logger
 from PIL import Image as IMG
@@ -12,11 +11,10 @@ from graia.ariadne.app import Ariadne
 from graia.ariadne.event.mirai import NudgeEvent
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
-from moviepy.editor import ImageSequenceClip as imageclip
 from graia.ariadne.message.element import At, Image, Plain
-from graia.ariadne.message.parser.pattern import FullMatch, RegexMatch
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import Sparkle, Twilight
+from graia.ariadne.message.parser.pattern import FullMatch, RegexMatch
 
 from config import yaml_data, group_data
 from util.sendMessage import safeSendGroupMessage
@@ -25,6 +23,11 @@ from util.control import Interval, Permission, Rest
 
 saya = Saya.current()
 channel = Channel.current()
+
+
+BASE = Path(__file__).parent.joinpath("temp")
+BASE.mkdir(exist_ok=True)
+FRAMES_PATH = Path(__file__).parent.joinpath("PetPetFrames")
 
 
 class Pet_Sparkle(Sparkle):
@@ -53,17 +56,10 @@ async def petpet_generator(app: Ariadne, message: MessageChain, group: Group):
         return
 
     if message.has(At):
-        if not os.path.exists("./saya/PetPet/temp"):
-            os.mkdir("./saya/PetPet/temp")
-        await petpet(message.getFirst(At).target)
         await safeSendGroupMessage(
             group,
             MessageChain.create(
-                [
-                    Image(
-                        path=f"./saya/PetPet/temp/tempPetPet-{message.getFirst(At).target}.gif"
-                    )
-                ]
+                [Image(data_bytes=await petpet(message.getFirst(At).target))]
             ),
         )
 
@@ -89,8 +85,6 @@ async def get_nudge(nudge: NudgeEvent):
         logger.info(
             f"[{nudge.group_id}] 收到戳一戳事件 -> [{nudge.supplicant}] - [{nudge.target}]"
         )
-        if not os.path.exists("./saya/PetPet/temp"):
-            os.mkdir("./saya/PetPet/temp")
 
         await safeSendGroupMessage(
             nudge.group_id,
@@ -99,12 +93,9 @@ async def get_nudge(nudge: NudgeEvent):
             ),
         )
 
-        await petpet(nudge.target)
         await safeSendGroupMessage(
             nudge.group_id,
-            MessageChain.create(
-                [Image(path=f"./saya/PetPet/temp/tempPetPet-{nudge.target}.gif")]
-            ),
+            MessageChain.create([Image(data_bytes=await petpet(nudge.target))]),
         )
 
 
@@ -126,14 +117,7 @@ squish_factor = [
 
 squish_translation_factor = [0, 20, 34, 21, 0]
 
-frames = tuple([f"./saya/PetPet/PetPetFrames/frame{i}.png" for i in range(5)])
-
-
-async def save_gif(gif_frames, dest, fps=10):
-
-    clip = imageclip(gif_frames, fps=fps)
-    clip.write_gif(dest)  # 使用 imageio
-    clip.close()
+frames = tuple([FRAMES_PATH.joinpath(f"frame{i}.png") for i in range(5)])
 
 
 # 生成函数（非数学意味）
@@ -158,7 +142,7 @@ async def make_frame(avatar, i, squish=0, flip=False):
     # 将手覆盖（包括偏移量）
     gif_frame.paste(hand, (0, int(squish * squish_translation_factor[i])), hand)
     # 返回
-    return numpy.array(gif_frame)
+    return gif_frame
 
 
 async def petpet(member_id, flip=False, squish=0, fps=20) -> None:
@@ -176,6 +160,13 @@ async def petpet(member_id, flip=False, squish=0, fps=20) -> None:
     for i in range(5):
         gif_frames.append(await make_frame(avatar, i, squish=squish, flip=flip))
     # 输出
-    await save_gif(
-        gif_frames, f"./saya/PetPet/temp/tempPetPet-{member_id}.gif", fps=fps
+
+    gif_frames[0].save(
+        image := BytesIO(),
+        format="GIF",
+        append_images=gif_frames[1:],
+        save_all=True,
+        duration=120,
+        loop=0,
     )
+    return image.getvalue()

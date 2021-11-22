@@ -13,6 +13,7 @@ qr.jpg
 data.json
 *.pem
 /virtualenvs
+/python*
 /util/browser/data/*
 
 /saya/Ark/

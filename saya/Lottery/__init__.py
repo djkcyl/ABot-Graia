@@ -1,10 +1,10 @@
-import os
 import json
 import random
 import string
 import asyncio
 import secrets
 
+from pathlib import Path
 from loguru import logger
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
@@ -32,14 +32,16 @@ channel = Channel.current()
 bcc = saya.broadcast
 inc = InterruptControl(bcc)
 
+BASE = Path(__file__).parent
+
 WAITING = []
 if not yaml_data["Saya"]["Entertainment"]["Lottery"]:
     pass
-elif os.path.exists("./saya/Lottery/data.json"):
-    with open("./saya/Lottery/data.json", "r") as f:
+elif BASE.joinpath("data.json").exists():
+    with BASE.joinpath("data.json").open("r", encoding="UTF-8") as f:
         LOTTERY = json.load(f)
 else:
-    with open("./saya/Lottery/data.json", "w") as f:
+    with BASE.joinpath("data.json").open("w", encoding="UTF-8") as f:
         logger.info("正在初始化奖券数据")
         LOTTERY = {
             "period": 1,
@@ -81,7 +83,7 @@ async def buy_lottery(group: Group, member: Member, source: Source):
         LOTTERY["week_lottery_list"].append(number)
         lottery_len = len(LOTTERY["week_lottery_list"])
 
-        with open("./saya/Lottery/data.json", "w") as f:
+        with BASE.joinpath("data.json").open("w", encoding="UTF-8") as f:
             json.dump(LOTTERY, f, indent=2, ensure_ascii=False)
         await safeSendGroupMessage(
             group,
@@ -167,7 +169,7 @@ async def redeem_lottery(app: Ariadne, group: Group, member: Member, source: Sou
                     gold = int(lottery_len * 2 * 0.9)
                     await add_gold(lottery_qq, gold)
                     LOTTERY["lastweek"]["received"] = True
-                    with open("./saya/Lottery/data.json", "w") as f:
+                    with BASE.joinpath("data.json").open("w", encoding="UTF-8") as f:
                         json.dump(LOTTERY, f, indent=2, ensure_ascii=False)
                     await safeSendGroupMessage(
                         group,
@@ -207,7 +209,7 @@ async def something_scheduled(app: Ariadne):
     lottery["week_lottery_list"] = []
 
     LOTTERY = lottery
-    with open("./saya/Lottery/data.json", "w") as f:
+    with BASE.joinpath("data.json").open("w", encoding="UTF-8") as f:
         json.dump(LOTTERY, f, indent=2, ensure_ascii=False)
 
     await app.sendFriendMessage(
@@ -219,7 +221,7 @@ async def something_scheduled(app: Ariadne):
 @channel.use(
     ListenerSchema(
         listening_events=[FriendMessage],
-        inline_dispatchers=[Literature("开奖")],
+        inline_dispatchers=[Literature("奖券开奖")],
         decorators=[Permission.require(Permission.MASTER)],
     )
 )
@@ -233,7 +235,7 @@ async def lo(app: Ariadne):
     lottery["week_lottery_list"] = []
 
     LOTTERY = lottery
-    with open("./saya/Lottery/data.json", "w") as f:
+    with BASE.joinpath("data.json").open("w", encoding="UTF-8") as f:
         json.dump(LOTTERY, f, indent=2, ensure_ascii=False)
 
     await app.sendFriendMessage(
