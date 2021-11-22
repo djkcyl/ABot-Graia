@@ -1,7 +1,7 @@
-import os
 import yaml
 import json
 
+from pathlib import Path
 from loguru import logger
 
 
@@ -10,43 +10,54 @@ class NoAliasDumper(yaml.SafeDumper):
         return True
 
 
-if not os.path.exists("config.yaml") and os.path.exists("config.exp.yaml"):
+CONFIG_PATH = Path("./config")
+
+if (
+    not CONFIG_PATH.joinpath("config.yaml").exists()
+    and CONFIG_PATH.joinpath("config.exp.yaml").exists()
+):
     logger.error("请修改 config.exp.yaml 并重命名为 config.yaml ！")
     logger.error("请修改 config.exp.yaml 并重命名为 config.yaml ！")
     logger.error("请修改 config.exp.yaml 并重命名为 config.yaml ！")
     exit()
-elif not os.path.exists("config.yaml") and not os.path.exists("config.exp.yaml"):
+elif (
+    not CONFIG_PATH.joinpath("config.yaml").exists()
+    and not CONFIG_PATH.joinpath("config.exp.yaml").exists()
+):
     logger.error("在？宁的配置文件呢?¿?¿")
     exit()
 else:
-    with open("config.yaml", "r", encoding="utf-8") as f:
+    with CONFIG_PATH.joinpath("config.yaml").open("r", encoding="utf-8") as f:
         file_data = f.read()
     yaml_data = yaml.load(file_data, Loader=yaml.FullLoader)
 
 
-if os.path.exists("groupdata.json"):
-    with open("groupdata.json", "r", encoding="utf-8") as f:
+if CONFIG_PATH.joinpath("groupdata.json").exists():
+    with CONFIG_PATH.joinpath("groupdata.json").open("r", encoding="utf-8") as f:
         group_data = json.load(f)
 else:
     with open("groupdata.json", "w", encoding="utf-8") as f:
         group_data = {}
         json.dump(group_data, f, indent=2)
 
-if os.path.exists("grouplist.json"):
-    with open("grouplist.json", "r", encoding="utf-8") as f:
+
+if CONFIG_PATH.joinpath("grouplist.json").exists():
+    with CONFIG_PATH.joinpath("grouplist.json").open("r", encoding="utf-8") as f:
         group_list = json.load(f)
 else:
-    with open("grouplist.json", "w", encoding="utf-8") as f:
+    with CONFIG_PATH.joinpath("grouplist.json").open("w", encoding="utf-8") as f:
         group_list = {"white": []}
         json.dump(group_list, f, indent=2)
 
-if os.path.exists("userlist.json"):
-    with open("userlist.json", "r", encoding="utf-8") as f:
+
+if CONFIG_PATH.joinpath("userlist.json").exists():
+    with CONFIG_PATH.joinpath("userlist.json").open("r", encoding="utf-8") as f:
         user_list = json.load(f)
 else:
-    with open("userlist.json", "w", encoding="utf-8") as f:
+    with CONFIG_PATH.joinpath("userlist.json").open("w", encoding="utf-8") as f:
         user_list = {"black": []}
         json.dump(user_list, f, indent=2)
+
 
 user_black_list = user_list["black"]
 
@@ -61,20 +72,20 @@ if (
     yaml_data["Basic"]["Permission"]["Admin"].append(
         yaml_data["Basic"]["Permission"]["Master"]
     )
-    with open("config.yaml", "w", encoding="utf-8") as f:
+    with CONFIG_PATH.joinpath("config.yaml").open("w", encoding="utf-8") as f:
         yaml.dump(yaml_data, f, allow_unicode=True)
     logger.warning("管理员内未包含主人，已自动添加")
 
 
 def save_config():
     logger.info("正在保存配置文件")
-    with open("config.yaml", "w", encoding="utf-8") as f:
+    with CONFIG_PATH.joinpath("config.yaml").open("w", encoding="utf-8") as f:
         yaml.dump(yaml_data, f, allow_unicode=True, Dumper=NoAliasDumper)
-    with open("groupdata.json", "w", encoding="utf-8") as f:
+    with CONFIG_PATH.joinpath("groupdata.json").open("w", encoding="utf-8") as f:
         json.dump(group_data, f, indent=2)
-    with open("grouplist.json", "w", encoding="utf-8") as f:
+    with CONFIG_PATH.joinpath("grouplist.json").open("w", encoding="utf-8") as f:
         json.dump(group_list, f, indent=2)
-    with open("userlist.json", "w", encoding="utf-8") as f:
+    with CONFIG_PATH.joinpath("userlist.json").open("w", encoding="utf-8") as f:
         json.dump(user_list, f, indent=2)
 
 
