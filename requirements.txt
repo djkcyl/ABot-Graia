@@ -8,17 +8,16 @@ azure-cognitiveservices-speech==1.19.0
 certifi==2021.10.8; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.6"
 chardet==3.0.4; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.6"
 charset-normalizer==2.0.7; python_full_version >= "3.5.0" and python_version >= "3.6"
-cloudscraper==1.2.48
 colorama==0.4.4; python_version >= "3.7" and python_full_version < "3.0.0" and platform_system == "Windows" and python_version < "4.0" and sys_platform == "win32" or platform_system == "Windows" and python_version >= "3.7" and python_full_version >= "3.5.0" and python_version < "4.0" and sys_platform == "win32"
 croniter==1.0.15; python_version >= "3.7" and python_full_version < "3.0.0" and python_version < "4.0" or python_version >= "3.7" and python_version < "4.0" and python_full_version >= "3.4.0"
 cycler==0.11.0; python_version >= "3.7"
 decorator==4.4.2; python_version >= "2.6" and python_full_version < "3.0.0" or python_full_version >= "3.2.0"
 dnspython==2.1.0; python_version >= "3.6"
 func-timeout==4.3.5
-graia-ariadne==0.4.0a4; python_version >= "3.7" and python_version < "4.0"
+graia-ariadne==0.4.0a15; python_version >= "3.7" and python_version < "4.0"
 graia-broadcast==0.13.1; python_version >= "3.7" and python_version < "4.0"
 graia-saya==0.0.13; python_version >= "3.7" and python_version < "4.0"
-graia-scheduler @ git+https://github.com/djkcyl/Scheduler@master ; python_version >= "3.7" and python_version < "4.0"
+graia-scheduler==0.0.6; python_version >= "3.7" and python_version < "4.0"
 graiax-silkcoder==0.0.19; python_version >= "3.6" and python_version < "4.0"
 greenlet==1.1.2; python_version >= "3.7" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.7"
 h11==0.12.0; python_version >= "3.6"
@@ -41,7 +40,6 @@ numba==0.53.1; python_version >= "3.6" and python_version < "3.10"
 numpy==1.21.4; python_version >= "3.7" and python_version < "3.11"
 peewee==3.14.8
 pillow==8.4.0; python_version >= "3.6"
-pixivpy==3.6.1
 playwright==1.16.1; python_version >= "3.7"
 prettytable==2.4.0; python_version >= "3.6"
 proglog==0.1.9
@@ -59,8 +57,7 @@ pyyaml==5.4.1; (python_version >= "2.7" and python_full_version < "3.0.0") or (p
 pyzbar==0.1.8
 qrcode==7.3.1; python_version >= "3.6"
 redis==3.5.3; (python_version >= "2.7" and python_full_version < "3.0.0") or (python_full_version >= "3.5.0")
-requests-toolbelt==0.9.1
-requests==2.23.0; (python_version >= "2.7" and python_full_version < "3.0.0") or (python_full_version >= "3.5.0")
+requests==2.23.0; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.6"
 rfc3986==1.5.0; python_version >= "3.6"
 rsa==4.7.2; python_version >= "3.5" and python_version < "4"
 saucenao-api==2.4.0; python_version >= "3.6"
