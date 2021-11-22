@@ -65,7 +65,7 @@
 
 > 你也可能在执行 `poetry install` 的时候出现装不上 `graiax-silkcoder` 的情况，请自行解决编译环境问题
 
-> 你也可能没有安装 `poetry` 没关系，你可以使用 `pip install -r requirements.txt` 来安装依赖。但请注意这样很容易导致依赖错误，所以请尽可能使用类似 `poetry` 或 `vnev` 之类的虚拟环境！
+> 你也可能没有安装 `poetry` ，没关系，你可以使用 `pip install -r requirements.txt` 来安装依赖。但请注意这样很容易导致依赖错误，所以请尽可能使用类似 `poetry` 或 `vnev` 之类的虚拟环境！
 
 如果你是 Windows 系统且你并不想自己配置 Python 环境，可以使用 [ABot WindowsRuntime](https://github.com/djkcyl/ABot-Resource/releases/tag/Windows-Runtime)
 
