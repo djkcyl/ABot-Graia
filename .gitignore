@@ -12,6 +12,7 @@ grouplist.json
 qr.jpg
 data.json
 *.pem
+/font
 /virtualenvs
 /python*
 /util/browser/data/*
