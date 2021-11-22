@@ -13,7 +13,6 @@ numpy = "^1.21.4"
 matplotlib = "^3.4.2"
 wordcloud = "^1.8.1"
 dnspython = "^2.1.0"
-moviepy = "^1.0.3"
 peewee = "^3.14.4"
 PyMySQL = "^1.0.2"
 func-timeout = "^4.3.5"
@@ -38,7 +37,7 @@ scipy = "^1.7.2"
 pillow = "^8.4.0"
 saucenao-api = "^2.4.0"
 triangler = {git = "https://github.com/djkcyl/triangler"}
-graia-ariadne = "0.4.0a15"
+graia-ariadne = "^0.4.0"
 graia-scheduler = "^0.0.6"
 
 [build-system]

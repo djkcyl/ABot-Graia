@@ -238,19 +238,6 @@ url = "https://pypi.tuna.tsinghua.edu.cn/simple"
 reference = "tsinghua"
 
 [[package]]
-name = "decorator"
-version = "4.4.2"
-description = "Decorators for Humans"
-category = "main"
-optional = false
-python-versions = ">=2.6, !=3.0.*, !=3.1.*"
-
-[package.source]
-type = "legacy"
-url = "https://pypi.tuna.tsinghua.edu.cn/simple"
-reference = "tsinghua"
-
-[[package]]
 name = "devtools"
 version = "0.8.0"
 description = "Python's missing debug print command and other development tools."
@@ -336,11 +323,11 @@ reference = "tsinghua"
 
 [[package]]
 name = "graia-ariadne"
-version = "0.4.0a15"
-description = "Anelegant mirai-api-http v2 Python SDK."
+version = "0.4.0"
+description = "Another elegant framework for mirai and mirai-api-http v2."
 category = "main"
 optional = false
-python-versions = ">=3.7,<4.0"
+python-versions = ">=3.8,<4.0"
 
 [package.dependencies]
 aiohttp = ">=3.7.4,<4.0.0"
@@ -533,19 +520,6 @@ url = "https://pypi.tuna.tsinghua.edu.cn/simple"
 reference = "tsinghua"
 
 [[package]]
-name = "imageio-ffmpeg"
-version = "0.4.5"
-description = "FFMPEG wrapper for Python"
-category = "main"
-optional = false
-python-versions = ">=3.4"
-
-[package.source]
-type = "legacy"
-url = "https://pypi.tuna.tsinghua.edu.cn/simple"
-reference = "tsinghua"
-
-[[package]]
 name = "jieba"
 version = "0.42.1"
 description = "Chinese Words Segmentation Utilities"
@@ -667,36 +641,6 @@ description = "McCabe checker, plugin for flake8"
 category = "dev"
 optional = false
 python-versions = "*"
-
-[package.source]
-type = "legacy"
-url = "https://pypi.tuna.tsinghua.edu.cn/simple"
-reference = "tsinghua"
-
-[[package]]
-name = "moviepy"
-version = "1.0.3"
-description = "Video editing with Python"
-category = "main"
-optional = false
-python-versions = "*"
-
-[package.dependencies]
-decorator = ">=4.0.2,<5.0"
-imageio = {version = ">=2.5,<3.0", markers = "python_version >= \"3.4\""}
-imageio_ffmpeg = {version = ">=0.2.0", markers = "python_version >= \"3.4\""}
-numpy = [
-    {version = ">=1.17.3", markers = "python_version != \"2.7\""},
-    {version = "*", markers = "python_version >= \"2.7\""},
-]
-proglog = "<=1.0.0"
-requests = ">=2.8.1,<3.0"
-tqdm = ">=4.11.2,<5.0"
-
-[package.extras]
-doc = ["numpydoc (>=0.6.0,<1.0)", "sphinx_rtd_theme (>=0.1.10b0,<1.0)", "Sphinx (>=1.5.2,<2.0)", "pygame (>=1.9.3,<2.0)"]
-optional = ["youtube-dl", "opencv-python (>=3.0,<4.0)", "scipy (>=0.19.0,<1.5)", "scikit-image (>=0.13.0,<1.0)", "scikit-learn", "matplotlib (>=2.0.0,<3.0)"]
-test = ["coverage (<5.0)", "coveralls (>=1.1,<2.0)", "pytest-cov (>=2.5.1,<3.0)", "pytest (>=3.0.0,<4.0)", "requests (>=2.8.1,<3.0)"]
 
 [package.source]
 type = "legacy"
@@ -866,22 +810,6 @@ wcwidth = "*"
 
 [package.extras]
 tests = ["pytest", "pytest-cov", "pytest-lazy-fixture"]
-
-[package.source]
-type = "legacy"
-url = "https://pypi.tuna.tsinghua.edu.cn/simple"
-reference = "tsinghua"
-
-[[package]]
-name = "proglog"
-version = "0.1.9"
-description = "Log and progress bar manager for console, notebooks, web..."
-category = "main"
-optional = false
-python-versions = "*"
-
-[package.dependencies]
-tqdm = "*"
 
 [package.source]
 type = "legacy"
@@ -1330,27 +1258,6 @@ url = "https://pypi.tuna.tsinghua.edu.cn/simple"
 reference = "tsinghua"
 
 [[package]]
-name = "tqdm"
-version = "4.62.3"
-description = "Fast, Extensible Progress Meter"
-category = "main"
-optional = false
-python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,>=2.7"
-
-[package.dependencies]
-colorama = {version = "*", markers = "platform_system == \"Windows\""}
-
-[package.extras]
-dev = ["py-make (>=0.1.0)", "twine", "wheel"]
-notebook = ["ipywidgets (>=6)"]
-telegram = ["requests"]
-
-[package.source]
-type = "legacy"
-url = "https://pypi.tuna.tsinghua.edu.cn/simple"
-reference = "tsinghua"
-
-[[package]]
 name = "triangler"
 version = "0.4"
 description = ""
@@ -1497,7 +1404,7 @@ reference = "tsinghua"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.9,<3.10"
-content-hash = "f619ca741d7e5e37017c66a174fe4efbf2a8d38880e916a25ae564b80feaec10"
+content-hash = "3dc2cf78d0dfb27343b093aa11d36d3ef01114f25afde3bf2925223c766da869"
 
 [metadata.files]
 aiohttp = [
@@ -1607,10 +1514,6 @@ cycler = [
     {file = "cycler-0.11.0-py3-none-any.whl", hash = "sha256:3a27e95f763a428a739d2add979fa7494c912a32c17c4c38c4d5f082cad165a3"},
     {file = "cycler-0.11.0.tar.gz", hash = "sha256:9c87405839a19696e837b3b818fed3f5f69f16f1eec1a1ad77e043dcea9c772f"},
 ]
-decorator = [
-    {file = "decorator-4.4.2-py2.py3-none-any.whl", hash = "sha256:41fa54c2a0cc4ba648be4fd43cff00aedf5b9465c9bf18d64325bc225f08f760"},
-    {file = "decorator-4.4.2.tar.gz", hash = "sha256:e3a62f0520172440ca0dcc823749319382e377f37f140a0b99ef45fecb84bfe7"},
-]
 devtools = [
     {file = "devtools-0.8.0-py3-none-any.whl", hash = "sha256:00717ef184223cf36c65bbd17c6eb412f8a7564f47957f9e8b2b7610661b17fb"},
     {file = "devtools-0.8.0.tar.gz", hash = "sha256:6162a2f61c70242479dff3163e7837e6a9bf32451661af1347bfa3115602af16"},
@@ -1631,8 +1534,8 @@ func-timeout = [
     {file = "func_timeout-4.3.5.tar.gz", hash = "sha256:74cd3c428ec94f4edfba81f9b2f14904846d5ffccc27c92433b8b5939b5575dd"},
 ]
 graia-ariadne = [
-    {file = "graia-ariadne-0.4.0a15.tar.gz", hash = "sha256:9945e537e2c58336bd5a9e5ee725387c36248cb6261788bc9b897ad8f82a8750"},
-    {file = "graia_ariadne-0.4.0a15-py3-none-any.whl", hash = "sha256:ba44dbfe2f80f27adf016c7a7a98b143af3ed4861b0a41c487792ce9ebc610da"},
+    {file = "graia-ariadne-0.4.0.tar.gz", hash = "sha256:b92a10effb432d66d0c404a57592dae551be4c5ce26e043a61b41060ce530aa9"},
+    {file = "graia_ariadne-0.4.0-py3-none-any.whl", hash = "sha256:7edf882434e6cb6213de4465c1d197b9e11b44e7bd8513aa2a4a42feb432a6eb"},
 ]
 graia-broadcast = [
     {file = "graia-broadcast-0.13.1.tar.gz", hash = "sha256:a22d2678a1946f9084a5f29c469c3c631e039e60dbefd52d683294db998cb075"},
@@ -1726,14 +1629,6 @@ idna = [
 imageio = [
     {file = "imageio-2.10.3-py3-none-any.whl", hash = "sha256:93ee376a8dc96182ead8d773c3ac2becf79c6f2b93d38f31d7ac036c62a6c72e"},
     {file = "imageio-2.10.3.tar.gz", hash = "sha256:469c59fe71c81cdc41c84f842d62dd2739a08fac8cb85f5a518a92a6227e2ed6"},
-]
-imageio-ffmpeg = [
-    {file = "imageio-ffmpeg-0.4.5.tar.gz", hash = "sha256:f2ea4245a2adad25dedf98d343159579167e549ac8c4691cef5eff980e20c139"},
-    {file = "imageio_ffmpeg-0.4.5-py3-none-macosx_10_9_intel.macosx_10_9_x86_64.macosx_10_10_intel.macosx_10_10_x86_64.whl", hash = "sha256:266601aab7619acf6ff78cd5ba78b5a593a1119a96d266d33b88bfcd01bbd3ca"},
-    {file = "imageio_ffmpeg-0.4.5-py3-none-manylinux2010_x86_64.whl", hash = "sha256:f127b8cdd842e8398de5f2aef23c687ae75d4d964e1df2ea3a9ff03e92a370e7"},
-    {file = "imageio_ffmpeg-0.4.5-py3-none-manylinux2014_aarch64.whl", hash = "sha256:db4d318f640419037a0df29bb11b1022f2f8094c90b4aac8affc7177b8ce4641"},
-    {file = "imageio_ffmpeg-0.4.5-py3-none-win32.whl", hash = "sha256:39a9ab4326bdf5eae3457961dfdfb4317078659ebe4e6980914ac897a462aeb2"},
-    {file = "imageio_ffmpeg-0.4.5-py3-none-win_amd64.whl", hash = "sha256:d2ba8339eecc02fa73a6b85c34654c49a7c78d732a1ac76478d11224e6cfa902"},
 ]
 jieba = [
     {file = "jieba-0.42.1.tar.gz", hash = "sha256:055ca12f62674fafed09427f176506079bc135638a14e23e25be909131928db2"},
@@ -1903,9 +1798,6 @@ matplotlib = [
 mccabe = [
     {file = "mccabe-0.6.1-py2.py3-none-any.whl", hash = "sha256:ab8a6258860da4b6677da4bd2fe5dc2c659cff31b3ee4f7f5d64e79735b80d42"},
     {file = "mccabe-0.6.1.tar.gz", hash = "sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f"},
-]
-moviepy = [
-    {file = "moviepy-1.0.3.tar.gz", hash = "sha256:2884e35d1788077db3ff89e763c5ba7bfddbd7ae9108c9bc809e7ba58fa433f5"},
 ]
 multidict = [
     {file = "multidict-5.2.0-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:3822c5894c72e3b35aae9909bef66ec83e44522faf767c0ad39e0e2de11d3b55"},
@@ -2108,9 +2000,6 @@ playwright = [
 prettytable = [
     {file = "prettytable-2.4.0-py3-none-any.whl", hash = "sha256:2492f29e8686bdbcce815a568bff74cb71cbb704747c3abb9c9c6cfe25f985a2"},
     {file = "prettytable-2.4.0.tar.gz", hash = "sha256:18e56447f636b447096977d468849c1e2d3cfa0af8e7b5acfcf83a64790c0aca"},
-]
-proglog = [
-    {file = "proglog-0.1.9.tar.gz", hash = "sha256:d8c4ccbf2138e0c5e3f3fc0d80dc51d7e69dcfe8bfde4cacb566725092a5b18d"},
 ]
 psutil = [
     {file = "psutil-5.8.0-cp27-cp27m-macosx_10_9_x86_64.whl", hash = "sha256:0066a82f7b1b37d334e68697faba68e5ad5e858279fd6351c8ca6024e8d6ba64"},
@@ -2414,10 +2303,6 @@ tifffile = [
 tomli = [
     {file = "tomli-1.2.2-py3-none-any.whl", hash = "sha256:f04066f68f5554911363063a30b108d2b5a5b1a010aa8b6132af78489fe3aade"},
     {file = "tomli-1.2.2.tar.gz", hash = "sha256:c6ce0015eb38820eaf32b5db832dbc26deb3dd427bd5f6556cf0acac2c214fee"},
-]
-tqdm = [
-    {file = "tqdm-4.62.3-py2.py3-none-any.whl", hash = "sha256:8dd278a422499cd6b727e6ae4061c40b48fce8b76d1ccbf5d34fca9b7f925b0c"},
-    {file = "tqdm-4.62.3.tar.gz", hash = "sha256:d359de7217506c9851b7869f3708d8ee53ed70a1b8edbba4dbcb47442592920d"},
 ]
 triangler = []
 typing-extensions = [

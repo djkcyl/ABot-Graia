@@ -135,7 +135,7 @@ async def make_frame(avatar, i, squish=0, flip=False):
     # 将头像放缩成所需大小
     avatar = avatar.resize(
         (int((spec[2] - spec[0]) * 1.2), int((spec[3] - spec[1]) * 1.2)), IMG.ANTIALIAS
-    )
+    ).quantize()
     # 并贴到空图像上
     gif_frame = IMG.new("RGB", (112, 112), (255, 255, 255))
     gif_frame.paste(avatar, (spec[0], spec[1]))
@@ -145,7 +145,7 @@ async def make_frame(avatar, i, squish=0, flip=False):
     return gif_frame
 
 
-async def petpet(member_id, flip=False, squish=0, fps=20) -> None:
+async def petpet(member_id, flip=False, squish=0) -> None:
 
     url = f"http://q1.qlogo.cn/g?b=qq&nk={str(member_id)}&s=640"
     gif_frames = []
@@ -166,7 +166,8 @@ async def petpet(member_id, flip=False, squish=0, fps=20) -> None:
         format="GIF",
         append_images=gif_frames[1:],
         save_all=True,
-        duration=120,
+        duration=60,
         loop=0,
+        optimize=False,
     )
     return image.getvalue()
