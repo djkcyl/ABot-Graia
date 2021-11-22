@@ -15,14 +15,14 @@ if not PRIVATE.exists() or not PUBLIC.exists():
     PRIVATE_PEM = private
     public = public.save_pkcs1()
     private = private.save_pkcs1()
-    PUBLIC.write_bytes(public, encoding="utf-8", mode="wb")
-    PRIVATE.write_bytes(private, encoding="utf-8", mode="wb")
+    PUBLIC.write_bytes(public)
+    PRIVATE.write_bytes(private)
 else:
     PUBLIC_PEM = rsa.PublicKey.load_pkcs1(
-        PUBLIC.read_bytes(encoding="utf-8", mode="rb")
+        PUBLIC.read_bytes()
     )
     PRIVATE_PEM = rsa.PrivateKey.load_pkcs1(
-        PRIVATE.read_bytes(encoding="utf-8", mode="rb")
+        PRIVATE.read_bytes()
     )
 
 
