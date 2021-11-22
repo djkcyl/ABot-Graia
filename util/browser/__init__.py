@@ -1,4 +1,3 @@
-from loguru import logger
 from typing import Optional
 from playwright.async_api import Browser, async_playwright
 
@@ -27,13 +26,3 @@ async def init() -> Browser:
 
 async def get_browser() -> Browser:
     return _browser or await init()
-
-
-def install():
-    logger.info("正在检查 Chromium 更新")
-    import os
-
-    os.system("poetry run playwright install chromium")
-
-
-install()
