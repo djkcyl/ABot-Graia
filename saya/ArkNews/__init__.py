@@ -58,7 +58,7 @@ async def get_weibo_news(app: Ariadne):
             await asyncio.sleep(1)
             return logger.info(f"[明日方舟蹲饼] 微博初始化成功，当前最新微博：{new_id}")
         elif not isinstance(new_id, str) or new_id == pushed:
-            return False
+            return
 
         pushed_list["weibo"] = new_id
         save_pushed_list()
@@ -76,24 +76,24 @@ async def get_weibo_news(app: Ariadne):
         ] + [Image(url=x) for x in pics_list]
 
         await app.sendFriendMessage(
-            yaml_data["Basic"]["Permission"]["Master"], MessageChain.create(new_id)
-        )
-        await app.sendFriendMessage(
             yaml_data["Basic"]["Permission"]["Master"], MessageChain.create(msg)
         )
         for group in group_list:
             if "ArkNews" in group_data[str(group.id)]["DisabledFunc"]:
                 continue
             await safeSendGroupMessage(group, MessageChain.create(msg))
-            await asyncio.sleep(random.randint(3, 5))
+            await asyncio.sleep(random.randint(2, 4))
 
         await app.sendFriendMessage(
             yaml_data["Basic"]["Permission"]["Master"],
             MessageChain.create([Plain(f"微博推送结束，耗时{time_rec.total()}")]),
         )
 
-    except IndexError:
-        pass
+    except Exception as e:
+        await app.sendFriendMessage(
+            yaml_data["Basic"]["Permission"]["Master"],
+            MessageChain.create(f"微博推送报错\n{type(e)}\n{str(e)}"),
+        )
 
 
 @channel.use(SchedulerSchema(every_custom_seconds(30)))
