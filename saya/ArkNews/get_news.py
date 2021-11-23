@@ -1,7 +1,6 @@
 import re
 import httpx
 
-from lxml import etree
 from util.browser import get_browser
 
 
@@ -97,10 +96,8 @@ class Game:
         async with httpx.AsyncClient() as client:
             r = await client.get(url)
             if "banner-image-container cover" in r.text:
-                html = etree.HTML(r.text, etree.HTMLParser())
-                img_req = await client.get(
-                    html.xpath("/html/body/div/div/div/a/img/@src")[0]
-                )
+                html = re.search(r'src="(.*)"', r.text).group(1)
+                img_req = await client.get(html)
                 return img_req.content
             else:
                 browser = await get_browser()
