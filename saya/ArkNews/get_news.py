@@ -22,10 +22,10 @@ class Weibo:
         target_blog = cards[index]
         blog = target_blog["mblog"]
         detail_url = target_blog["scheme"]
-        item_id = target_blog["itemid"]
+        item_id = blog["bid"]
 
         if only_id:
-            return item_id.split("-")[0]
+            return item_id
 
         # 获取完整正文
         url = "https://m.weibo.cn/statuses/extend?id=" + blog["id"]
@@ -96,7 +96,7 @@ class Game:
     async def get_screenshot(self, url):
         async with httpx.AsyncClient() as client:
             r = await client.get(url)
-            if "cover-jumper" in r.text:
+            if "banner-image-container cover" in r.text:
                 html = etree.HTML(r.text, etree.HTMLParser())
                 img_req = await client.get(
                     html.xpath("/html/body/div/div/div/a/img/@src")[0]
