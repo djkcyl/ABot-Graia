@@ -111,7 +111,7 @@ async def get_BotNewFriend(app: Ariadne, events: NewFriendRequestEvent):
                     Plain(f"\n昵称：{events.nickname}"),
                     Plain(f"\n来自群：{groupname}({sourceGroup})")
                     if sourceGroup
-                    else Plain("来自好友搜索"),
+                    else Plain("\n来自好友搜索"),
                     Plain("\n状态：已通过申请\n"),
                     Plain(events.message) if events.message else Plain("无附加信息"),
                 ]

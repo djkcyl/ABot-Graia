@@ -27,7 +27,9 @@ channel = Channel.current()
 bcc = saya.broadcast
 inc = InterruptControl(bcc)
 
-WORD = json.loads(Path(__file__).parent.joinpath("word.json").read_text())
+WORD = json.loads(
+    Path(__file__).parent.joinpath("word.json").read_text("UTF-8")
+)
 MEMBER_RUNING_LIST = []
 GROUP_RUNING_LIST = []
 GROUP_GAME_PROCESS = {}
