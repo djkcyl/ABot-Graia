@@ -95,6 +95,12 @@ async def get_BotNewFriend(app: Ariadne, events: NewFriendRequestEvent):
     收到好友申请
     """
     sourceGroup: Optional[int] = events.sourceGroup
+    if sourceGroup:
+        groupname = await app.getGroup(sourceGroup)
+        if groupname:
+            groupname = groupname.name
+        else:
+            groupname = "未知"
     for qq in yaml_data["Basic"]["Permission"]["Admin"]:
         await app.sendFriendMessage(
             qq,
@@ -103,8 +109,11 @@ async def get_BotNewFriend(app: Ariadne, events: NewFriendRequestEvent):
                     Plain("收到添加好友事件"),
                     Plain(f"\nQQ：{events.supplicant}"),
                     Plain(f"\n昵称：{events.nickname}"),
-                    Plain(f"\n来自群：{sourceGroup}"),
-                    Plain(f"\n状态：已通过申请\n\n{events.message.upper()}"),
+                    Plain(f"\n来自群：{groupname}({sourceGroup})")
+                    if sourceGroup
+                    else Plain("来自好友搜索"),
+                    Plain("\n状态：已通过申请\n"),
+                    Plain(events.message) if events.message else Plain("无附加信息"),
                 ]
             ),
         )

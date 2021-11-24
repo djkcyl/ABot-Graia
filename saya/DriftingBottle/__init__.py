@@ -22,9 +22,9 @@ from graia.ariadne.message.parser.pattern import RegexMatch, ArgumentMatch
 from database.db import reduce_gold
 from util.text2image import create_image
 from util.control import Permission, Interval
-from util.ImageModeration import image_moderation
 from util.sendMessage import safeSendGroupMessage
 from util.TextModeration import text_moderation_async
+from util.ImageModeration import image_moderation_async
 from config import yaml_data, group_data, user_black_list, save_config
 
 from .db import (
@@ -105,9 +105,7 @@ async def throw_bottle_handler(
                 if moderation["status"] == "error":
                     return await safeSendGroupMessage(
                         group,
-                        MessageChain.create(
-                            f"漂流瓶内容审核失败，{moderation['message']}，请稍后重新丢漂流瓶！"
-                        ),
+                        MessageChain.create("漂流瓶内容审核失败，请稍后重新丢漂流瓶！"),
                         quote=source,
                     )
                 elif not moderation["status"]:
@@ -157,13 +155,13 @@ async def throw_bottle_handler(
             )
 
     if image_url:
-        moderation = await image_moderation(image_url)
-        try:
-            if moderation["Suggestion"] != "Pass":
-                return await safeSendGroupMessage(
-                    group, MessageChain.create("你的漂流瓶包含违规内容，请检查后重新丢漂流瓶！")
-                )
-        except TypeError:
+        moderation = await image_moderation_async(image_url)
+        if not moderation["status"]:
+            return await safeSendGroupMessage(
+                group,
+                MessageChain.create(f"你的漂流瓶包含违规内容 {moderation['message']}，请检查后重新丢漂流瓶！"),
+            )
+        elif moderation["status"] == "error":
             return await safeSendGroupMessage(
                 group, MessageChain.create("图片审核失败，请稍后重试！")
             )

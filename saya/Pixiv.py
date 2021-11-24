@@ -111,7 +111,11 @@ async def main(app: Ariadne, group: Group, member: Member, sparkle: Sparkle):
                 )
             msg = await safeSendGroupMessage(group, message)
             if yaml_data["Saya"]["Pixiv"]["Recall"]:
-                await asyncio.sleep(yaml_data["Saya"]["Pixiv"]["Interval"])
+                await asyncio.sleep(
+                    yaml_data["Saya"]["Pixiv"]["Interval"]
+                    if yaml_data["Saya"]["Pixiv"]["Interval"] < 110
+                    else 110
+                )
                 await app.recallMessage(msg)
         elif res.get("code", False) == 404:
             await safeSendGroupMessage(
@@ -175,7 +179,11 @@ async def main(app: Ariadne, group: Group, member: Member, sparkle: Sparkle):
                 )
             msg = await safeSendGroupMessage(group, message)
             if yaml_data["Saya"]["Pixiv"]["Recall"]:
-                await asyncio.sleep(yaml_data["Saya"]["Pixiv"]["Interval"])
+                await asyncio.sleep(
+                    yaml_data["Saya"]["Pixiv"]["Interval"]
+                    if yaml_data["Saya"]["Pixiv"]["Interval"] < 110
+                    else 110
+                )
                 await app.recallMessage(msg)
         else:
             await safeSendGroupMessage(
