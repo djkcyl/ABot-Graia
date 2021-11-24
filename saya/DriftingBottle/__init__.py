@@ -55,7 +55,7 @@ class BottleSparkle(Sparkle):
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[Twilight(BottleSparkle)],
-        decorators=[Permission.require(), Interval.require(300)],
+        decorators=[Permission.require(), Interval.require(100)],
     )
 )
 async def throw_bottle_handler(
