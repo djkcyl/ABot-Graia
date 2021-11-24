@@ -89,6 +89,7 @@ Saya: # saya 插件配置
     san: xxx # 可填 r18, r16, xxx
     Recall: true # 是否自动撤回
     Interval: 10 # 撤回间隔
+    Forward: true # 是否使用转发消息构建
 
   ChatMS: # 聊天？？
     Disabled: false
