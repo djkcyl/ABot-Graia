@@ -89,6 +89,9 @@ async def get_weibo_news(app: Ariadne):
             MessageChain.create([Plain(f"微博推送结束，耗时{time_rec.total()}")]),
         )
 
+    except IndexError:
+        pass
+
     except Exception as e:
         await app.sendFriendMessage(
             yaml_data["Basic"]["Permission"]["Master"],

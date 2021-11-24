@@ -1,15 +1,16 @@
 import httpx
 import asyncio
 
+from datetime import datetime
 from graia.saya import Saya, Channel
-from graia.ariadne.model import Group
 from graia.ariadne.app import Ariadne
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
-from graia.ariadne.message.element import Image, Plain
+from graia.ariadne.model import Group, Member, MemberPerm
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import Twilight, Sparkle
 from graia.ariadne.message.parser.pattern import FullMatch, RegexMatch
+from graia.ariadne.message.element import ForwardNode, Image, Plain, Forward
 
 from config import yaml_data, group_data
 from util.sendMessage import safeSendGroupMessage
@@ -32,7 +33,7 @@ class PixivSparkle(Sparkle):
         decorators=[Rest.rest_control(), Permission.require(), Interval.require()],
     )
 )
-async def main(app: Ariadne, group: Group, sparkle: Sparkle):
+async def main(app: Ariadne, group: Group, member: Member, sparkle: Sparkle):
 
     if (
         yaml_data["Saya"]["Pixiv"]["Disabled"]
@@ -58,21 +59,57 @@ async def main(app: Ariadne, group: Group, sparkle: Sparkle):
             else saying.tag2.result.getFirst(Plain).text
         )
         async with httpx.AsyncClient() as client:
-            r = await client.get(f"http://a60.one:404/get/tags/{tag}?num=1&san={san}")
+            r = await client.get(f"http://a60.one:404/get/tags/{tag}?num=5&san={san}")
             res = r.json()
         if res.get("code", False) == 200:
-            pic = res["data"]["pic_list"][0]
-            msg = await safeSendGroupMessage(
-                group,
-                MessageChain.create(
-                    [
-                        Plain(f"ID：{pic['pic']}\n"),
-                        Plain(f"NAME：{pic['name']}\n"),
-                        Plain(f"SAN: {pic['sanity_level']}\n"),
-                        Image(url=pic["url"]),
-                    ]
-                ),
-            )
+            if yaml_data["Saya"]["Pixiv"]["Forward"]:
+                if member.permission == MemberPerm.Owner:
+                    name = "群主"
+                elif member.permission == MemberPerm.Administrator:
+                    name = "管理员"
+                elif member.permission == MemberPerm.Member:
+                    name = "高层群员"
+
+                forwardnode = [
+                    ForwardNode(
+                        senderId=member.id,
+                        time=datetime.now(),
+                        senderName=member.name,
+                        messageChain=MessageChain.create(
+                            f"我是发涩图的{name}，请大家坐稳扶好，涩图要来咯！"
+                        ),
+                    )
+                ]
+                for pic in res["data"]["imgs"]:
+                    forwardnode.append(
+                        ForwardNode(
+                            senderId=member.id,
+                            time=datetime.now(),
+                            senderName=member.name,
+                            messageChain=MessageChain.create(
+                                [
+                                    Plain(f"ID：{pic['pic']}\n"),
+                                    Plain(f"NAME：{pic['name']}\n"),
+                                    Plain(f"SAN: {pic['sanity_level']}\n"),
+                                    Image(url=pic["url"]),
+                                ]
+                            ),
+                        )
+                    )
+                message = MessageChain.create(Forward(nodeList=forwardnode))
+            else:
+                pic = res["data"]["imgs"][0]
+                message = (
+                    MessageChain.create(
+                        [
+                            Plain(f"ID：{pic['pic']}\n"),
+                            Plain(f"NAME：{pic['name']}\n"),
+                            Plain(f"SAN: {pic['sanity_level']}\n"),
+                            Image(url=pic["url"]),
+                        ]
+                    ),
+                )
+            msg = await safeSendGroupMessage(group, message)
             if yaml_data["Saya"]["Pixiv"]["Recall"]:
                 await asyncio.sleep(yaml_data["Saya"]["Pixiv"]["Interval"])
                 await app.recallMessage(msg)
@@ -86,20 +123,57 @@ async def main(app: Ariadne, group: Group, sparkle: Sparkle):
             )
     else:
         async with httpx.AsyncClient() as client:
-            r = await client.get(f"http://a60.one:404/?san={san}")
+            r = await client.get(f"http://a60.one:404/?num=5&san={san}")
             res = r.json()
         if res.get("code", False) == 200:
-            msg = await safeSendGroupMessage(
-                group,
-                MessageChain.create(
-                    [
-                        Plain(f"ID：{res['pic']}\n"),
-                        Plain(f"NAME：{res['name']}\n"),
-                        Plain(f"SAN: {res['sanity_level']}\n"),
-                        Image(url=res["url"]),
-                    ]
-                ),
-            )
+            if yaml_data["Saya"]["Pixiv"]["Forward"]:
+                if member.permission == MemberPerm.Owner:
+                    name = "群主"
+                elif member.permission == MemberPerm.Administrator:
+                    name = "管理员"
+                elif member.permission == MemberPerm.Member:
+                    name = "高层群员"
+
+                forwardnode = [
+                    ForwardNode(
+                        senderId=member.id,
+                        time=datetime.now(),
+                        senderName=member.name,
+                        messageChain=MessageChain.create(
+                            f"我是发涩图的{name}，请大家坐稳扶好，涩图要来咯！"
+                        ),
+                    )
+                ]
+                for pic in res["data"]["imgs"]:
+                    forwardnode.append(
+                        ForwardNode(
+                            senderId=member.id,
+                            time=datetime.now(),
+                            senderName=member.name,
+                            messageChain=MessageChain.create(
+                                [
+                                    Plain(f"ID：{pic['pic']}\n"),
+                                    Plain(f"NAME：{pic['name']}\n"),
+                                    Plain(f"SAN: {pic['sanity_level']}\n"),
+                                    Image(url=pic["url"]),
+                                ]
+                            ),
+                        )
+                    )
+                message = MessageChain.create(Forward(nodeList=forwardnode))
+            else:
+                pic = res["data"]["imgs"][0]
+                message = (
+                    MessageChain.create(
+                        [
+                            Plain(f"ID：{pic['pic']}\n"),
+                            Plain(f"NAME：{pic['name']}\n"),
+                            Plain(f"SAN: {pic['sanity_level']}\n"),
+                            Image(url=pic["url"]),
+                        ]
+                    ),
+                )
+            msg = await safeSendGroupMessage(group, message)
             if yaml_data["Saya"]["Pixiv"]["Recall"]:
                 await asyncio.sleep(yaml_data["Saya"]["Pixiv"]["Interval"])
                 await app.recallMessage(msg)
