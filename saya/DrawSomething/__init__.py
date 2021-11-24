@@ -6,7 +6,7 @@ import asyncio
 from pathlib import Path
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
-from graia.ariadne.model import Group, Member
+from graia.ariadne.model import Friend, Group, Member
 from graia.broadcast.interrupt.waiter import Waiter
 from graia.ariadne.message.chain import MessageChain
 from graia.broadcast.interrupt import InterruptControl
@@ -17,7 +17,7 @@ from graia.ariadne.event.lifecycle import ApplicationShutdowned
 from graia.ariadne.event.message import GroupMessage, FriendMessage
 
 from config import yaml_data, group_data
-from database.db import reduce_gold, add_gold
+from database.db import add_answer, reduce_gold, add_gold
 from util.control import Permission, Interval
 from util.sendMessage import safeSendGroupMessage
 
@@ -223,6 +223,7 @@ async def main(app: Ariadne, group: Group, member: Member, source: Source):
                             owner = owner = str(GROUP_GAME_PROCESS[group.id]["owner"])
                             await add_gold(owner, 2)
                             await add_gold(str(result[0].id), 1)
+                            await add_answer(str(result[0].id))
                             GROUP_RUNING_LIST.remove(group.id)
                             del GROUP_GAME_PROCESS[group.id]
                             await safeSendGroupMessage(
@@ -276,56 +277,57 @@ async def main(app: Ariadne, group: Group, member: Member, source: Source):
 
 @channel.use(
     ListenerSchema(
-        listening_events=[FriendMessage],
-        inline_dispatchers=[Literature("添加你画我猜词库")],
-        decorators=[Permission.require(Permission.MASTER)],
+        listening_events=[FriendMessage], inline_dispatchers=[Literature("添加你画我猜词库")]
     )
 )
-async def add_word(app: Ariadne, message: MessageChain):
-    global WORD
-    saying = message.asDisplay().split()
-    if saying[1] not in WORD["word"]:
-        word_list = WORD["word"]
-        word_list.append(saying[1])
-        WORD["word"] = word_list
-        with open("./saya/DrawSomething/word.json", "w") as f:
-            json.dump(WORD, f, indent=2, ensure_ascii=False)
-        await app.sendFriendMessage(
-            yaml_data["Basic"]["Permission"]["Master"],
-            MessageChain.create([Plain(f"成功添加你画我猜词库：{saying[1]}")]),
-        )
-    else:
-        await app.sendFriendMessage(
-            yaml_data["Basic"]["Permission"]["Master"],
-            MessageChain.create([Plain("词库内已存在该词")]),
-        )
+async def add_word(app: Ariadne, friend: Friend, message: MessageChain):
+    if friend.id == yaml_data["Basic"]["Permission"]["Master"]:
+        global WORD
+        saying = message.asDisplay().split()
+        if saying[1] not in WORD["word"]:
+            word_list = WORD["word"]
+            word_list.append(saying[1])
+            WORD["word"] = word_list
+            with open("./saya/DrawSomething/word.json", "w") as f:
+                json.dump(WORD, f, indent=2, ensure_ascii=False)
+            await app.sendFriendMessage(
+                friend,
+                MessageChain.create(f"成功添加你画我猜词库：{saying[1]}"),
+            )
+        else:
+            await app.sendFriendMessage(
+                friend,
+                MessageChain.create("词库内已存在该词"),
+            )
 
 
 @channel.use(
     ListenerSchema(
-        listening_events=[FriendMessage],
-        inline_dispatchers=[Literature("删除你画我猜词库")],
-        decorators=[Permission.require(Permission.MASTER)],
+        listening_events=[FriendMessage], inline_dispatchers=[Literature("删除你画我猜词库")]
     )
 )
-async def remove_word(app: Ariadne, message: MessageChain):
-    global WORD
-    saying = message.asDisplay().split()
-    if saying[1] in WORD["word"]:
-        word_list = WORD["word"]
-        word_list.remove(saying[1])
-        WORD["word"] = word_list
-        with open("./saya/DrawSomething/word.json", "w") as f:
-            json.dump(WORD, f, indent=2, ensure_ascii=False)
-        await app.sendFriendMessage(
-            yaml_data["Basic"]["Permission"]["Master"],
-            MessageChain.create([Plain(f"成功删除你画我猜词库：{saying[1]}")]),
-        )
-    else:
-        await app.sendFriendMessage(
-            yaml_data["Basic"]["Permission"]["Master"],
-            MessageChain.create([Plain("词库内未存在该词")]),
-        )
+async def remove_word(app: Ariadne, friend: Friend, message: MessageChain):
+
+    if friend.id == yaml_data["Basic"]["Permission"]["Master"]:
+        global WORD
+        saying = message.asDisplay().split()
+        if saying[1] in WORD["word"]:
+            word_list = WORD["word"]
+            word_list.remove(saying[1])
+            WORD["word"] = word_list
+            with open("./saya/DrawSomething/word.json", "w") as f:
+                json.dump(WORD, f, indent=2, ensure_ascii=False)
+            await app.sendFriendMessage(
+                friend,
+                MessageChain.create(f"成功删除你画我猜词库：{saying[1]}"),
+            )
+        else:
+            await app.sendFriendMessage(
+                friend,
+                MessageChain.create(
+                    "词库内未存在该词",
+                ),
+            )
 
 
 @channel.use(ListenerSchema(listening_events=[ApplicationShutdowned]))
