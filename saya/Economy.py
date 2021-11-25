@@ -5,7 +5,7 @@ from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import At, Plain, Source
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import Sparkle, Twilight
-from graia.ariadne.message.parser.pattern import FullMatch, RegexMatch, ElementMatch
+from graia.ariadne.message.parser.pattern import FullMatch, RegexMatch
 
 from config import yaml_data, group_data
 from util.control import Permission, Interval
@@ -18,7 +18,7 @@ channel = Channel.current()
 
 class EconomySparkle(Sparkle):
     header = FullMatch("赠送游戏币")
-    at1 = ElementMatch(At, optional=True)
+    space = FullMatch(" ", optional=True)
     anythings1 = RegexMatch(r".*?", optional=True)
     arg1 = FullMatch("-all", optional=True)
 
@@ -46,13 +46,14 @@ async def adminmain(
         return
 
     saying: EconomySparkle = sparkle
+    print(saying)
 
-    if not saying.at1.matched:
+    if not saying.anythings1.result.has(At):
         await safeSendGroupMessage(
             group, MessageChain.create([Plain("请at需要赠送的对象")]), quote=source
         )
     else:
-        to = str(saying.at1.result.target)
+        to = str(saying.anythings1.result.getFirst(At).target)
         if int(to) == member.id:
             return await safeSendGroupMessage(
                 group, MessageChain.create([Plain("请勿向自己赠送")]), quote=source
@@ -73,10 +74,11 @@ async def adminmain(
             )
 
         if saying.anythings1.matched:
-            result = saying.anythings1.result.getFirst(Plain).text
+            result = MessageChain.create(
+                saying.anythings1.result.get(Plain)
+            ).asDisplay()
             if len(result) > 20:
                 return await safeSendGroupMessage(group, MessageChain.create("消息过长"))
-
             try:
                 num = abs(int(result.strip()))
             except Exception:
