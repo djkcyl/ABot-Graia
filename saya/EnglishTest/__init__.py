@@ -222,9 +222,7 @@ async def friend_learn(app: Ariadne, friend: Friend):
     bookid_image = await create_image("\n".join(booklist))
     await app.sendFriendMessage(
         friend,
-        MessageChain.create(
-            [Plain("请输入你想要选择的词库ID"), Image(data_bytes=bookid_image.getvalue())]
-        ),
+        MessageChain.create([Plain("请输入你想要选择的词库ID"), Image(data_bytes=bookid_image)]),
     )
 
     try:
