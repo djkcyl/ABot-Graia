@@ -10,7 +10,11 @@ from PIL import Image, ImageFont, ImageDraw
 from .cut_string import get_cut_str
 
 font_file = "./font/sarasa-mono-sc-semibold.ttf"
-font = ImageFont.truetype(font_file, 22)
+try:
+    font = ImageFont.truetype(font_file, 22)
+except OSError:
+    logger.error(f"未找到字体文件：{font_file}，请前往")
+    exit(1)
 cache = Path("./cache/t2i")
 cache.mkdir(exist_ok=True, parents=True)
 
