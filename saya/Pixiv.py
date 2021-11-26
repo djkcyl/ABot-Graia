@@ -99,16 +99,15 @@ async def main(app: Ariadne, group: Group, member: Member, sparkle: Sparkle):
                 message = MessageChain.create(Forward(nodeList=forwardnode))
             else:
                 pic = res["data"]["imgs"][0]
-                message = (
-                    MessageChain.create(
-                        [
-                            Plain(f"ID：{pic['pic']}\n"),
-                            Plain(f"NAME：{pic['name']}\n"),
-                            Plain(f"SAN: {pic['sanity_level']}\n"),
-                            Image(url=pic["url"]),
-                        ]
-                    ),
+                message = MessageChain.create(
+                    [
+                        Plain(f"ID：{pic['pic']}\n"),
+                        Plain(f"NAME：{pic['name']}\n"),
+                        Plain(f"SAN: {pic['sanity_level']}\n"),
+                        Image(url=pic["url"]),
+                    ]
                 )
+
             msg = await safeSendGroupMessage(group, message)
             if yaml_data["Saya"]["Pixiv"]["Recall"]:
                 await asyncio.sleep(
@@ -167,15 +166,13 @@ async def main(app: Ariadne, group: Group, member: Member, sparkle: Sparkle):
                 message = MessageChain.create(Forward(nodeList=forwardnode))
             else:
                 pic = res["data"]["imgs"][0]
-                message = (
-                    MessageChain.create(
-                        [
-                            Plain(f"ID：{pic['pic']}\n"),
-                            Plain(f"NAME：{pic['name']}\n"),
-                            Plain(f"SAN: {pic['sanity_level']}\n"),
-                            Image(url=pic["url"]),
-                        ]
-                    ),
+                message = MessageChain.create(
+                    [
+                        Plain(f"ID：{pic['pic']}\n"),
+                        Plain(f"NAME：{pic['name']}\n"),
+                        Plain(f"SAN: {pic['sanity_level']}\n"),
+                        Image(url=pic["url"]),
+                    ]
                 )
             msg = await safeSendGroupMessage(group, message)
             if yaml_data["Saya"]["Pixiv"]["Recall"]:
