@@ -28,7 +28,8 @@ redis = "^3.5.3"
 pyzbar = "^0.1.8"
 qrcode = "^7.2"
 rsa = "^4.7.2"
-pyacrcloud = "^1.0.2"
+pyacrcloud = {version = "^1.0.2", markers = "sys_platform == 'linux' or sys_platform == 'darwin'"}
+pyacrcloud = {git = "https://github.com/acrcloud/acrcloud_sdk_python", markers = "sys_platform != 'linux' and sys_platform != 'darwin'"}
 prettytable = "^2.4.0"
 jieba = "^0.42.1"
 psutil = "^5.8.0"
