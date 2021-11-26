@@ -53,14 +53,14 @@ async def get_weibo_news(app: Ariadne):
         new_id = await weibo.requests_content(0, only_id=True)
 
         if not pushed:
-            pushed_list["weibo"] = new_id
+            pushed_list["weibo"] = [new_id]
             save_pushed_list()
             await asyncio.sleep(1)
             return logger.info(f"[明日方舟蹲饼] 微博初始化成功，当前最新微博：{new_id}")
-        elif not isinstance(new_id, str) or new_id == pushed:
+        elif not isinstance(new_id, str) or new_id in pushed:
             return
 
-        pushed_list["weibo"] = new_id
+        pushed_list["weibo"].append(new_id)
         save_pushed_list()
 
         group_list = await app.getGroupList()
@@ -74,7 +74,9 @@ async def get_weibo_news(app: Ariadne):
             Plain(f"{detail_url}\n"),
             Image(data_bytes=image),
         ] + [Image(url=x) for x in pics_list]
-
+        await app.sendFriendMessage(
+            yaml_data["Basic"]["Permission"]["Master"], MessageChain.create(new_id)
+        )
         await app.sendFriendMessage(
             yaml_data["Basic"]["Permission"]["Master"], MessageChain.create(msg)
         )
