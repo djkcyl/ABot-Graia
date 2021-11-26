@@ -12,6 +12,7 @@ grouplist.json
 qr.jpg
 data.json
 *.pem
+poetry.lock
 /font
 /virtualenvs
 /python*

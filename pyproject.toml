@@ -18,18 +18,19 @@ PyMySQL = "^1.0.2"
 func-timeout = "^4.3.5"
 graiax-silkcoder = "^0.0.19"
 httpx = "^0.20.0"
-playwright = "^1.16.0"
+playwright = "^1.17.0"
 lxml = "^4.6.4"
 PyYAML = "^5.4.1"
 tencentcloud-sdk-python = "3.0.520"
 xmltodict = "^0.12.0"
 azure-cognitiveservices-speech = "^1.19.0"
-redis = "^3.5.3"
 pyzbar = "^0.1.8"
 qrcode = "^7.2"
 rsa = "^4.7.2"
-pyacrcloud = {version = "^1.0.2", markers = "sys_platform == 'linux' or sys_platform == 'darwin'"}
-pyacrcloud = {git = "https://github.com/acrcloud/acrcloud_sdk_python", markers = "sys_platform != 'linux' and sys_platform != 'darwin'"}
+pyacrcloud = [
+    {version = "^1.0.2", markers = "sys_platform == 'linux' or sys_platform == 'darwin'"},
+    {git = "https://gitee.com/a60-one/acrcloud_sdk_python.git", markers = "sys_platform != 'linux' and sys_platform != 'darwin'"}
+]
 prettytable = "^2.4.0"
 jieba = "^0.42.1"
 psutil = "^5.8.0"
@@ -37,7 +38,7 @@ markdown = "^3.3.4"
 scipy = "^1.7.2"
 pillow = "^8.4.0"
 saucenao-api = "^2.4.0"
-triangler = {git = "https://github.com/djkcyl/triangler"}
+triangler = {git = "https://gitee.com/a60-one/triangler.git"}
 graia-ariadne = "^0.4.0"
 graia-scheduler = "^0.0.6"
 
