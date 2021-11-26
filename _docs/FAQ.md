@@ -17,7 +17,7 @@
 
 2. 安装依赖报错 **Unable to find installation candidates for pyacrcloud (1.0.2)**
 
-   > 该问题仅会出现在非 Linux 系统，由于该包的非 Linux 版本并未上传于 PyPI ，会出现找不到包的情况，请手动安装
+   > **该问题仅会出现在非 Linux 系统，由于该包的非 Linux 版本并未上传于 PyPI ，会出现找不到包的情况，请手动安装**
    > 
    > ```shell
    > poetry remove pyacrcloud
