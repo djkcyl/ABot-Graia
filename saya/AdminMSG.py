@@ -9,7 +9,9 @@ from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.model import Friend, MemberInfo, Group
 from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
+from graia.ariadne.message.parser.twilight import Twilight, Sparkle
 from graia.ariadne.event.message import GroupMessage, FriendMessage
+from graia.ariadne.message.parser.pattern import FullMatch, ElementMatch
 from graia.ariadne.message.element import Plain, Source, Quote, At, Image
 
 from util.text2image import create_image
@@ -29,7 +31,7 @@ funcList = funcList
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Literature("1", allow_quote=True, skip_one_at_in_quote=True)
+            Twilight(Sparkle([ElementMatch(At, optional=True), FullMatch("1")]))
         ],
         decorators=[Permission.require(Permission.MASTER)],
     )
@@ -38,8 +40,11 @@ async def get_botQueue(app: Ariadne, message: MessageChain, source: Source):
     print(1)
     if message.has(Quote):
         messageid = message.getFirst(Quote).id
-        await app.recallMessage(messageid)
-        await app.recallMessage(source)
+        try:
+            await app.recallMessage(messageid)
+            await app.recallMessage(source)
+        except PermissionError:
+            pass
 
 
 @channel.use(
