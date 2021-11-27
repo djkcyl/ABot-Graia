@@ -37,7 +37,6 @@ funcList = funcList
     )
 )
 async def get_botQueue(app: Ariadne, message: MessageChain, source: Source):
-    print(1)
     if message.has(Quote):
         messageid = message.getFirst(Quote).id
         try:
