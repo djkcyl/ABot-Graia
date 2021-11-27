@@ -35,13 +35,11 @@ funcList = funcList
     )
 )
 async def get_botQueue(app: Ariadne, message: MessageChain, source: Source):
+    print(1)
     if message.has(Quote):
-        messageid = message.get(Quote)[0].origin.get(Source)[0].id
-        try:
-            await app.revokeMessage(messageid)
-            await app.revokeMessage(source)
-        except Exception:
-            pass
+        messageid = message.getFirst(Quote).id
+        await app.recallMessage(messageid)
+        await app.recallMessage(source)
 
 
 @channel.use(
