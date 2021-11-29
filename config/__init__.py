@@ -82,11 +82,11 @@ def save_config():
     with CONFIG_PATH.joinpath("config.yaml").open("w", encoding="utf-8") as f:
         yaml.dump(yaml_data, f, allow_unicode=True, Dumper=NoAliasDumper)
     with CONFIG_PATH.joinpath("groupdata.json").open("w", encoding="utf-8") as f:
-        json.dump(group_data, f, indent=2)
+        json.dump(group_data, f, indent=2, ensure_ascii=False)
     with CONFIG_PATH.joinpath("grouplist.json").open("w", encoding="utf-8") as f:
-        json.dump(group_list, f, indent=2)
+        json.dump(group_list, f, indent=2, ensure_ascii=False)
     with CONFIG_PATH.joinpath("userlist.json").open("w", encoding="utf-8") as f:
-        json.dump(user_list, f, indent=2)
+        json.dump(user_list, f, indent=2, ensure_ascii=False)
 
 
 save_config()
