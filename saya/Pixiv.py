@@ -1,4 +1,5 @@
 import httpx
+import random
 import asyncio
 
 from datetime import datetime
@@ -80,7 +81,9 @@ async def main(app: Ariadne, group: Group, member: Member, sparkle: Sparkle):
                         ),
                     )
                 ]
+                group_members = await app.getMemberList(group)
                 for pic in res["data"]["imgs"]:
+                    member = random.choice(group_members)
                     forwardnode.append(
                         ForwardNode(
                             senderId=member.id,
@@ -90,7 +93,18 @@ async def main(app: Ariadne, group: Group, member: Member, sparkle: Sparkle):
                                 [
                                     Plain(f"ID：{pic['pic']}\n"),
                                     Plain(f"NAME：{pic['name']}\n"),
-                                    Plain(f"SAN: {pic['sanity_level']}\n"),
+                                    Plain(f"SAN: {pic['sanity_level']}"),
+                                ]
+                            ),
+                        )
+                    )
+                    forwardnode.append(
+                        ForwardNode(
+                            senderId=member.id,
+                            time=datetime.now(),
+                            senderName=member.name,
+                            messageChain=MessageChain.create(
+                                [
                                     Image(url=pic["url"]),
                                 ]
                             ),
@@ -115,7 +129,10 @@ async def main(app: Ariadne, group: Group, member: Member, sparkle: Sparkle):
                     if yaml_data["Saya"]["Pixiv"]["Interval"] < 110
                     else 110
                 )
-                await app.recallMessage(msg)
+                try:
+                    await app.recallMessage(msg)
+                except Exception:
+                    pass
         elif res.get("code", False) == 404:
             await safeSendGroupMessage(
                 group, MessageChain.create([Plain("未找到相应tag的色图")])
@@ -147,7 +164,9 @@ async def main(app: Ariadne, group: Group, member: Member, sparkle: Sparkle):
                         ),
                     )
                 ]
+                group_members = await app.getMemberList(group)
                 for pic in res["data"]["imgs"]:
+                    member = random.choice(group_members)
                     forwardnode.append(
                         ForwardNode(
                             senderId=member.id,
@@ -157,7 +176,18 @@ async def main(app: Ariadne, group: Group, member: Member, sparkle: Sparkle):
                                 [
                                     Plain(f"ID：{pic['pic']}\n"),
                                     Plain(f"NAME：{pic['name']}\n"),
-                                    Plain(f"SAN: {pic['sanity_level']}\n"),
+                                    Plain(f"SAN: {pic['sanity_level']}"),
+                                ]
+                            ),
+                        )
+                    )
+                    forwardnode.append(
+                        ForwardNode(
+                            senderId=member.id,
+                            time=datetime.now(),
+                            senderName=member.name,
+                            messageChain=MessageChain.create(
+                                [
                                     Image(url=pic["url"]),
                                 ]
                             ),
@@ -181,7 +211,10 @@ async def main(app: Ariadne, group: Group, member: Member, sparkle: Sparkle):
                     if yaml_data["Saya"]["Pixiv"]["Interval"] < 110
                     else 110
                 )
-                await app.recallMessage(msg)
+                try:
+                    await app.recallMessage(msg)
+                except Exception:
+                    pass
         else:
             await safeSendGroupMessage(
                 group, MessageChain.create([Plain("慢一点慢一点，别冲辣！")])
