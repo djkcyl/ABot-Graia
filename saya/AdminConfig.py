@@ -471,47 +471,40 @@ async def atrep(group: Group, message: MessageChain):
         await safeSendGroupMessage(group, MessageChain.create([msg]))
 
 
+class MenuDetail(Sparkle):
+    header = FullMatch("功能")
+    num = RegexMatch(r"\d{1,2}")
+
+
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[
-            Twilight(
-                Sparkle(
-                    [
-                        FullMatch("功能"),
-                        RegexMatch(r"\d{1,2}", optional=True),
-                        RegexMatch(r".*", optional=True),
-                    ]
-                )
-            )
-        ],
+        inline_dispatchers=[Twilight(MenuDetail)],
         decorators=[Permission.require(), Interval.require(5)],
     )
 )
 async def funchelp(group: Group, sparkle: Sparkle):
-    if sparkle._check_1.matched:
-        func_id = int(sparkle._check_1.regex_match.group()) - 1
-        sayfunc = funcList[func_id]["name"]
-        funckey = funcList[func_id]["key"]
-        funcGlobalDisabled = yaml_data["Saya"][funckey]["Disabled"]
-        funcGroupDisabledList = funckey in group_data[str(group.id)]["DisabledFunc"]
-        if funcGlobalDisabled or funcGroupDisabledList:
-            return await safeSendGroupMessage(
-                group, MessageChain.create([Plain("该功能暂不开启")])
-            )
-        help = str(
-            sayfunc
-            + "\n\n      >>> 用法 >>>\n"
-            + funcHelp[sayfunc]["usage"]
-            + "\n\n      >>> 注意事项 >>>\n"
-            + funcHelp[sayfunc]["options"]
-            + "\n\n      >>> 示例 >>>\n"
-            + funcHelp[sayfunc]["example"]
+    sparkle: MenuDetail = sparkle
+    func_id = int(sparkle.num.regex_match.group()) - 1
+    sayfunc = funcList[func_id]["name"]
+    funckey = funcList[func_id]["key"]
+    funcGlobalDisabled = yaml_data["Saya"][funckey]["Disabled"]
+    funcGroupDisabledList = funckey in group_data[str(group.id)]["DisabledFunc"]
+    if funcGlobalDisabled or funcGroupDisabledList:
+        return await safeSendGroupMessage(
+            group, MessageChain.create([Plain("该功能暂不开启")])
         )
-        image = await create_image(help)
-        await safeSendGroupMessage(
-            group, MessageChain.create([Image(data_bytes=image)])
-        )
+    help = str(
+        sayfunc
+        + "\n\n      >>> 用法 >>>\n"
+        + funcHelp[sayfunc]["usage"]
+        + "\n\n      >>> 注意事项 >>>\n"
+        + funcHelp[sayfunc]["options"]
+        + "\n\n      >>> 示例 >>>\n"
+        + funcHelp[sayfunc]["example"]
+    )
+    image = await create_image(help)
+    await safeSendGroupMessage(group, MessageChain.create([Image(data_bytes=image)]))
 
 
 @channel.use(
