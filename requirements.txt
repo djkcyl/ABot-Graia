@@ -14,7 +14,7 @@ cycler==0.11.0; python_version >= "3.7"
 dnspython==2.1.0; python_version >= "3.6"
 fonttools==4.28.2; python_version >= "3.7"
 func-timeout==4.3.5
-graia-ariadne==0.4.2; python_version >= "3.8" and python_version < "4.0"
+graia-ariadne==0.4.3; python_version >= "3.8" and python_version < "4.0"
 graia-broadcast==0.13.1; python_version >= "3.7" and python_version < "4.0"
 graia-saya==0.0.13; python_version >= "3.7" and python_version < "4.0"
 graia-scheduler==0.0.6; python_version >= "3.7" and python_version < "4.0"
