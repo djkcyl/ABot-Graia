@@ -495,12 +495,7 @@ async def funchelp(group: Group, sparkle: Sparkle):
         if num.isdigit():
             func_id = int(num) - 1
         elif num in funcHelp:
-            i = 0
-            for func, _ in funcHelp.items():
-                if func == num:
-                    func_id = i
-                    break
-                i += 1
+            func_id = [*funcHelp].index(num)
         else:
             return await safeSendGroupMessage(
                 group, MessageChain.create([Plain("功能编号仅可为数字")])

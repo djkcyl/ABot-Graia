@@ -35,9 +35,7 @@ inc = InterruptControl(bcc)
 BASE = Path(__file__).parent
 
 WAITING = []
-if not yaml_data["Saya"]["Entertainment"]["Lottery"]:
-    pass
-elif BASE.joinpath("data.json").exists():
+if BASE.joinpath("data.json").exists():
     with BASE.joinpath("data.json").open("r", encoding="UTF-8") as f:
         LOTTERY = json.load(f)
 else:
