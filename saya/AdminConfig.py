@@ -8,7 +8,7 @@ from graia.ariadne.message.element import At, Plain, Image
 from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import Twilight, Sparkle
-from graia.ariadne.message.parser.pattern import FullMatch, RegexMatch
+from graia.ariadne.message.parser.pattern import FullMatch, RegexMatch, WildcardMatch
 
 
 from util.text2image import create_image
@@ -205,7 +205,12 @@ funcList = [
 ]
 
 configList = [
-    {"name": "事件播报", "key": "EventBroadcast", "can_edit": True},
+    {
+        "name": "事件播报",
+        "instruction": "本功能开启后将监听群内事件并进行播报，可修改的值为入群欢迎语",
+        "key": "EventBroadcast",
+        "can_edit": True,
+    },
 ]
 
 DisabledFunc = []
@@ -473,7 +478,7 @@ async def atrep(group: Group, message: MessageChain):
 
 class MenuDetail(Sparkle):
     header = FullMatch("功能")
-    num = RegexMatch(r"\d{1,2}")
+    wildcard = WildcardMatch()
 
 
 @channel.use(
@@ -485,26 +490,44 @@ class MenuDetail(Sparkle):
 )
 async def funchelp(group: Group, sparkle: Sparkle):
     sparkle: MenuDetail = sparkle
-    func_id = int(sparkle.num.regex_match.group()) - 1
-    sayfunc = funcList[func_id]["name"]
-    funckey = funcList[func_id]["key"]
-    funcGlobalDisabled = yaml_data["Saya"][funckey]["Disabled"]
-    funcGroupDisabledList = funckey in group_data[str(group.id)]["DisabledFunc"]
-    if funcGlobalDisabled or funcGroupDisabledList:
-        return await safeSendGroupMessage(
-            group, MessageChain.create([Plain("该功能暂不开启")])
+    if sparkle.wildcard.matched:
+        num = sparkle.wildcard.result.asDisplay().strip()
+        if num.isdigit():
+            func_id = int(num) - 1
+        elif num in funcHelp:
+            i = 0
+            for func, _ in funcHelp.items():
+                if func == num:
+                    func_id = i
+                    break
+                i += 1
+        else:
+            return await safeSendGroupMessage(
+                group, MessageChain.create([Plain("功能编号仅可为数字")])
+            )
+        sayfunc = funcList[func_id]["name"]
+        funckey = funcList[func_id]["key"]
+        funcGlobalDisabled = yaml_data["Saya"][funckey]["Disabled"]
+        funcGroupDisabledList = funckey in group_data[str(group.id)]["DisabledFunc"]
+        if funcGlobalDisabled or funcGroupDisabledList:
+            return await safeSendGroupMessage(
+                group, MessageChain.create([Plain("该功能暂不开启")])
+            )
+        help = str(
+            sayfunc
+            + "\n\n      >>> 用法 >>>\n"
+            + funcHelp[sayfunc]["usage"]
+            + "\n\n      >>> 注意事项 >>>\n"
+            + funcHelp[sayfunc]["options"]
+            + "\n\n      >>> 示例 >>>\n"
+            + funcHelp[sayfunc]["example"]
         )
-    help = str(
-        sayfunc
-        + "\n\n      >>> 用法 >>>\n"
-        + funcHelp[sayfunc]["usage"]
-        + "\n\n      >>> 注意事项 >>>\n"
-        + funcHelp[sayfunc]["options"]
-        + "\n\n      >>> 示例 >>>\n"
-        + funcHelp[sayfunc]["example"]
-    )
-    image = await create_image(help)
-    await safeSendGroupMessage(group, MessageChain.create([Image(data_bytes=image)]))
+        image = await create_image(help)
+        await safeSendGroupMessage(
+            group, MessageChain.create([Image(data_bytes=image)])
+        )
+    else:
+        await safeSendGroupMessage(group, MessageChain.create([Plain("请输入功能编号")]))
 
 
 @channel.use(
@@ -623,7 +646,7 @@ class GroupFuncSparkle(Sparkle):
     header = FullMatch("群功能")
     reg1 = RegexMatch("修改|查看|关闭|开启", optional=True)
     reg2 = RegexMatch("|".join(x["name"] for x in configList), optional=True)
-    reg3 = RegexMatch(r".*", optional=True)
+    reg3 = WildcardMatch(optional=True)
 
 
 @channel.use(
