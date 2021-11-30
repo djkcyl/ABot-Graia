@@ -15,10 +15,10 @@ from graia.ariadne.message.element import Image, Plain, Source, Voice
 from acrcloud.recognizer import ACRCloudRecognizer, ACRCloudRecognizeType
 
 from database.db import reduce_gold
-from config import yaml_data, group_data
 from util.text2image import create_image
 from util.control import Permission, Interval
 from util.sendMessage import safeSendGroupMessage
+from config import COIN_NAME, yaml_data, group_data
 
 saya = Saya.current()
 channel = Channel.current()
@@ -99,7 +99,7 @@ async def main(group: Group, member: Member, message: MessageChain, source: Sour
             MessageChain.create(
                 [
                     Plain(
-                        "请尽量将麦克风靠近音源后通过语音发送想要识别的歌曲，5至10秒即可，发送取消可终止识别，无论识别成功与否均需扣除 2 游戏币"
+                        f"请尽量将麦克风靠近音源后通过语音发送想要识别的歌曲，5至10秒即可，发送取消可终止识别，无论识别成功与否均需扣除 2 {COIN_NAME}"
                     )
                 ]
             ),
@@ -175,6 +175,6 @@ async def main(group: Group, member: Member, message: MessageChain, source: Sour
                 )
         else:
             await safeSendGroupMessage(
-                group, MessageChain.create([Plain("你的游戏币不足，无法使用")])
+                group, MessageChain.create([Plain(f"你的{COIN_NAME}不足，无法使用")])
             )
         WAITING.remove(member.id)

@@ -89,4 +89,5 @@ def save_config():
         json.dump(user_list, f, indent=2, ensure_ascii=False)
 
 
+COIN_NAME = yaml_data["Basic"]["CoinName"]
 save_config()

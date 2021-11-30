@@ -1,7 +1,8 @@
 [flake8]
 exclude = 
     virtualenvs,
-    test.py
+    test.py,
+    **/Ark/
 max-line-length = 200
 statistics = True
 ignore =

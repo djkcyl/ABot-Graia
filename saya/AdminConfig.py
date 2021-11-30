@@ -14,7 +14,7 @@ from graia.ariadne.message.parser.pattern import FullMatch, RegexMatch, Wildcard
 from util.text2image import create_image
 from util.control import Permission, Interval
 from util.sendMessage import safeSendGroupMessage
-from config import save_config, yaml_data, group_data
+from config import save_config, yaml_data, group_data, COIN_NAME
 
 saya = Saya.current()
 channel = Channel.current()
@@ -227,7 +227,7 @@ funcHelp = {
     "微软文字转语音": {
         "instruction": "将文字转为音频以语音形式发出",
         "usage": "发送指令：\n/tts <性别> <感情> <文字>",
-        "options": "性别：男 / 女\n感情：\n当性别为男时：【助理、平静、害怕、开心、不满、严肃、生气、悲伤、沮丧、尴尬、默认】\n当性别为女时：【助理、聊天、客服、新闻、撒娇、生气、平静、开心、不满、害怕、温柔、抒情、悲伤、严肃、默认】\n文字：任意600字以内文字\n请求语音需要消耗 2 个游戏币",
+        "options": f"性别：男 / 女\n感情：\n当性别为男时：【助理、平静、害怕、开心、不满、严肃、生气、悲伤、沮丧、尴尬、默认】\n当性别为女时：【助理、聊天、客服、新闻、撒娇、生气、平静、开心、不满、害怕、温柔、抒情、悲伤、严肃、默认】\n文字：任意600字以内文字\n请求语音需要消耗 2 个{COIN_NAME}",
         "example": "/tts 男 助理 您好，您的外卖到了，请您开下门",
     },
     "小鸡词典查梗": {
@@ -251,7 +251,7 @@ funcHelp = {
     "网易云音乐点歌": {
         "instruction": "在网易云音乐搜歌并以语音形式发出",
         "usage": "发送指令：\n点歌",
-        "options": "可以点需要黑胶VIP的歌曲，每次点歌消耗 4 个游戏币",
+        "options": f"可以点需要黑胶VIP的歌曲，每次点歌消耗 4 个{COIN_NAME}",
         "example": "点歌\n点歌 梦于星海之间",
     },
     "网络黑话翻译": {
@@ -340,9 +340,9 @@ funcHelp = {
     },
     "娱乐功能": {
         "instruction": "提供一些群内互动娱乐功能",
-        "usage": "发送指令：\n签到\n你画我猜\n赠送游戏币\n查看排行榜",
-        "options": "签到：每日凌晨四点重置签到，每次签到可获得 5-21 个游戏币\n你画我猜：每次消耗 4 个游戏币\n  赠送游戏币：可以向他人赠送自己的游戏币，限值 1-1000以内\n排行榜可同时查看游戏币榜和发言榜，一般情况下排行榜每十分钟更新一次",
-        "example": "  赠送游戏币 @ABot 15",
+        "usage": f"发送指令：\n签到\n你画我猜\n赠送{COIN_NAME}\n查看排行榜",
+        "options": f"签到：每日凌晨四点重置签到，每次签到可获得 5-21 个{COIN_NAME}\n你画我猜：每次消耗 4 个{COIN_NAME}\n  赠送{COIN_NAME}：可以向他人赠送自己的{COIN_NAME}，限值 1-1000以内\n排行榜可同时查看{COIN_NAME}榜和发言榜，一般情况下排行榜每十分钟更新一次",
+        "example": f"  赠送{COIN_NAME} @ABot 15",
     },
     "骰娘": {
         "instruction": "一个简易骰娘",
@@ -359,7 +359,7 @@ funcHelp = {
     "听歌识曲 / 哼唱识曲": {
         "instruction": "和音乐软件一样的听歌识曲、哼唱识曲",
         "usage": "发送指令：\n识曲 <模式>",
-        "options": "模式：原曲、哼唱\n可选择听歌识曲或哼唱识曲，每使用一次无论成功与否均会消耗 2 个游戏币",
+        "options": f"模式：原曲、哼唱\n可选择听歌识曲或哼唱识曲，每使用一次无论成功与否均会消耗 2 个{COIN_NAME}",
         "example": "识曲 原曲",
     },
     "淫文翻译机": {
@@ -389,7 +389,7 @@ funcHelp = {
     "以图搜番 / 以图搜图": {
         "instruction": "发送图片来搜索出处",
         "usage": "发送指令：\n以图搜番\n以图搜图",
-        "options": "可能会搜不到，无论成功与否均会扣除 4 个游戏币",
+        "options": f"可能会搜不到，无论成功与否均会扣除 4 个{COIN_NAME}",
         "example": "（这也需要示例吗？",
     },
     "查战绩": {
@@ -419,7 +419,7 @@ funcHelp = {
     "漂流瓶": {
         "instruction": "嗯，就是漂流瓶而已",
         "usage": "发送指令：\n捞漂流瓶\n丢漂流瓶\n漂流瓶",
-        "options": "漂流瓶需消耗 10 个游戏币购买！\n漂流瓶内只可包含最多 400 个文字和 1 张图片\n如果无法发送图片可在命令后添加参数 -P",
+        "options": f"漂流瓶需消耗 10 个{COIN_NAME}购买！\n漂流瓶内只可包含最多 400 个文字和 1 张图片\n如果无法发送图片可在命令后添加参数 -P",
         "example": "丢漂流瓶 Hello World!\n丢漂流瓶 -P This is Picture",
     },
     "群功能": {

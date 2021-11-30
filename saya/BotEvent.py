@@ -21,12 +21,14 @@ from graia.ariadne.event.mirai import (
     BotInvitedJoinGroupRequestEvent,
     BotJoinGroupEvent,
     BotLeaveEventKick,
+    BotLeaveEventActive,
     BotGroupPermissionChangeEvent,
     BotMuteEvent,
     MemberCardChangeEvent,
     MemberJoinEvent,
     MemberLeaveEventKick,
     MemberLeaveEventQuit,
+    MemberHonorChangeEvent,
 )
 
 from util.control import Rest
@@ -101,22 +103,24 @@ async def get_BotNewFriend(app: Ariadne, events: NewFriendRequestEvent):
             groupname = groupname.name
         else:
             groupname = "未知"
-    for qq in yaml_data["Basic"]["Permission"]["Admin"]:
-        await app.sendFriendMessage(
-            qq,
-            MessageChain.create(
-                [
-                    Plain("收到添加好友事件"),
-                    Plain(f"\nQQ：{events.supplicant}"),
-                    Plain(f"\n昵称：{events.nickname}"),
-                    Plain(f"\n来自群：{groupname}({sourceGroup})")
-                    if sourceGroup
-                    else Plain("\n来自好友搜索"),
-                    Plain("\n状态：已通过申请\n"),
-                    Plain(events.message) if events.message else Plain("无附加信息"),
-                ]
-            ),
-        )
+
+    if yaml_data["Basic"]["Event"]["NewFriend"]:
+        for qq in yaml_data["Basic"]["Permission"]["Admin"]:
+            await app.sendFriendMessage(
+                qq,
+                MessageChain.create(
+                    [
+                        Plain("收到添加好友事件"),
+                        Plain(f"\nQQ：{events.supplicant}"),
+                        Plain(f"\n昵称：{events.nickname}"),
+                        Plain(f"\n来自群：{groupname}({sourceGroup})")
+                        if sourceGroup
+                        else Plain("\n来自好友搜索"),
+                        Plain("\n状态：已通过申请\n"),
+                        Plain(events.message) if events.message else Plain("无附加信息"),
+                    ]
+                ),
+            )
     await events.accept()
 
 
@@ -196,49 +200,51 @@ async def get_BotJoinGroup(app: Ariadne, joingroup: BotJoinGroupEvent):
     """
     收到入群事件
     """
-    membernum = len(await app.getMemberList(joingroup.group))
-    await app.sendFriendMessage(
-        yaml_data["Basic"]["Permission"]["Master"],
-        MessageChain.create(
-            [
-                Plain("收到加入群聊事件"),
-                Plain(f"\n群号：{joingroup.group.id}"),
-                Plain(f"\n群名：{joingroup.group.name}"),
-                Plain(f"\n群人数：{membernum}"),
-            ]
-        ),
-    )
 
-    if joingroup.group.id not in group_list["white"]:
-        await safeSendGroupMessage(
-            joingroup.group.id,
-            MessageChain.create(
-                f"该群未在白名单中，正在退出，如有需要请联系{yaml_data['Basic']['Permission']['Master']}申请白名单"
-            ),
-        )
+    if yaml_data["Basic"]["Event"]["JoinGroup"]:
+        membernum = len(await app.getMemberList(joingroup.group))
         await app.sendFriendMessage(
             yaml_data["Basic"]["Permission"]["Master"],
-            MessageChain.create("该群未在白名单中，正在退出"),
-        )
-        return await app.quitGroup(joingroup.group.id)
-
-    if joingroup.group.id not in group_data:
-        group_data[str(joingroup.group.id)] = groupInitData
-        logger.info("已为该群初始化配置文件")
-        save_config()
-        await safeSendGroupMessage(
-            joingroup.group.id,
             MessageChain.create(
-                f"我是{yaml_data['Basic']['Permission']['MasterName']}"
-                f"的机器人{yaml_data['Basic']['BotName']}，"
-                f"如果有需要可以联系主人QQ”{yaml_data['Basic']['Permission']['Master']}“，"
-                f"添加{yaml_data['Basic']['BotName']}好友后请私聊说明用途后即可拉进其他群，主人看到后会选择是否同意入群"
-                f"\n{yaml_data['Basic']['BotName']}被群禁言后会自动退出该群。"
-                "\n发送 <菜单> 可以查看功能列表"
-                "\n拥有管理员以上权限可以开关功能"
-                f"\n注：@{yaml_data['Basic']['BotName']}不会触发任何功能"
+                [
+                    Plain("收到加入群聊事件"),
+                    Plain(f"\n群号：{joingroup.group.id}"),
+                    Plain(f"\n群名：{joingroup.group.name}"),
+                    Plain(f"\n群人数：{membernum}"),
+                ]
             ),
         )
+
+        if joingroup.group.id not in group_list["white"]:
+            await safeSendGroupMessage(
+                joingroup.group.id,
+                MessageChain.create(
+                    f"该群未在白名单中，正在退出，如有需要请联系{yaml_data['Basic']['Permission']['Master']}申请白名单"
+                ),
+            )
+            await app.sendFriendMessage(
+                yaml_data["Basic"]["Permission"]["Master"],
+                MessageChain.create("该群未在白名单中，正在退出"),
+            )
+            return await app.quitGroup(joingroup.group.id)
+
+        if joingroup.group.id not in group_data:
+            group_data[str(joingroup.group.id)] = groupInitData
+            logger.info("已为该群初始化配置文件")
+            save_config()
+            await safeSendGroupMessage(
+                joingroup.group.id,
+                MessageChain.create(
+                    f"我是{yaml_data['Basic']['Permission']['MasterName']}"
+                    f"的机器人{yaml_data['Basic']['BotName']}，"
+                    f"如果有需要可以联系主人QQ”{yaml_data['Basic']['Permission']['Master']}“，"
+                    f"添加{yaml_data['Basic']['BotName']}好友后请私聊说明用途后即可拉进其他群，主人看到后会选择是否同意入群"
+                    f"\n{yaml_data['Basic']['BotName']}被群禁言后会自动退出该群。"
+                    "\n发送 <菜单> 可以查看功能列表"
+                    "\n拥有管理员以上权限可以开关功能"
+                    f"\n注：@{yaml_data['Basic']['BotName']}不会触发任何功能"
+                ),
+            )
 
 
 @channel.use(ListenerSchema(listening_events=[BotLeaveEventKick]))
@@ -252,16 +258,41 @@ async def get_BotKickGroup(app: Ariadne, kickgroup: BotLeaveEventKick):
         pass
     save_config()
 
-    for qq in yaml_data["Basic"]["Permission"]["Admin"]:
-        await app.sendFriendMessage(
-            qq,
-            MessageChain.create(
-                "收到被踢出群聊事件"
-                f"\n群号：{kickgroup.group.id}"
-                f"\n群名：{kickgroup.group.name}"
-                "\n已移出白名单"
-            ),
-        )
+    if yaml_data["Basic"]["Event"]["KickGroup"]:
+        for qq in yaml_data["Basic"]["Permission"]["Admin"]:
+            await app.sendFriendMessage(
+                qq,
+                MessageChain.create(
+                    "收到被踢出群聊事件"
+                    f"\n群号：{kickgroup.group.id}"
+                    f"\n群名：{kickgroup.group.name}"
+                    "\n已移出白名单"
+                ),
+            )
+
+
+@channel.use(ListenerSchema(listening_events=[BotLeaveEventActive]))
+async def get_BotLeaveEventActive(app: Ariadne, events: BotLeaveEventActive):
+    """
+    主动退群
+    """
+    try:
+        group_list["white"].remove(events.group.id)
+    except Exception:
+        pass
+    save_config()
+
+    if yaml_data["Basic"]["Event"]["LeaveGroup"]:
+        for qq in yaml_data["Basic"]["Permission"]["Admin"]:
+            await app.sendFriendMessage(
+                qq,
+                MessageChain.create(
+                    "收到主动退出群聊事件"
+                    f"\n群号：{events.group.id}"
+                    f"\n群名：{events.group.name}"
+                    "\n已移出白名单"
+                ),
+            )
 
 
 @channel.use(ListenerSchema(listening_events=[BotGroupPermissionChangeEvent]))
@@ -271,18 +302,19 @@ async def get_BotPermissionChange(
     """
     群内权限变动
     """
-    for qq in yaml_data["Basic"]["Permission"]["Admin"]:
-        await app.sendFriendMessage(
-            qq,
-            MessageChain.create(
-                [
-                    Plain("收到权限变动事件"),
-                    Plain(f"\n群号：{permissionchange.group.id}"),
-                    Plain(f"\n群名：{permissionchange.group.name}"),
-                    Plain(f"\n权限变更为：{permissionchange.current}"),
-                ]
-            ),
-        )
+    if yaml_data["Basic"]["Event"]["PermissionChange"]:
+        for qq in yaml_data["Basic"]["Permission"]["Admin"]:
+            await app.sendFriendMessage(
+                qq,
+                MessageChain.create(
+                    [
+                        Plain("收到权限变动事件"),
+                        Plain(f"\n群号：{permissionchange.group.id}"),
+                        Plain(f"\n群名：{permissionchange.group.name}"),
+                        Plain(f"\n权限变更为：{permissionchange.current}"),
+                    ]
+                ),
+            )
 
 
 @channel.use(ListenerSchema(listening_events=[BotMuteEvent]))
@@ -296,19 +328,20 @@ async def get_BotMuteGroup(app: Ariadne, group: Group, mute: BotMuteEvent):
         pass
     save_config()
 
-    for qq in yaml_data["Basic"]["Permission"]["Admin"]:
-        await app.sendFriendMessage(
-            qq,
-            MessageChain.create(
-                [
-                    Plain("收到禁言事件，已退出该群，并移出白名单"),
-                    Plain(f"\n群号：{group.id}"),
-                    Plain(f"\n群名：{group.name}"),
-                    Plain(f"\n操作者：{mute.operator.name} | {mute.operator.id}"),
-                ]
-            ),
-        )
-        await app.quitGroup(group)
+    if yaml_data["Basic"]["Event"]["Mute"]:
+        for qq in yaml_data["Basic"]["Permission"]["Admin"]:
+            await app.sendFriendMessage(
+                qq,
+                MessageChain.create(
+                    [
+                        Plain("收到禁言事件，已退出该群，并移出白名单"),
+                        Plain(f"\n群号：{group.id}"),
+                        Plain(f"\n群名：{group.name}"),
+                        Plain(f"\n操作者：{mute.operator.name} | {mute.operator.id}"),
+                    ]
+                ),
+            )
+    await app.quitGroup(group)
 
 
 @channel.use(ListenerSchema(listening_events=[MemberCardChangeEvent]))
@@ -332,14 +365,14 @@ async def get_BotCardChange(app: Ariadne, events: MemberCardChangeEvent):
                     ),
                 )
             await app.modifyMemberInfo(
+                group=events.member.group.id,
                 member=yaml_data["Basic"]["MAH"]["BotQQ"],
                 info=MemberInfo(name=yaml_data["Basic"]["BotName"]),
-                group=events.member.group.id,
             )
             await safeSendGroupMessage(
                 events.member.group.id, MessageChain.create([Plain("请不要修改我的群名片")])
             )
-    else:
+    elif group_data[str(events.member.group.id)]["EventBroadcast"]["Enabled"]:
         resp = await text_moderation_async(events.origin)
         resp_current = await text_moderation_async(events.current)
         if not resp["status"] and not resp_current["status"]:
@@ -398,6 +431,19 @@ async def getMemberLeaveEventQuit(events: MemberLeaveEventQuit):
     msg = [
         Image(data_bytes=await avater_blackandwhite(events.member.id)),
         Plain(f"\n{events.member.name} 退出本群"),
+    ]
+    if group_data[str(events.member.group.id)]["EventBroadcast"]["Enabled"]:
+        await safeSendGroupMessage(events.member.group, MessageChain.create(msg))
+
+
+@channel.use(ListenerSchema(listening_events=[MemberHonorChangeEvent]))
+async def get_MemberHonorChangeEvent(events: MemberHonorChangeEvent):
+    """
+    有人群荣誉变动
+    """
+    msg = [
+        At(events.member.id),
+        Plain(f" {'获得了' if events.action == 'achieve' else '失去了'} {events.honor} 头衔"),
     ]
     if group_data[str(events.member.group.id)]["EventBroadcast"]["Enabled"]:
         await safeSendGroupMessage(events.member.group, MessageChain.create(msg))

@@ -16,10 +16,10 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.lifecycle import ApplicationShutdowned
 from graia.ariadne.event.message import GroupMessage, FriendMessage
 
-from config import yaml_data, group_data
-from database.db import add_answer, reduce_gold, add_gold
 from util.control import Permission, Interval
 from util.sendMessage import safeSendGroupMessage
+from config import yaml_data, group_data, COIN_NAME
+from database.db import add_answer, reduce_gold, add_gold
 
 
 saya = Saya.current()
@@ -171,7 +171,7 @@ async def main(app: Ariadne, group: Group, member: Member, source: Source):
         GROUP_RUNING_LIST.append(group.id)
         await safeSendGroupMessage(
             group,
-            MessageChain.create([Plain("是否确认在本群开启一场你画我猜？这将消耗你 4 个游戏币")]),
+            MessageChain.create([Plain(f"是否确认在本群开启一场你画我猜？这将消耗你 4 个{COIN_NAME}")]),
             quote=source.id,
         )
         try:
@@ -188,7 +188,7 @@ async def main(app: Ariadne, group: Group, member: Member, source: Source):
                     del GROUP_GAME_PROCESS[group.id]
                     await safeSendGroupMessage(
                         group,
-                        MessageChain.create([At(member.id), Plain(" 你的游戏币不足，无法开始游戏")]),
+                        MessageChain.create([At(member.id), Plain(f" 你的{COIN_NAME}不足，无法开始游戏")]),
                     )
                 else:
                     question_len = len(question)
@@ -234,7 +234,7 @@ async def main(app: Ariadne, group: Group, member: Member, source: Source):
                                     [
                                         Plain("恭喜 "),
                                         At(result[0].id),
-                                        Plain(" 成功猜出本次答案，你和创建者分别获得 1 个和 2 个游戏币，本次游戏结束"),
+                                        Plain(f" 成功猜出本次答案，你和创建者分别获得 1 个和 2 个{COIN_NAME}，本次游戏结束"),
                                     ]
                                 ),
                                 quote=result[1],
@@ -246,7 +246,7 @@ async def main(app: Ariadne, group: Group, member: Member, source: Source):
                             del GROUP_GAME_PROCESS[group.id]
                             await safeSendGroupMessage(
                                 group,
-                                MessageChain.create([Plain("本次你画我猜已终止，将返还创建者 1 个游戏币")]),
+                                MessageChain.create([Plain(f"本次你画我猜已终止，将返还创建者 1 个{COIN_NAME}")]),
                             )
                     except asyncio.TimeoutError:
                         owner = str(GROUP_GAME_PROCESS[group.id]["owner"])
@@ -258,7 +258,7 @@ async def main(app: Ariadne, group: Group, member: Member, source: Source):
                             group,
                             MessageChain.create(
                                 [
-                                    Plain("由于长时间没有人回答出正确答案，将返还创建者 1 个游戏币，本次你画我猜已结束"),
+                                    Plain(f"由于长时间没有人回答出正确答案，将返还创建者 1 个{COIN_NAME}，本次你画我猜已结束"),
                                     Plain(f"\n本次的答案为：{question}"),
                                 ]
                             ),
@@ -342,7 +342,7 @@ async def groupDataInit():
                 MessageChain.create(
                     [
                         Plain(
-                            f"由于 {yaml_data['Basic']['BotName']} 正在重启，本场你画我猜重置，已补偿4个游戏币"
+                            f"由于 {yaml_data['Basic']['BotName']} 正在重启，本场你画我猜重置，已补偿4个{COIN_NAME}"
                         )
                     ]
                 ),

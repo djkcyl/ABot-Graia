@@ -25,7 +25,7 @@ from util.control import Permission, Interval
 from util.sendMessage import safeSendGroupMessage
 from util.TextModeration import text_moderation_async
 from util.ImageModeration import image_moderation_async
-from config import yaml_data, group_data, user_black_list, save_config
+from config import yaml_data, group_data, user_black_list, save_config, COIN_NAME
 
 from .db import (
     throw_bottle,
@@ -200,7 +200,7 @@ async def throw_bottle_handler(
             )
         else:
             await safeSendGroupMessage(
-                group, MessageChain.create("你的游戏币不足，无法丢漂流瓶！"), quote=source
+                group, MessageChain.create(f"你的{COIN_NAME}不足，无法丢漂流瓶！"), quote=source
             )
     else:
         return await safeSendGroupMessage(

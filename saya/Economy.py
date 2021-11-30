@@ -7,9 +7,9 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import Sparkle, Twilight
 from graia.ariadne.message.parser.pattern import FullMatch, RegexMatch, ElementMatch
 
-from config import yaml_data, group_data
 from util.control import Permission, Interval
 from util.sendMessage import safeSendGroupMessage
+from config import yaml_data, group_data, COIN_NAME
 from database.db import reduce_gold, add_gold, trans_all_gold
 
 saya = Saya.current()
@@ -17,7 +17,7 @@ channel = Channel.current()
 
 
 class EconomySparkle(Sparkle):
-    header = FullMatch("赠送游戏币")
+    header = FullMatch(f"赠送{COIN_NAME}")
     at1 = ElementMatch(At, optional=True)
     anythings1 = RegexMatch(r".*?", optional=True)
     arg1 = FullMatch("-all", optional=True)
@@ -64,7 +64,7 @@ async def adminmain(
                 group,
                 MessageChain.create(
                     [
-                        Plain("已将你的所有游戏币赠送给 "),
+                        Plain(f"已将你的所有{COIN_NAME}赠送给 "),
                         At(int(to)),
                         Plain(f"，共赠送了 {golds} 个"),
                     ]
@@ -90,7 +90,7 @@ async def adminmain(
                         MessageChain.create(
                             [
                                 At(member.id),
-                                Plain(f"你的当前游戏币不足以扣除 {num}，已清零！"),
+                                Plain(f"你的当前{COIN_NAME}不足以扣除 {num}，已清零！"),
                             ]
                         ),
                     )
@@ -98,7 +98,7 @@ async def adminmain(
                     return await safeSendGroupMessage(
                         group,
                         MessageChain.create(
-                            [Plain("已扣除 "), At(member.id), Plain(f" {num} 游戏币")]
+                            [Plain("已扣除 "), At(member.id), Plain(f" {num} {COIN_NAME}")]
                         ),
                         quote=source,
                     )
@@ -113,13 +113,13 @@ async def adminmain(
                 await safeSendGroupMessage(
                     group,
                     MessageChain.create(
-                        [Plain("你已成功向 "), At(int(to)), Plain(f" 赠送 {num} 个游戏币")]
+                        [Plain("你已成功向 "), At(int(to)), Plain(f" 赠送 {num} 个{COIN_NAME}")]
                     ),
                     quote=source,
                 )
             else:
                 await safeSendGroupMessage(
-                    group, MessageChain.create([Plain("你的游戏币不足，无法赠送")]), quote=source
+                    group, MessageChain.create([Plain(f"你的{COIN_NAME}不足，无法赠送")]), quote=source
                 )
         else:
             return await safeSendGroupMessage(
