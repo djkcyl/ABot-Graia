@@ -20,9 +20,9 @@ from azure.cognitiveservices.speech import (
 
 
 from database.db import reduce_gold
-from config import yaml_data, group_data
 from util.sendMessage import safeSendGroupMessage
 from util.control import Permission, Interval, Rest
+from config import yaml_data, group_data, COIN_NAME
 
 saya = Saya.current()
 channel = Channel.current()
@@ -128,7 +128,7 @@ async def azuretts(group: Group, member: Member, message: MessageChain, source: 
 
     if not await reduce_gold(str(member.id), 2):
         return await safeSendGroupMessage(
-            group, MessageChain.create([Plain("你的游戏币不足，无法请求语音")]), quote=source.id
+            group, MessageChain.create([Plain(f"你的{COIN_NAME}不足，无法请求语音")]), quote=source.id
         )
 
     if len(saying[3]) < 800:

@@ -18,7 +18,7 @@ from util.text2image import create_image
 from util.control import Rest, Permission
 from database.db import add_gold, give_all_gold
 from util.sendMessage import safeSendGroupMessage
-from config import save_config, yaml_data, group_list, user_black_list
+from config import save_config, yaml_data, group_list, user_black_list, COIN_NAME
 
 from .AdminConfig import funcList
 
@@ -56,7 +56,7 @@ async def all_recharge(app: Ariadne, friend: Friend, message: MessageChain):
     saying = message.asDisplay().split()
     await give_all_gold(int(saying[1]))
     await app.sendFriendMessage(
-        friend, MessageChain.create([Plain(f"已向所有人充值 {saying[1]} 个游戏币")])
+        friend, MessageChain.create([Plain(f"已向所有人充值 {saying[1]} 个{COIN_NAME}")])
     )
 
 
@@ -70,7 +70,8 @@ async def echarge(app: Ariadne, friend: Friend, message: MessageChain):
     saying = message.asDisplay().split()
     await add_gold(saying[1], int(saying[2]))
     await app.sendFriendMessage(
-        friend, MessageChain.create([Plain(f"已向 {saying[1]} 充值 {saying[2]} 个游戏币")])
+        friend,
+        MessageChain.create([Plain(f"已向 {saying[1]} 充值 {saying[2]} 个{COIN_NAME}")]),
     )
 
 
@@ -187,6 +188,15 @@ async def fadd_black_user(app: Ariadne, friend: Friend, message: MessageChain):
             await app.sendFriendMessage(
                 friend, MessageChain.create([Plain("成功将该用户加入黑名单")])
             )
+            try:
+                await app.deleteFriend(int(saying[2]))
+                await app.sendFriendMessage(
+                    friend, MessageChain.create([Plain("已删除该好友")])
+                )
+            except Exception as e:
+                await app.sendFriendMessage(
+                    friend, MessageChain.create([Plain(f"删除好友失败 {type(e)}")])
+                )
     else:
         await app.sendFriendMessage(friend, MessageChain.create([Plain("未输入qq号")]))
 
@@ -221,7 +231,7 @@ async def fremove_block_user(app: Ariadne, friend: Friend, message: MessageChain
         decorators=[Permission.require(Permission.MASTER)],
     )
 )
-async def gadd_black_user(group: Group, message: MessageChain):
+async def gadd_black_user(app: Ariadne, group: Group, message: MessageChain):
     if message.has(At):
         user = message.getFirst(At).target
         if user in user_black_list:
@@ -246,6 +256,15 @@ async def gadd_black_user(group: Group, message: MessageChain):
                 save_config()
                 await safeSendGroupMessage(
                     group, MessageChain.create([Plain("成功将该用户加入黑名单")])
+                )
+            try:
+                await app.deleteFriend(int(saying[2]))
+                await safeSendGroupMessage(
+                    group, MessageChain.create([Plain("已删除该好友")])
+                )
+            except Exception as e:
+                await safeSendGroupMessage(
+                    group, MessageChain.create([Plain(f"删除好友失败 {type(e)}")])
                 )
         else:
             await safeSendGroupMessage(group, MessageChain.create([Plain("未输入qq号")]))
@@ -345,8 +364,8 @@ async def group_card_fix(app: Ariadne, friend: Friend):
                     [Plain(f"群 {group.name}（{group.id}）名片修改失败，请检查后重试")]
                 ),
             )
+            await asyncio.sleep(0.5)
             break
-        await asyncio.sleep(0.1)
     await app.sendFriendMessage(
         friend, MessageChain.create([Plain(f"共完成 {i} 个群的名片修改。")])
     )

@@ -45,7 +45,7 @@ math = Twilight(Pet_Sparkle, remove_extra_space=True)
         decorators=[Rest.rest_control(), Permission.require(), Interval.require()],
     )
 )
-async def petpet_generator(app: Ariadne, message: MessageChain, group: Group):
+async def petpet_generator(message: MessageChain, group: Group):
 
     if (
         yaml_data["Saya"]["PetPet"]["Disabled"]
@@ -67,7 +67,7 @@ async def petpet_generator(app: Ariadne, message: MessageChain, group: Group):
 @channel.use(
     ListenerSchema(listening_events=[NudgeEvent], decorators=[Rest.rest_control()])
 )
-async def get_nudge(nudge: NudgeEvent):
+async def get_nudge(app: Ariadne, nudge: NudgeEvent):
 
     if nudge.group_id:
 
@@ -82,21 +82,24 @@ async def get_nudge(nudge: NudgeEvent):
         Permission.manual(nudge.supplicant)
         await Interval.manual(nudge.group_id, 3)
 
-        logger.info(
-            f"[{nudge.group_id}] 收到戳一戳事件 -> [{nudge.supplicant}] - [{nudge.target}]"
-        )
+        if nudge.supplicant == yaml_data["Basic"]["MAH"]["BotQQ"]:
+            await app.sendNudge(nudge.group_id, nudge.target)
+        else:
+            logger.info(
+                f"[{nudge.group_id}] 收到戳一戳事件 -> [{nudge.supplicant}] - [{nudge.target}]"
+            )
 
-        await safeSendGroupMessage(
-            nudge.group_id,
-            MessageChain.create(
-                [Plain("收到 "), At(nudge.supplicant), Plain(" 的戳一戳，正在制图")]
-            ),
-        )
+            await safeSendGroupMessage(
+                nudge.group_id,
+                MessageChain.create(
+                    [Plain("收到 "), At(nudge.supplicant), Plain(" 的戳一戳，正在制图")]
+                ),
+            )
 
-        await safeSendGroupMessage(
-            nudge.group_id,
-            MessageChain.create([Image(data_bytes=await petpet(nudge.target))]),
-        )
+            await safeSendGroupMessage(
+                nudge.group_id,
+                MessageChain.create([Image(data_bytes=await petpet(nudge.target))]),
+            )
 
 
 frame_spec = [

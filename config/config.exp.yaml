@@ -20,6 +20,16 @@ Basic: # 基础配置
       # secret 获取地址： https://console.cloud.tencent.com/cam/capi
       secretId: "xxxxx"
       secretKey: "xxxxx"
+  
+  CoinName: "游戏币" # 游戏币别名
+  Event: # 事件通知
+    JoinGroup: true
+    LeaveGroup: true
+    KickGroup: true
+    Mute: true
+    PermissionChange: true
+    NewFriend: true
+
 Saya: # saya 插件配置
   AzureTTS: # 微软文字转语音
     Disabled: false # 是否禁用
