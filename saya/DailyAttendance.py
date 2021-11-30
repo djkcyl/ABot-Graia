@@ -11,9 +11,9 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.message import GroupMessage, FriendMessage
 
 
-from config import yaml_data, group_data
 from util.control import Permission, Interval
 from util.sendMessage import safeSendGroupMessage
+from config import yaml_data, group_data, COIN_NAME
 from database.db import sign, add_gold, get_info, all_sign_num
 
 saya = Saya.current()
@@ -35,7 +35,7 @@ async def main(group: Group, member: Member):
         else:
             gold_add = random.randint(5, 12)
         await add_gold(str(member.id), gold_add)
-        sign_text = f"今日签到成功！\n本次签到获得游戏币 {str(gold_add)} 个"
+        sign_text = f"今日签到成功！\n本次签到获得{COIN_NAME} {str(gold_add)} 个"
     else:
         sign_text = "今天你已经签到过了，不能贪心，凌晨4点以后再来吧！"
 
@@ -68,7 +68,7 @@ async def main(group: Group, member: Member):
             [
                 Plain(f"{time_nick}，{member.name}"),
                 Plain(f"\n{sign_text}"),
-                Plain(f"\n当前共有 {str(user_info[3])} 个游戏币"),
+                Plain(f"\n当前共有 {str(user_info[3])} 个{COIN_NAME}"),
                 Plain(f"\n你已累计签到 {str(user_info[2])} 天"),
                 Plain(f"\n从有记录以来你共有 {str(user_info[4])} 次发言"),
             ]

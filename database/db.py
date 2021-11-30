@@ -6,6 +6,8 @@ from loguru import logger
 from prettytable import PrettyTable
 from peewee import SqliteDatabase, Model, CharField, IntegerField
 
+from config import COIN_NAME
+
 
 db = SqliteDatabase("./database/userData.db")
 
@@ -252,7 +254,7 @@ async def get_ranking():
     return str(
         f"ABot 排行榜：\n当前共服务了 {user_num} 位用户\n注意：排行榜每十分钟更新一次\n"
         + "================================================================================================"
-        + f"\n游戏币排行榜\n{gold_rank}\n发言排行榜\n{talk_rank}\n答题排行榜\n{answer_rank}\n"
+        + f"\n{COIN_NAME}排行榜\n{gold_rank}\n发言排行榜\n{talk_rank}\n答题排行榜\n{answer_rank}\n"
     )
 
 
@@ -278,11 +280,12 @@ def ladder_rent_collection():
     user_list = User.select().where(User.gold >= 1000).order_by(User.gold.desc())
     total_rent = 0
     for user in user_list:
+        user: User
         leadder_rent = 1 - (math.floor(user.gold / 1000) / 100)
         User.update(gold=user.gold * leadder_rent).where(User.id == user.id).execute()
         gold = User.get(User.id == user.id).gold
         total_rent += user.gold - gold
-        logger.info(f"{user.id} 被收取 {user.gold - gold} 游戏币")
+        logger.info(f"{user.id} 被收取 {user.gold - gold} {COIN_NAME}")
 
     return total_rent
 

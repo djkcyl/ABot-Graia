@@ -15,9 +15,9 @@ from graia.ariadne.message.element import At, Plain, Image, Source
 from graia.ariadne.event.message import FriendMessage, GroupMessage
 
 from database.db import reduce_gold
-from config import yaml_data, group_data
 from util.control import Permission, Interval
 from util.sendMessage import safeSendGroupMessage
+from config import COIN_NAME, yaml_data, group_data
 
 from .draw import draw_tracemoe
 
@@ -195,7 +195,7 @@ async def anime_search(
             V_RUNING = False
         else:
             await safeSendGroupMessage(
-                group, MessageChain.create([At(member.id), Plain(" 你的游戏币不足，无法使用")])
+                group, MessageChain.create([At(member.id), Plain(f" 你的{COIN_NAME}不足，无法使用")])
             )
 
 
@@ -305,7 +305,7 @@ async def saucenao(group: Group, member: Member, message: MessageChain, source: 
                 I_RUNING = False
         else:
             await safeSendGroupMessage(
-                group, MessageChain.create([At(member.id), Plain(" 你的游戏币不足，无法使用")])
+                group, MessageChain.create([At(member.id), Plain(f" 你的{COIN_NAME}不足，无法使用")])
             )
 
 
