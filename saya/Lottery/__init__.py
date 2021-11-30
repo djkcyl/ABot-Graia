@@ -19,10 +19,10 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.element import At, Plain, Source, Image
 from graia.ariadne.event.message import FriendMessage, GroupMessage
 
-from config import yaml_data, group_data
 from database.db import add_gold, reduce_gold
 from util.control import Interval, Permission
 from util.sendMessage import safeSendGroupMessage
+from config import COIN_NAME, yaml_data, group_data
 
 from .certification import decrypt
 from .lottery_image import qrgen, qrdecode
@@ -99,7 +99,7 @@ async def buy_lottery(group: Group, member: Member, source: Source):
     else:
         await safeSendGroupMessage(
             group,
-            MessageChain.create([At(member.id), Plain("你的游戏币不够，无法购买")]),
+            MessageChain.create([At(member.id), Plain(f"你的{COIN_NAME}不够，无法购买")]),
             quote=source.id,
         )
 
@@ -172,7 +172,7 @@ async def redeem_lottery(app: Ariadne, group: Group, member: Member, source: Sou
                     await safeSendGroupMessage(
                         group,
                         MessageChain.create(
-                            [Plain(f"你已成功兑换上期奖券，共获得 {str(gold)} 个游戏币")]
+                            [Plain(f"你已成功兑换上期奖券，共获得 {str(gold)} 个{COIN_NAME}")]
                         ),
                     )
                 else:
@@ -277,7 +277,7 @@ async def q_lottery(group: Group):
                 Plain("上期开奖信息：\n"),
                 Plain(f"上期期号：{period}\n"),
                 Plain(f"中奖号码：{winner}\n"),
-                Plain(f"奖励：{gold} 个游戏币\n"),
+                Plain(f"奖励：{gold} 个{COIN_NAME}\n"),
                 Plain(f"状态：{received}"),
             ]
         ),

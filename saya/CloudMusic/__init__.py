@@ -17,9 +17,9 @@ from graia.ariadne.message.element import Plain, Image, Voice, Source
 from graia.ariadne.message.parser.pattern import FullMatch, RegexMatch
 
 from database.db import reduce_gold
-from config import yaml_data, group_data
 from util.text2image import create_image
 from util.sendMessage import safeSendGroupMessage
+from config import yaml_data, group_data, COIN_NAME
 from util.control import Permission, Interval, Rest
 
 saya = Saya.current()
@@ -226,7 +226,7 @@ async def sing(
             num += 1
             i += 1
 
-        msg += "\n===============================\n发送歌曲id可完成点歌\n发送取消可终止当前点歌\n点歌将消耗 4 个游戏币\n==============================="
+        msg += f"\n===============================\n发送歌曲id可完成点歌\n发送取消可终止当前点歌\n点歌将消耗 4 个{COIN_NAME}\n==============================="
         image = await create_image(msg)
         waite_musicmessageId = await safeSendGroupMessage(
             group, MessageChain.create([Image(data_bytes=image)])
@@ -312,7 +312,7 @@ async def sing(
         if not await reduce_gold(str(member.id), 4):
             WAITING.remove(member.id)
             return await safeSendGroupMessage(
-                group, MessageChain.create([Plain("你的游戏币不足，无法使用")]), quote=source.id
+                group, MessageChain.create([Plain(f"你的{COIN_NAME}不足，无法使用")]), quote=source.id
             )
 
         try:
