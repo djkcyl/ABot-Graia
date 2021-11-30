@@ -443,7 +443,7 @@ async def get_MemberHonorChangeEvent(events: MemberHonorChangeEvent):
     """
     msg = [
         At(events.member.id),
-        Plain(f" {'获得了' if events.action == 'achieve' else '失去了'} {events.honor} 头衔"),
+        Plain(f" {'获得了' if events.action == 'achieve' else '失去了'} 群荣誉 {events.honor}！"),
     ]
     if group_data[str(events.member.group.id)]["EventBroadcast"]["Enabled"]:
         await safeSendGroupMessage(events.member.group, MessageChain.create(msg))
