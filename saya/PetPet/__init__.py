@@ -6,7 +6,7 @@ from PIL import ImageOps
 from loguru import logger
 from PIL import Image as IMG
 from graia.saya import Saya, Channel
-from graia.ariadne.model import Group
+from graia.ariadne.model import Group, Member, MemberPerm
 from graia.ariadne.app import Ariadne
 from graia.ariadne.event.mirai import NudgeEvent
 from graia.ariadne.event.message import GroupMessage
@@ -82,8 +82,19 @@ async def get_nudge(app: Ariadne, nudge: NudgeEvent):
         Permission.manual(nudge.supplicant)
         await Interval.manual(nudge.group_id, 3)
 
-        if nudge.supplicant == yaml_data["Basic"]["MAH"]["BotQQ"]:
-            await app.sendNudge(nudge.group_id, nudge.target)
+        if nudge.target == yaml_data["Basic"]["MAH"]["BotQQ"]:
+            try:
+                await app.sendNudge(
+                    Member(
+                        id=nudge.supplicant,
+                        group=Group(id=nudge.group_id, name="", permission=MemberPerm(MemberPerm.Member)),
+                        memberName="",
+                        permission=MemberPerm(MemberPerm.Member)
+                    )
+                )
+            except Exception:
+                pass
+
         else:
             logger.info(
                 f"[{nudge.group_id}] 收到戳一戳事件 -> [{nudge.supplicant}] - [{nudge.target}]"

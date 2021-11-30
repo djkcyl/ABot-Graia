@@ -8,14 +8,10 @@ authors = ["djkcyl <cyl@cyllive.cn>"]
 python = ">=3.9,<3.10"
 graia-broadcast = "^0.13.1"
 graia-saya = "^0.0.13"
-Pillow = "^8.4.0"
-numpy = "^1.21.4"
 matplotlib = "^3.4.2"
 wordcloud = "^1.8.1"
 dnspython = "^2.1.0"
 peewee = "^3.14.4"
-PyMySQL = "^1.0.2"
-func-timeout = "^4.3.5"
 graiax-silkcoder = "^0.0.19"
 httpx = "^0.20.0"
 playwright = "^1.17.0"
@@ -34,12 +30,11 @@ pyacrcloud = [
 prettytable = "^2.4.0"
 jieba = "^0.42.1"
 psutil = "^5.8.0"
-markdown = "^3.3.4"
 scipy = "^1.7.2"
 pillow = "^8.4.0"
 saucenao-api = "^2.4.0"
 triangler = {git = "https://github.com/djkcyl/triangler.git"}
-graia-ariadne = "^0.4.3"
+graia-ariadne = "0.4.3"
 graia-scheduler = "^0.0.6"
 
 [build-system]

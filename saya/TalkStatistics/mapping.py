@@ -34,6 +34,5 @@ async def get_mapping(talk_num, time):
     plt.title("信息量统计", fontsize=36, fontproperties=zhfont1)
     plt.tick_params(axis="both", labelsize=12)
 
-    bio = BytesIO()
-    plt.savefig(bio)
+    plt.savefig(bio := BytesIO())
     return bio.getvalue()
