@@ -7,7 +7,6 @@
    > 
    > CentOS 执行 
    > ```shell
-   > yum install python-devel
    > yum install zbar-devel
    > ```
    > Ubuntu 执行
