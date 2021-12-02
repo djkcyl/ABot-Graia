@@ -1,4 +1,5 @@
 import json
+import httpx
 import random
 import asyncio
 
@@ -92,6 +93,9 @@ async def get_weibo_news(app: Ariadne):
         )
 
     except IndexError:
+        pass
+
+    except httpx.HTTPError:
         pass
 
     except Exception as e:

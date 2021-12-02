@@ -9,6 +9,7 @@ from peewee import (
     Model,
     TextField,
     DateTimeField,
+    BooleanField,
     fn,
 )
 
@@ -28,6 +29,7 @@ class DriftingBottle(BaseModel):
     image = TextField(null=True)
     fishing_times = IntegerField(default=0)
     send_date = DateTimeField(default=datetime.datetime.now)
+    isdelete = BooleanField(default=False)
 
     class Meta:
         db_table = "bottle_list"
@@ -49,7 +51,12 @@ def get_bottle() -> dict:
     if DriftingBottle.select().count() == 0:
         return None
     else:
-        bottle: DriftingBottle = DriftingBottle.select().order_by(fn.Random()).get()
+        bottle: DriftingBottle = (
+            DriftingBottle.select()
+            .where(DriftingBottle.isdelete == 0)
+            .order_by(fn.Random())
+            .get()
+        )
         DriftingBottle.update(fishing_times=DriftingBottle.fishing_times + 1).where(
             DriftingBottle.id == bottle.id
         ).execute()
@@ -65,20 +72,24 @@ def get_bottle() -> dict:
 
 
 def get_bottle_by_id(bottle_id: int):
-    return DriftingBottle.select().where(DriftingBottle.id == bottle_id)
+    return DriftingBottle.select().where(
+        DriftingBottle.id == bottle_id, DriftingBottle.isdelete == 0
+    )
 
 
 def count_bottle() -> int:
-    return DriftingBottle.select().count()
+    return DriftingBottle.select(DriftingBottle.isdelete == 0).count()
 
 
 def clear_bottle():
     DriftingBottle.delete().execute()
 
 
-def clear_bottle_by_member(member: Member):
-    DriftingBottle.delete().where(DriftingBottle.member == member.id).execute()
+def delete_bottle_by_member(member: Member):
+    DriftingBottle.update(isdelete=True).where(
+        DriftingBottle.member == member.id
+    ).execute()
 
 
 def delete_bottle(bottle_id: int):
-    DriftingBottle.delete().where(DriftingBottle.id == bottle_id).execute()
+    DriftingBottle.update(isdelete=True).where(DriftingBottle.id == bottle_id).execute()

@@ -87,9 +87,13 @@ async def get_nudge(app: Ariadne, nudge: NudgeEvent):
                 await app.sendNudge(
                     Member(
                         id=nudge.supplicant,
-                        group=Group(id=nudge.group_id, name="", permission=MemberPerm(MemberPerm.Member)),
+                        group=Group(
+                            id=nudge.group_id,
+                            name="",
+                            permission=MemberPerm(MemberPerm.Member),
+                        ),
                         memberName="",
-                        permission=MemberPerm(MemberPerm.Member)
+                        permission=MemberPerm(MemberPerm.Member),
                     )
                 )
             except Exception:
@@ -163,8 +167,6 @@ async def petpet(member_id, flip=False, squish=0) -> None:
 
     url = f"http://q1.qlogo.cn/g?b=qq&nk={str(member_id)}&s=640"
     gif_frames = []
-    # 打开头像
-    # avatar = Image.open(path)
     async with httpx.AsyncClient() as client:
         resp = await client.get(url=url)
 
