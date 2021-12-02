@@ -15,17 +15,7 @@
    > sudo apt install libzbar-dev
    > ```
 
-2. 安装依赖报错 **Unable to find installation candidates for pyacrcloud (1.0.2)**
-
-   > **该问题仅会出现在非 Linux 系统，由于该包的非 Linux 版本并未上传于 PyPI ，会出现找不到包的情况，请手动安装**
-   > 
-   > ```shell
-   > poetry remove pyacrcloud
-   > poetry add git+https://github.com/acrcloud/acrcloud_sdk_python
-   > poetry install
-   > ```
-
-3. 使用需要发送语音的功能时报错 **NameError: name 'warn' is not defined**
+2. 使用需要发送语音的功能时报错 **NameError: name 'warn' is not defined**
 
    > **系统内未安装 ffmpeg**
    > 
