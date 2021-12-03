@@ -61,7 +61,7 @@ async def random_mute(app: Ariadne, group: Group, member: Member):
             == yaml_data["Saya"]["MutePack"]["MaxJackpotProbability"]
         ):
             try:
-                await app.mute(group, member, 2592000)
+                await app.muteMember(group, member, 2592000)
                 await safeSendGroupMessage(
                     group,
                     MessageChain.create(
@@ -90,7 +90,7 @@ async def random_mute(app: Ariadne, group: Group, member: Member):
             try:
                 ftime = ftime * yaml_data["Saya"]["MutePack"]["MaxSuperDoubleMultiple"]
                 srtftime = strftime("%d:%H:%M:%S", gmtime(ftime))
-                await app.mute(group, member, ftime)
+                await app.muteMember(group, member, ftime)
                 await safeSendGroupMessage(
                     group,
                     MessageChain.create(
@@ -114,7 +114,7 @@ async def random_mute(app: Ariadne, group: Group, member: Member):
                 )
         else:
             try:
-                await app.mute(group, member, ftime)
+                await app.muteMember(group, member, ftime)
                 await safeSendGroupMessage(
                     group,
                     MessageChain.create(

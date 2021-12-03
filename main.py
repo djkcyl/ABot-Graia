@@ -50,14 +50,9 @@ with saya.module_context():
     logger.info("saya加载完成")
 
 
-async def main():
-    await app.launch()
-    await app.lifecycle()
-
-
 if __name__ == "__main__":
     try:
-        loop.run_until_complete(main())
+        loop.run_until_complete(app.lifecycle())
     except KeyboardInterrupt:
-        loop.run_until_complete(app.stop())
+        loop.run_until_complete(app.request_stop())
     save_config()

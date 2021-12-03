@@ -10,7 +10,7 @@ from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.model import Group, Member, MemberPerm
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import Twilight, Sparkle
-from graia.ariadne.message.parser.pattern import FullMatch, RegexMatch
+from graia.ariadne.message.parser.pattern import FullMatch, WildcardMatch
 from graia.ariadne.message.element import ForwardNode, Image, Plain, Forward
 
 from config import yaml_data, group_data
@@ -21,20 +21,26 @@ saya = Saya.current()
 channel = Channel.current()
 
 
-class PixivSparkle(Sparkle):
-    tag1 = RegexMatch(r".*", optional=True)
-    header = FullMatch("涩图")
-    tag2 = RegexMatch(r".*", optional=True)
-
-
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight(PixivSparkle)],
+        inline_dispatchers=[
+            Twilight(
+                Sparkle(
+                    matches={
+                        "tag1": WildcardMatch(optional=True),
+                        "header": FullMatch("涩图"),
+                        "tag2": WildcardMatch(optional=True),
+                    },
+                )
+            )
+        ],
         decorators=[Rest.rest_control(), Permission.require(), Interval.require()],
     )
 )
-async def main(app: Ariadne, group: Group, member: Member, sparkle: Sparkle):
+async def main(
+    app: Ariadne, group: Group, member: Member, tag1: WildcardMatch, tag2: WildcardMatch
+):
 
     if (
         yaml_data["Saya"]["Pixiv"]["Disabled"]
@@ -51,13 +57,11 @@ async def main(app: Ariadne, group: Group, member: Member, sparkle: Sparkle):
     else:
         san = 2
 
-    saying: PixivSparkle = sparkle
-
-    if saying.tag1.matched or saying.tag2.matched:
+    if tag1.matched or tag2.matched:
         tag = (
-            saying.tag1.result.getFirst(Plain).text
-            if saying.tag1.matched
-            else saying.tag2.result.getFirst(Plain).text
+            tag1.result.getFirst(Plain).text
+            if tag1.matched
+            else tag2.result.getFirst(Plain).text
         )
         async with httpx.AsyncClient() as client:
             r = await client.get(f"http://a60.one:404/get/tags/{tag}?num=5&san={san}")
