@@ -17,7 +17,11 @@ from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.element import Image, Plain, At, Source
 from graia.ariadne.message.parser.twilight import Twilight, Sparkle
-from graia.ariadne.message.parser.pattern import RegexMatch, ArgumentMatch
+from graia.ariadne.message.parser.pattern import (
+    RegexMatch,
+    ArgumentMatch,
+    WildcardMatch,
+)
 
 from database.db import reduce_gold
 from util.text2image import create_image
@@ -45,21 +49,31 @@ IMAGE_PATH = Path(__file__).parent.joinpath("image")
 IMAGE_PATH.mkdir(exist_ok=True)
 
 
-class BottleSparkle(Sparkle):
-    header = RegexMatch(r"^(扔|丢)(漂流瓶|瓶子)")
-    arg_pic = ArgumentMatch("-P", action="store_true", optional=True)
-    anythings1 = RegexMatch(r".*?", optional=True)
-
-
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight(BottleSparkle)],
+        inline_dispatchers=[
+            Twilight(
+                Sparkle(
+                    [RegexMatch(r"^(扔|丢)(漂流瓶|瓶子)")],
+                    {
+                        "arg_pic": ArgumentMatch(
+                            "-P", action="store_true", optional=True
+                        ),
+                        "anythings1": WildcardMatch(optional=True),
+                    },
+                )
+            )
+        ],
         decorators=[Permission.require(), Interval.require(100)],
     )
 )
 async def throw_bottle_handler(
-    group: Group, member: Member, source: Source, speaker: Sparkle
+    group: Group,
+    member: Member,
+    source: Source,
+    arg_pic: ArgumentMatch,
+    anythings1: WildcardMatch,
 ):
 
     if (
@@ -80,8 +94,7 @@ async def throw_bottle_handler(
             else:
                 return False
 
-    speaker: BottleSparkle = speaker
-    saying = speaker.anythings1
+    saying = anythings1
     text = None
     image_name = None
     image_url = None
@@ -124,7 +137,7 @@ async def throw_bottle_handler(
                 )
 
         if message_chain.has(Image):
-            if speaker.arg_pic.matched:
+            if arg_pic.matched:
                 return await safeSendGroupMessage(
                     group, MessageChain.create("使用手动发图参数后不可附带图片"), quote=source
                 )
@@ -135,7 +148,7 @@ async def throw_bottle_handler(
             else:
                 image_url = message_chain.getFirst(Image).url
 
-    if speaker.arg_pic.matched:
+    if arg_pic.matched:
         await safeSendGroupMessage(
             group, MessageChain.create("请在 30 秒内发送你要附带的图片"), quote=source
         )

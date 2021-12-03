@@ -30,8 +30,9 @@ class Weibo:
         url = "https://m.weibo.cn/statuses/extend?id=" + blog["id"]
 
         async with httpx.AsyncClient(headers=self.headers) as client:
-            r = await client.get(url)
+            r = await client.get(url,)
             result = r.json()
+            r.status_code
 
         html_text = result["data"]["longTextContent"]
         html_text = re.sub("<br />", "\n", html_text)

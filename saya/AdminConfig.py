@@ -476,22 +476,18 @@ async def atrep(group: Group, message: MessageChain):
         await safeSendGroupMessage(group, MessageChain.create([msg]))
 
 
-class MenuDetail(Sparkle):
-    header = FullMatch("功能")
-    wildcard = WildcardMatch()
-
-
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight(MenuDetail)],
+        inline_dispatchers=[
+            Twilight(Sparkle([FullMatch("功能")], {"func": WildcardMatch()}))
+        ],
         decorators=[Permission.require(), Interval.require(5)],
     )
 )
-async def funchelp(group: Group, sparkle: Sparkle):
-    sparkle: MenuDetail = sparkle
-    if sparkle.wildcard.matched:
-        num = sparkle.wildcard.result.asDisplay().strip()
+async def funchelp(group: Group, func: WildcardMatch):
+    if func.matched:
+        num = func.result.asDisplay().strip()
         if num.isdigit():
             func_id = int(num) - 1
         elif num in funcHelp:
@@ -637,34 +633,40 @@ async def off_func(group: Group, message: MessageChain):
         )
 
 
-class GroupFuncSparkle(Sparkle):
-    header = FullMatch("群功能")
-    reg1 = RegexMatch("修改|查看|关闭|开启", optional=True)
-    reg2 = RegexMatch("|".join(x["name"] for x in configList), optional=True)
-    reg3 = WildcardMatch(optional=True)
-
-
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight(GroupFuncSparkle)],
+        inline_dispatchers=[
+            Twilight(
+                Sparkle(
+                    [FullMatch("群功能")],
+                    {
+                        "reg1": RegexMatch("修改|查看|关闭|开启", optional=True),
+                        "reg2": RegexMatch(
+                            "|".join(x["name"] for x in configList), optional=True
+                        ),
+                        "reg3": WildcardMatch(optional=True),
+                    },
+                )
+            )
+        ],
         decorators=[Permission.require(Permission.GROUP_ADMIN), Interval.require(5)],
     )
 )
-async def group_func(group: Group, sparkle: Sparkle):
+async def group_func(
+    group: Group, reg1: RegexMatch, reg2: RegexMatch, reg3: WildcardMatch
+):
 
-    saying: GroupFuncSparkle = sparkle
-
-    if saying.reg1.matched:
-        ctrl = saying.reg1.result.getFirst(Plain).text
+    if reg1.matched:
+        ctrl = reg1.result.getFirst(Plain).text
         if ctrl == "修改":
-            if saying.reg2.matched:
-                configname = saying.reg2.result.getFirst(Plain).text
+            if reg2.matched:
+                configname = reg2.result.getFirst(Plain).text
                 for config in configList:
                     if config["name"] == configname:
                         if config["can_edit"]:
-                            if saying.reg3.matched:
-                                config_Message = saying.reg3.result.getFirst(Plain).text
+                            if reg3.matched:
+                                config_Message = reg3.result.getFirst(Plain).text
                                 group_data[str(group.id)][config["key"]][
                                     "Message"
                                 ] = config_Message
@@ -693,8 +695,8 @@ async def group_func(group: Group, sparkle: Sparkle):
                     group, MessageChain.create([Plain("请输入需要修改的配置名称")])
                 )
         elif ctrl == "查看":
-            if saying.reg2.matched:
-                configname = saying.reg2.result.getFirst(Plain).text
+            if reg2.matched:
+                configname = reg2.result.getFirst(Plain).text
                 for config in configList:
                     if config["name"] == configname:
                         config_Message = group_data[str(group.id)][config["key"]][
@@ -721,8 +723,8 @@ async def group_func(group: Group, sparkle: Sparkle):
                     group, MessageChain.create([Plain("请输入需要查看的配置名称")])
                 )
         elif ctrl == "关闭":
-            if saying.reg2.matched:
-                configname = saying.reg2.result.getFirst(Plain).text
+            if reg2.matched:
+                configname = reg2.result.getFirst(Plain).text
                 for config in configList:
                     if config["name"] == configname:
                         configkey = config["key"]
@@ -741,9 +743,13 @@ async def group_func(group: Group, sparkle: Sparkle):
                     return await safeSendGroupMessage(
                         group, MessageChain.create([Plain(f"{configname} 不存在")])
                     )
+            else:
+                return await safeSendGroupMessage(
+                    group, MessageChain.create([Plain("请输入需要关闭的配置名称")])
+                )
         elif ctrl == "开启":
-            if saying.reg2.matched:
-                configname = saying.reg2.result.getFirst(Plain).text
+            if reg2.matched:
+                configname = reg2.result.getFirst(Plain).text
                 for config in configList:
                     if config["name"] == configname:
                         configkey = config["key"]
@@ -762,6 +768,10 @@ async def group_func(group: Group, sparkle: Sparkle):
                     return await safeSendGroupMessage(
                         group, MessageChain.create([Plain(f"{configname} 不存在")])
                     )
+            else:
+                return await safeSendGroupMessage(
+                    group, MessageChain.create([Plain("请输入需要开启的配置名称")])
+                )
         else:
             return await safeSendGroupMessage(
                 group, MessageChain.create([Plain("请输入修改|查看|关闭|开启")])

@@ -34,7 +34,7 @@ scipy = "^1.7.2"
 pillow = "^8.4.0"
 saucenao-api = "^2.4.0"
 triangler = {git = "https://github.com/djkcyl/triangler.git"}
-graia-ariadne = "0.4.3"
+graia-ariadne = "^0.4.7"
 graia-scheduler = "^0.0.6"
 
 [build-system]

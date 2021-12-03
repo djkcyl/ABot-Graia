@@ -58,15 +58,12 @@ if not yaml_data["Saya"]["CloudMusic"]["Disabled"]:
 WAITING = []
 
 
-class CloudMusic(Sparkle):
-    header = FullMatch("点歌")
-    music_name = RegexMatch(r".*")
-
-
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight(CloudMusic)],
+        inline_dispatchers=[
+            Twilight(Sparkle([FullMatch("点歌")], {"music_name": RegexMatch(r".*")}))
+        ],
         decorators=[Rest.rest_control(), Permission.require(), Interval.require(120)],
     )
 )
@@ -74,7 +71,7 @@ async def sing(
     group: Group,
     member: Member,
     source: Source,
-    sparkle: Sparkle,
+    music_name: RegexMatch,
 ):
 
     if (
@@ -139,9 +136,8 @@ async def sing(
     if member.id not in WAITING:
         WAITING.append(member.id)
 
-        saying: CloudMusic = sparkle
-        if saying.music_name.matched:
-            musicname = saying.music_name.result.getFirst(Plain).text
+        if music_name.matched:
+            musicname = music_name.result.getFirst(Plain).text
             if musicname is None or musicname.replace(" ", "") == "":
                 WAITING.remove(member.id)
                 return await safeSendGroupMessage(
@@ -312,7 +308,9 @@ async def sing(
         if not await reduce_gold(str(member.id), 4):
             WAITING.remove(member.id)
             return await safeSendGroupMessage(
-                group, MessageChain.create([Plain(f"你的{COIN_NAME}不足，无法使用")]), quote=source.id
+                group,
+                MessageChain.create([Plain(f"你的{COIN_NAME}不足，无法使用")]),
+                quote=source.id,
             )
 
         try:

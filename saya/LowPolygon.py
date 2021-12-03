@@ -15,7 +15,7 @@ from graia.broadcast.interrupt import InterruptControl
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.element import Plain, At, Source, Image
 from graia.ariadne.message.parser.twilight import Twilight, Sparkle
-from graia.ariadne.message.parser.pattern import FullMatch, ArgumentMatch, RegexMatch
+from graia.ariadne.message.parser.pattern import FullMatch, ArgumentMatch, WildcardMatch
 
 from config import yaml_data, group_data
 from util.sendMessage import safeSendGroupMessage
@@ -30,16 +30,22 @@ inc = InterruptControl(bcc)
 WAITING = []
 
 
-class LowPolySparkle(Sparkle):
-    header = FullMatch("低多边形")
-    args = ArgumentMatch("-P", action="store", regex="\\d+", optional=True)
-    anythings1 = RegexMatch(".*")
-
-
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight(LowPolySparkle)],
+        inline_dispatchers=[
+            Twilight(
+                Sparkle(
+                    [FullMatch("低多边形")],
+                    {
+                        "args": ArgumentMatch(
+                            "-P", action="store", regex="\\d+", optional=True
+                        ),
+                        "anythings1": WildcardMatch(optional=True),
+                    },
+                )
+            )
+        ],
         decorators=[Rest.rest_control(), Permission.require(), Interval.require()],
     )
 )
@@ -47,7 +53,8 @@ async def low_poly(
     group: Group,
     member: Member,
     source: Source,
-    sparkle: Sparkle,
+    args: ArgumentMatch,
+    anythings1: WildcardMatch,
 ):
 
     if (
@@ -73,13 +80,11 @@ async def low_poly(
 
     if member.id not in WAITING:
         WAITING.append(member.id)
-
-        saying: LowPolySparkle = sparkle
         image_url = None
         point = None
 
-        if saying.args.matched:
-            point = int(saying.args.result)
+        if args.matched:
+            point = int(args.result)
             if 99 < point < 3001:
                 point = point
             else:
@@ -87,11 +92,11 @@ async def low_poly(
                     group, MessageChain.create([Plain("-P ：请输入100-3000之间的整数")])
                 )
 
-        if saying.anythings1.matched:
-            if saying.anythings1.result.has(Image):
-                image_url = saying.anythings1.result.getFirst(Image).url
-            elif saying.anythings1.result.has(At):
-                atid = saying.anythings1.result.getFirst(At).target
+        if anythings1.matched:
+            if anythings1.result.has(Image):
+                image_url = anythings1.result.getFirst(Image).url
+            elif anythings1.result.has(At):
+                atid = anythings1.result.getFirst(At).target
                 image_url = f"http://q1.qlogo.cn/g?b=qq&nk={atid}&s=640"
 
         if not image_url:

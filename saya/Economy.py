@@ -5,7 +5,12 @@ from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import At, Plain, Source
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import Sparkle, Twilight
-from graia.ariadne.message.parser.pattern import FullMatch, RegexMatch, ElementMatch
+from graia.ariadne.message.parser.pattern import (
+    FullMatch,
+    ElementMatch,
+    WildcardMatch,
+    ArgumentMatch,
+)
 
 from util.control import Permission, Interval
 from util.sendMessage import safeSendGroupMessage
@@ -16,17 +21,23 @@ saya = Saya.current()
 channel = Channel.current()
 
 
-class EconomySparkle(Sparkle):
-    header = FullMatch(f"赠送{COIN_NAME}")
-    at1 = ElementMatch(At, optional=True)
-    anythings1 = RegexMatch(r".*?", optional=True)
-    arg1 = FullMatch("-all", optional=True)
-
-
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight(EconomySparkle)],
+        inline_dispatchers=[
+            Twilight(
+                Sparkle(
+                    [FullMatch(f"赠送{COIN_NAME}")],
+                    {
+                        "at1": ElementMatch(At, optional=True),
+                        "anythings1": WildcardMatch(optional=True),
+                        "arg1": ArgumentMatch(
+                            "-all", action="store_true", optional=True
+                        ),
+                    },
+                )
+            )
+        ],
         decorators=[Permission.require(), Interval.require(5)],
     )
 )
@@ -34,7 +45,9 @@ async def adminmain(
     group: Group,
     member: Member,
     source: Source,
-    sparkle: Sparkle,
+    at1: ElementMatch,
+    anythings1: WildcardMatch,
+    arg1: ArgumentMatch,
 ):
 
     if (
@@ -45,20 +58,18 @@ async def adminmain(
     elif "Entertainment" in group_data[str(group.id)]["DisabledFunc"]:
         return
 
-    saying: EconomySparkle = sparkle
-
-    if not saying.at1.matched:
+    if not at1.matched:
         await safeSendGroupMessage(
             group, MessageChain.create([Plain("请at需要赠送的对象")]), quote=source
         )
     else:
-        to = str(saying.at1.result.target)
+        to = str(at1.result.target)
         if int(to) == member.id:
             return await safeSendGroupMessage(
                 group, MessageChain.create([Plain("请勿向自己赠送")]), quote=source
             )
 
-        if saying.arg1.matched:
+        if arg1.matched:
             golds = await trans_all_gold(str(member.id), to)
             return await safeSendGroupMessage(
                 group,
@@ -72,8 +83,8 @@ async def adminmain(
                 quote=source,
             )
 
-        if saying.anythings1.matched:
-            result = saying.anythings1.result.getFirst(Plain).text
+        if anythings1.matched:
+            result = anythings1.result.getFirst(Plain).text
             if len(result) > 20:
                 return await safeSendGroupMessage(group, MessageChain.create("消息过长"))
 
@@ -119,7 +130,9 @@ async def adminmain(
                 )
             else:
                 await safeSendGroupMessage(
-                    group, MessageChain.create([Plain(f"你的{COIN_NAME}不足，无法赠送")]), quote=source
+                    group,
+                    MessageChain.create([Plain(f"你的{COIN_NAME}不足，无法赠送")]),
+                    quote=source,
                 )
         else:
             return await safeSendGroupMessage(

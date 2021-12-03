@@ -14,7 +14,7 @@ from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import At, Image, Plain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import Sparkle, Twilight
-from graia.ariadne.message.parser.pattern import FullMatch, RegexMatch
+from graia.ariadne.message.parser.pattern import FullMatch, WildcardMatch
 
 from config import yaml_data, group_data
 from util.sendMessage import safeSendGroupMessage
@@ -30,18 +30,12 @@ BASE.mkdir(exist_ok=True)
 FRAMES_PATH = Path(__file__).parent.joinpath("PetPetFrames")
 
 
-class Pet_Sparkle(Sparkle):
-    math = FullMatch("摸")
-    arg1 = RegexMatch(".*")
-
-
-math = Twilight(Pet_Sparkle, remove_extra_space=True)
-
-
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[math],
+        inline_dispatchers=[
+            Twilight(Sparkle([FullMatch("摸")], {"arg1": WildcardMatch()}))
+        ],
         decorators=[Rest.rest_control(), Permission.require(), Interval.require()],
     )
 )
