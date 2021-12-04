@@ -269,7 +269,7 @@ async def saucenao(group: Group, member: Member, message: MessageChain, source: 
                     I_RUNING = False
                     return await safeSendGroupMessage(
                         group,
-                        MessageChain.create([Plain(f"搜索失败 {type(e)} {e.__str__()}")]),
+                        MessageChain.create([Plain(f"搜索失败 {type(e)} {str(e)}")]),
                     )
             global saucenao_usage
             saucenao_usage = {

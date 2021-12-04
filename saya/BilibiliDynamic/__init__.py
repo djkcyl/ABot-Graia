@@ -382,7 +382,7 @@ async def add_sub(app: Ariadne, group: Group, message: MessageChain):
         decorators=[Permission.require(Permission.GROUP_ADMIN), Interval.require()],
     )
 )
-async def remove_sub(app: Ariadne, group: Group, message: MessageChain):
+async def remove_sub(group: Group, message: MessageChain):
 
     saying = message.asDisplay().split(" ", 1)
     if len(saying) == 2:

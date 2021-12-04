@@ -134,7 +134,7 @@ async def azuretts(group: Group, member: Member, message: MessageChain, source: 
     if len(saying[3]) < 800:
         times = str(int(time.time() * 100))
         voicefile = BASEPATH.joinpath(f"{times}.wav")
-        await asyncio.to_thread(gettts, name, style, saying[3], voicefile.__str__())
+        await asyncio.to_thread(gettts, name, style, saying[3], str(voicefile))
         vioce_bytes = await silkcoder.encode(voicefile.read_bytes())
         await safeSendGroupMessage(
             group, MessageChain.create([Voice(data_bytes=vioce_bytes)])

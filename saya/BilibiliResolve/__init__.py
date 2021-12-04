@@ -2,6 +2,7 @@ import re
 import httpx
 import asyncio
 
+from loguru import logger
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.model import Group, Member
@@ -51,11 +52,12 @@ async def bilibili_main(
         if video_info["code"] != 0:
             await Interval.manual(member.id)
             return await safeSendGroupMessage(
-                group, MessageChain.create([Plain("视频不存在")])
+                group, MessageChain.create([Plain("视频不存在或解析失败")])
             )
         else:
             await Interval.manual(int(video_info["data"]["aid"]))
         try:
+            logger.info(f"开始生成视频信息图片：{video_info['data']['aid']}")
             image = await asyncio.to_thread(binfo_image_create, video_info)
             await safeSendGroupMessage(
                 group, MessageChain.create([Image(data_bytes=image)])

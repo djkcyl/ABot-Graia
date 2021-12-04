@@ -15,13 +15,13 @@ def sec_to_minsec(sec):
 
 async def draw_tracemoe(search_data, media_data):
     title_font = ImageFont.truetype(
-        FONT_PATH.joinpath("sarasa-mono-sc-semibold.ttf").__str__(), 28
+        str(FONT_PATH.joinpath("sarasa-mono-sc-semibold.ttf")), 28
     )
     subtitle_font = ImageFont.truetype(
-        FONT_PATH.joinpath("sarasa-mono-sc-semibold.ttf").__str__(), 18
+        str(FONT_PATH.joinpath("sarasa-mono-sc-semibold.ttf")), 18
     )
     body_font = ImageFont.truetype(
-        FONT_PATH.joinpath("sarasa-mono-sc-regular.ttf").__str__(), 22
+        str(FONT_PATH.joinpath("sarasa-mono-sc-regular.ttf")), 22
     )
 
     bg_x = 900
