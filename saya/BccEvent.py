@@ -21,8 +21,8 @@ async def make_msg_for_unknow_exception(event):
         tb = fp.getvalue()
     msg = str(
         f"异常事件：\n{str(event.event)}"
-        + f"\n异常类型：\n{str(type(event.exception))}"
-        + f"\n异常内容：\n{event.exception.__str__()}"
+        + f"\n异常类型：\n{type(event.exception)}"
+        + f"\n异常内容：\n{str(event.exception)}"
         + f"\n异常追踪：\n{tb}"
     )
     image = await create_image(msg, 200)

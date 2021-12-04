@@ -1,9 +1,13 @@
 import httpx
 
 from io import BytesIO
+from typing import List, Union
 from pathlib import Path
 from loguru import logger
-from PIL import Image, ImageDraw, ImageFont, ImageOps
+from PIL import Image as IMG
+from PIL import ImageDraw, ImageFont, ImageOps
+from graia.ariadne.message.element import Image, Plain
+
 
 from config import yaml_data
 
@@ -20,28 +24,28 @@ FONT_PATH = Path("font")
 
 # 字体
 font_bold_46 = ImageFont.truetype(
-    FONT_PATH.joinpath("sarasa-mono-sc-bold.ttf").__str__(), 46
+    str(FONT_PATH.joinpath("sarasa-mono-sc-bold.ttf")), 46
 )
 font_bold_40 = ImageFont.truetype(
-    FONT_PATH.joinpath("sarasa-mono-sc-bold.ttf").__str__(), 40
+    str(FONT_PATH.joinpath("sarasa-mono-sc-bold.ttf")), 40
 )
 font_bold_32 = ImageFont.truetype(
-    FONT_PATH.joinpath("sarasa-mono-sc-bold.ttf").__str__(), 32
+    str(FONT_PATH.joinpath("sarasa-mono-sc-bold.ttf")), 32
 )
 font_bold_30 = ImageFont.truetype(
-    FONT_PATH.joinpath("sarasa-mono-sc-bold.ttf").__str__(), 30
+    str(FONT_PATH.joinpath("sarasa-mono-sc-bold.ttf")), 30
 )
 font_semibold_24 = ImageFont.truetype(
-    FONT_PATH.joinpath("sarasa-mono-sc-semibold.ttf").__str__(), 24
+    str(FONT_PATH.joinpath("sarasa-mono-sc-semibold.ttf")), 24
 )
 font_regular_28 = ImageFont.truetype(
-    FONT_PATH.joinpath("sarasa-mono-sc-regular.ttf").__str__(), 28
+    str(FONT_PATH.joinpath("sarasa-mono-sc-regular.ttf")), 28
 )
 font_regular_24 = ImageFont.truetype(
-    FONT_PATH.joinpath("sarasa-mono-sc-regular.ttf").__str__(), 24
+    str(FONT_PATH.joinpath("sarasa-mono-sc-regular.ttf")), 24
 )
 font_regular_20 = ImageFont.truetype(
-    FONT_PATH.joinpath("sarasa-mono-sc-regular.ttf").__str__(), 20
+    str(FONT_PATH.joinpath("sarasa-mono-sc-regular.ttf")), 20
 )
 
 
@@ -61,14 +65,14 @@ def sec_to_minsec(sec):
 
 
 def circle_corner(img, radii):
-    circle = Image.new("L", (radii * 2, radii * 2), 0)
+    circle = IMG.new("L", (radii * 2, radii * 2), 0)
     draw = ImageDraw.Draw(circle)
     draw.ellipse((0, 0, radii * 2, radii * 2), fill=255)
 
     img = img.convert("RGBA")
     w, h = img.size
 
-    alpha = Image.new("L", img.size, 255)
+    alpha = IMG.new("L", img.size, 255)
     alpha.paste(circle.crop((0, 0, radii, radii)), (0, 0))
     alpha.paste(circle.crop((radii, 0, radii * 2, radii)), (w - radii, 0))
     alpha.paste(
@@ -89,10 +93,10 @@ def division_zero(a, b):
 def inverted_image(image):
     if image.mode == "RGBA":
         r, g, b, a = image.split()
-        rgb_image = Image.merge("RGB", (r, g, b))
+        rgb_image = IMG.merge("RGB", (r, g, b))
         inverted_image = ImageOps.invert(rgb_image)
         r2, g2, b2 = inverted_image.split()
-        return Image.merge("RGBA", (r2, g2, b2, a))
+        return IMG.merge("RGBA", (r2, g2, b2, a))
     else:
         return ImageOps.invert(image)
 
@@ -100,7 +104,7 @@ def inverted_image(image):
 async def get_pic(type, name):
     PICPATH = DATABASE.joinpath(type, f"{name}.png")
     if PICPATH.exists():
-        return Image.open(BytesIO(PICPATH.read_bytes())).convert("RGBA")
+        return IMG.open(BytesIO(PICPATH.read_bytes())).convert("RGBA")
     else:
         async with httpx.AsyncClient(timeout=10) as client:
             for _ in range(3):
@@ -120,23 +124,26 @@ async def get_pic(type, name):
                     continue
         logger.info(f"图片下载完成：{type} - {name}")
         PICPATH.write_bytes(r.content)
-        return Image.open(BytesIO(r.content)).convert("RGBA")
+        return IMG.open(BytesIO(r.content)).convert("RGBA")
 
 
-async def draw_r6(nick_name):
+async def draw_r6(nick_name: str) -> List[Union[Image, Plain]]:
 
     async with httpx.AsyncClient(
         timeout=10, auth=AUTH, follow_redirects=True
     ) as client:
         resp = await client.get(f"https://api.statsdb.net/r6/pc/player/{nick_name}")
-        data = resp.json()
 
-    if resp.status_code == 404:
-        return
+        if resp.status_code == 200:
+            data = resp.json()
+        elif resp.status_code == 404:
+            return [Plain(f"未搜索到该昵称：{nick_name}")]
+        else:
+            return [Plain(f"查询失败：{resp.status_code}")]
 
     # hight = 1125
     hight = 1502
-    bg = Image.new("RGB", (800, hight), (200, 200, 200))
+    bg = IMG.new("RGB", (800, hight), (200, 200, 200))
     draw = ImageDraw.Draw(bg)
 
     # 渐变背景
@@ -159,7 +166,7 @@ async def draw_r6(nick_name):
             async with httpx.AsyncClient() as client:
                 avatar = await client.get(data["payload"]["user"]["avatar"], timeout=15)
             if avatar.status_code == 200:
-                avatar = Image.open(BytesIO(avatar.content))
+                avatar = IMG.open(BytesIO(avatar.content))
                 avatar.thumbnail((128, 128))
                 circle_avatar = circle_corner(avatar, 20)
                 bg.paste(circle_avatar, (40, 40), circle_avatar)
@@ -185,7 +192,7 @@ async def draw_r6(nick_name):
         font_regular_28,
     )
     # 战绩板
-    record_bg = Image.new("RGB", (720, 380), (26, 27, 31))
+    record_bg = IMG.new("RGB", (720, 380), (26, 27, 31))
     circle_record_bg = circle_corner(record_bg, 12)
     bg.paste(circle_record_bg, (40, 215), circle_record_bg)
     draw.text((80, 250), "全局统计", "white", font_bold_30)
@@ -282,9 +289,9 @@ async def draw_r6(nick_name):
         reverse=True,
     )[0]
 
-    operator_box1 = Image.new("RGB", (215, 450), (72, 140, 222))
-    operator_box2 = Image.new("RGB", (215, 450), (66, 127, 109))
-    operator_box3 = Image.new("RGB", (215, 450), (212, 134, 30))
+    operator_box1 = IMG.new("RGB", (215, 450), (72, 140, 222))
+    operator_box2 = IMG.new("RGB", (215, 450), (66, 127, 109))
+    operator_box3 = IMG.new("RGB", (215, 450), (212, 134, 30))
     operator_figure1 = await get_pic("operators", most_played["id"])
     operator_figure2 = await get_pic("operators", best_kd["id"])
     operator_figure3 = await get_pic("operators", best_wl["id"])
@@ -331,7 +338,7 @@ async def draw_r6(nick_name):
     )
 
     # 常用武器
-    weapon_bg = Image.new("RGB", (720, 330), (26, 27, 31))
+    weapon_bg = IMG.new("RGB", (720, 330), (26, 27, 31))
     circle_weapon_bg = circle_corner(weapon_bg, 12)
     bg.paste(circle_weapon_bg, (40, 1130), circle_weapon_bg)
     draw.text((80, 1165), "最常用的武器", "white", font_bold_30)
@@ -364,4 +371,4 @@ async def draw_r6(nick_name):
 
     bg.save(bio := BytesIO(), "JPEG")
 
-    return bio.getvalue()
+    return [Image(data_bytes=bio.getvalue())]

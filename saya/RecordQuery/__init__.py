@@ -8,9 +8,9 @@ from graia.broadcast.interrupt.waiter import Waiter
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
 from graia.broadcast.interrupt import InterruptControl
+from graia.ariadne.message.element import Source, Plain, At
 from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.element import Image, Source, Plain, At
 
 from config import yaml_data, group_data
 from util.control import Permission, Interval
@@ -192,16 +192,7 @@ async def main(group: Group, member: Member, message: MessageChain, source: Sour
         await safeSendGroupMessage(
             group, MessageChain.create([Plain(f"正在查询：{nick_name}")])
         )
-        image = await draw_r6(nick_name)
-        if image:
-            await safeSendGroupMessage(
-                group, MessageChain.create([Image(data_bytes=image)]), quote=source.id
-            )
-        else:
-            await safeSendGroupMessage(
-                group,
-                MessageChain.create([Plain(f"未搜索到该昵称：{nick_name}")]),
-                quote=source.id,
-            )
 
+        msg = await draw_r6(nick_name)
+        await safeSendGroupMessage(group, MessageChain.create(msg), quote=source.id)
         WAITING.remove(member.id)

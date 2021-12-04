@@ -18,7 +18,7 @@ def numf(num: int):
     return view
 
 
-def binfo_image_create(video_info: str):
+def binfo_image_create(video_info: dict):
     bg_y = 0
     # 封面
     pic_url = video_info["data"]["pic"]

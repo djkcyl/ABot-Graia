@@ -173,8 +173,9 @@ async def accept(app: Ariadne, invite: BotInvitedJoinGroupRequestEvent):
 
         try:
             if await asyncio.wait_for(inc.wait(waiter), timeout=300):
-                group_list["white"].append(invite.groupId)
-                save_config()
+                if invite.groupId not in group_list["white"]:
+                    group_list["white"].append(invite.groupId)
+                    save_config()
                 await invite.accept()
                 await app.sendFriendMessage(
                     yaml_data["Basic"]["Permission"]["Master"],

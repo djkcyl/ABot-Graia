@@ -28,7 +28,7 @@ channel = Channel.current()
 
 BASEPATH = Path(__file__).parent
 MASK = numpy.array(IMG.open(BASEPATH.joinpath("bgg.jpg")))
-FONT_PATH = Path("font").joinpath("sarasa-mono-sc-regular.ttf").__str__()
+FONT_PATH = Path("font").joinpath("sarasa-mono-sc-regular.ttf")
 STOPWORDS = BASEPATH.joinpath("stopwords")
 
 RUNNING = 0
@@ -106,7 +106,11 @@ async def get_frequencies(msg_list):
 def make_wordcloud(words):
 
     wordcloud = WordCloud(
-        font_path=FONT_PATH, background_color="white", mask=MASK, max_words=800, scale=2
+        font_path=str(FONT_PATH),
+        background_color="white",
+        mask=MASK,
+        max_words=800,
+        scale=2,
     )
     wordcloud.generate_from_frequencies(words)
     image_colors = ImageColorGenerator(MASK, default_color=(255, 255, 255))
