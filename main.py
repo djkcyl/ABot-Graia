@@ -61,8 +61,5 @@ with saya.module_context():
 
 
 if __name__ == "__main__":
-    try:
-        loop.run_until_complete(app.lifecycle())
-    except KeyboardInterrupt:
-        loop.run_until_complete(app.request_stop())
+    app.launch_blocking()
     save_config()
