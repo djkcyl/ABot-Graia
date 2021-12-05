@@ -6,7 +6,8 @@ from graia.saya import Saya, Channel
 from graia.ariadne.model import Group, Member
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
-from graia.ariadne.message.parser.literature import Literature
+from graia.ariadne.message.parser.twilight import Twilight
+from graia.ariadne.message.parser.pattern import FullMatch
 from graia.ariadne.message.element import Image, Plain, Source
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 
@@ -26,7 +27,7 @@ Designs = json.loads(
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Literature("查看人设")],
+        inline_dispatchers=[Twilight({"head": FullMatch("查看人设")})],
         decorators=[Rest.rest_control(), Permission.require(), Interval.require()],
     )
 )
@@ -68,7 +69,7 @@ def get_rand(qid: int, gid: int):
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Literature("/reload", "人设")],
+        inline_dispatchers=[Twilight({"head": FullMatch("重载人设")})],
         decorators=[Permission.require(Permission.MASTER)],
     )
 )

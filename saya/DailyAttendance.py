@@ -6,7 +6,8 @@ from graia.ariadne.app import Ariadne
 from graia.ariadne.message.element import Plain
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.model import Friend, Group, Member
-from graia.ariadne.message.parser.literature import Literature
+from graia.ariadne.message.parser.twilight import Twilight
+from graia.ariadne.message.parser.pattern import FullMatch
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.message import GroupMessage, FriendMessage
 
@@ -23,7 +24,7 @@ channel = Channel.current()
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Literature("签到")],
+        inline_dispatchers=[Twilight(match={"head": FullMatch("签到")})],
         decorators=[Permission.require(), Interval.require()],
     )
 )
@@ -79,7 +80,7 @@ async def main(group: Group, member: Member):
 @channel.use(
     ListenerSchema(
         listening_events=[FriendMessage],
-        inline_dispatchers=[Literature("签到率查询")],
+        inline_dispatchers=[Twilight(match={"head": FullMatch("签到率查询")})],
         decorators=[Permission.require(Permission.MASTER)],
     )
 )

@@ -11,8 +11,8 @@ from graia.broadcast.interrupt.waiter import Waiter
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.event.message import GroupMessage
 from graia.broadcast.interrupt import InterruptControl
+from graia.ariadne.message.parser.twilight import Twilight
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.twilight import Twilight, Sparkle
 from graia.ariadne.message.element import Plain, Image, Voice, Source
 from graia.ariadne.message.parser.pattern import FullMatch, RegexMatch
 
@@ -62,7 +62,7 @@ WAITING = []
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight(Sparkle([FullMatch("点歌")], {"music_name": RegexMatch(r".*")}))
+            Twilight({"head": FullMatch("点歌"), "music_name": RegexMatch(r".*")})
         ],
         decorators=[Rest.rest_control(), Permission.require(), Interval.require(120)],
     )

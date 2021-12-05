@@ -4,9 +4,9 @@ from graia.ariadne.model import Group
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.element import Plain, Image
+from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.message.parser.pattern import RegexMatch
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.twilight import Twilight, Sparkle
 
 from config import yaml_data, group_data
 from util.sendMessage import safeSendGroupMessage
@@ -35,7 +35,7 @@ channel = Channel.current()
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight(Sparkle([RegexMatch("5000兆 .* .*")]))],
+        inline_dispatchers=[Twilight({"head": RegexMatch("5000兆 .* .*")})],
         decorators=[Rest.rest_control(), Permission.require(), Interval.require()],
     )
 )
@@ -60,7 +60,7 @@ async def gosencho_handler(message: MessageChain, group: Group):
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight(Sparkle([RegexMatch("ph .* .*")]))],
+        inline_dispatchers=[Twilight({"head": RegexMatch("ph .* .*")})],
         decorators=[Rest.rest_control(), Permission.require(), Interval.require()],
     )
 )
@@ -82,7 +82,7 @@ async def pornhub_handler(message: MessageChain, group: Group):
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight(Sparkle([RegexMatch("yt .* .*")]))],
+        inline_dispatchers=[Twilight({"head": RegexMatch("yt .* .*")})],
         decorators=[Rest.rest_control(), Permission.require(), Interval.require()],
     )
 )

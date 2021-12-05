@@ -9,9 +9,9 @@ from graia.ariadne.model import Group, Member
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import Plain, AtAll
+from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.message.parser.pattern import RegexMatch
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.twilight import Sparkle, Twilight
 
 from util.control import Interval
 from config import group_data, yaml_data
@@ -34,7 +34,7 @@ if (
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight(Sparkle([RegexMatch(r"(?=.*要)(?=.*禁)(?=.*言)(?=.*套)(?=.*餐)")]))
+            Twilight({"head": RegexMatch(r"(?=.*要)(?=.*禁)(?=.*言)(?=.*套)(?=.*餐)")})
         ],
         decorators=[Interval.require()],
     )

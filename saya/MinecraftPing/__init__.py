@@ -1,10 +1,10 @@
 from graia.saya import Saya, Channel
 from graia.ariadne.model import Group
-from graia.ariadne.message.element import Plain
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.message.parser.twilight import Twilight
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.literature import Literature
+from graia.ariadne.message.parser.pattern import FullMatch, WildcardMatch
 
 from config import yaml_data, group_data
 from util.control import Permission, Interval
@@ -19,11 +19,15 @@ channel = Channel.current()
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Literature("/mcping")],
+        inline_dispatchers=[
+            Twilight(
+                {"head": FullMatch("/mcping"), "anything": WildcardMatch(optional=True)}
+            )
+        ],
         decorators=[Permission.require(), Interval.require()],
     )
 )
-async def minecraft_ping(group: Group, message: MessageChain):
+async def minecraft_ping(group: Group, anything: WildcardMatch):
 
     if (
         yaml_data["Saya"]["MinecraftPing"]["Disabled"]
@@ -33,11 +37,8 @@ async def minecraft_ping(group: Group, message: MessageChain):
     elif "MinecraftPing" in group_data[str(group.id)]["DisabledFunc"]:
         return
 
-    saying = message.asDisplay().split()
-    if len(saying) == 2:
-        send_msg = await mcping(saying[1])
-        await safeSendGroupMessage(str(group.id), MessageChain.create(send_msg))
+    if anything.matched:
+        send_msg = await mcping(anything.result.asDisplay())
+        await safeSendGroupMessage(group, MessageChain.create(send_msg))
     else:
-        await safeSendGroupMessage(
-            str(group.id), MessageChain.create([Plain("用法：/mcping 服务器地址")])
-        )
+        await safeSendGroupMessage(group, MessageChain.create("用法：/mcping 服务器地址"))

@@ -9,9 +9,10 @@ from graia.broadcast.interrupt.waiter import Waiter
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
 from graia.broadcast.interrupt import InterruptControl
-from graia.ariadne.message.parser.literature import Literature
+from graia.ariadne.message.parser.twilight import Twilight
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.element import Image, Plain, Source, Voice
+from graia.ariadne.message.parser.pattern import FullMatch, RegexMatch
 from acrcloud.recognizer import ACRCloudRecognizer, ACRCloudRecognizeType
 
 from database.db import reduce_gold
@@ -50,11 +51,13 @@ WAITING = []
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Literature("识曲")],
+        inline_dispatchers=[
+            Twilight({"head": FullMatch("识曲"), "operate": RegexMatch(r"原曲|哼唱")})
+        ],
         decorators=[Permission.require(), Interval.require(30)],
     )
 )
-async def main(group: Group, member: Member, message: MessageChain, source: Source):
+async def main(group: Group, member: Member, operate: RegexMatch, source: Source):
 
     if (
         yaml_data["Saya"]["VoiceMusicRecognition"]["Disabled"]
@@ -80,14 +83,10 @@ async def main(group: Group, member: Member, message: MessageChain, source: Sour
                 )
 
     if member.id not in WAITING:
-        saying = message.asDisplay().split()
-        if len(saying) != 2:
-            return await safeSendGroupMessage(
-                group, MessageChain.create([Plain("使用方法：识曲 <原曲|哼唱>")])
-            )
-        elif saying[1] == "原曲":
+        saying = operate.result.asDisplay()
+        if saying == "原曲":
             acr = ACRCloudRecognizer(original_config)
-        elif saying[1] == "哼唱":
+        elif saying == "哼唱":
             acr = ACRCloudRecognizer(humming_config)
         else:
             return await safeSendGroupMessage(

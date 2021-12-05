@@ -113,7 +113,10 @@ async def get_game_news(app: Ariadne):
         return
 
     pushed = pushed_list["game"] if pushed_list["game"] else []
-    latest_list = await game.get_announce()
+    try:
+        latest_list = await game.get_announce()
+    except httpx.HTTPError:
+        return
     new_list = list(set(latest_list) - set(pushed))
 
     if not pushed:

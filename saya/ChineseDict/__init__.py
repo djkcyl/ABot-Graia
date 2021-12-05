@@ -6,8 +6,9 @@ from graia.ariadne.model import Group
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import Plain, Image
-from graia.ariadne.message.parser.literature import Literature
+from graia.ariadne.message.parser.twilight import Twilight
 from graia.saya.builtins.broadcast.schema import ListenerSchema
+from graia.ariadne.message.parser.pattern import FullMatch, WildcardMatch
 
 from config import yaml_data, group_data
 from util.sendMessage import safeSendGroupMessage
@@ -23,11 +24,15 @@ channel = Channel.current()
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Literature("词典")],
+        inline_dispatchers=[
+            Twilight(
+                {"head": FullMatch("词典"), "anything": WildcardMatch(optional=True)}
+            )
+        ],
         decorators=[Rest.rest_control(), Permission.require(), Interval.require()],
     )
 )
-async def dict(group: Group, message: MessageChain):
+async def dict(group: Group, anything: WildcardMatch):
 
     if (
         yaml_data["Saya"]["ChineseDict"]["Disabled"]
@@ -37,9 +42,8 @@ async def dict(group: Group, message: MessageChain):
     elif "ChineseDict" in group_data[str(group.id)]["DisabledFunc"]:
         return
 
-    saying = message.asDisplay().split()
-    if len(saying) == 2:
-        dict_name = saying[1]
+    if anything.matched:
+        dict_name = anything.result.asDisplay()
         try:
             url = f"https://www.zdic.net/hans/{dict_name}"
             dict_html = httpx.get(url).text

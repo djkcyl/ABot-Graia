@@ -3,16 +3,16 @@ import asyncio
 
 from saucenao_api import AIOSauceNao
 from graia.saya import Saya, Channel
-from graia.ariadne.app import Ariadne
+from graia.ariadne.model import Group, Member
 from saucenao_api.errors import SauceNaoApiError
 from graia.broadcast.interrupt.waiter import Waiter
+from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
-from graia.ariadne.model import Friend, Group, Member
 from graia.broadcast.interrupt import InterruptControl
+from graia.ariadne.message.parser.twilight import Twilight
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.literature import Literature
 from graia.ariadne.message.element import At, Plain, Image, Source
-from graia.ariadne.event.message import FriendMessage, GroupMessage
+from graia.ariadne.message.parser.pattern import FullMatch, ElementMatch
 
 from database.db import reduce_gold
 from util.control import Permission, Interval
@@ -71,13 +71,13 @@ saucenao_usage = None
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Literature("以图搜番")],
+        inline_dispatchers=[
+            Twilight({"head": FullMatch("以图搜番"), "img": ElementMatch(Image)})
+        ],
         decorators=[Permission.require(), Interval.require()],
     )
 )
-async def anime_search(
-    group: Group, member: Member, message: MessageChain, source: Source
-):
+async def anime_search(group: Group, member: Member, img: ElementMatch, source: Source):
 
     if (
         yaml_data["Saya"]["AnimeSceneSearch"]["Disabled"]
@@ -107,8 +107,8 @@ async def anime_search(
             group, MessageChain.create([Plain("以图搜番正在运行，请稍后再试")])
         )
     else:
-        if message.has(Image):
-            image_url = message.getFirst(Image).url
+        if img.matched:
+            image_url = img.result.url
         else:
             WAITING.append(member.id)
             waite = await safeSendGroupMessage(
@@ -195,18 +195,21 @@ async def anime_search(
             V_RUNING = False
         else:
             await safeSendGroupMessage(
-                group, MessageChain.create([At(member.id), Plain(f" 你的{COIN_NAME}不足，无法使用")])
+                group,
+                MessageChain.create([At(member.id), Plain(f" 你的{COIN_NAME}不足，无法使用")]),
             )
 
 
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Literature("以图搜图")],
+        inline_dispatchers=[
+            Twilight({"head": FullMatch("以图搜图"), "img": ElementMatch(Image)})
+        ],
         decorators=[Permission.require(), Interval.require()],
     )
 )
-async def saucenao(group: Group, member: Member, message: MessageChain, source: Source):
+async def saucenao(group: Group, member: Member, img: ElementMatch, source: Source):
 
     if (
         yaml_data["Saya"]["AnimeSceneSearch"]["Disabled"]
@@ -236,8 +239,8 @@ async def saucenao(group: Group, member: Member, message: MessageChain, source: 
             group, MessageChain.create([Plain("以图搜图正在运行，请稍后再试")])
         )
     else:
-        if message.has(Image):
-            image_url = message.getFirst(Image).url
+        if img.matched:
+            image_url = img.result.url
         else:
             WAITING.append(member.id)
             waite = await safeSendGroupMessage(
@@ -305,34 +308,6 @@ async def saucenao(group: Group, member: Member, message: MessageChain, source: 
                 I_RUNING = False
         else:
             await safeSendGroupMessage(
-                group, MessageChain.create([At(member.id), Plain(f" 你的{COIN_NAME}不足，无法使用")])
+                group,
+                MessageChain.create([At(member.id), Plain(f" 你的{COIN_NAME}不足，无法使用")]),
             )
-
-
-@channel.use(
-    ListenerSchema(
-        listening_events=[FriendMessage], inline_dispatchers=[Literature("查看搜图用量")]
-    )
-)
-async def check_saucenao(app: Ariadne, friend: Friend):
-    if friend.id == yaml_data["Basic"]["Permission"]["Master"]:
-        global saucenao_usage
-        if not saucenao_usage:
-            async with AIOSauceNao(
-                yaml_data["Saya"]["AnimeSceneSearch"]["saucenao_key"]
-            ) as snao:
-                results = await snao.from_url("https://i.imgur.com/oZjCxGo.jpg")
-            saucenao_usage = {
-                "short": results.short_remaining,
-                "long": results.long_remaining,
-            }
-        await app.sendFriendMessage(
-            friend,
-            MessageChain.create(
-                [
-                    Plain(
-                        f"当前用量：\n短期：{saucenao_usage['short']}\n长期：{saucenao_usage['long']}"
-                    )
-                ]
-            ),
-        )

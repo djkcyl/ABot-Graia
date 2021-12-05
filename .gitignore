@@ -32,6 +32,7 @@ saya/BilibiliDynamic/dynamic_list.json
 archive/
 cache/
 data/
+logs/
 saya/ArkNews/pushed_list.json
 saya/DriftingBottle/image
 start.sh

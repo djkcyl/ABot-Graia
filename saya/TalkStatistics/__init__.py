@@ -9,7 +9,8 @@ from graia.saya import Saya, Channel
 from graia.ariadne.model import Group, Member
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.event.message import GroupMessage
-from graia.ariadne.message.parser.literature import Literature
+from graia.ariadne.message.parser.twilight import Twilight
+from graia.ariadne.message.parser.pattern import FullMatch
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.element import FlashImage, Image, Plain, Voice
 
@@ -35,7 +36,7 @@ if not data_path.exists():
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Literature("查看消息量统计")],
+        inline_dispatchers=[Twilight({"head": FullMatch("查看消息量统计")})],
         decorators=[Permission.require(Permission.MASTER)],
     )
 )

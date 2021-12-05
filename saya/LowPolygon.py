@@ -12,9 +12,9 @@ from graia.broadcast.interrupt.waiter import Waiter
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
 from graia.broadcast.interrupt import InterruptControl
+from graia.ariadne.message.parser.twilight import Twilight
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.element import Plain, At, Source, Image
-from graia.ariadne.message.parser.twilight import Twilight, Sparkle
 from graia.ariadne.message.parser.pattern import FullMatch, ArgumentMatch, WildcardMatch
 
 from config import yaml_data, group_data
@@ -35,15 +35,13 @@ WAITING = []
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight(
-                Sparkle(
-                    [FullMatch("低多边形")],
-                    {
-                        "args": ArgumentMatch(
-                            "-P", action="store", regex="\\d+", optional=True
-                        ),
-                        "anythings1": WildcardMatch(optional=True),
-                    },
-                )
+                {
+                    "head": FullMatch("低多边形"),
+                    "args": ArgumentMatch(
+                        "-P", action="store", regex="\\d+", optional=True
+                    ),
+                    "anythings1": WildcardMatch(optional=True),
+                },
             )
         ],
         decorators=[Rest.rest_control(), Permission.require(), Interval.require()],
