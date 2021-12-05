@@ -7,8 +7,9 @@ from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.model import Friend, Group, Member
 from graia.broadcast.interrupt import InterruptControl
 from graia.ariadne.message.element import At, Image, Plain
+from graia.ariadne.message.parser.twilight import Twilight
+from graia.ariadne.message.parser.pattern import FullMatch
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.literature import Literature
 from graia.ariadne.event.message import GroupMessage, FriendMessage
 
 from database.db import add_answer
@@ -56,7 +57,7 @@ RUNNING = {}
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Literature("背单词")],
+        inline_dispatchers=[Twilight({"head": FullMatch("背单词")})],
         decorators=[Permission.require()],
     )
 )
@@ -187,7 +188,8 @@ async def group_learn(app: Ariadne, group: Group, member: Member):
 
 @channel.use(
     ListenerSchema(
-        listening_events=[FriendMessage], inline_dispatchers=[Literature("背单词")]
+        listening_events=[FriendMessage],
+        inline_dispatchers=[Twilight({"head": FullMatch("背单词")})],
     )
 )
 async def friend_learn(app: Ariadne, friend: Friend):

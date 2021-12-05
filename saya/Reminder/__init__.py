@@ -10,9 +10,9 @@ from graia.ariadne.event.message import GroupMessage
 from graia.broadcast.interrupt import InterruptControl
 from graia.scheduler.timers import every_custom_seconds
 from graia.scheduler.saya.schema import SchedulerSchema
-from graia.ariadne.message.parser.literature import Literature
+from graia.ariadne.message.parser.twilight import Twilight
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-
+from graia.ariadne.message.parser.pattern import FullMatch, WildcardMatch
 
 from config import yaml_data, group_data
 from util.control import Permission, Interval
@@ -54,7 +54,7 @@ async def scheduler():
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Literature("定时提醒")],
+        inline_dispatchers=[Twilight({"head": FullMatch("定时提醒")})],
         decorators=[Permission().require(), Interval().require()],
     )
 )
@@ -86,7 +86,7 @@ async def get_reminder(group: Group, member: Member):
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Literature("新建提醒")],
+        inline_dispatchers=[Twilight({"head": FullMatch("新建提醒")})],
         decorators=[Permission().require(), Interval().require()],
     )
 )
@@ -163,11 +163,15 @@ async def main(group: Group, member: Member):
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Literature("删除提醒")],
+        inline_dispatchers=[
+            Twilight(
+                {"head": FullMatch("删除提醒"), "anything": WildcardMatch(optional=True)}
+            )
+        ],
         decorators=[Permission().require(), Interval().require()],
     )
 )
-async def del_reminder(group: Group, member: Member, message: MessageChain):
+async def del_reminder(group: Group, member: Member, anything: WildcardMatch):
 
     if (
         yaml_data["Saya"]["Reminder"]["Disabled"]
@@ -177,11 +181,10 @@ async def del_reminder(group: Group, member: Member, message: MessageChain):
     elif "Reminder" in group_data[str(group.id)]["DisabledFunc"]:
         return
 
-    saying = message.asDisplay()
-
-    if len(saying.split()) == 2:
-        try:
-            thing = int(saying.split()[1])
+    if anything.matched:
+        say = anything.result.asDisplay()
+        if say.isdigit():
+            thing = int(say)
             if set_reminder_deleted(thing):
                 await safeSendGroupMessage(
                     group,
@@ -192,12 +195,10 @@ async def del_reminder(group: Group, member: Member, message: MessageChain):
                     group,
                     MessageChain.create(At(member.id), f" 提醒事件 ID:{thing} 不存在"),
                 )
-        except ValueError:
+        else:
             await safeSendGroupMessage(
                 group,
-                MessageChain.create(
-                    At(member.id), f" 提醒事件 ID:{saying.split()[1]} 格式错误"
-                ),
+                MessageChain.create(At(member.id), " 提醒事件 ID 仅可为数字"),
             )
     else:
         await safeSendGroupMessage(

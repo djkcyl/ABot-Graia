@@ -13,9 +13,10 @@ from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import Image, Plain
 from graia.scheduler.timers import every_custom_seconds
 from graia.scheduler.saya.schema import SchedulerSchema
+from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.event.lifecycle import ApplicationLaunched
-from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
+from graia.ariadne.message.parser.pattern import FullMatch, WildcardMatch
 from graia.ariadne.event.mirai import BotLeaveEventKick, BotLeaveEventActive
 
 from config import yaml_data
@@ -362,39 +363,47 @@ async def update_scheduled(app: Ariadne):
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Literature("订阅")],
+        inline_dispatchers=[
+            Twilight(
+                {"head": FullMatch("订阅"), "anything": WildcardMatch(optional=True)}
+            )
+        ],
         decorators=[Permission.require(Permission.GROUP_ADMIN), Interval.require()],
     )
 )
-async def add_sub(app: Ariadne, group: Group, message: MessageChain):
+async def add_sub(group: Group, anything: WildcardMatch):
 
-    saying = message.asDisplay().split(" ", 1)
-    if len(saying) == 2:
+    if anything.matched:
         await safeSendGroupMessage(
-            group, MessageChain.create([await add_uid(saying[1], group.id)])
+            group,
+            MessageChain.create(await add_uid(anything.result.asDisplay(), group.id)),
         )
 
 
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Literature("退订")],
+        inline_dispatchers=[
+            Twilight(
+                {"head": FullMatch("退订"), "anything": WildcardMatch(optional=True)}
+            )
+        ],
         decorators=[Permission.require(Permission.GROUP_ADMIN), Interval.require()],
     )
 )
-async def remove_sub(group: Group, message: MessageChain):
+async def remove_sub(group: Group, anything: WildcardMatch):
 
-    saying = message.asDisplay().split(" ", 1)
-    if len(saying) == 2:
+    if anything.matched:
         await safeSendGroupMessage(
-            group, MessageChain.create([remove_uid(saying[1], group.id)])
+            group,
+            MessageChain.create([remove_uid(anything.result.asDisplay(), group.id)]),
         )
 
 
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Literature("本群订阅列表")],
+        inline_dispatchers=[Twilight({"head": FullMatch("本群订阅列表")})],
         decorators=[Permission.require(Permission.GROUP_ADMIN), Interval.require()],
     )
 )
@@ -429,16 +438,17 @@ async def bot_leave(group: Group):
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Literature("查看动态")],
+        inline_dispatchers=[
+            Twilight({"head": FullMatch("查看动态"), "anything": WildcardMatch()})
+        ],
         decorators=[Permission.require(), Interval.require(20)],
     )
 )
-async def vive_dyn(app: Ariadne, group: Group, message: MessageChain):
+async def vive_dyn(group: Group, anything: WildcardMatch):
 
-    saying = message.asDisplay().split(" ", 1)
-    if len(saying) == 2:
+    if anything.matched:
         pattern = re.compile("^[0-9]*$|com/([0-9]*)")
-        match = pattern.search(saying[1])
+        match = pattern.search(anything.result.asDisplay())
         if match:
             if match.group(1):
                 uid = match.group(1)

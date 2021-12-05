@@ -14,10 +14,11 @@ from graia.broadcast.interrupt.waiter import Waiter
 from graia.ariadne.message.chain import MessageChain
 from graia.broadcast.interrupt import InterruptControl
 from graia.scheduler.saya.schema import SchedulerSchema
-from graia.ariadne.message.parser.literature import Literature
+from graia.ariadne.message.parser.twilight import Twilight
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.element import At, Plain, Source, Image
 from graia.ariadne.event.message import FriendMessage, GroupMessage
+from graia.ariadne.message.parser.pattern import ElementMatch, FullMatch
 
 from database.db import add_gold, reduce_gold
 from util.control import Interval, Permission
@@ -52,7 +53,7 @@ else:
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Literature("购买奖券")],
+        inline_dispatchers=[Twilight({"head": FullMatch("购买奖券")})],
         decorators=[Permission.require()],
     )
 )
@@ -107,11 +108,17 @@ async def buy_lottery(group: Group, member: Member, source: Source):
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Literature("兑换奖券")],
+        inline_dispatchers=[
+            Twilight(
+                {"head": FullMatch("兑换奖券"), "image": ElementMatch(Image, optional=True)}
+            ),
+        ],
         decorators=[Permission.require()],
     )
 )
-async def redeem_lottery(app: Ariadne, group: Group, member: Member, source: Source):
+async def redeem_lottery(
+    group: Group, member: Member, image: ElementMatch, source: Source
+):
 
     if member.id in WAITING:
         return
@@ -141,19 +148,22 @@ async def redeem_lottery(app: Ariadne, group: Group, member: Member, source: Sou
                 get_pic = waiter_message.getFirst(Image).url
                 return get_pic
 
-    await safeSendGroupMessage(
-        group, MessageChain.create([Plain("请发送需要兑换的奖券")]), quote=source.id
-    )
-
-    try:
-        waite_pic = await asyncio.wait_for(inc.wait(waiter), timeout=30)
-    except asyncio.TimeoutError:
-        WAITING.remove(member.id)
-        return await safeSendGroupMessage(
-            group,
-            MessageChain.create([At(member.id), Plain(" 奖券兑换等待超时")]),
-            quote=source.id,
+    if image.matched:
+        waite_pic = image.result.url
+    else:
+        await safeSendGroupMessage(
+            group, MessageChain.create([Plain("请发送需要兑换的奖券")]), quote=source.id
         )
+
+        try:
+            waite_pic = await asyncio.wait_for(inc.wait(waiter), timeout=30)
+        except asyncio.TimeoutError:
+            WAITING.remove(member.id)
+            return await safeSendGroupMessage(
+                group,
+                MessageChain.create([At(member.id), Plain(" 奖券兑换等待超时")]),
+                quote=source.id,
+            )
 
     qrinfo = qrdecode(waite_pic)
     image_info = decrypt(qrinfo)
@@ -219,7 +229,7 @@ async def something_scheduled(app: Ariadne):
 @channel.use(
     ListenerSchema(
         listening_events=[FriendMessage],
-        inline_dispatchers=[Literature("奖券开奖")],
+        inline_dispatchers=[Twilight({"head": FullMatch("奖券开奖")})],
         decorators=[Permission.require(Permission.MASTER)],
     )
 )
@@ -245,7 +255,7 @@ async def lo(app: Ariadne):
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Literature("开奖查询")],
+        inline_dispatchers=[Twilight({"head": FullMatch("开奖查询")})],
         decorators=[Permission.require(), Interval.require()],
     )
 )

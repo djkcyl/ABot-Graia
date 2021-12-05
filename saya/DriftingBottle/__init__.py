@@ -13,11 +13,11 @@ from graia.broadcast.interrupt.waiter import Waiter
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.event.message import GroupMessage
 from graia.broadcast.interrupt import InterruptControl
-from graia.ariadne.message.parser.literature import Literature
+from graia.ariadne.message.parser.twilight import Twilight
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.element import Image, Plain, At, Source
-from graia.ariadne.message.parser.twilight import Twilight, Sparkle
 from graia.ariadne.message.parser.pattern import (
+    FullMatch,
     RegexMatch,
     ArgumentMatch,
     WildcardMatch,
@@ -54,15 +54,11 @@ IMAGE_PATH.mkdir(exist_ok=True)
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight(
-                Sparkle(
-                    [RegexMatch(r"^(扔|丢)(漂流瓶|瓶子)")],
-                    {
-                        "arg_pic": ArgumentMatch(
-                            "-P", action="store_true", optional=True
-                        ),
-                        "anythings1": WildcardMatch(optional=True),
-                    },
-                )
+                {
+                    "head": RegexMatch(r"^(扔|丢)(漂流瓶|瓶子)"),
+                    "arg_pic": ArgumentMatch("-P", action="store_true", optional=True),
+                    "anythings1": WildcardMatch(optional=True),
+                },
             )
         ],
         decorators=[Permission.require(), Interval.require(100)],
@@ -224,7 +220,7 @@ async def throw_bottle_handler(
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight(Sparkle([RegexMatch(r"^(捡|打?捞)(漂流瓶|瓶子)$")]))],
+        inline_dispatchers=[Twilight({"head": RegexMatch(r"^(捡|打?捞)(漂流瓶|瓶子)$")})],
         decorators=[Permission.require(), Interval.require(30)],
     )
 )
@@ -263,7 +259,7 @@ async def pick_bottle_handler(group: Group):
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Literature("清空漂流瓶")],
+        inline_dispatchers=[Twilight({"head": FullMatch("清空漂流瓶")})],
         decorators=[Permission.require(Permission.MASTER), Interval.require()],
     )
 )
@@ -276,11 +272,15 @@ async def clear_bottle_handler(group: Group):
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Literature("漂流瓶")],
-        decorators=[Permission.require(), Interval.require()],
+        inline_dispatchers=[
+            Twilight(
+                {"head": FullMatch("漂流瓶"), "bottleid": WildcardMatch(optional=True)}
+            )
+        ],
+        decorators=[Permission.require(Permission.MASTER), Interval.require()],
     )
 )
-async def drifting_bottle_handler(group: Group):
+async def drifting_bottle_handler(group: Group, bottleid: WildcardMatch):
 
     if (
         yaml_data["Saya"]["DriftingBottle"]["Disabled"]
@@ -290,63 +290,57 @@ async def drifting_bottle_handler(group: Group):
     elif "DriftingBottle" in group_data[str(group.id)]["DisabledFunc"]:
         return
 
-    count = count_bottle()
-    msg = f"目前有 {count} 个漂流瓶在漂流" if count > 0 else "目前没有漂流瓶在漂流"
-    msg += "\n漂流瓶可以使用“捞漂流瓶”命令捞到，也可以使用“丢漂流瓶”命令丢出”"
+    if bottleid.matched:
+        bottle_id = int(bottleid.result.asDisplay())
+        bottle = get_bottle_by_id(bottle_id)
+        if not bottle:
+            return await safeSendGroupMessage(group, MessageChain.create("没有这个漂流瓶！"))
 
-    await safeSendGroupMessage(group, MessageChain.create([Plain(msg)]))
+        bottle = bottle[0]
+        msg = [
+            Plain(f"漂流瓶编号为：{bottle.id}\n" f"漂流瓶来自 {bottle.group} 群的 {bottle.member}\n")
+        ]
+        if bottle.text is not None:
+            image = await create_image(bottle.text)
+            msg.append(Image(data_bytes=image))
+        if bottle.image is not None:
+            msg.append(Image(path=IMAGE_PATH.joinpath(bottle.image)))
+        await safeSendGroupMessage(group, MessageChain.create(msg))
+    else:
+        count = count_bottle()
+        msg = f"目前有 {count} 个漂流瓶在漂流" if count > 0 else "目前没有漂流瓶在漂流"
+        msg += "\n漂流瓶可以使用“捞漂流瓶”命令捞到，也可以使用“丢漂流瓶”命令丢出”"
 
-
-@channel.use(
-    ListenerSchema(
-        listening_events=[GroupMessage],
-        inline_dispatchers=[Literature("删漂流瓶")],
-        decorators=[Permission.require(Permission.MASTER)],
-    )
-)
-async def delete_bottle_handler(group: Group, message: MessageChain):
-
-    saying = message.asDisplay().split(" ", 1)
-
-    if len(saying) == 1:
-        return await safeSendGroupMessage(group, MessageChain.create("请输入要删除的漂流瓶编号！"))
-
-    bottle_id = int(saying[1])
-    bottle = get_bottle_by_id(bottle_id)
-    if not bottle:
-        return await safeSendGroupMessage(group, MessageChain.create("没有这个漂流瓶！"))
-
-    delete_bottle(bottle_id)
-    await safeSendGroupMessage(group, MessageChain.create("漂流瓶已经删除！"))
+        await safeSendGroupMessage(group, MessageChain.create(msg))
 
 
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Literature("查漂流瓶")],
+        inline_dispatchers=[
+            Twilight(
+                {"head": FullMatch("删漂流瓶"), "anything": WildcardMatch(optional=True)}
+            )
+        ],
         decorators=[Permission.require(Permission.MASTER)],
     )
 )
-async def search_bottle_handler(group: Group, message: MessageChain):
+async def delete_bottle_handler(group: Group, anything: WildcardMatch):
 
-    saying = message.asDisplay().split(" ", 1)
-
-    if len(saying) == 1:
-        return await safeSendGroupMessage(group, MessageChain.create("请输入要查找的漂流瓶编号！"))
-
-    bottle_id = int(saying[1])
-    bottle = get_bottle_by_id(bottle_id)
-    if not bottle:
-        return await safeSendGroupMessage(group, MessageChain.create("没有这个漂流瓶！"))
-
-    bottle = bottle[0]
-    msg = [Plain(f"漂流瓶编号为：{bottle.id}\n" f"漂流瓶来自 {bottle.group} 群的 {bottle.member}\n")]
-    if bottle.text is not None:
-        image = await create_image(bottle.text)
-        msg.append(Image(data_bytes=image))
-    if bottle.image is not None:
-        msg.append(Image(path=IMAGE_PATH.joinpath(bottle.image)))
-    await safeSendGroupMessage(group, MessageChain.create(msg))
+    if anything.matched:
+        if anything.result.asDisplay().isdigit():
+            bottle_id = int(anything.result.asDisplay())
+            bottle = get_bottle_by_id(bottle_id)
+            if not bottle:
+                return await safeSendGroupMessage(
+                    group, MessageChain.create("没有这个漂流瓶！")
+                )
+            delete_bottle(bottle_id)
+            await safeSendGroupMessage(group, MessageChain.create("漂流瓶已经删除！"))
+        else:
+            await safeSendGroupMessage(group, MessageChain.create("漂流瓶编号必须是数字！"))
+    else:
+        await safeSendGroupMessage(group, MessageChain.create("请输入要删除的漂流瓶编号！"))
 
 
 def qrdecode(img):

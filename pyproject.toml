@@ -1,41 +1,34 @@
 [tool.poetry]
 name = "abot-mahv2"
-version = "2.2.0"
+version = "2.3.0"
 description = ""
 authors = ["djkcyl <cyl@cyllive.cn>"]
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.10"
-graia-broadcast = "^0.13.1"
+graia-ariadne-dev = "^2021.12.5"
 graia-saya = "^0.0.13"
-matplotlib = "^3.4.2"
+graia-scheduler = "^0.0.6"
+graiax-silkcoder = "^0.1.1"
 wordcloud = "^1.8.1"
 dnspython = "^2.1.0"
 peewee = "^3.14.4"
-graiax-silkcoder = "^0.0.19"
-httpx = "^0.20.0"
-playwright = "^1.17.0"
+httpx = "^0.21.1"
+playwright = "^1.17.2"
 lxml = "^4.6.4"
-PyYAML = "^5.4.1"
-tencentcloud-sdk-python = "3.0.520"
+tencentcloud-sdk-python = "^3.0.539"
 xmltodict = "^0.12.0"
 azure-cognitiveservices-speech = "^1.19.0"
 pyzbar = "^0.1.8"
 qrcode = "^7.2"
 rsa = "^4.7.2"
-pyacrcloud = [
-    {version = "^1.0.2", markers = "sys_platform == 'linux'"},
-    {git = "https://github.com/djkcyl/acrcloud_sdk_python.git", markers = "sys_platform == 'win32'"}
-]
 prettytable = "^2.4.0"
 jieba = "^0.42.1"
 psutil = "^5.8.0"
-scipy = "^1.7.2"
-pillow = "^8.4.0"
 saucenao-api = "^2.4.0"
-triangler = {git = "https://github.com/djkcyl/triangler.git"}
-graia-ariadne = "^0.4.7"
-graia-scheduler = "^0.0.6"
+triangler-patch = "^0.1.2"
+pyacrcloud-patch = "^1.0.1"
+pyyaml = "^6.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

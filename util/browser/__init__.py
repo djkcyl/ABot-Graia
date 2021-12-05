@@ -34,6 +34,7 @@ async def get_browser() -> Browser:
 
 try:
     get_browser()
+    logger.info("Chromium Browser initialized")
 except Error as e:
     if str(e).startswith("Extension doesn't exist at"):
         logger.warning("未找到适应版本的 Chromium，正在自动安装...")

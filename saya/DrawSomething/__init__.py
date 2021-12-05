@@ -6,15 +6,16 @@ import asyncio
 from pathlib import Path
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
-from graia.ariadne.model import Friend, Group, Member
 from graia.broadcast.interrupt.waiter import Waiter
 from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.model import Friend, Group, Member
 from graia.broadcast.interrupt import InterruptControl
+from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.message.element import Source, Plain, At
-from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.lifecycle import ApplicationShutdowned
 from graia.ariadne.event.message import GroupMessage, FriendMessage
+from graia.ariadne.message.parser.pattern import FullMatch, WildcardMatch
 
 from util.control import Permission, Interval
 from util.sendMessage import safeSendGroupMessage
@@ -27,9 +28,7 @@ channel = Channel.current()
 bcc = saya.broadcast
 inc = InterruptControl(bcc)
 
-WORD = json.loads(
-    Path(__file__).parent.joinpath("word.json").read_text("UTF-8")
-)
+WORD = json.loads(Path(__file__).parent.joinpath("word.json").read_text("UTF-8"))
 MEMBER_RUNING_LIST = []
 GROUP_RUNING_LIST = []
 GROUP_GAME_PROCESS = {}
@@ -38,7 +37,7 @@ GROUP_GAME_PROCESS = {}
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Literature("你画我猜")],
+        inline_dispatchers=[Twilight({"head": FullMatch("你画我猜")})],
         decorators=[Permission.require(), Interval.require(60)],
     )
 )
@@ -188,7 +187,9 @@ async def main(app: Ariadne, group: Group, member: Member, source: Source):
                     del GROUP_GAME_PROCESS[group.id]
                     await safeSendGroupMessage(
                         group,
-                        MessageChain.create([At(member.id), Plain(f" 你的{COIN_NAME}不足，无法开始游戏")]),
+                        MessageChain.create(
+                            [At(member.id), Plain(f" 你的{COIN_NAME}不足，无法开始游戏")]
+                        ),
                     )
                 else:
                     question_len = len(question)
@@ -234,7 +235,9 @@ async def main(app: Ariadne, group: Group, member: Member, source: Source):
                                     [
                                         Plain("恭喜 "),
                                         At(result[0].id),
-                                        Plain(f" 成功猜出本次答案，你和创建者分别获得 1 个和 2 个{COIN_NAME}，本次游戏结束"),
+                                        Plain(
+                                            f" 成功猜出本次答案，你和创建者分别获得 1 个和 2 个{COIN_NAME}，本次游戏结束"
+                                        ),
                                     ]
                                 ),
                                 quote=result[1],
@@ -246,7 +249,9 @@ async def main(app: Ariadne, group: Group, member: Member, source: Source):
                             del GROUP_GAME_PROCESS[group.id]
                             await safeSendGroupMessage(
                                 group,
-                                MessageChain.create([Plain(f"本次你画我猜已终止，将返还创建者 1 个{COIN_NAME}")]),
+                                MessageChain.create(
+                                    [Plain(f"本次你画我猜已终止，将返还创建者 1 个{COIN_NAME}")]
+                                ),
                             )
                     except asyncio.TimeoutError:
                         owner = str(GROUP_GAME_PROCESS[group.id]["owner"])
@@ -258,7 +263,9 @@ async def main(app: Ariadne, group: Group, member: Member, source: Source):
                             group,
                             MessageChain.create(
                                 [
-                                    Plain(f"由于长时间没有人回答出正确答案，将返还创建者 1 个{COIN_NAME}，本次你画我猜已结束"),
+                                    Plain(
+                                        f"由于长时间没有人回答出正确答案，将返还创建者 1 个{COIN_NAME}，本次你画我猜已结束"
+                                    ),
                                     Plain(f"\n本次的答案为：{question}"),
                                 ]
                             ),
@@ -279,57 +286,75 @@ async def main(app: Ariadne, group: Group, member: Member, source: Source):
 
 @channel.use(
     ListenerSchema(
-        listening_events=[FriendMessage], inline_dispatchers=[Literature("添加你画我猜词库")]
+        listening_events=[FriendMessage],
+        inline_dispatchers=[
+            Twilight(
+                {
+                    "head": FullMatch("添加你画我猜词库"),
+                    "anything": WildcardMatch(optional=True),
+                }
+            )
+        ],
     )
 )
-async def add_word(app: Ariadne, friend: Friend, message: MessageChain):
+async def add_word(app: Ariadne, friend: Friend, anything: WildcardMatch):
     if friend.id == yaml_data["Basic"]["Permission"]["Master"]:
         global WORD
-        saying = message.asDisplay().split()
-        if saying[1] not in WORD["word"]:
-            word_list = WORD["word"]
-            word_list.append(saying[1])
-            WORD["word"] = word_list
-            with open("./saya/DrawSomething/word.json", "w") as f:
-                json.dump(WORD, f, indent=2, ensure_ascii=False)
-            await app.sendFriendMessage(
-                friend,
-                MessageChain.create(f"成功添加你画我猜词库：{saying[1]}"),
-            )
-        else:
-            await app.sendFriendMessage(
-                friend,
-                MessageChain.create("词库内已存在该词"),
-            )
+        if anything.matched:
+            say = anything.result.asDisplay()
+            if say not in WORD["word"]:
+                word_list = WORD["word"]
+                word_list.append(say)
+                WORD["word"] = word_list
+                with open("./saya/DrawSomething/word.json", "w") as f:
+                    json.dump(WORD, f, indent=2, ensure_ascii=False)
+                await app.sendFriendMessage(
+                    friend,
+                    MessageChain.create(f"成功添加你画我猜词库：{say}"),
+                )
+            else:
+                await app.sendFriendMessage(
+                    friend,
+                    MessageChain.create("词库内已存在该词"),
+                )
 
 
 @channel.use(
     ListenerSchema(
-        listening_events=[FriendMessage], inline_dispatchers=[Literature("删除你画我猜词库")]
+        listening_events=[FriendMessage],
+        inline_dispatchers=[
+            Twilight(
+                {
+                    "head": FullMatch("删除你画我猜词库"),
+                    "anything": WildcardMatch(optional=True),
+                }
+            )
+        ],
     )
 )
-async def remove_word(app: Ariadne, friend: Friend, message: MessageChain):
+async def remove_word(app: Ariadne, friend: Friend, anything: WildcardMatch):
 
     if friend.id == yaml_data["Basic"]["Permission"]["Master"]:
         global WORD
-        saying = message.asDisplay().split()
-        if saying[1] in WORD["word"]:
-            word_list = WORD["word"]
-            word_list.remove(saying[1])
-            WORD["word"] = word_list
-            with open("./saya/DrawSomething/word.json", "w") as f:
-                json.dump(WORD, f, indent=2, ensure_ascii=False)
-            await app.sendFriendMessage(
-                friend,
-                MessageChain.create(f"成功删除你画我猜词库：{saying[1]}"),
-            )
-        else:
-            await app.sendFriendMessage(
-                friend,
-                MessageChain.create(
-                    "词库内未存在该词",
-                ),
-            )
+        if anything.matched:
+            say = anything.result.asDisplay()
+            if say in WORD["word"]:
+                word_list = WORD["word"]
+                word_list.remove(say)
+                WORD["word"] = word_list
+                with open("./saya/DrawSomething/word.json", "w") as f:
+                    json.dump(WORD, f, indent=2, ensure_ascii=False)
+                await app.sendFriendMessage(
+                    friend,
+                    MessageChain.create(f"成功删除你画我猜词库：{say}"),
+                )
+            else:
+                await app.sendFriendMessage(
+                    friend,
+                    MessageChain.create(
+                        "词库内未存在该词",
+                    ),
+                )
 
 
 @channel.use(ListenerSchema(listening_events=[ApplicationShutdowned]))

@@ -5,7 +5,8 @@ from graia.ariadne.model import Group
 from graia.ariadne.message.element import Image
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.event.message import GroupMessage
-from graia.ariadne.message.parser.literature import Literature
+from graia.ariadne.message.parser.twilight import Twilight
+from graia.ariadne.message.parser.pattern import FullMatch
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 from config import yaml_data, group_data
@@ -21,7 +22,7 @@ channel = Channel.current()
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Literature("色图")],
+        inline_dispatchers=[Twilight({"head": FullMatch("色图")})],
         decorators=[Rest.rest_control(), Permission.require(), Interval.require()],
     )
 )

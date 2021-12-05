@@ -5,15 +5,15 @@ import platform
 from pathlib import Path
 from loguru import logger
 from graia.saya import Saya, Channel
-from graia.ariadne.app import Ariadne
 from graia.ariadne.model import Group
 from graia.ariadne.message.element import Image
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
 from graia.scheduler.timers import every_custom_seconds
 from graia.scheduler.saya.schema import SchedulerSchema
+from graia.ariadne.message.parser.twilight import Twilight
+from graia.ariadne.message.parser.pattern import FullMatch
 from graia.ariadne.event.lifecycle import ApplicationLaunched
-from graia.ariadne.message.parser.literature import Literature
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 from util.control import Permission
@@ -60,11 +60,11 @@ async def cpuStatus():
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Literature("查看性能统计")],
+        inline_dispatchers=[Twilight({"head": FullMatch("查看性能统计")})],
         decorators=[Permission.require(Permission.MASTER)],
     )
 )
-async def get_image(app: Ariadne, group: Group):
+async def get_image(group: Group):
     image = await get_mapping(
         CPU_USAGE, MEM_USAGE, int(psutil.virtual_memory().total / 1000000)
     )

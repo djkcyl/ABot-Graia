@@ -9,9 +9,10 @@ from graia.saya import Saya, Channel
 from graia.ariadne.model import Member, Group
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.message.element import Plain, Voice, Source
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.literature import Literature
+from graia.ariadne.message.parser.pattern import FullMatch, WildcardMatch
 from azure.cognitiveservices.speech import (
     AudioDataStream,
     SpeechConfig,
@@ -34,7 +35,11 @@ BASEPATH.mkdir(exist_ok=True)
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Literature("/tts")],
+        inline_dispatchers=[
+            Twilight(
+                {"head": FullMatch("/tts"), "anything": WildcardMatch(optional=True)}
+            )
+        ],
         decorators=[Rest.rest_control(), Permission.require(), Interval.require(60)],
     )
 )
@@ -128,7 +133,9 @@ async def azuretts(group: Group, member: Member, message: MessageChain, source: 
 
     if not await reduce_gold(str(member.id), 2):
         return await safeSendGroupMessage(
-            group, MessageChain.create([Plain(f"你的{COIN_NAME}不足，无法请求语音")]), quote=source.id
+            group,
+            MessageChain.create([Plain(f"你的{COIN_NAME}不足，无法请求语音")]),
+            quote=source.id,
         )
 
     if len(saying[3]) < 800:

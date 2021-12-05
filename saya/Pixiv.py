@@ -8,8 +8,8 @@ from graia.ariadne.app import Ariadne
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.model import Group, Member, MemberPerm
+from graia.ariadne.message.parser.twilight import Twilight
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.twilight import Twilight, Sparkle
 from graia.ariadne.message.parser.pattern import FullMatch, WildcardMatch
 from graia.ariadne.message.element import ForwardNode, Image, Plain, Forward
 
@@ -26,13 +26,11 @@ channel = Channel.current()
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight(
-                Sparkle(
-                    matches={
-                        "tag1": WildcardMatch(optional=True),
-                        "header": FullMatch("涩图"),
-                        "tag2": WildcardMatch(optional=True),
-                    },
-                )
+                match={
+                    "tag1": WildcardMatch(optional=True),
+                    "header": FullMatch("涩图"),
+                    "tag2": WildcardMatch(optional=True),
+                },
             )
         ],
         decorators=[Rest.rest_control(), Permission.require(), Interval.require()],

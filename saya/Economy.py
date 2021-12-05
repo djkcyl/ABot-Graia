@@ -2,9 +2,9 @@ from graia.saya import Saya, Channel
 from graia.ariadne.model import Group, Member
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.message.element import At, Plain, Source
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.twilight import Sparkle, Twilight
 from graia.ariadne.message.parser.pattern import (
     FullMatch,
     ElementMatch,
@@ -26,16 +26,12 @@ channel = Channel.current()
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight(
-                Sparkle(
-                    [FullMatch(f"赠送{COIN_NAME}")],
-                    {
-                        "at1": ElementMatch(At, optional=True),
-                        "anythings1": WildcardMatch(optional=True),
-                        "arg1": ArgumentMatch(
-                            "-all", action="store_true", optional=True
-                        ),
-                    },
-                )
+                {
+                    "head": FullMatch(f"赠送{COIN_NAME}"),
+                    "at1": ElementMatch(At, optional=True),
+                    "anythings1": WildcardMatch(optional=True),
+                    "arg1": ArgumentMatch("-all", action="store_true", optional=True),
+                },
             )
         ],
         decorators=[Permission.require(), Interval.require(5)],

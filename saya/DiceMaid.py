@@ -5,10 +5,10 @@ import random
 from graia.saya import Saya, Channel
 from graia.ariadne.message.element import Plain
 from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.event.message import Group, GroupMessage
 from graia.ariadne.message.parser.pattern import RegexMatch
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.twilight import Sparkle, Twilight
 
 from config import yaml_data, group_data
 from util.control import Permission, Interval
@@ -22,7 +22,7 @@ channel = Channel.current()
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight(Sparkle([RegexMatch(r"^\.r(\d+)?d?(\d+)?k?(\d+)?")]))
+            Twilight({"head": RegexMatch(r"^\.r(\d+)?d?(\d+)?k?(\d+)?")})
         ],
         decorators=[Permission.require(), Interval.require(5)],
     )

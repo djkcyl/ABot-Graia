@@ -6,14 +6,14 @@ from PIL import ImageOps
 from loguru import logger
 from PIL import Image as IMG
 from graia.saya import Saya, Channel
-from graia.ariadne.model import Group, Member, MemberPerm
 from graia.ariadne.app import Ariadne
 from graia.ariadne.event.mirai import NudgeEvent
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.model import Group, Member, MemberPerm
+from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.message.element import At, Image, Plain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.twilight import Sparkle, Twilight
 from graia.ariadne.message.parser.pattern import FullMatch, WildcardMatch
 
 from config import yaml_data, group_data
@@ -34,7 +34,7 @@ FRAMES_PATH = Path(__file__).parent.joinpath("PetPetFrames")
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight(Sparkle([FullMatch("摸")], {"arg1": WildcardMatch()}))
+            Twilight({"head": FullMatch("摸"), "arg1": WildcardMatch()})
         ],
         decorators=[Rest.rest_control(), Permission.require(), Interval.require()],
     )

@@ -1,6 +1,7 @@
 [flake8]
 exclude = 
     virtualenvs,
+    Ariadne,
     test.py,
     **/Ark/
 max-line-length = 200

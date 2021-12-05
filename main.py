@@ -1,6 +1,7 @@
 import os
 import asyncio
 
+from pathlib import Path
 from loguru import logger
 from graia.saya import Saya
 from graia.ariadne.app import Ariadne
@@ -14,19 +15,25 @@ from graia.saya.builtins.broadcast import BroadcastBehaviour
 
 from config import yaml_data, save_config
 
+LOGPATH = Path("./logs")
+LOGPATH.mkdir(exist_ok=True)
+logger.add(
+    LOGPATH.joinpath("latest.log"),
+    backtrace=True,
+    diagnose=True,
+    rotation="00:00",
+    retention="30 days",
+    compression="tar.xz",
+    colorize=False,
+)
+logger.info("ABot is starting...")
+
 ignore = ["__init__.py", "__pycache__"]
 
 loop = asyncio.new_event_loop()
 bcc = Broadcast(loop=loop)
 scheduler = GraiaScheduler(loop, bcc)
 inc = InterruptControl(bcc)
-
-saya = Saya(bcc)
-saya.install_behaviours(BroadcastBehaviour(bcc))
-saya.install_behaviours(GraiaSchedulerBehaviour(scheduler))
-saya.install_behaviours(InterruptControl(bcc))
-
-
 app = Ariadne(
     broadcast=bcc,
     connect_info=DebugAdapter(
@@ -38,7 +45,10 @@ app = Ariadne(
         ),
     ),
 )
-
+saya = Saya(bcc)
+saya.install_behaviours(BroadcastBehaviour(bcc))
+saya.install_behaviours(GraiaSchedulerBehaviour(scheduler))
+saya.install_behaviours(InterruptControl(bcc))
 with saya.module_context():
     for module in os.listdir("saya"):
         if module in ignore:

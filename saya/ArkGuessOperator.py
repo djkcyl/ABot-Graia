@@ -4,15 +4,15 @@ import asyncio
 
 from loguru import logger
 from graia.saya import Saya, Channel
-from graia.ariadne.model import Group
+from graia.ariadne.model import Group, Member
 from graia.broadcast.interrupt.waiter import Waiter
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
 from graia.broadcast.interrupt import InterruptControl
-from graia.ariadne.message.parser.pattern import FullMatch
+from graia.ariadne.message.parser.twilight import Twilight
+from graia.ariadne.message.parser.pattern import RegexMatch
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.element import Plain, Source, Voice, At
-from graia.ariadne.message.parser.twilight import Twilight, Sparkle
 
 from database.db import add_answer
 from config import yaml_data, group_data
@@ -30,9 +30,7 @@ RUNNING = {}
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[
-            Twilight(Sparkle([FullMatch("明日", optional=True), FullMatch("方舟猜干员")]))
-        ],
+        inline_dispatchers=[Twilight({"ark": RegexMatch(r"(明日)?方舟猜干员")})],
         decorators=[Permission.require(), Interval.require(30)],
     )
 )
@@ -48,17 +46,22 @@ async def guess_operator(group: Group, source: Source):
 
     @Waiter.create_using_function([GroupMessage])
     async def waiter1(
-        waiter1_group: Group, waiter1_event: GroupMessage, waiter1_message: MessageChain
+        waiter1_group: Group,
+        waiter1_member: Member,
+        waiter1_source: Source,
+        waiter1_message: MessageChain,
     ):
         if waiter1_group.id == group.id:
             waiter1_saying = waiter1_message.asDisplay()
             if waiter1_saying == "取消":
-                return False
+                return False, False
             elif waiter1_saying == RUNNING[group.id]:
-                return waiter1_event
+                return waiter1_member.id, waiter1_source
 
     if group.id in RUNNING:
         return
+    else:
+        RUNNING[group.id] = None
 
     async with httpx.AsyncClient() as client:
         resp = await client.get("http://a60.one:8009/random")
@@ -76,20 +79,22 @@ async def guess_operator(group: Group, source: Source):
     )
 
     try:
-        guess_operator_result = await asyncio.wait_for(inc.wait(waiter1), timeout=60)
-        if guess_operator_result:
+        result_member, result_source = await asyncio.wait_for(
+            inc.wait(waiter1), timeout=60
+        )
+        if result_source:
             del RUNNING[group.id]
-            await add_answer(str(guess_operator_result))
+            await add_answer(str(result_member))
             await safeSendGroupMessage(
                 group,
                 MessageChain.create(
                     [
                         Plain(f"干员名称：{operator_name}\n恭喜 "),
-                        At(guess_operator_result.sender.id),
+                        At(result_member),
                         Plain(" 猜中了！"),
                     ]
                 ),
-                quote=guess_operator_result.messageChain.getFirst(Source),
+                quote=result_source,
             )
         else:
             del RUNNING[group.id]
