@@ -6,7 +6,7 @@ authors = ["djkcyl <cyl@cyllive.cn>"]
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.10"
-graia-ariadne-dev = "^2021.12.5"
+graia-ariadne-dev = "2021.12.5.3"
 graia-saya = "^0.0.13"
 graia-scheduler = "^0.0.6"
 graiax-silkcoder = "^0.1.1"

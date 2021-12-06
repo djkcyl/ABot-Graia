@@ -24,7 +24,7 @@ channel = Channel.current()
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight(match={"head": FullMatch("签到")})],
+        inline_dispatchers=[Twilight({"head": FullMatch("签到")})],
         decorators=[Permission.require(), Interval.require()],
     )
 )
@@ -80,7 +80,7 @@ async def main(group: Group, member: Member):
 @channel.use(
     ListenerSchema(
         listening_events=[FriendMessage],
-        inline_dispatchers=[Twilight(match={"head": FullMatch("签到率查询")})],
+        inline_dispatchers=[Twilight({"head": FullMatch("签到率查询")})],
     )
 )
 async def inquire(app: Ariadne, friend: Friend):

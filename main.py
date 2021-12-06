@@ -19,6 +19,7 @@ LOGPATH = Path("./logs")
 LOGPATH.mkdir(exist_ok=True)
 logger.add(
     LOGPATH.joinpath("latest.log"),
+    encoding="utf-8",
     backtrace=True,
     diagnose=True,
     rotation="00:00",

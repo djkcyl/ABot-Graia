@@ -23,7 +23,7 @@ channel = Channel.current()
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight(
-                match={
+                {
                     "head": FullMatch("/emoji"),
                     "anythings": WildcardMatch(optional=True),
                 }

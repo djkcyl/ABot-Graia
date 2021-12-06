@@ -533,7 +533,7 @@ async def funchelp(group: Group, func: WildcardMatch):
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight([RegexMatch(r"^[。\./]?help$|^帮助$|^菜单$")])],
+        inline_dispatchers=[Twilight({"head": RegexMatch(r"^[。\./]?help$|^帮助$|^菜单$")})],
         decorators=[Permission.require()],
     )
 )
@@ -578,7 +578,7 @@ async def help(group: Group):
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight([FullMatch("开启功能")], match={"func": WildcardMatch(optional=True)})
+            Twilight({"head": FullMatch("开启功能"), "func": WildcardMatch(optional=True)})
         ],
         decorators=[Permission.require(Permission.GROUP_ADMIN), Interval.require(5)],
     )
@@ -627,7 +627,7 @@ async def on_func(group: Group, func: WildcardMatch):
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight([FullMatch("关闭功能")], match={"func": WildcardMatch(optional=True)})
+            Twilight({"head": FullMatch("关闭功能"), "func": WildcardMatch(optional=True)})
         ],
         decorators=[Permission.require(Permission.GROUP_ADMIN), Interval.require(5)],
     )
