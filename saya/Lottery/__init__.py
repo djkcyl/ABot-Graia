@@ -9,9 +9,9 @@ from loguru import logger
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
 from graia.scheduler.timers import crontabify
-from graia.ariadne.model import Group, Member
 from graia.broadcast.interrupt.waiter import Waiter
 from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.model import Friend, Group, Member
 from graia.broadcast.interrupt import InterruptControl
 from graia.scheduler.saya.schema import SchedulerSchema
 from graia.ariadne.message.parser.twilight import Twilight
@@ -60,16 +60,11 @@ else:
 async def buy_lottery(group: Group, member: Member, source: Source):
 
     if (
-        not yaml_data["Saya"]["Entertainment"]["Lottery"]
+        yaml_data["Saya"]["Lottery"]["Disabled"]
         and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
     ):
         return
-    elif (
-        yaml_data["Saya"]["Entertainment"]["Disabled"]
-        and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
-    ):
-        return
-    elif "Entertainment" in group_data[str(group.id)]["DisabledFunc"]:
+    elif "Lottery" in group_data[str(group.id)]["DisabledFunc"]:
         return
 
     if await reduce_gold(str(member.id), 2):
@@ -124,16 +119,11 @@ async def redeem_lottery(
         return
 
     if (
-        not yaml_data["Saya"]["Entertainment"]["Lottery"]
+        yaml_data["Saya"]["Lottery"]["Disabled"]
         and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
     ):
         return
-    elif (
-        yaml_data["Saya"]["Entertainment"]["Disabled"]
-        and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
-    ):
-        return
-    elif "Entertainment" in group_data[str(group.id)]["DisabledFunc"]:
+    elif "Lottery" in group_data[str(group.id)]["DisabledFunc"]:
         return
 
     WAITING.append(member.id)
@@ -165,7 +155,7 @@ async def redeem_lottery(
                 quote=source.id,
             )
 
-    qrinfo = qrdecode(waite_pic)
+    qrinfo = await qrdecode(waite_pic)
     image_info = decrypt(qrinfo)
     lottery_qq, lottery_id, lottery_period = image_info.split("|")
     if lottery_qq == str(member.id):
@@ -208,6 +198,10 @@ async def redeem_lottery(
 
 @channel.use(SchedulerSchema(crontabify("0 0 * * 1")))
 async def something_scheduled(app: Ariadne):
+
+    if yaml_data["Saya"]["Lottery"]["Disabled"]:
+        return
+
     global LOTTERY
     lottery = LOTTERY
     lottery["period"] += 1
@@ -230,10 +224,11 @@ async def something_scheduled(app: Ariadne):
     ListenerSchema(
         listening_events=[FriendMessage],
         inline_dispatchers=[Twilight({"head": FullMatch("奖券开奖")})],
-        decorators=[Permission.require(Permission.MASTER)],
     )
 )
-async def lo(app: Ariadne):
+async def lo(app: Ariadne, friend: Friend):
+
+    Permission.manual(friend, Permission.MASTER)
     global LOTTERY
     lottery = LOTTERY
     lottery["period"] += 1
@@ -247,8 +242,8 @@ async def lo(app: Ariadne):
         json.dump(LOTTERY, f, indent=2, ensure_ascii=False)
 
     await app.sendFriendMessage(
-        yaml_data["Basic"]["Permission"]["Master"],
-        MessageChain.create([Plain("本期奖券开奖完毕，中奖号码为\n"), Plain(str(winner))]),
+        friend,
+        MessageChain.create(f"本期奖券开奖完毕，中奖号码为\n{winner}"),
     )
 
 
@@ -262,16 +257,11 @@ async def lo(app: Ariadne):
 async def q_lottery(group: Group):
 
     if (
-        not yaml_data["Saya"]["Entertainment"]["Lottery"]
+        yaml_data["Saya"]["Lottery"]["Disabled"]
         and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
     ):
         return
-    elif (
-        yaml_data["Saya"]["Entertainment"]["Disabled"]
-        and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
-    ):
-        return
-    elif "Entertainment" in group_data[str(group.id)]["DisabledFunc"]:
+    elif "Lottery" in group_data[str(group.id)]["DisabledFunc"]:
         return
 
     lottery = LOTTERY

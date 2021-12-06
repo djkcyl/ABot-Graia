@@ -101,10 +101,8 @@ async def reset_sign():
 
 
 async def all_sign_num():
-    all_num = User.select()
-    all_num = len(all_num)
-    sign_num = User.select().where(User.is_sign == 1)
-    sign_num = len(sign_num)
+    all_num = User.select().count()
+    sign_num = User.select().where(User.is_sign == 1).count()
     return [sign_num, all_num]
 
 

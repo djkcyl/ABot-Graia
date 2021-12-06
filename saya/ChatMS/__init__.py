@@ -45,9 +45,8 @@ DATA = json.loads(DATA_FILE.read_text(encoding="utf-8"))
 
 @channel.use(SchedulerSchema(crontabify("0 0 * * *")))
 async def updateDict():
-    logger.info("正在更新词库")
     await update_data()
-    logger.info(msg=f"已更新完成聊天词库，共计：{len(DATA)}条")
+    logger.info(f"已更新完成聊天词库，共计：{len(DATA)}条")
 
 
 @channel.use(

@@ -121,7 +121,9 @@ Saya: # saya 插件配置
 
   Entertainment: # 娱乐功能
     Disabled: false
-    Lottery: true
+  
+  Lottery: # （一种类似彩票的玩法）
+    Disabled: true
 
   DiceMaid: # 骰娘
     Disabled: false

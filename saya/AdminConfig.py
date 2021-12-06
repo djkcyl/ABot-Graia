@@ -110,6 +110,12 @@ funcList = [
         "can_disabled": True,
         "default_disabled": False,
     },
+    {
+        "name": "奖券",
+        "key": "Lottery",
+        "can_disabled": True,
+        "default_disabled": True,
+    },
     {"name": "骰娘", "key": "DiceMaid", "can_disabled": True, "default_disabled": False},
     {
         "name": "B站视频解析",
@@ -342,6 +348,12 @@ funcHelp = {
         "usage": f"发送指令：\n签到\n你画我猜\n赠送{COIN_NAME}\n查看排行榜",
         "options": f"签到：每日凌晨四点重置签到，每次签到可获得 5-21 个{COIN_NAME}\n你画我猜：每次消耗 4 个{COIN_NAME}\n  赠送{COIN_NAME}：可以向他人赠送自己的{COIN_NAME}，限值 1-1000以内\n排行榜可同时查看{COIN_NAME}榜和发言榜，一般情况下排行榜每十分钟更新一次",
         "example": f"  赠送{COIN_NAME} @ABot 15",
+    },
+    "奖券": {
+        "instruction": "一种类似彩票的玩法",
+        "usage": "发送指令：\n购买奖券\n开奖查询",
+        "options": "彩票玩法，懂的都懂，不必多说",
+        "example": "（这也需要示例吗？",
     },
     "骰娘": {
         "instruction": "一个简易骰娘",

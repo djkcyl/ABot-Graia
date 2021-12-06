@@ -38,12 +38,10 @@ def qrgen(qq, id, name, period):
     return bg_bio.getvalue()
 
 
-def qrdecode(url):
-    r = httpx.get(url)
-    pic = r.content
-    image_bio = BytesIO()
-    image_bio.write(pic)
-    image = Image.open(image_bio)
+async def qrdecode(url):
+    async with httpx.AsyncClient() as client:
+        resp = await client.get(url)
+    image = Image.open(BytesIO(resp.content))
     image_array = np.array(image)
     image_data = pyzbar.decode(image_array)[0].data.decode("utf-8")
     return image_data
