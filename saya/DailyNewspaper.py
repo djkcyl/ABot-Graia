@@ -33,7 +33,7 @@ async def something_scheduled(app: Ariadne):
 @channel.use(
     ListenerSchema(
         listening_events=[FriendMessage],
-        inline_dispatchers=[Twilight(match={"head": FullMatch("发送早报")})],
+        inline_dispatchers=[Twilight({"head": FullMatch("发送早报")})],
     )
 )
 async def main(app: Ariadne, friend: Friend):

@@ -27,7 +27,7 @@ MESSAGEID = {"origin": [], "bot": []}
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight(
-                match={
+                {
                     "head": FullMatch("/rep"),
                     "operate": RegexMatch(r"on|off", optional=True),
                     "at": ElementMatch(At, optional=True),

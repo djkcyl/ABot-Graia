@@ -48,7 +48,7 @@ async def get_botQueue(app: Ariadne, message: MessageChain, source: Source):
         listening_events=[FriendMessage],
         inline_dispatchers=[
             Twilight(
-                [FullMatch("全员充值")], match={"anything": WildcardMatch(optional=True)}
+                {"head": FullMatch("全员充值"), "anything": WildcardMatch(optional=True)}
             )
         ],
     )
@@ -70,7 +70,7 @@ async def all_recharge(app: Ariadne, friend: Friend, anything: WildcardMatch):
         listening_events=[FriendMessage],
         inline_dispatchers=[
             Twilight(
-                [FullMatch("充值")], match={"anything": WildcardMatch(optional=True)}
+                {"head": FullMatch("充值"), "anything": WildcardMatch(optional=True)}
             )
         ],
     )
@@ -96,7 +96,7 @@ async def echarge(app: Ariadne, friend: Friend, anything: WildcardMatch):
         listening_events=[FriendMessage],
         inline_dispatchers=[
             Twilight(
-                [FullMatch("公告")], match={"anything": WildcardMatch(optional=True)}
+                {"head": FullMatch("公告"), "anything": WildcardMatch(optional=True)}
             )
         ],
     )
@@ -137,8 +137,7 @@ async def Announcement(app: Ariadne, friend: Friend, anything: WildcardMatch):
         listening_events=[FriendMessage],
         inline_dispatchers=[
             Twilight(
-                [FullMatch("添加群白名单")],
-                match={"groupid": WildcardMatch(optional=True)},
+                {"head": FullMatch("添加群白名单"), "groupid": WildcardMatch(optional=True)},
             )
         ],
     )
@@ -165,8 +164,7 @@ async def add_white_group(app: Ariadne, friend: Friend, groupid: WildcardMatch):
         listening_events=[FriendMessage],
         inline_dispatchers=[
             Twilight(
-                [FullMatch("移出群白名单")],
-                match={"groupid": WildcardMatch(optional=True)},
+                {"head": FullMatch("移出群白名单"), "groupid": WildcardMatch(optional=True)},
             )
         ],
     )
@@ -209,8 +207,7 @@ async def remove_white_group(app: Ariadne, friend: Friend, groupid: WildcardMatc
         listening_events=[FriendMessage],
         inline_dispatchers=[
             Twilight(
-                [FullMatch("拉黑用户")],
-                match={"userid": WildcardMatch(optional=True)},
+                {"head": FullMatch("拉黑用户"), "userid": WildcardMatch(optional=True)},
             )
         ],
     )
@@ -250,8 +247,7 @@ async def fadd_black_user(app: Ariadne, friend: Friend, userid: WildcardMatch):
         listening_events=[FriendMessage],
         inline_dispatchers=[
             Twilight(
-                [FullMatch("取消拉黑用户")],
-                match={"userid": WildcardMatch(optional=True)},
+                {"head": FullMatch("取消拉黑用户"), "userid": WildcardMatch(optional=True)},
             )
         ],
     )
@@ -278,8 +274,7 @@ async def fremove_block_user(app: Ariadne, friend: Friend, userid: WildcardMatch
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight(
-                [FullMatch("拉黑用户")],
-                match={"at": ElementMatch(At, optional=True)},
+                {"head": FullMatch("拉黑用户"), "at": ElementMatch(At, optional=True)},
             )
         ],
         decorators=[Permission.require(Permission.MASTER)],
@@ -314,8 +309,7 @@ async def gadd_black_user(app: Ariadne, group: Group, at: ElementMatch):
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight(
-                [FullMatch("取消拉黑用户")],
-                match={"at": ElementMatch(At, optional=True)},
+                {"head": FullMatch("取消拉黑用户"), "at": ElementMatch(At, optional=True)},
             )
         ],
         decorators=[Permission.require(Permission.MASTER)],
@@ -420,7 +414,7 @@ async def group_card_fix(app: Ariadne, friend: Friend):
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight([FullMatch("全局关闭")], match={"func": WildcardMatch(optional=True)})
+            Twilight({"head": FullMatch("全局关闭"), "func": WildcardMatch(optional=True)})
         ],
         decorators=[Permission.require(Permission.MASTER)],
     )
@@ -457,7 +451,7 @@ async def gset_close(group: Group, func: WildcardMatch):
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight([FullMatch("全局开启")], match={"func": WildcardMatch(optional=True)})
+            Twilight({"head": FullMatch("全局开启"), "func": WildcardMatch(optional=True)})
         ],
         decorators=[Permission.require(Permission.MASTER)],
     )

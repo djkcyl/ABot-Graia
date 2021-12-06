@@ -26,7 +26,7 @@ channel = Channel.current()
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight(
-                match={
+                {
                     "tag1": WildcardMatch(optional=True),
                     "header": FullMatch("涩图"),
                     "tag2": WildcardMatch(optional=True),

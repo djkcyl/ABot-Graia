@@ -24,7 +24,7 @@ channel = Channel.current()
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight(
-                match={
+                {
                     "head": FullMatch("计算器"),
                     "formula": WildcardMatch(optional=True),
                 }
