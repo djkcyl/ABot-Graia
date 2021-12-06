@@ -72,7 +72,9 @@ saucenao_usage = None
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight({"head": FullMatch("以图搜番"), "img": ElementMatch(Image)})
+            Twilight(
+                {"head": FullMatch("以图搜番"), "img": ElementMatch(Image, optional=True)}
+            ),
         ],
         decorators=[Permission.require(), Interval.require()],
     )
@@ -204,7 +206,9 @@ async def anime_search(group: Group, member: Member, img: ElementMatch, source: 
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight({"head": FullMatch("以图搜图"), "img": ElementMatch(Image)})
+            Twilight(
+                {"head": FullMatch("以图搜图"), "img": ElementMatch(Image, optional=True)}
+            ),
         ],
         decorators=[Permission.require(), Interval.require()],
     )

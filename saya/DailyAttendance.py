@@ -81,10 +81,10 @@ async def main(group: Group, member: Member):
     ListenerSchema(
         listening_events=[FriendMessage],
         inline_dispatchers=[Twilight(match={"head": FullMatch("签到率查询")})],
-        decorators=[Permission.require(Permission.MASTER)],
     )
 )
 async def inquire(app: Ariadne, friend: Friend):
+    Permission.manual(friend, Permission.MASTER)
     sign_info = await all_sign_num()
     await app.sendFriendMessage(
         friend,
