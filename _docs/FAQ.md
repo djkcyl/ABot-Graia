@@ -13,9 +13,3 @@
    > ```shell
    > sudo apt install libzbar-dev
    > ```
-
-2. 使用需要发送语音的功能时报错 **NameError: name 'warn' is not defined**
-
-   > **系统内未安装 ffmpeg**
-   > 
-   > 请自行使用搜索引擎查询并安装 ffmpeg
