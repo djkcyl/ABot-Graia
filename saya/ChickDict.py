@@ -42,7 +42,7 @@ async def fun_dict(group: Group, member: Member, anything: WildcardMatch):
     elif "ChickDict" in group_data[str(group.id)]["DisabledFunc"]:
         return
 
-    if anything.matched:
+    if not anything.matched:
         await safeSendGroupMessage(group, MessageChain.create([Plain("用法：查梗 xxxxx")]))
     else:
         say_name = anything.result.asDisplay()
@@ -81,7 +81,7 @@ async def fun_dict(group: Group, member: Member, anything: WildcardMatch):
                 group,
                 MessageChain.create(
                     [
-                        Plain("未找到相应词条：{say_name}"),
+                        Plain(f"未找到相应词条：{say_name}"),
                     ]
                 ),
             )

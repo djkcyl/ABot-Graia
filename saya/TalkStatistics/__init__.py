@@ -1,4 +1,3 @@
-import time
 import httpx
 import datetime
 
@@ -62,25 +61,17 @@ async def add_talk_word(group: Group, member: Member, message: MessageChain):
     elif message.has(Image):
         image_list = message.get(Image)
         for image in image_list:
-            image_id = image.url.split("/")[5].split("-")[2]
-            async with httpx.AsyncClient() as client:
-                rep = await client.get(image.url)
-            content_type = rep.headers["content-type"].split("/")[1]
-            image_name = f"{image_id}.{content_type}"
+            image_name = image.id
             await download(image.url, image_name, "image", 2)
             await add_talk(str(member.id), str(group.id), 2, image_name, image.url)
     elif message.has(FlashImage):
         flash_image = message.getFirst(FlashImage)
-        image_id = flash_image.url.split("/")[5].split("-")[2]
-        async with httpx.AsyncClient() as client:
-            rep = await client.get(flash_image.url)
-        content_type = rep.headers["content-type"].split("/")[1]
-        image_name = f"{image_id}.{content_type}"
+        image_name = flash_image.id
         await download(flash_image.url, image_name, "flashimage", 3)
         await add_talk(str(member.id), str(group.id), 3, image_name, flash_image.url)
     elif message.has(Voice):
         voice = message.getFirst(Voice)
-        voice_id = f"{member.id}-{int(time.time() * 100)}"
+        voice_id = voice.id
         await download(voice.url, voice_id, "voice", 4)
         await add_talk(str(member.id), str(group.id), 4, voice_id, voice.url)
 
