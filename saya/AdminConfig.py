@@ -508,7 +508,7 @@ async def funchelp(group: Group, func: WildcardMatch):
             func_id = [*funcHelp].index(num)
         else:
             return await safeSendGroupMessage(
-                group, MessageChain.create([Plain("功能编号仅可为数字")])
+                group, MessageChain.create([Plain("功能编号仅可为数字或其对应的功能名")])
             )
         sayfunc = funcList[func_id]["name"]
         funckey = funcList[func_id]["key"]
@@ -520,6 +520,7 @@ async def funchelp(group: Group, func: WildcardMatch):
             )
         help = str(
             sayfunc
+            + f"\n\n{funcHelp[sayfunc]['instruction']}"
             + "\n\n      >>> 用法 >>>\n"
             + funcHelp[sayfunc]["usage"]
             + "\n\n      >>> 注意事项 >>>\n"
@@ -567,7 +568,6 @@ async def help(group: Group):
         i += 1
     msg += str(
         "\n========================================================"
-        + "\n管理员可发送 开启功能/关闭功能 <id>，例如：关闭功能 1"
         + "\n详细查看功能使用方法请发送 功能 <id>，例如：功能 1"
         + "\n管理员可发送 开启功能/关闭功能 <功能id> "
         + "\n每日00:00至07:30为休息时间，将关闭部分功能"
