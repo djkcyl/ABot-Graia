@@ -499,6 +499,11 @@ async def funchelp(group: Group, func: WildcardMatch):
         num = func.result.asDisplay().strip()
         if num.isdigit():
             func_id = int(num) - 1
+            if func_id >= len(funcList):
+                return await safeSendGroupMessage(
+                    group,
+                    MessageChain.create("没有这个功能，请输入菜单查看所有功能"),
+                )
         elif num in funcHelp:
             func_id = [*funcHelp].index(num)
         else:

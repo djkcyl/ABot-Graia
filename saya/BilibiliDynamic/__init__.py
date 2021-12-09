@@ -253,6 +253,8 @@ async def update_scheduled(app: Ariadne):
         cover_from_user = live_statu["data"][up_id]["cover_from_user"]
 
         if live_statu["data"][up_id]["live_status"] == 1:
+            if up_id not in LIVE_STATUS:
+                LIVE_STATUS[up_id] = False
             if LIVE_STATUS[up_id]:
                 continue
             else:
