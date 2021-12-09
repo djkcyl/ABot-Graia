@@ -6,10 +6,10 @@ authors = ["djkcyl <cyl@cyllive.cn>"]
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.10"
-graia-ariadne-dev = "^2021.12.6"
+graia-ariadne-dev = "^2021.12.8"
 graia-saya = "^0.0.13"
 graia-scheduler = "^0.0.6"
-graiax-silkcoder = "^0.1.1"
+graiax-silkcoder = {extras = ["ffmpeg"], version = "^0.1.1"}
 wordcloud = "^1.8.1"
 dnspython = "^2.1.0"
 peewee = "^3.14.4"

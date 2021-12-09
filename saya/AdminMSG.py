@@ -345,7 +345,7 @@ async def fset_work(app: Ariadne, friend: Friend):
 @channel.use(
     ListenerSchema(
         listening_events=[FriendMessage],
-        inline_dispatchers=[Twilight([FullMatch("休息")])],
+        inline_dispatchers=[Twilight([FullMatch("工作")])],
     )
 )
 async def fset_rest(app: Ariadne, friend: Friend):
@@ -369,7 +369,7 @@ async def gset_work(group: Group):
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight([FullMatch("休息")])],
+        inline_dispatchers=[Twilight([FullMatch("工作")])],
         decorators=[Permission.require(Permission.MASTER)],
     )
 )
