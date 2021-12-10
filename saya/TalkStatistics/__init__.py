@@ -86,8 +86,11 @@ async def download(url, name, path, type):
         async with httpx.AsyncClient() as client:
             r = await client.get(url)
             if type == 4:
-                f = await silkcoder.decode(r.content, audio_format="mp3")
-                now_path.joinpath(f"{name}.mp3").write_bytes(f)
+                try:
+                    f = await silkcoder.decode(r.content, audio_format="mp3")
+                    now_path.joinpath(f"{name}.mp3").write_bytes(f)
+                except silkcoder.CoderError:
+                    now_path.joinpath(f"{name}.silk").write_bytes(r.content)
             else:
                 f = r.content
                 now_path.joinpath(name).write_bytes(f)

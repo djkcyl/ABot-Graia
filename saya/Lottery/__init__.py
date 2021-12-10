@@ -268,17 +268,23 @@ async def q_lottery(group: Group):
     period = str(lottery["period"] - 1)
     winner = lottery["lastweek"]["number"]
     lottery_len = LOTTERY["lastweek"]["len"]
-    gold = int(lottery_len * 2 * 0.9)
-    received = "已领取" if lottery["lastweek"]["received"] else "未领取"
-    await safeSendGroupMessage(
-        group,
-        MessageChain.create(
-            [
-                Plain("上期开奖信息：\n"),
-                Plain(f"上期期号：{period}\n"),
-                Plain(f"中奖号码：{winner}\n"),
-                Plain(f"奖励：{gold} 个{COIN_NAME}\n"),
-                Plain(f"状态：{received}"),
-            ]
-        ),
-    )
+    if lottery_len:
+        gold = int(lottery_len * 2 * 0.9)
+        received = "已领取" if lottery["lastweek"]["received"] else "未领取"
+        await safeSendGroupMessage(
+            group,
+            MessageChain.create(
+                [
+                    Plain("上期开奖信息：\n"),
+                    Plain(f"上期期号：{period}\n"),
+                    Plain(f"中奖号码：{winner}\n"),
+                    Plain(f"奖励：{gold} 个{COIN_NAME}\n"),
+                    Plain(f"状态：{received}"),
+                ]
+            ),
+        )
+    else:
+        await safeSendGroupMessage(
+            group,
+            MessageChain.create("第一期暂未开奖，请等待每周一开奖后再进行查询"),
+        )
