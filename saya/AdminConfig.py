@@ -8,6 +8,7 @@ from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.message.element import At, Plain, Image
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.pattern import FullMatch, RegexMatch, WildcardMatch
+from util.string import numf
 
 
 from util.text2image import create_image
@@ -204,6 +205,12 @@ funcList = [
     {
         "name": "定时提醒",
         "key": "Reminder",
+        "can_disabled": False,
+        "default_disabled": False,
+    },
+    {
+        "name": "图片超分辨率",
+        "key": "Waifu2x",
         "can_disabled": False,
         "default_disabled": False,
     },
@@ -451,6 +458,12 @@ funcHelp = {
         "options": "无",
         "example": "（这也需要示例吗？",
     },
+    "图片超分辨率": {
+        "instruction": "将任意图片的分辨率使用 AI 提升数倍",
+        "usage": "发送指令：\n超分辨率",
+        "options": "无",
+        "example": f"本功能极其耗时，请耐心等待完成，不可使用分辨率超过{numf(yaml_data['Saya']['Waifu2x']['MaxSize'])}，使用会消耗 10 个 {COIN_NAME}",
+    },
 }
 
 
@@ -521,11 +534,11 @@ async def funchelp(group: Group, func: WildcardMatch):
         help = str(
             sayfunc
             + f"\n\n{funcHelp[sayfunc]['instruction']}"
-            + "\n\n      >>> 用法 >>>\n"
+            + "\n \n>>> 用法 >>>\n"
             + funcHelp[sayfunc]["usage"]
-            + "\n\n      >>> 注意事项 >>>\n"
+            + "\n \n>>> 注意事项 >>>\n"
             + funcHelp[sayfunc]["options"]
-            + "\n\n      >>> 示例 >>>\n"
+            + "\n \n>>> 示例 >>>\n"
             + funcHelp[sayfunc]["example"]
         )
         image = await create_image(help)

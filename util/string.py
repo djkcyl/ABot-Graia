@@ -2,6 +2,16 @@ import re
 import string
 
 
+def numf(num: int):
+    if num < 10000:
+        view = str(num)
+    elif num < 100000000:
+        view = ("%.2f" % (num / 10000)) + "万"
+    else:
+        view = ("%.2f" % (num / 100000000)) + "亿"
+    return view
+
+
 def get_cut_str(str, cut):
     """
     自动断行，用于 Pillow 等不会自动换行的场景

@@ -17,9 +17,13 @@ Basic: # 基础配置
       # 腾讯内容安全 API
       # 图片内容安全开通： https://console.cloud.tencent.com/cms
       # 文字内容安全开通： https://console.cloud.tencent.com/cms/text/overview
+      # 对象存储开通： https://console.cloud.tencent.com/cos5
       # secret 获取地址： https://console.cloud.tencent.com/cam/capi
       secretId: "xxxxx"
       secretKey: "xxxxx"
+      Cos:
+        region: "xxxxx"
+        bucket: "xxxxx"
   
   CoinName: "游戏币" # 游戏币别名
   Event: # 事件通知
@@ -193,6 +197,10 @@ Saya: # saya 插件配置
 
   Reminder: # 定时提醒
     Disabled: false
+
+  Waifu2x: # AI图片超分，请谨慎开启，此功能将严重消耗您服务器的性能
+    Disabled: false
+    UpdateCos: false # 开启后将会上传结果至腾讯云COS内，需自行开通COS功能并创建存储桶
     
 Final: false
 # 配置完成后请调整为 true

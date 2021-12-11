@@ -4,7 +4,7 @@ from io import BytesIO
 from qrcode.image.pil import PilImage
 
 
-async def QRcode_generation(text):
+def QRcode_generation(text) -> bytes:
     qr = qrcode.QRCode()
     qr.add_data(text)
     image = qr.make_image(PilImage)

@@ -6,12 +6,12 @@ class TimeRecorder:
     def __init__(self):
         self.time = time.time()
 
-    def rec(self, millisecond=False):
+    def _rec(self, millisecond=False):
         mil = 1000 if millisecond else 1
         return int(time.time() * mil - self.time * mil)
 
     def total(self):
-        return calc_time_total(self.rec())
+        return calc_time_total(self._rec())
 
 
 def calc_time_total(seconds):

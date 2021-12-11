@@ -7,7 +7,7 @@ from loguru import logger
 from datetime import datetime, timedelta
 from PIL import Image, ImageFont, ImageDraw
 
-from .cut_string import get_cut_str
+from .string import get_cut_str
 
 font_file = "./font/sarasa-mono-sc-semibold.ttf"
 try:
