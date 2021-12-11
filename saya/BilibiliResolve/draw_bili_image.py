@@ -5,17 +5,7 @@ from io import BytesIO
 from qrcode.image.pil import PilImage
 from PIL import Image, ImageFont, ImageDraw
 
-from util.cut_string import get_cut_str
-
-
-def numf(num: int):
-    if num < 10000:
-        view = str(num)
-    elif num < 100000000:
-        view = ("%.2f" % (num / 10000)) + "万"
-    else:
-        view = ("%.2f" % (num / 100000000)) + "亿"
-    return view
+from util.string import get_cut_str, numf
 
 
 def binfo_image_create(video_info: dict):

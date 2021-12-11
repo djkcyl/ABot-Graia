@@ -127,7 +127,10 @@ async def group_learn(app: Ariadne, group: Group, member: Member):
         wordinfo = []
         tran_num = 0
         for p in pop:
-            wordinfo.append(f"[ {p} ] {tran[tran_num]}")
+            try:
+                wordinfo.append(f"[ {p} ] {tran[tran_num]}")
+            except IndexError:
+                break
             tran_num += 1
         await safeSendGroupMessage(
             group, MessageChain.create([Plain("本回合题目：\n"), Plain("\n".join(wordinfo))])
@@ -253,7 +256,10 @@ async def friend_learn(app: Ariadne, friend: Friend):
         wordinfo = []
         tran_num = 0
         for p in pop:
-            wordinfo.append(f"[ {p} ] {tran[tran_num]}")
+            try:
+                wordinfo.append(f"[ {p} ] {tran[tran_num]}")
+            except IndexError:
+                break
             tran_num += 1
         await app.sendFriendMessage(
             friend, MessageChain.create([Plain("本回合题目：\n"), Plain("\n".join(wordinfo))])

@@ -9,7 +9,7 @@ from graia.ariadne.model import Group, Member
 from graia.broadcast.exceptions import ExecutionStop
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
-from graia.ariadne.message.element import Image, Plain
+from graia.ariadne.message.element import Image, Plain, Voice
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 from config import yaml_data, group_data
@@ -35,6 +35,9 @@ async def bilibili_main(
     ):
         return
     elif "BilibiliResolve" in group_data[str(group.id)]["DisabledFunc"]:
+        return
+
+    if message.has(Image) or message.has(Voice):
         return
 
     saying = message.asPersistentString()
