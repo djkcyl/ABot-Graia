@@ -40,7 +40,7 @@ def _cache(text: str, cut: int) -> bytes:
 def _create_image(text: str, cut: int) -> bytes:
     cut_str = "\n".join(get_cut_str(text, cut))
     textx, texty = font.getsize_multiline(cut_str)
-    image = Image.new("RGB", (textx + 40, texty + 40), (242, 242, 242))
+    image = Image.new("RGB", (textx + 40, texty + 40), (235, 235, 235))
     draw = ImageDraw.Draw(image)
     draw.text((20, 20), cut_str, font=font, fill=(31, 31, 33))
     imageio = BytesIO()
