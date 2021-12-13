@@ -136,8 +136,10 @@ def make_low_poly(img_bytes, point: Optional[int] = None):
         sample_method=triangler.SampleMethod.POISSON_DISK,
         points=point if point else max(imgx, imgy),
     )
-    img = plt.imsave(bio := BytesIO(), t.convert(img.__array__()))
+    bio = BytesIO()
+    img = plt.imsave(bio, t.convert(img.__array__()))
     img = IMG.open(bio).convert("RGB")
-    img.save(bio := BytesIO(), "JPEG")
+    bio = BytesIO()
+    img.save(bio, "JPEG")
 
     return bio.getvalue()

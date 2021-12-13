@@ -126,10 +126,10 @@ async def throw_bottle_handler(
                         ),
                         quote=source,
                     )
-            elif text_len := len(text) > 400:
+            elif len(text) > 400:
                 return await safeSendGroupMessage(
                     group,
-                    MessageChain.create(f"你的漂流瓶内容过长（{text_len} / 400）！"),
+                    MessageChain.create("你的漂流瓶内容过长（400）！"),
                     quote=source,
                 )
 

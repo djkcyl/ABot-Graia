@@ -5,7 +5,7 @@ from io import BytesIO
 from qrcode.image.pil import PilImage
 from PIL import Image, ImageFont, ImageDraw
 
-from util.string import get_cut_str, numf
+from util.strings import get_cut_str, numf
 
 
 def binfo_image_create(video_info: dict):

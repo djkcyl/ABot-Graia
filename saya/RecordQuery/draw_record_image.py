@@ -369,6 +369,7 @@ async def draw_r6(nick_name: str) -> List[Union[Image, Plain]]:
     draw.text((364, 1380), str(weapons["headshots"]), "white", font_bold_32)
     draw.text((554, 1380), str(weapon_kd), "white", font_bold_32)
 
-    bg.save(bio := BytesIO(), "JPEG")
+    bio = BytesIO()
+    bg.save(bio, "JPEG")
 
     return [Image(data_bytes=bio.getvalue())]

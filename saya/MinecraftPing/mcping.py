@@ -48,7 +48,8 @@ async def mcping(say):
         favicon = get_status["favicon"][22:-1] + "="
         byte_data = base64.b64decode(favicon)
         img = IMG.open(BytesIO(byte_data)).convert("RGB")
-        img.save(image := BytesIO(), format="JPEG", quality=90)
+        image = BytesIO()
+        img.save(image, format="JPEG", quality=90)
         msg_send.append(Image(data_bytes=image.getvalue()))
 
     # 延迟

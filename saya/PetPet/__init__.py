@@ -171,8 +171,9 @@ async def petpet(member_id, flip=False, squish=0) -> None:
         gif_frames.append(await make_frame(avatar, i, squish=squish, flip=flip))
     # 输出
 
+    image = BytesIO()
     gif_frames[0].save(
-        image := BytesIO(),
+        image,
         format="GIF",
         append_images=gif_frames[1:],
         save_all=True,

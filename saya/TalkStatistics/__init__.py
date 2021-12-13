@@ -1,4 +1,3 @@
-import httpx
 import datetime
 
 from pathlib import Path
@@ -62,37 +61,36 @@ async def add_talk_word(group: Group, member: Member, message: MessageChain):
         image_list = message.get(Image)
         for image in image_list:
             image_name = image.id
-            await download(image.url, image_name, "image", 2)
+            await download(image, image_name, "image", 2)
             await add_talk(str(member.id), str(group.id), 2, image_name, image.url)
     elif message.has(FlashImage):
         flash_image = message.getFirst(FlashImage)
         image_name = flash_image.id
-        await download(flash_image.url, image_name, "flashimage", 3)
+        await download(flash_image, image_name, "flashimage", 3)
         await add_talk(str(member.id), str(group.id), 3, image_name, flash_image.url)
     elif message.has(Voice):
         voice = message.getFirst(Voice)
         voice_id = voice.id
-        await download(voice.url, voice_id, "voice", 4)
+        await download(voice, voice_id, "voice", 4)
         await add_talk(str(member.id), str(group.id), 4, voice_id, voice.url)
 
 
-async def download(url, name, path, type):
+async def download(element, name, path, type):
     now_time = datetime.datetime.now()
     now_path = data_path.joinpath(
         path, str(now_time.year), str(now_time.month), str(now_time.day)
     )
     now_path.mkdir(0o775, True, True)
     if not await archive_exists(name, type):
-        async with httpx.AsyncClient() as client:
-            r = await client.get(url)
-            if type == 4:
-                try:
-                    f = await silkcoder.decode(r.content, audio_format="mp3")
-                    now_path.joinpath(f"{name}.mp3").write_bytes(f)
-                except silkcoder.CoderError:
-                    now_path.joinpath(f"{name}.silk").write_bytes(r.content)
-            else:
-                f = r.content
-                now_path.joinpath(name).write_bytes(f)
+        r = await element.get_bytes()
+        if type == 4:
+            try:
+                now_path.joinpath(f"{name}.mp3").write_bytes(
+                    await silkcoder.decode(r, audio_format="mp3")
+                )
+            except silkcoder.CoderError:
+                now_path.joinpath(f"{name}.silk").write_bytes(r)
+        else:
+            now_path.joinpath(name).write_bytes(r)
     else:
         logger.info(f"已存在的文件 - {name}")

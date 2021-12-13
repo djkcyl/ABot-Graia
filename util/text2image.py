@@ -7,7 +7,7 @@ from loguru import logger
 from datetime import datetime, timedelta
 from PIL import Image, ImageFont, ImageDraw
 
-from .string import get_cut_str
+from .strings import get_cut_str
 
 font_file = "./font/sarasa-mono-sc-semibold.ttf"
 try:
@@ -43,8 +43,9 @@ def _create_image(text: str, cut: int) -> bytes:
     image = Image.new("RGB", (textx + 40, texty + 40), (242, 242, 242))
     draw = ImageDraw.Draw(image)
     draw.text((20, 20), cut_str, font=font, fill=(31, 31, 33))
+    imageio = BytesIO()
     image.save(
-        imageio := BytesIO(),
+        imageio,
         format="JPEG",
         quality=90,
         subsampling=2,

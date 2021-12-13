@@ -31,7 +31,9 @@ async def update_data():
         "https://raw.fastgit.org/Kyomotoi/AnimeThesaurus/main/data.json",
         verify=False,
     ).json()
-    DATA_FILE.write_text(json.dumps(root, indent=2, ensure_ascii=False), encoding="utf-8")
+    DATA_FILE.write_text(
+        json.dumps(root, indent=2, ensure_ascii=False), encoding="utf-8"
+    )
     DATA = root
 
 
@@ -64,10 +66,15 @@ async def main(group: Group, member: Member, message: MessageChain):
 
     if message.has(At):
         if message.getFirst(At).target == yaml_data["Basic"]["MAH"]["BotQQ"]:
-            saying = message.getFirst(Plain).text
-            for key in DATA:
-                if key in saying:
-                    await Interval.manual(member.id)
-                    return await safeSendGroupMessage(
-                        group, MessageChain.create([Plain(random.choice(DATA[key]))])
-                    )
+            try:
+                saying = message.getFirst(Plain).text
+                for key in DATA:
+                    if key in saying:
+                        await Interval.manual(member.id)
+                        return await safeSendGroupMessage(
+                            group,
+                            MessageChain.create([Plain(random.choice(DATA[key]))]),
+                        )
+
+            except IndexError:
+                pass
