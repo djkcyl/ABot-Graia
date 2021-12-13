@@ -8,7 +8,7 @@ from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.message.element import At, Plain, Image
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.pattern import FullMatch, RegexMatch, WildcardMatch
-from util.string import numf
+from util.strings import numf
 
 
 from util.text2image import create_image
@@ -46,7 +46,7 @@ funcList = [
         "default_disabled": False,
     },
     {
-        "name": "网易云音乐点歌",
+        "name": "点歌",
         "key": "CloudMusic",
         "can_disabled": True,
         "default_disabled": False,
@@ -210,7 +210,13 @@ funcList = [
     },
     {
         "name": "图片超分辨率",
-        "key": "Waifu2x",
+        "key": "Real-ESRGAN",
+        "can_disabled": False,
+        "default_disabled": False,
+    },
+    {
+        "name": "明日方舟公招识别",
+        "key": "ArkRecruit",
         "can_disabled": False,
         "default_disabled": False,
     },
@@ -260,8 +266,8 @@ funcHelp = {
         "options": "词条：任意可能存在于词典内的文字",
         "example": "词典 对牛弹琴",
     },
-    "网易云音乐点歌": {
-        "instruction": "在网易云音乐搜歌并以语音形式发出",
+    "点歌": {
+        "instruction": "搜歌并以语音形式发出",
         "usage": "发送指令：\n点歌",
         "options": f"可以点需要黑胶VIP的歌曲，每次点歌消耗 4 个{COIN_NAME}",
         "example": "点歌\n点歌 梦于星海之间",
@@ -462,7 +468,13 @@ funcHelp = {
         "instruction": "将任意图片的分辨率使用 AI 提升数倍",
         "usage": "发送指令：\n超分辨率",
         "options": "无",
-        "example": f"本功能极其耗时，请耐心等待完成，不可使用分辨率超过{numf(yaml_data['Saya']['Waifu2x']['MaxSize'])}，使用会消耗 10 个 {COIN_NAME}",
+        "example": f"本功能极其耗时，请耐心等待完成，不可使用分辨率超过{numf(yaml_data['Saya']['Real-ESRGAN']['MaxSize'])}，使用会消耗 10 个 {COIN_NAME}",
+    },
+    "明日方舟公招识别": {
+        "instruction": "自动识别并组合图片中有意义的tag",
+        "usage": "发送指令：\n查公招\n公招识别",
+        "options": "你也可以在发送文字的时候附带上图片，可以节省点步骤。。？大概吧",
+        "example": "本功能只会查询有意义的组合，不会包含三星干员",
     },
 }
 
@@ -498,6 +510,10 @@ async def atrep(group: Group, message: MessageChain):
             )
             msg = Image(data_bytes=image)
         await safeSendGroupMessage(group, MessageChain.create([msg]))
+    elif At(yaml_data["Basic"]["MAH"]["BotQQ"]) in message:
+        await safeSendGroupMessage(
+            group, MessageChain.create([Plain("at不会触发任何功能，请勿at，查看功能请发送 菜单。")])
+        )
 
 
 @channel.use(

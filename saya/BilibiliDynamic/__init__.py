@@ -103,7 +103,7 @@ async def add_uid(uid, groupid):
         up_name = r["data"]["cards"][0]["desc"]["user_profile"]["info"]["uname"]
         uid_sub_group = dynamic_list["subscription"].get(uid, [])
         if groupid in uid_sub_group:
-            return Plain(f"本群已订阅 {up_name}（{uid}）")
+            return Plain(f"本群已订阅UP {up_name}（{uid}）")
         else:
             if uid not in dynamic_list["subscription"]:
                 LIVE_STATUS[uid] = False
@@ -115,7 +115,7 @@ async def add_uid(uid, groupid):
             dynamic_list["subscription"][uid].append(groupid)
             with dynamic_list_json.open("w", encoding="utf-8") as f:
                 json.dump(dynamic_list, f, indent=2)
-            return Plain(f"成功在本群订阅 {up_name}（{uid}）")
+            return Plain(f"成功在本群订阅UP {up_name}（{uid}）")
     else:
         Plain(f"该UP（{uid}）未发布任何动态，订阅失败")
 

@@ -283,8 +283,8 @@ async def sing(
                     "response"
                 ]["data"]["imageUrl"]
             musiclyric = httpx.get(f"{QQ_HOST}/getLyric?songmid={musicid[1]}").json()
-            music_lyric = musiclyric["response"]["lyric"]
-            if music_lyric == "[00:00:00]此歌曲为没有填词的纯音乐，请您欣赏":
+            music_lyric = musiclyric["response"].get("lyric", "")
+            if music_lyric == "[00:00:00]此歌曲为没有填词的纯音乐，请您欣赏" or music_lyric == "":
                 music_lyric = None
 
         MUSIC_PATH = BASEPATH.joinpath(f"{musicid[1]}.mp3")

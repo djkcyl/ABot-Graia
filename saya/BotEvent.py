@@ -401,9 +401,10 @@ async def getMemberJoinEvent(events: MemberJoinEvent):
         Plain(" 加入本群"),
     ]
     if group_data[str(events.member.group.id)]["EventBroadcast"]["Enabled"]:
-        if EventBroadcast := group_data[str(events.member.group.id)]["EventBroadcast"][
+        EventBroadcast = group_data[str(events.member.group.id)]["EventBroadcast"][
             "Message"
-        ]:
+        ]
+        if EventBroadcast:
             msg.append(Plain(f"\n{EventBroadcast}"))
         await safeSendGroupMessage(events.member.group, MessageChain.create(msg))
 
@@ -459,5 +460,6 @@ async def avater_blackandwhite(qq: int) -> bytes:
         resp = await client.get(url)
     img = IMG.open(BytesIO(resp.content))
     img = img.convert("L")
-    img.save(imgbio := BytesIO(), "JPEG")
+    imgbio = BytesIO()
+    img.save(imgbio, "JPEG")
     return imgbio.getvalue()
