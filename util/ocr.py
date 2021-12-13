@@ -28,9 +28,7 @@ class OCR:
     async def ocr(self, detail=False):
 
         if isinstance(self.image_data, Image.Image):
-            img: np.ndarray = (
-                self.image_data.convert("RGB").__array__()
-            )
+            img: np.ndarray = self.image_data.convert("RGB").__array__()
         elif isinstance(self.image_data, np.ndarray):
             img = self.image_data
         elif isinstance(self.image_data, Path) or isinstance(self.image_data, str):

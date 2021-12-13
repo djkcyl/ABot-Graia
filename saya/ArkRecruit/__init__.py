@@ -1,3 +1,4 @@
+import re
 import asyncio
 
 from loguru import logger
@@ -84,6 +85,7 @@ async def recruit(
         try:
             image_data = await asyncio.wait_for(inc.wait(image_waiter), 30)
             if not image_data:
+                MEMBER_RUNING_LIST.remove(member.id)
                 return await safeSendGroupMessage(
                     group, MessageChain.create("你发送的不是“一张”图片，请重试"), quote=source
                 )
@@ -98,8 +100,11 @@ async def recruit(
     logger.debug(ocr_result)
 
     tags = []
+    p = re.compile(r'.击干员')
     for i in ocr_result["result"]:
-        if i in known_tags:
+        if p.search(i):
+            tags.append("狙击干员")
+        elif i in known_tags:
             tags.append(i)
     if len(tags) == 0:
         msg = ["未识别到标签"]
