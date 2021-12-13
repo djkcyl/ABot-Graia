@@ -1,5 +1,6 @@
 from io import BytesIO
 from pathlib import Path
+from loguru import logger
 from PIL import Image, ImageDraw, ImageFont
 
 
@@ -22,7 +23,10 @@ def draw(recruit_info):
     i = 0
     text_list = []
     for tags, operators, rank in recruit_info:
-        r = operators[0][1]
+        try:
+            r = operators[0][1]
+        except IndexError:
+            continue
         if rank:
             i += 1
             text_list.append([f"\n \n{' '.join(tags)}\n", 1, rank])
@@ -35,18 +39,23 @@ def draw(recruit_info):
     if not i:
         return
 
+    logger.debug(f"为你找到以下可用的招募方案：\n{''.join([t[0] for t in text_list])}")
+
     text_x, text_y = font.getsize_multiline(
         f"为你找到以下可用的招募方案：\n{''.join([t[0] for t in text_list])}"
     )
     text_x = max(text_x, 392)
 
-    img = Image.new("RGB", (text_x + 20, text_y + 20), (255, 255, 255))
+    img = Image.new("RGB", (text_x + 20, text_y + 20), (235, 235, 235))
     draw = ImageDraw.Draw(img)
-    draw.text((10, 10), "为你找到以下可用的招募方案：", (0, 0, 0), font=font28)
+    draw.text((10, 10), "为你找到以下可用的招募方案：", (33, 33, 33), font=font28)
     h = 24
     i = 2
     for tags, operators, rank in recruit_info:
-        r = operators[0][1]
+        try:
+            r = operators[0][1]
+        except IndexError:
+            continue
         if rank:
             tag = " ".join(tags)
             draw.text(
