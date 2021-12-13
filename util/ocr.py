@@ -29,7 +29,7 @@ class OCR:
 
         if isinstance(self.image_data, Image.Image):
             img: np.ndarray = (
-                Image.open(BytesIO(self.image_data)).convert("RGB").__array__()
+                self.image_data.convert("RGB").__array__()
             )
         elif isinstance(self.image_data, np.ndarray):
             img = self.image_data
