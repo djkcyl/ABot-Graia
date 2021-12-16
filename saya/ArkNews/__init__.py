@@ -1,3 +1,4 @@
+import ssl
 import json
 import httpx
 import random
@@ -96,6 +97,9 @@ async def get_weibo_news(app: Ariadne):
         pass
 
     except httpx.HTTPError:
+        pass
+
+    except ssl.SSLError:
         pass
 
     except Exception as e:

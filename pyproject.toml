@@ -1,12 +1,12 @@
 [tool.poetry]
 name = "abot-mahv2"
-version = "2.5.1"
+version = "2.5.2"
 description = ""
 authors = ["djkcyl <cyl@cyllive.cn>"]
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.10"
-graia-ariadne-dev = "^2021.12.10"
+graia-ariadne-dev = "^2021.12.13"
 graia-saya = "^0.0.13"
 graia-scheduler = "^0.0.6"
 graiax-silkcoder = {extras = ["ffmpeg"], version = "^0.1.1"}
