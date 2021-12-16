@@ -389,28 +389,32 @@ async def bottle_score_handler(group: Group, member: Member, anythings: Wildcard
             if bottle_id.isdigit() and score.isdigit():
                 score = int(score)
                 bottle = get_bottle_by_id(bottle_id)
-                if not bottle:
-                    await safeSendGroupMessage(
-                        group, MessageChain.create(At(member.id), " 没有这个漂流瓶")
-                    )
-                if 1 <= score <= 5:
-                    if add_bottle_score(bottle_id, member, score):
-                        bottle_score = get_bottle_score_avg(bottle_id)
-                        await safeSendGroupMessage(
-                            group,
-                            MessageChain.create(
-                                At(member.id), f" 漂流瓶评分成功，当前评分{bottle_score}"
-                            ),
-                        )
+                if bottle:
+                    if 1 <= score <= 5:
+                        if add_bottle_score(bottle_id, member, score):
+                            bottle_score = get_bottle_score_avg(bottle_id)
+                            await safeSendGroupMessage(
+                                group,
+                                MessageChain.create(
+                                    At(member.id), f" 漂流瓶评分成功，当前评分{bottle_score}"
+                                ),
+                            )
+                        else:
+                            await safeSendGroupMessage(
+                                group,
+                                MessageChain.create(
+                                    At(member.id), " 你已对该漂流瓶评过分，请勿重复评分"
+                                ),
+                            )
                     else:
                         await safeSendGroupMessage(
-                            group,
-                            MessageChain.create(At(member.id), " 你已对该漂流瓶评过分，请勿重复评分"),
+                            group, MessageChain.create(At(member.id), " 评分仅可为1-5分")
                         )
                 else:
                     await safeSendGroupMessage(
-                        group, MessageChain.create(At(member.id), " 评分仅可为1-5分")
+                        group, MessageChain.create(At(member.id), " 没有这个漂流瓶")
                     )
+
             else:
                 await safeSendGroupMessage(
                     group, MessageChain.create(At(member.id), " 请输入正确的漂流瓶编号和分数！")
