@@ -9,9 +9,13 @@ from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.event.message import GroupMessage
 from graia.broadcast.interrupt import InterruptControl
 from graia.ariadne.message.element import Image, Source
-from graia.ariadne.message.parser.twilight import Twilight
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.pattern import ElementMatch, FullMatch, RegexMatch
+from graia.ariadne.message.parser.twilight import (
+    Twilight,
+    FullMatch,
+    RegexMatch,
+    ElementMatch,
+)
 
 from util.ocr import OCR
 from config import yaml_data, group_data
@@ -100,7 +104,7 @@ async def recruit(
     logger.debug(ocr_result)
 
     tags = []
-    p = re.compile(r'.击干员')
+    p = re.compile(r".击干员")
     for i in ocr_result["result"]:
         if p.search(i):
             tags.append("狙击干员")

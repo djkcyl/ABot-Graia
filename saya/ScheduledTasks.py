@@ -5,7 +5,6 @@ from graia.ariadne.message.element import Plain
 from graia.ariadne.message.chain import MessageChain
 from graia.scheduler.saya.schema import SchedulerSchema
 
-
 from config import COIN_NAME, yaml_data
 from util.text2image import delete_old_cache
 from database.db import reset_sign, all_sign_num, ladder_rent_collection

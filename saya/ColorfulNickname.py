@@ -1,5 +1,6 @@
 import random
 import asyncio
+
 from graia.ariadne.event.lifecycle import ApplicationLaunched
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 
@@ -10,8 +11,8 @@ from graia.ariadne.model import MemberInfo
 from graia.scheduler.timers import every_custom_minutes
 from graia.scheduler.saya.schema import SchedulerSchema
 
-
 from config import yaml_data
+
 
 saya = Saya.current()
 channel = Channel.current()

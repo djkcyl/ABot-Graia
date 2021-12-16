@@ -13,8 +13,8 @@ from graia.ariadne.message.element import Plain, Source, Quote, At, Image
 from graia.ariadne.message.parser.twilight import (
     Twilight,
     FullMatch,
-    WildcardMatch,
     ElementMatch,
+    WildcardMatch,
 )
 
 from util.text2image import create_image
