@@ -4,12 +4,12 @@ from pathlib import Path
 from graia.ariadne.model import Member
 from peewee import (
     BigIntegerField,
-    IntegerField,
     SqliteDatabase,
     Model,
     TextField,
     DateTimeField,
     BooleanField,
+    IntegerField,
     fn,
 )
 
@@ -35,7 +35,16 @@ class DriftingBottle(BaseModel):
         db_table = "bottle_list"
 
 
-db.create_tables([DriftingBottle], safe=True)
+class BottleScore(BaseModel):
+    member = BigIntegerField()
+    bottle_id = IntegerField()
+    socre = IntegerField()
+
+    class Meta:
+        db_table = "bottle_score"
+
+
+db.create_tables([DriftingBottle, BottleScore], safe=True)
 
 
 def throw_bottle(sender: Member, text=None, image=None) -> int:
@@ -93,3 +102,33 @@ def delete_bottle_by_member(member: Member):
 
 def delete_bottle(bottle_id: int):
     DriftingBottle.update(isdelete=True).where(DriftingBottle.id == bottle_id).execute()
+
+
+# 漂流瓶评分系统
+
+
+def get_bottle_score_avg(bottle_id: int) -> float:
+    if BottleScore.select().where(BottleScore.bottle_id == bottle_id).count() == 0:
+        return False
+    else:
+        return "%.1f" % (
+            BottleScore.select(fn.Avg(BottleScore.socre))
+            .where(BottleScore.bottle_id == bottle_id)
+            .scalar()
+        )
+
+
+def add_bottle_score(bottle_id: int, member: Member, score: int):
+    if 1 <= score <= 5:
+        if (
+            BottleScore.select()
+            .where(BottleScore.bottle_id == bottle_id, BottleScore.member == member.id)
+            .exists()
+        ):
+            return False
+        else:
+            BottleScore.create(bottle_id=bottle_id, member=member.id, socre=score)
+            return True
+
+
+print(get_bottle_score_avg(1))
