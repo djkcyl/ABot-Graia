@@ -4,7 +4,7 @@ exclude =
     Ariadne,
     test.py,
     **/Ark/
-max-line-length = 200
+max-line-length = 120
 statistics = True
 ignore =
     W503,

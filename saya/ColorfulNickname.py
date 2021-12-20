@@ -56,16 +56,16 @@ async def tasks(app: Ariadne):
 
     # 本功能已废弃，请勿开启，后果自负
 
-    # group_list = await app.getGroupList()
-    # for group in group_list:
-    #     await app.modifyMemberInfo(
-    #         group=group.id,
-    #         member=yaml_data["Basic"]["MAH"]["BotQQ"],
-    #         info=MemberInfo(
-    #             name=f"{generate_color_code()}{yaml_data['Basic']['BotName']}"
-    #         ),
-    #     )
-    #     await asyncio.sleep(0.1)
-    # logger.info(f"已完成 {len(group_list)} 个群的炫彩群名片更新")
+    return
 
-    pass
+    group_list = await app.getGroupList()
+    for group in group_list:
+        await app.modifyMemberInfo(
+            group=group.id,
+            member=yaml_data["Basic"]["MAH"]["BotQQ"],
+            info=MemberInfo(
+                name=f"{generate_color_code()}{yaml_data['Basic']['BotName']}"
+            ),
+        )
+        await asyncio.sleep(0.1)
+    logger.info(f"已完成 {len(group_list)} 个群的炫彩群名片更新")

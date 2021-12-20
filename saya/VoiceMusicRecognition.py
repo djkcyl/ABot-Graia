@@ -139,7 +139,8 @@ async def main(group: Group, member: Member, operate: RegexMatch, source: Source
                         music_artists_list.append(name["name"])
                     music_artists = " / ".join(music_artists_list)
                     music_list.append(
-                        f"{i}  ====>  | {music_name} ==> {music_artists} ==> {music_album} | 相似度：{music_score} 播放位置：{music_play_offset} 秒"
+                        f"{i}  ====>  | {music_name} ==> {music_artists} ==> {music_album}"
+                        f" | 相似度：{music_score} 播放位置：{music_play_offset} 秒"
                     )
                     i += 1
                 image = await create_image(

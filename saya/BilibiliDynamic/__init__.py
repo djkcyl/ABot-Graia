@@ -48,7 +48,12 @@ LIVE_STATUS = {}
 NONE = False
 
 head = {
-    "user-agent": "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36",
+    "user-agent": (
+        "Mozilla/5.0 (Windows NT 6.1) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/41.0.2228.0 "
+        "Safari/537.36"
+    ),
     "Referer": "https://www.bilibili.com/",
 }
 dynamic_list_json = HOME.joinpath("dynamic_list.json")
@@ -164,7 +169,8 @@ async def init(app: Ariadne):
     if sub_num == 0:
         NONE = True
         await asyncio.sleep(1)
-        return logger.info("[BiliBili推送] 由于未订阅任何账号，本次初始化结束")
+        logger.info("[BiliBili推送] 由于未订阅任何账号，本次初始化结束")
+        return
     await asyncio.sleep(1)
     logger.info(f"[BiliBili推送] 将对 {sub_num} 个账号进行监控")
     info_msg = [f"[BiliBili推送] 将对 {sub_num} 个账号进行监控"]
@@ -180,7 +186,8 @@ async def init(app: Ariadne):
     for up_id in subid_list:
         res = await dynamic_svr(up_id)
         if not res:
-            return logger.error("[BiliBili推送] 寄！")
+            logger.error("[BiliBili推送] 寄！")
+            return
         if "cards" in res["data"]:
             last_dynid = res["data"]["cards"][0]["desc"]["dynamic_id"]
             DYNAMIC_OFFSET[up_id] = last_dynid
@@ -230,9 +237,11 @@ async def update_scheduled(app: Ariadne):
         return
 
     if not NONE:
-        return logger.info("[BiliBili推送] 初始化未完成，终止本次更新")
+        logger.info("[BiliBili推送] 初始化未完成，终止本次更新")
+        return
     elif len(dynamic_list["subscription"]) == 0:
-        return logger.info("[BiliBili推送] 由于未订阅任何账号，本次更新已终止")
+        logger.info("[BiliBili推送] 由于未订阅任何账号，本次更新已终止")
+        return
 
     sub_list = dynamic_list["subscription"].copy()
     subid_list = get_subid_list()
@@ -358,7 +367,7 @@ async def update_scheduled(app: Ariadne):
             )
             break
 
-    return logger.info("[BiliBili推送] 本轮检测完成")
+    logger.info("[BiliBili推送] 本轮检测完成")
 
 
 @channel.use(

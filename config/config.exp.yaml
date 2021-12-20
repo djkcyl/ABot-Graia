@@ -119,12 +119,8 @@ Saya: # saya 插件配置
 
   AnitRecall: #防撤回
     Disabled: false
-
-    Moderation:
+    Moderation: # 内容审核
       Disabled: false
-
-  Entertainment: # 娱乐功能
-    Disabled: false
 
   Lottery: # （一种类似彩票的玩法）
     Disabled: true
@@ -207,6 +203,14 @@ Saya: # saya 插件配置
   ArkRecruit: # 明日方舟公招识别
     Disabled: false
 
+  Sign: # 签到，ABot唯一的无耗游戏币获取来源
+    Disabled: false
+
+  Transfer: # 转账系统，用户间游戏币赠送
+    Disabled: false
+
+  DrawSomething: # 你画我猜
+    Disabled: false
 Final: false
 # 配置完成后请调整为 true
 # 配置完成后请调整为 true

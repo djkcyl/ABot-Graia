@@ -1,3 +1,4 @@
+import aiohttp
 import datetime
 
 from pathlib import Path
@@ -81,7 +82,10 @@ async def download(element, name, path, type):
     )
     now_path.mkdir(0o775, True, True)
     if not await archive_exists(name, type):
-        r = await element.get_bytes()
+        try:
+            r = await element.get_bytes()
+        except aiohttp.ClientResponseError as e:
+            logger.warning(f"{name} 下载失败：{str(e)}")
         if type == 4:
             try:
                 now_path.joinpath(f"{name}.mp3").write_bytes(

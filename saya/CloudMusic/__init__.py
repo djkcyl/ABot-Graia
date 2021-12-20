@@ -221,7 +221,11 @@ async def sing(
             num += 1
             i += 1
 
-        msg += f"\n===============================\n发送歌曲id可完成点歌\n发送取消可终止当前点歌\n点歌将消耗 4 个{COIN_NAME}\n==============================="
+        msg += (
+            "\n===============================\n"
+            f"发送歌曲id可完成点歌\n发送取消可终止当前点歌\n点歌将消耗 4 个{COIN_NAME}\n"
+            "==============================="
+        )
         image = await create_image(msg)
         waite_musicmessageId = await safeSendGroupMessage(
             group, MessageChain.create([Image(data_bytes=image)])
@@ -297,11 +301,8 @@ async def sing(
                         [Plain(f"该歌曲（{music_name}）由于版权问题无法点歌，请使用客户端播放")]
                     ),
                 )
-            headers = {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36 Edg/92.0.902.73"
-            }
             async with httpx.AsyncClient() as client:
-                r = await client.get(musicurl, headers=headers)
+                r = await client.get(musicurl)
                 MUSIC_PATH.write_bytes(r.content)
 
         if not await reduce_gold(str(member.id), 4):

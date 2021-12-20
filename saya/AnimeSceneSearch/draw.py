@@ -57,7 +57,13 @@ async def draw_tracemoe(search_data, media_data):
         )
     except Exception:
         transName = ""
-    info = f"{media_data['episodes']} episodes {media_data['duration']}-minute {media_data['format']} {media_data['type']}\n播出于 {airing}"
+    info = (
+        f"{media_data['episodes']} episodes "
+        f"{media_data['duration']}-minute "
+        f"{media_data['format']} "
+        f"{media_data['type']}\n"
+        f"播出于 {airing}"
+    )
     info_img = Image.new("RGB", (bg_x, 300), "white")
     draw = ImageDraw.Draw(info_img)
     draw.text((100, 20), info, (50, 50, 50), body_font)
@@ -66,7 +72,11 @@ async def draw_tracemoe(search_data, media_data):
     draw.text((120, 103), transName, (50, 50, 50), body_font)
 
     # 识别信息
-    search_text = f"出自第 {str(search_data['episode'])} 集\n{sec_to_minsec(search_data['from'])} 至 {sec_to_minsec(search_data['to'])}\n相似度：{'%.2f%%' % (search_data['similarity'] * 100)}"
+    search_text = (
+        f"出自第 {str(search_data['episode'])} 集\n"
+        f"{sec_to_minsec(search_data['from'])} 至 {sec_to_minsec(search_data['to'])}\n"
+        f"相似度：{'%.2f%%' % (search_data['similarity'] * 100)}"
+    )
     search_img = Image.new("RGB", (bg_x, 220), "white")
     draw = ImageDraw.Draw(search_img)
     if media_data["isAdult"]:

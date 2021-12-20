@@ -42,8 +42,10 @@ class OCR:
 
         time = TimeRecorder()
         result = await asyncio.to_thread(ocr_core.ocr, img, cls=False)
-
-        return {
+        ocr_result = {
             "time": time.total(),
             "result": result if detail else [r[-1][0] for r in result],
         }
+        logger.debug(f"OCR - {ocr_result}")
+
+        return ocr_result
