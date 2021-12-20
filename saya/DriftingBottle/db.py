@@ -106,16 +106,19 @@ def delete_bottle(bottle_id: int):
 
 # 漂流瓶评分系统
 
-
-def get_bottle_score_avg(bottle_id: int) -> float:
+# 获取漂流瓶评分平均数，保留一位小数
+def get_bottle_score_avg(bottle_id: int):
     if BottleScore.select().where(BottleScore.bottle_id == bottle_id).count() == 0:
         return False
     else:
-        return "%.1f" % (
-            BottleScore.select(fn.Avg(BottleScore.socre))
-            .where(BottleScore.bottle_id == bottle_id)
-            .scalar()
-        )
+        count = BottleScore.select().where(BottleScore.bottle_id == bottle_id).count()
+        socre = 0
+        for i in BottleScore.select(BottleScore.socre).where(
+            BottleScore.bottle_id == bottle_id
+        ):
+            socre += i.socre
+
+        return "%.1f" % (socre / count)
 
 
 def add_bottle_score(bottle_id: int, member: Member, score: int):
@@ -129,6 +132,3 @@ def add_bottle_score(bottle_id: int, member: Member, score: int):
         else:
             BottleScore.create(bottle_id=bottle_id, member=member.id, socre=score)
             return True
-
-
-print(get_bottle_score_avg(1))

@@ -58,7 +58,8 @@ async def get_weibo_news(app: Ariadne):
             pushed_list["weibo"] = [new_id]
             save_pushed_list()
             await asyncio.sleep(1)
-            return logger.info(f"[明日方舟蹲饼] 微博初始化成功，当前最新微博：{new_id}")
+            logger.info(f"[明日方舟蹲饼] 微博初始化成功，当前最新微博：{new_id}")
+            return
         elif not isinstance(new_id, str) or new_id in pushed:
             return
 
@@ -127,7 +128,8 @@ async def get_game_news(app: Ariadne):
         pushed_list["game"] = latest_list
         save_pushed_list()
         await asyncio.sleep(1)
-        return logger.info(f"[明日方舟蹲饼] 游戏公告初始化成功，当前共有 {len(latest_list)} 条公告")
+        logger.info(f"[明日方舟蹲饼] 游戏公告初始化成功，当前共有 {len(latest_list)} 条公告")
+        return
     elif not new_list:
         return
 

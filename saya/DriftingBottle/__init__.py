@@ -1,3 +1,4 @@
+import re
 import time
 import httpx
 import asyncio
@@ -13,10 +14,11 @@ from graia.broadcast.interrupt.waiter import Waiter
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.event.message import GroupMessage
 from graia.broadcast.interrupt import InterruptControl
-from graia.ariadne.message.parser.twilight import Twilight
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.element import Image, Plain, At, Source
-from graia.ariadne.message.parser.pattern import (
+from graia.ariadne.message.element import Image, Plain, At, Quote, Source
+from graia.ariadne.message.parser.twilight import (
+    ElementMatch,
+    Twilight,
     FullMatch,
     RegexMatch,
     ArgumentMatch,
@@ -304,8 +306,13 @@ async def drifting_bottle_handler(
             return await safeSendGroupMessage(group, MessageChain.create("没有这个漂流瓶！"))
 
         bottle = bottle[0]
+        bottle_score = get_bottle_score_avg(bottle_id)
+        score_msg = f"瓶子的评分为：{bottle_score}" if bottle_score else "本漂流瓶目前还没有评分"
         msg = [
-            Plain(f"漂流瓶编号为：{bottle.id}\n" f"漂流瓶来自 {bottle.group} 群的 {bottle.member}\n")
+            Plain(
+                f"漂流瓶编号为：{bottle.id}\n"
+                f"漂流瓶来自 {bottle.group} 群的 {bottle.member}\n{score_msg}\n"
+            )
         ]
         if bottle.text is not None:
             image = await create_image(bottle.text)
@@ -363,6 +370,7 @@ def qrdecode(img):
         inline_dispatchers=[
             Twilight(
                 {
+                    "at": ElementMatch(At, optional=True),
                     "head": FullMatch("漂流瓶评分"),
                     "anythings": WildcardMatch(optional=True),
                 }
@@ -371,7 +379,9 @@ def qrdecode(img):
         decorators=[Permission.require(), Interval.require(5)],
     )
 )
-async def bottle_score_handler(group: Group, member: Member, anythings: WildcardMatch):
+async def bottle_score_handler(
+    group: Group, member: Member, message: MessageChain, anythings: WildcardMatch
+):
 
     if (
         yaml_data["Saya"]["DriftingBottle"]["Disabled"]
@@ -384,8 +394,24 @@ async def bottle_score_handler(group: Group, member: Member, anythings: Wildcard
     if anythings.matched:
         try:
             saying = anythings.result.asDisplay().split(" ", 2)
-            bottle_id = saying[0]
-            score = saying[1]
+            if message.has(Quote):
+                reply = message.getFirst(Quote)
+                if reply.senderId == yaml_data["Basic"]["MAH"]["BotQQ"]:
+                    reg_search = re.search(r"瓶子编号为：(.*)\n", reply.origin.asDisplay())
+                    if reg_search:
+                        bottle_id = reg_search.group(1)
+                        score = anythings.result.asDisplay()
+                    else:
+                        return await safeSendGroupMessage(
+                            group, MessageChain.create(At(member.id), " 请正确回复漂流瓶，并输入分数")
+                        )
+                else:
+                    return await safeSendGroupMessage(
+                        group, MessageChain.create(At(member.id), " 请正确回复漂流瓶，并输入分数")
+                    )
+            else:
+                bottle_id = saying[0]
+                score = saying[1]
             if bottle_id.isdigit() and score.isdigit():
                 score = int(score)
                 bottle = get_bottle_by_id(bottle_id)

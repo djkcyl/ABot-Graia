@@ -101,7 +101,6 @@ async def recruit(
 
     ocr = OCR(image_data)
     ocr_result = await ocr.ocr()
-    logger.debug(ocr_result)
 
     tags = []
     p = re.compile(r".击干员")

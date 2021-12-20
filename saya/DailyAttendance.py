@@ -39,11 +39,11 @@ async def main(group: Group, member: Member):
         sign_text = "今天你已经签到过了，不能贪心，凌晨4点以后再来吧！"
 
     if (
-        yaml_data["Saya"]["Entertainment"]["Disabled"]
+        yaml_data["Saya"]["Sign"]["Disabled"]
         and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
     ):
         return
-    elif "Entertainment" in group_data[str(group.id)]["DisabledFunc"]:
+    elif "Sign" in group_data[str(group.id)]["DisabledFunc"]:
         return
 
     user_info = await get_info(str(member.id))

@@ -44,11 +44,11 @@ async def main(app: Ariadne, group: Group, member: Member, source: Source):
 
     # 判断插件是否处于禁用状态
     if (
-        yaml_data["Saya"]["Entertainment"]["Disabled"]
+        yaml_data["Saya"]["DrawSomething"]["Disabled"]
         and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
     ):
         return
-    elif "Entertainment" in group_data[str(group.id)]["DisabledFunc"]:
+    elif "DrawSomething" in group_data[str(group.id)]["DisabledFunc"]:
         return
 
     # 判断用户是否正在游戏中

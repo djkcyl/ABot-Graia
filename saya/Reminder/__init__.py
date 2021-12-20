@@ -75,7 +75,11 @@ async def get_reminder(group: Group, member: Member):
         for reminder in reminders:
             msg.append(
                 Plain(
-                    f"\n===============\nID：{reminder.id}\n创建时间：{reminder.start_date}\n内容：{reminder.thing}\n到期时间：{reminder.end_date}"
+                    "\n===============\n"
+                    f"ID：{reminder.id}\n"
+                    f"创建时间：{reminder.start_date}\n"
+                    f"内容：{reminder.thing}\n"
+                    f"到期时间：{reminder.end_date}"
                 )
             )
         msg.append(Plain("\n===============\n如需删除请发送“删除提醒 <ID>”"))

@@ -7,7 +7,12 @@ from .get_proxy import get_proxy, next_proxy
 
 
 head = {
-    "user-agent": "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36",
+    "user-agent": (
+        "Mozilla/5.0 (Windows NT 6.1) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/41.0.2228.0 "
+        "Safari/537.36"
+    ),
     "Referer": "https://www.bilibili.com/",
 }
 
@@ -31,7 +36,8 @@ async def dynamic_svr(uid):
                         logger.error("[BiliBili推送] IP 已被封禁，更换代理后重试")
                         next_proxy()
                     else:
-                        return logger.error("[BiliBili推送] IP 已被封禁，本轮更新终止，请尝试使用代理")
+                        logger.error("[BiliBili推送] IP 已被封禁，本轮更新终止，请尝试使用代理")
+                        return
                 else:
                     return r.json()
         else:
@@ -59,7 +65,8 @@ async def get_status_info_by_uids(uids):
                         logger.error("[BiliBili推送] IP 已被封禁，更换代理后重试")
                         next_proxy()
                     else:
-                        return logger.error("[BiliBili推送] IP 已被封禁，本轮更新终止，请尝试使用代理")
+                        logger.error("[BiliBili推送] IP 已被封禁，本轮更新终止，请尝试使用代理")
+                        return
                 else:
                     return r.json()
         else:

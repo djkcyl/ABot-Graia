@@ -137,11 +137,12 @@ async def anime_search(group: Group, member: Member, img: ElementMatch, source: 
             await safeSendGroupMessage(
                 group,
                 MessageChain.create(
-                    [
-                        Plain(
-                            "正在搜索，请稍后\n仅可搜索日本番剧\n不支持有边框的截图，不支持裁切截图，不支持镜像截图，不支持滤色截图，不支持老动漫，不支持一切非动漫原画图\n详情请查看https://trace.moe/faq"
-                        )
-                    ]
+                    (
+                        "正在搜索，请稍后\n"
+                        "仅可搜索日本番剧\n"
+                        "不支持有边框的截图，不支持裁切截图，不支持镜像截图，不支持滤色截图，不支持老动漫，不支持一切非动漫原画图\n"
+                        "详情请查看https://trace.moe/faq"
+                    )
                 ),
                 quote=source.id,
             )

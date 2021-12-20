@@ -102,7 +102,8 @@ async def fun_dict(group: Group, member: Member, anything: WildcardMatch):
                         msg_chain.append(Image(url=image["full"]["path"]))
                     msg_chain.append(
                         Plain(
-                            "----------------------\n数据来源为小鸡词典\nhttps://jikipedia.com/\n如果发现任何有问题的词条，与本 bot 无关，请前往小鸡词典官网反馈。"
+                            "----------------------\n数据来源为小鸡词典\nhttps://jikipedia.com/\n"
+                            "如果发现任何有问题的词条，与本 bot 无关，请前往小鸡词典官网反馈。"
                         )
                     )
                     await safeSendGroupMessage(group, MessageChain.create(msg_chain))

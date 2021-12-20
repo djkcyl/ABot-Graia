@@ -8,7 +8,7 @@ from graia.ariadne.app import Ariadne
 from graia.broadcast import Broadcast
 from graia.scheduler import GraiaScheduler
 from graia.ariadne.model import MiraiSession
-from graia.ariadne.adapter import DebugAdapter
+from graia.ariadne.adapter import DefaultAdapter
 from graia.broadcast.interrupt import InterruptControl
 from graia.scheduler.saya import GraiaSchedulerBehaviour
 from graia.saya.builtins.broadcast import BroadcastBehaviour
@@ -37,7 +37,7 @@ scheduler = GraiaScheduler(loop, bcc)
 inc = InterruptControl(bcc)
 app = Ariadne(
     broadcast=bcc,
-    connect_info=DebugAdapter(
+    connect_info=DefaultAdapter(
         bcc,
         MiraiSession(
             host=yaml_data["Basic"]["MAH"]["MiraiHost"],

@@ -47,11 +47,11 @@ async def adminmain(
 ):
 
     if (
-        yaml_data["Saya"]["Entertainment"]["Disabled"]
+        yaml_data["Saya"]["Transfer"]["Disabled"]
         and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
     ):
         return
-    elif "Entertainment" in group_data[str(group.id)]["DisabledFunc"]:
+    elif "Transfer" in group_data[str(group.id)]["DisabledFunc"]:
         return
 
     if not at1.matched:

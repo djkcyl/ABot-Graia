@@ -1,0 +1,506 @@
+{
+  "funcList": [
+    {
+      "name": "微软文字转语音",
+      "key": "AzureTTS",
+      "can_disabled": true,
+      "default_disabled": false
+    },
+    {
+      "name": "小鸡词典查梗",
+      "key": "ChickDict",
+      "can_disabled": true,
+      "default_disabled": false
+    },
+    {
+      "name": "小鸡词典emoji转换",
+      "key": "ChickEmoji",
+      "can_disabled": true,
+      "default_disabled": false
+    },
+    {
+      "name": "汉语词典查询",
+      "key": "ChineseDict",
+      "can_disabled": true,
+      "default_disabled": false
+    },
+    {
+      "name": "点歌",
+      "key": "CloudMusic",
+      "can_disabled": true,
+      "default_disabled": false
+    },
+    {
+      "name": "网络黑话翻译",
+      "key": "CyberBlacktalk",
+      "can_disabled": true,
+      "default_disabled": false
+    },
+    {
+      "name": "词云",
+      "key": "WordCloud",
+      "can_disabled": true,
+      "default_disabled": false
+    },
+    {
+      "name": "禁言套餐",
+      "key": "MutePack",
+      "can_disabled": true,
+      "default_disabled": false
+    },
+    {
+      "name": "兽语转换",
+      "key": "Beast",
+      "can_disabled": true,
+      "default_disabled": false
+    },
+    {
+      "name": "我的世界服务器Ping",
+      "key": "MinecraftPing",
+      "can_disabled": true,
+      "default_disabled": false
+    },
+    {
+      "name": "摸头",
+      "key": "PetPet",
+      "can_disabled": true,
+      "default_disabled": false
+    },
+    {
+      "name": "风格logo生成",
+      "key": "StyleLogoGenerator",
+      "can_disabled": true,
+      "default_disabled": false
+    },
+    {
+      "name": "复读姬",
+      "key": "Repeater",
+      "can_disabled": true,
+      "default_disabled": false
+    },
+    {
+      "name": "涩图",
+      "key": "Pixiv",
+      "can_disabled": true,
+      "default_disabled": false
+    },
+    {
+      "name": "有点涩的聊天",
+      "key": "ChatMS",
+      "can_disabled": true,
+      "default_disabled": false
+    },
+    {
+      "name": "没啥用的回复",
+      "key": "Message",
+      "can_disabled": true,
+      "default_disabled": false
+    },
+    {
+      "name": "每日早报",
+      "key": "DailyNewspaper",
+      "can_disabled": true,
+      "default_disabled": false
+    },
+    {
+      "name": "色图",
+      "key": "Setu",
+      "can_disabled": true,
+      "default_disabled": false
+    },
+    {
+      "name": "防撤回",
+      "key": "AnitRecall",
+      "can_disabled": true,
+      "default_disabled": false
+    },
+    {
+      "name": "签到",
+      "key": "Sign",
+      "can_disabled": true,
+      "default_disabled": false
+    },
+    {
+      "name": "转账",
+      "key": "Transfer",
+      "can_disabled": true,
+      "default_disabled": false
+    },
+    {
+      "name": "你画我猜",
+      "key": "DrawSomething",
+      "can_disabled": true,
+      "default_disabled": false
+    },
+    {
+      "name": "奖券",
+      "key": "Lottery",
+      "can_disabled": true,
+      "default_disabled": true
+    },
+    {
+      "name": "简易骰娘",
+      "key": "DiceMaid",
+      "can_disabled": true,
+      "default_disabled": false
+    },
+    {
+      "name": "B站视频解析",
+      "key": "BilibiliResolve",
+      "can_disabled": true,
+      "default_disabled": false
+    },
+    {
+      "name": "听歌识曲 / 哼唱识曲",
+      "key": "VoiceMusicRecognition",
+      "can_disabled": true,
+      "default_disabled": false
+    },
+    {
+      "name": "淫文翻译机",
+      "key": "Yinglish",
+      "can_disabled": true,
+      "default_disabled": false
+    },
+    {
+      "name": "背单词",
+      "key": "EnglishTest",
+      "can_disabled": true,
+      "default_disabled": false
+    },
+    {
+      "name": "BiliBili订阅推送",
+      "key": "BilibiliDynamic",
+      "can_disabled": false,
+      "default_disabled": false
+    },
+    {
+      "name": "查看人设",
+      "key": "CharacterDesignGenerator",
+      "can_disabled": true,
+      "default_disabled": false
+    },
+    {
+      "name": "以图搜番 / 以图搜图",
+      "key": "AnimeSceneSearch",
+      "can_disabled": true,
+      "default_disabled": false
+    },
+    {
+      "name": "查战绩",
+      "key": "RecordQuery",
+      "can_disabled": true,
+      "default_disabled": false
+    },
+    {
+      "name": "明日方舟蹲饼",
+      "key": "ArkNews",
+      "can_disabled": true,
+      "default_disabled": true
+    },
+    {
+      "name": "低多边形图片生成",
+      "key": "LowPolygon",
+      "can_disabled": true,
+      "default_disabled": false
+    },
+    {
+      "name": "计算器",
+      "key": "Calculator",
+      "can_disabled": true,
+      "default_disabled": false
+    },
+    {
+      "name": "漂流瓶",
+      "key": "DriftingBottle",
+      "can_disabled": true,
+      "default_disabled": false
+    },
+    {
+      "name": "群功能",
+      "key": "GroupConfig",
+      "can_disabled": false,
+      "default_disabled": false
+    },
+    {
+      "name": "明日方舟猜干员",
+      "key": "ArkGuessOperator",
+      "can_disabled": false,
+      "default_disabled": false
+    },
+    {
+      "name": "定时提醒",
+      "key": "Reminder",
+      "can_disabled": false,
+      "default_disabled": false
+    },
+    {
+      "name": "图片超分辨率",
+      "key": "Real-ESRGAN",
+      "can_disabled": false,
+      "default_disabled": false
+    },
+    {
+      "name": "明日方舟公招识别",
+      "key": "ArkRecruit",
+      "can_disabled": false,
+      "default_disabled": false
+    }
+  ],
+  "configList": [
+    {
+      "name": "事件播报",
+      "instruction": "本功能开启后将监听群内事件并进行播报，可修改的值为入群欢迎语",
+      "key": "EventBroadcast",
+      "can_edit": true
+    }
+  ],
+  "funcHelp": {
+    "微软文字转语音": {
+      "instruction": "将文字转为音频以语音形式发出",
+      "usage": "发送指令：\n/tts <性别> <感情> <文字>",
+      "options": "性别：男 / 女\n感情：\n当性别为男时：【助理、平静、害怕、开心、不满、严肃、生气、悲伤、沮丧、尴尬、默认】\n当性别为女时：【助理、聊天、客服、新闻、撒娇、生气、平静、开心、不满、害怕、温柔、抒情、悲伤、严肃、默认】\n文字：任意600字以内文字\n请求语音需要消耗 2 个$COIN_NAME",
+      "example": "/tts 男 助理 您好，您的外卖到了，请您开下门"
+    },
+    "小鸡词典查梗": {
+      "instruction": "在小鸡词典内查询梗详情",
+      "usage": "发送指令：\n查梗 <梗>",
+      "options": "梗：任意可能为梗的文字",
+      "example": "查梗 两面包夹芝士"
+    },
+    "小鸡词典emoji转换": {
+      "instruction": "吧文字转换为emoji表情",
+      "usage": "发送指令：\n/emoji <文字>",
+      "options": "文字：任意可能被转换为emoji的文字",
+      "example": "emoji 差不多的了"
+    },
+    "汉语词典查询": {
+      "instruction": "在汉语词典内查询词条",
+      "usage": "发送指令：\n词典 <词条>",
+      "options": "词条：任意可能存在于词典内的文字",
+      "example": "词典 对牛弹琴"
+    },
+    "点歌": {
+      "instruction": "搜歌并以语音形式发出",
+      "usage": "发送指令：\n点歌",
+      "options": "可以点需要黑胶VIP的歌曲，每次点歌消耗 4 个$COIN_NAME",
+      "example": "点歌\n点歌 梦于星海之间"
+    },
+    "网络黑话翻译": {
+      "instruction": "翻译类似‘nmsl’一类的简写词",
+      "usage": "发送指令：\n你在说什么 <简写>",
+      "options": "简写：任意可能为简写词的字母",
+      "example": "你在说什么 jyfm"
+    },
+    "词云": {
+      "instruction": "记录并生成群内词云",
+      "usage": "发送指令：\n查看个人词云\n查看本群词云",
+      "options": "无",
+      "example": "（这也需要示例吗？"
+    },
+    "禁言套餐": {
+      "instruction": "随机抽取时长禁言",
+      "usage": "发送指令：\n我要禁言套餐",
+      "options": "算法为：基本时长x基本倍数=最终时长，有概率触发超级加倍（最终时长加n倍），有极小概率触发头奖（固定30天）",
+      "example": "（这也需要示例吗？"
+    },
+    "兽语转换": {
+      "instruction": "将明文转换为密文或将密文转换为明文",
+      "usage": "发送指令：\n嗷 <明文>\n呜 <密文>",
+      "options": "明文：任意200字以内文字\n密文：任意被加密后的明文",
+      "example": "嗷 你好\n呜 呜嗷嗷嗷啊嗷嗷~啊呜~啊~呜呜嗷"
+    },
+    "我的世界服务器Ping": {
+      "instruction": "Minecraft 服务器motd获取",
+      "usage": "发送指令：\n/mcping <服务器地址>",
+      "options": "服务器地址：任意可以正常连接的Java版Minecraft服务器地址",
+      "example": "/mcping mc.hypixel.net"
+    },
+    "摸头": {
+      "instruction": "生成摸头gif",
+      "usage": "发送指令：\n摸头 <@xxx>\n[戳一戳]xxx",
+      "options": "@xxx：@任意本群群友",
+      "example": "摸头 @ABot\n（戳一戳也需要示例吗？"
+    },
+    "风格logo生成": {
+      "instruction": "生成三种风格化的图片",
+      "usage": "发送指令：\nph <文字> <文字>\nyt <文字> <文字>\n5000兆 <文字> <文字>",
+      "options": "文字：任意24字以内的文字（建议）",
+      "example": "ph 我是 ABot\nyt 我是 ABot\n5000兆 我是 ABot"
+    },
+    "复读姬": {
+      "instruction": "人类的本质",
+      "usage": "触发条件：\n某条消息重复超过3次\n随机复读某条消息",
+      "options": "无",
+      "example": "（这也需要示例吗？"
+    },
+    "涩图": {
+      "instruction": "随机发送P站涩图",
+      "usage": "发送指令：\n涩图",
+      "options": "由于近期腾讯严查，GHS封号比较频繁，再加上举报的内鬼太多了，涩图功能就先不开了，过段时间看情况再开",
+      "example": "（这也需要示例吗？"
+    },
+    "有点涩的聊天": {
+      "instruction": "调用词库进行回复",
+      "usage": "发送指令：\n@ABot<文字>",
+      "options": "文字：任意可能被回复的文字",
+      "example": "（这也需要示例吗？"
+    },
+    "没啥用的回复": {
+      "instruction": "氛围组！",
+      "usage": "无",
+      "options": "当前可触发：\n草\n好耶\n流汗黄豆.jpg",
+      "example": "（这也需要示例吗？"
+    },
+    "每日早报": {
+      "instruction": "明天早上八点半发送新闻",
+      "usage": "每日自动触发",
+      "options": "无",
+      "example": "（这也需要示例吗？"
+    },
+    "色图": {
+      "instruction": "随机生成色图",
+      "usage": "发送指令：\n色图",
+      "options": "无",
+      "example": "（这也需要示例吗？"
+    },
+    "防撤回": {
+      "instruction": "防止群内消息撤回",
+      "usage": "收到撤回事件自动触发",
+      "options": "不会防止撤回的有：机器人被撤回的消息、语音、闪照、Xml消息、Json消息",
+      "example": "（这也需要示例吗？"
+    },
+    "签到": {
+      "instruction": "一个简单的签到功能，也是本机器人唯一的货币来源",
+      "usage": "发送指令：\n签到",
+      "options": "每日凌晨四点重置签到，每次签到可获得 5-21 个$COIN_NAME",
+      "example": "（这也需要示例吗？"
+    },
+    "转账": {
+      "instruction": "转账功能，可以向他人赠送自己的$COIN_NAME",
+      "usage": "发送指令：\n转账 @ABot 15",
+      "options": "可以向他人赠送自己的$COIN_NAME，限值 1-1000以内",
+      "example": "赠送$COIN_NAME @ABot 15"
+    },
+    "你画我猜": {
+      "instruction": "群内互动小游戏，你画我猜",
+      "usage": "发送指令：\n你画我猜",
+      "options": "每次游玩时发起者消耗 4 个$COIN_NAME，游戏结束后获胜者获得 1 个$COIN_NAME，发起者返还 2 个$COIN_NAME",
+      "example": "（这也需要示例吗？"
+    },
+    "奖券": {
+      "instruction": "一种类似彩票的玩法",
+      "usage": "发送指令：\n购买奖券\n开奖查询",
+      "options": "彩票玩法，懂的都懂，不必多说",
+      "example": "（这也需要示例吗？"
+    },
+    "简易骰娘": {
+      "instruction": "一个简易骰娘",
+      "usage": "发送指令：\n.r",
+      "options": "可选参数有：\nr ==> 投掷的骰子个数\nd ==> 每个骰子的面数\nk ==> 取最大的前n个\n以上三个参数除 r 外均为可选参数\n如未填写的情况下：\nr 默认值为1\nd 默认值为100\nk 默认值为0（即不取最大）",
+      "example": ".r  投掷1个骰子，最大值为100\n.rd50  投掷1个骰子，最大值为50\n.r3d6  投掷3个骰子，每个的最大值为6\n.r15k4  投掷15个骰子，每个的最大值为100，取最大的前4个"
+    },
+    "B站视频解析": {
+      "instruction": "全自动B站链接解析",
+      "usage": "收到任意带有B站链接的消息，av号、BV号、b23短链、小程序等",
+      "options": "无",
+      "example": "（这也需要示例吗？"
+    },
+    "听歌识曲 / 哼唱识曲": {
+      "instruction": "和音乐软件一样的听歌识曲、哼唱识曲",
+      "usage": "发送指令：\n识曲 <模式>",
+      "options": "模式：原曲、哼唱\n可选择听歌识曲或哼唱识曲，每使用一次无论成功与否均会消耗 2 个$COIN_NAME",
+      "example": "识曲 原曲"
+    },
+    "淫文翻译机": {
+      "instruction": "能把中文翻译成淫语的翻译机！",
+      "usage": "发送指令：\n淫语 <文字>",
+      "options": "文字：任意100字以内的文字（建议）",
+      "example": "淫语 不行，那里不行"
+    },
+    "背单词": {
+      "instruction": "字面意思",
+      "usage": "发送指令：\n背单词",
+      "options": "发送背单词后选择想要学习的词库，机器人将会发题，请根据题目作答，15秒后未作答将提供三次提示，答题系统为全群共享，即“一人开启，全群皆可作答”，如果不想学或者想更换题库可发送取消来终止进程。\n（本功能支持私聊使用）",
+      "example": "（这也需要示例吗？"
+    },
+    "BiliBili订阅推送": {
+      "instruction": "自动推送b站的动态及直播间更新",
+      "usage": "发送指令：\n订阅 <uid>\n退订 <uid>\n本群订阅列表",
+      "options": "如果不知道uid怎么获得，请去百度！订阅和退订的指令仅有群管理及以上权限可用",
+      "example": "订阅 161775300"
+    },
+    "查看人设": {
+      "instruction": "通过seed随机出人设表",
+      "usage": "发送指令：\n查看人设",
+      "options": "发送查看人设之后会根据群号和qq号随机出一个人设表，在不同的群里随机到的数据都不一样哦",
+      "example": "（这也需要示例吗？"
+    },
+    "以图搜番 / 以图搜图": {
+      "instruction": "发送图片来搜索出处",
+      "usage": "发送指令：\n以图搜番\n以图搜图",
+      "options": "可能会搜不到，无论成功与否均会扣除 4 个$COIN_NAME",
+      "example": "（这也需要示例吗？"
+    },
+    "查战绩": {
+      "instruction": "用来查询所支持游戏的玩家战绩",
+      "usage": "发送指令：\n查战绩",
+      "options": "目前可以查询 “彩虹六号：围攻”\n首次输入需要绑定游戏id，可以at其他已绑定的人查询，也可以直接输入id查询",
+      "example": "查战绩 r6\n查战绩 r6 @xxxx\n查战绩 r6 Eustiana"
+    },
+    "明日方舟蹲饼": {
+      "instruction": "自动群发明日方舟微博和游戏内公告",
+      "usage": "无",
+      "options": "本功能默认关闭，如需使用请自行开启。",
+      "example": "无"
+    },
+    "低多边形图片生成": {
+      "instruction": "吧图片转换为低多边形风格化",
+      "usage": "发送指令：\n低多边形",
+      "options": "图片越大生成越慢，请耐心等待，可以增加参数 -P 来确定需要生成的边数，可以at其他人来直接获取头像",
+      "example": "低多边形\n低多边形@xxx"
+    },
+    "计算器": {
+      "instruction": "一个只支持 “加减乘除()” 的计算器功能",
+      "usage": "发送指令：\n计算器 <式子>",
+      "options": "只支持 加！减！乘！除！！！",
+      "example": "计算器 60+2*(-3-40.0+42425/5)*(9-2*5/3)"
+    },
+    "漂流瓶": {
+      "instruction": "嗯，就是漂流瓶而已",
+      "usage": "发送指令：\n捞漂流瓶\n丢漂流瓶\n查漂流瓶\n漂流瓶评分 <漂流瓶编号> <分数>",
+      "options": "漂流瓶需消耗 10 个$COIN_NAME购买！\n漂流瓶内只可包含最多 400 个文字和 1 张图片\n如果无法发送图片可在命令后添加参数 -P\n漂流瓶可进行评分，每人每瓶仅限一次，评分为五分制。",
+      "example": "丢漂流瓶 Hello World!\n丢漂流瓶 -P This is Picture"
+    },
+    "群功能": {
+      "instruction": "群内可调节的功能",
+      "usage": "发送指令：\n群功能",
+      "options": "详细情况请输入“群功能”查看，后续会逐步添加新的可配置项",
+      "example": "（这也需要示例吗？"
+    },
+    "明日方舟猜干员": {
+      "instruction": "根据语音猜干员名",
+      "usage": "发送指令：\n方舟猜干员",
+      "options": "无",
+      "example": "（这也需要示例吗？"
+    },
+    "定时提醒": {
+      "instruction": "可以创建定时提醒事件",
+      "usage": "发送指令：\n定时提醒\n创建提醒\n删除提醒",
+      "options": "无",
+      "example": "（这也需要示例吗？"
+    },
+    "图片超分辨率": {
+      "instruction": "将任意图片的分辨率使用 AI 提升数倍",
+      "usage": "发送指令：\n超分辨率",
+      "options": "无",
+      "example": "本功能极其耗时，请耐心等待完成，使用会消耗 10 个 $COIN_NAME"
+    },
+    "明日方舟公招识别": {
+      "instruction": "自动识别并组合图片中有意义的tag",
+      "usage": "发送指令：\n查公招\n公招识别",
+      "options": "你也可以在发送文字的时候附带上图片，可以节省点步骤。。？大概吧",
+      "example": "本功能只会查询有意义的组合，不会包含三星干员"
+    }
+  }
+}
