@@ -225,25 +225,31 @@
     {
       "name": "明日方舟猜干员",
       "key": "ArkGuessOperator",
-      "can_disabled": false,
+      "can_disabled": true,
       "default_disabled": false
     },
     {
       "name": "定时提醒",
       "key": "Reminder",
-      "can_disabled": false,
+      "can_disabled": true,
       "default_disabled": false
     },
     {
       "name": "图片超分辨率",
       "key": "Real-ESRGAN",
-      "can_disabled": false,
+      "can_disabled": true,
       "default_disabled": false
     },
     {
       "name": "明日方舟公招识别",
       "key": "ArkRecruit",
-      "can_disabled": false,
+      "can_disabled": true,
+      "default_disabled": false
+    },
+    {
+      "name": "赛马",
+      "key": "HorseRacing",
+      "can_disabled": true,
       "default_disabled": false
     }
   ],
@@ -288,9 +294,9 @@
     },
     "网络黑话翻译": {
       "instruction": "翻译类似‘nmsl’一类的简写词",
-      "usage": "发送指令：\n你在说什么 <简写>",
+      "usage": "发送指令：\n能不能好好说话 <简写>",
       "options": "简写：任意可能为简写词的字母",
-      "example": "你在说什么 jyfm"
+      "example": "能不能好好说话 jyfm"
     },
     "词云": {
       "instruction": "记录并生成群内词云",
@@ -501,6 +507,12 @@
       "usage": "发送指令：\n查公招\n公招识别",
       "options": "你也可以在发送文字的时候附带上图片，可以节省点步骤。。？大概吧",
       "example": "本功能只会查询有意义的组合，不会包含三星干员"
+    },
+    "赛马": {
+      "instruction": "赛马小游戏！是正经赛马，不是赛马娘！",
+      "usage": "发送指令：\n开始赛马",
+      "options": "无",
+      "example": "开启和加入均需要 5 个 $COIN_NAME，纯随机运行"
     }
   }
 }

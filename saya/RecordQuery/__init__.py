@@ -47,7 +47,7 @@ WAITING = []
         inline_dispatchers=[
             Twilight(
                 {
-                    "head": FullMatch("查战绩r6"),
+                    "head": FullMatch("查战绩"),
                     "game": FullMatch("r6"),
                     "at": ElementMatch(At, optional=True),
                     "name": WildcardMatch(optional=True),

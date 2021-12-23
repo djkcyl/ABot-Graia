@@ -1,48 +1,48 @@
 [tool.poetry]
+authors = ["djkcyl <cyl@cyllive.cn>"]
+description = ""
 name = "abot-mahv2"
 version = "2.5.3"
-description = ""
-authors = ["djkcyl <cyl@cyllive.cn>"]
 
 [tool.poetry.dependencies]
-python = ">=3.9,<3.10"
+azure-cognitiveservices-speech = "^1.19.0"
+cos-python-sdk-v5 = "^1.9.14"
+dnspython = "^2.1.0"
 graia-ariadne-dev = "^2021.12.19"
 graia-saya = "^0.0.13"
 graia-scheduler = "^0.0.6"
-graiax-silkcoder = {extras = ["ffmpeg"], version = "^0.1.2"}
-wordcloud = "^1.8.1"
-dnspython = "^2.1.0"
-peewee = "^3.14.4"
+graiax-silkcoder = { extras = ["ffmpeg"], version = "^0.1.2" }
 httpx = "^0.21.1"
+jionlp-py39 = "^1.3.45"
+paddleocr = "^2.3.0"
+paddlepaddle = "^2.2.1"
+peewee = "^3.14.4"
 playwright = "^1.17.2"
-tencentcloud-sdk-python = "^3.0.550"
-xmltodict = "^0.12.0"
-azure-cognitiveservices-speech = "^1.19.0"
+prettytable = "^2.5.0"
+psutil = "^5.8.0"
+pyacrcloud-patch = "^1.0.1"
+python = ">=3.9,<3.10"
+pyyaml = "^6.0"
 pyzbar = "^0.1.8"
 qrcode = "^7.2"
-rsa = "^4.7.2"
-prettytable = "^2.4.0"
-psutil = "^5.8.0"
-saucenao-api = "^2.4.0"
-pyacrcloud-patch = "^1.0.1"
-pyyaml = "^6.0"
-jionlp-py39 = "^1.3.45"
-cos-python-sdk-v5 = "^1.9.14"
 realesrgan = "^0.2.3"
+rsa = "^4.7.2"
+saucenao-api = "^2.4.0"
+tencentcloud-sdk-python = "^3.0.550"
 triangler-patch = "^0.1.3"
-paddlepaddle = "^2.2.1"
-paddleocr = "^2.3.0"
+wordcloud = "^1.8.1"
+xmltodict = "^0.12.0"
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core>=1.0.0"]
 
 [tool.poetry.dev-dependencies]
+black = { version = "^21.12b0", allow-prereleases = true }
 devtools = "^0.8.0"
-black = {version = "^21.12b0", allow-prereleases = true}
 flake8 = "^4.0.1"
 
 [[tool.poetry.source]]
+default = true
 name = "tsinghua"
 url = "https://pypi.tuna.tsinghua.edu.cn/simple"
-default = true

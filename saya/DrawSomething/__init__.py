@@ -371,4 +371,3 @@ async def groupDataInit():
                     ]
                 ),
             )
-            await asyncio.sleep(0.2)

@@ -27,7 +27,7 @@ data = json.loads(
     Path(__file__)
     .parent.joinpath("func.json")
     .read_text(encoding="utf-8")
-    .replace("$COIN_NAME%", COIN_NAME)
+    .replace("$COIN_NAME", COIN_NAME)
 )
 funcList = data["funcList"]
 funcHelp = data["funcHelp"]

@@ -211,6 +211,9 @@ Saya: # saya 插件配置
 
   DrawSomething: # 你画我猜
     Disabled: false
+
+  HorseRacing: # 赛马！
+    Disabled: false
 Final: false
 # 配置完成后请调整为 true
 # 配置完成后请调整为 true
