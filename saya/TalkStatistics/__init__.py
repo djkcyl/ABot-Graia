@@ -1,3 +1,4 @@
+import asyncio
 import aiohttp
 import datetime
 
@@ -82,10 +83,12 @@ async def download(element, name, path, type):
     )
     now_path.mkdir(0o775, True, True)
     if not await archive_exists(name, type):
-        try:
-            r = await element.get_bytes()
-        except aiohttp.ClientResponseError as e:
-            logger.warning(f"{name} 下载失败：{str(e)}")
+        for _ in range(3):
+            try:
+                r = await element.get_bytes()
+            except aiohttp.ClientResponseError as e:
+                logger.warning(f"{name} 下载失败：{str(e)}")
+                await asyncio.sleep(1)
         if type == 4:
             try:
                 now_path.joinpath(f"{name}.mp3").write_bytes(

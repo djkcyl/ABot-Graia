@@ -1,3 +1,4 @@
+import re
 import random
 import asyncio
 
@@ -18,7 +19,8 @@ from database.db import reduce_gold, add_gold
 from util.sendMessage import safeSendGroupMessage
 from config import yaml_data, group_data, COIN_NAME
 
-from .game import draw_game, run_game
+from .gamedata import props, HorseStatus
+from .game import draw_game, throw_prop, run_game
 
 
 saya = Saya.current()
@@ -65,6 +67,7 @@ async def main(app: Ariadne, group: Group, member: Member):
     async def waiter1(
         waiter1_group: Group, waiter1_member: Member, waiter1_message: MessageChain
     ):
+        return
         if waiter1_group.id == group.id:
             if waiter1_message.asDisplay() == "加入赛马":
                 player_list = GROUP_GAME_PROCESS[group.id]["members"]
@@ -97,6 +100,9 @@ async def main(app: Ariadne, group: Group, member: Member):
                         )
                         if player_count == 6:
                             GROUP_GAME_PROCESS[group.id]["status"] = "running"
+                            await safeSendGroupMessage(
+                                group, MessageChain.create("人数已满足，游戏开始！")
+                            )
                             return True
                     else:
                         await safeSendGroupMessage(
@@ -163,14 +169,102 @@ async def main(app: Ariadne, group: Group, member: Member):
                         ),
                     )
 
+    @Waiter.create_using_function([GroupMessage])
+    async def waiter2(
+        waiter2_group: Group, waiter2_member: Member, waiter2_message: MessageChain
+    ):
+        if (
+            waiter2_group.id == group.id
+            and waiter2_member.id in GROUP_GAME_PROCESS[group.id]["members"]
+        ):
+            props_list = list(props.keys())
+            pattern = re.compile(f"(丢|使用)({'|'.join(props_list)})")
+            result = pattern.search(waiter2_message.asDisplay())
+            if result:
+                prop = result.group(2)
+                effect, value, duration = props[prop]
+                if effect == HorseStatus.Death:
+                    status_result = "马匹遇害！"
+                elif effect == HorseStatus.Poisoning:
+                    status_result = f"马匹获得中毒效果！将在 {duration} 回合后死亡"
+                elif effect == HorseStatus.Shield:
+                    status_result = f"马匹获得了 {duration} 回合护盾"
+                else:
+                    status_result = f"马匹获得了 {value} 倍率的 {effect} 状态，将持续 {duration} 回合"
+                if result.group(1) == "丢":
+                    traget = random.choice(
+                        list(GROUP_GAME_PROCESS[group.id]["data"]["player"].keys())
+                    )
+                    if (
+                        GROUP_GAME_PROCESS[group.id]["data"]["player"][traget][
+                            "status"
+                        ]["effect"]
+                        == HorseStatus.Shield
+                    ):
+                        await safeSendGroupMessage(
+                            group,
+                            MessageChain.create(
+                                At(waiter2_member.id),
+                                Plain(
+                                    " 你对 ", At(traget), f" 使用了 {prop}，但是该马匹获得了护盾，无法生效"
+                                ),
+                            ),
+                        )
+                        return
+                    elif (
+                        GROUP_GAME_PROCESS[group.id]["data"]["player"][traget][
+                            "status"
+                        ]["effect"]
+                        == HorseStatus.Death
+                    ):
+                        await safeSendGroupMessage(
+                            group, MessageChain.create("马匹已经死亡，无法使用道具")
+                        )
+                    else:
+                        await safeSendGroupMessage(
+                            group,
+                            MessageChain.create(
+                                At(waiter2_member.id),
+                                " 对 ",
+                                "自己" if traget == waiter2_member.id else At(traget),
+                                f" 丢出了{result.group(2)}，目标{status_result}",
+                            ),
+                        )
+                elif result.group(1) == "使用":
+                    traget = waiter2_member.id
+                    if (
+                        GROUP_GAME_PROCESS[group.id]["data"]["player"][traget][
+                            "status"
+                        ]["effect"]
+                        == HorseStatus.Death
+                    ):
+                        await safeSendGroupMessage(
+                            group, MessageChain.create("马匹已经死亡，无法使用道具")
+                        )
+                        return
+                    else:
+                        await safeSendGroupMessage(
+                            group,
+                            MessageChain.create(
+                                At(waiter2_member.id),
+                                f" 对自己使用了{result.group(2)}，{status_result}",
+                            ),
+                        )
+                throw_prop(GROUP_GAME_PROCESS[group.id]["data"], traget, prop)
+
     if group.id in GROUP_RUNING_LIST:
-        if GROUP_GAME_PROCESS[group.id]["status"] != "running":
+        if GROUP_GAME_PROCESS[group.id]["status"] == "running":
             return await safeSendGroupMessage(
                 group,
                 MessageChain.create(
                     At(member.id),
                     " 本轮游戏已经开始，请等待其他人结束后再开始新的一局",
                 ),
+            )
+        elif GROUP_GAME_PROCESS[group.id]["status"] == "waiting" or "pre_start":
+            return await safeSendGroupMessage(
+                group,
+                MessageChain.create(At(member.id), " 本群有一个正在等待的游戏，可发送“加入赛马”来加入该场游戏"),
             )
         else:
             return await safeSendGroupMessage(
@@ -187,6 +281,7 @@ async def main(app: Ariadne, group: Group, member: Member):
         GROUP_GAME_PROCESS[group.id] = {
             "status": "waiting",
             "members": [member.id],
+            "data": None,
         }
         await safeSendGroupMessage(
             group, MessageChain.create("赛马小游戏开启成功，正在等待其他群成员加入，发送“加入赛马”参与游戏")
@@ -211,14 +306,20 @@ async def main(app: Ariadne, group: Group, member: Member):
         del GROUP_GAME_PROCESS[group.id]
         return await safeSendGroupMessage(group, MessageChain.create("等待玩家加入超时，请重新开始"))
 
-    await asyncio.sleep(2)
+    await asyncio.sleep(3)
     # 开始游戏
     player_list = GROUP_GAME_PROCESS[group.id]["members"]
     random.shuffle(player_list)
-    game_data = {
+    GROUP_GAME_PROCESS[group.id]["data"] = {
+        "round": 0,
         "player": {
             player: {
                 "horse": i,
+                "status": {
+                    "effect": HorseStatus.Normal,
+                    "value": 1,
+                    "duration": 0,
+                },
                 "score": 0,
                 "name": (await app.getMember(group.id, player)).name,
             }
@@ -226,60 +327,76 @@ async def main(app: Ariadne, group: Group, member: Member):
         },
         "winer": None,
     }
-    game_image = await asyncio.to_thread(draw_game, game_data)
-    await safeSendGroupMessage(
-        group,
-        MessageChain.create(Image(data_bytes=game_image)),
-    )
 
     while True:
-        await asyncio.sleep(2)
-        game_data = run_game(game_data.copy())
-        print(game_data)
         winer = [
             player
-            for player, data in game_data["player"].items()
+            for player, data in GROUP_GAME_PROCESS[group.id]["data"]["player"].items()
             if data["score"] >= 100
         ]
         if winer:
             if len(winer) != 1:
                 winer = sorted(
-                    game_data["player"].items(),
+                    GROUP_GAME_PROCESS[group.id]["data"]["player"].items(),
                     key=lambda x: x[1]["score"],
                     reverse=True,
                 )[0][0]
-                game_data["winer"] = winer
+                GROUP_GAME_PROCESS[group.id]["data"]["winer"] = winer
             else:
-                game_data["winer"] = winer[0]
+                GROUP_GAME_PROCESS[group.id]["data"]["winer"] = winer[0]
             break
-        else:
-            game_image = await asyncio.to_thread(draw_game, game_data)
-            await safeSendGroupMessage(
-                group,
-                MessageChain.create(Image(data_bytes=game_image)),
+        if GROUP_GAME_PROCESS[group.id]["data"]["round"] >= 30:
+            MEMBER_RUNING_LIST.remove(member.id)
+            GROUP_RUNING_LIST.remove(group.id)
+            del GROUP_GAME_PROCESS[group.id]
+            return await safeSendGroupMessage(
+                group, MessageChain.create("游戏进程超长，已结束，没有人获胜")
             )
+        try:
+            await asyncio.wait_for(inc.wait(waiter2), timeout=5)  # 等待玩家丢道具
+        except asyncio.TimeoutError:
+            pass
+        await safeSendGroupMessage(
+            group,
+            MessageChain.create(
+                Image(
+                    data_bytes=await asyncio.to_thread(
+                        draw_game, GROUP_GAME_PROCESS[group.id]["data"]  # 绘制游戏
+                    )
+                )
+            ),
+        )
+        run_game(GROUP_GAME_PROCESS[group.id]["data"])  # 游戏进程前进
 
     # 结束游戏
-    for player, data in game_data["player"].items():
+    for player, data in GROUP_GAME_PROCESS[group.id]["data"]["player"].items():
         if data["score"] >= 100:
-            game_data["player"][player].update({"score": 102})
-    game_image = await asyncio.to_thread(draw_game, game_data)
+            GROUP_GAME_PROCESS[group.id]["data"]["player"][player].update(
+                {"score": 102}
+            )
+    await asyncio.sleep(3)
     await safeSendGroupMessage(
         group,
-        MessageChain.create(Image(data_bytes=game_image)),
+        MessageChain.create(
+            Image(
+                data_bytes=await asyncio.to_thread(
+                    draw_game, GROUP_GAME_PROCESS[group.id]["data"]
+                )
+            )
+        ),
     )
-    player_count = len(game_data["player"])
+    player_count = len(GROUP_GAME_PROCESS[group.id]["data"]["player"])
     gold_count = (player_count * 5) - player_count
     await asyncio.sleep(1)
     await safeSendGroupMessage(
         group,
         MessageChain.create(
             "游戏结束，获胜者是：",
-            At(game_data["winer"]),
+            At(GROUP_GAME_PROCESS[group.id]["data"]["winer"]),
             f"已获得 {gold_count} {COIN_NAME}",
         ),
     )
-    await add_gold(str(game_data["winer"]), gold_count)
+    await add_gold(str(GROUP_GAME_PROCESS[group.id]["data"]["winer"]), gold_count)
     MEMBER_RUNING_LIST.remove(member.id)
     GROUP_RUNING_LIST.remove(group.id)
     del GROUP_GAME_PROCESS[group.id]
