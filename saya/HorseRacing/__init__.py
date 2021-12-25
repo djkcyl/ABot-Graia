@@ -67,7 +67,6 @@ async def main(app: Ariadne, group: Group, member: Member):
     async def waiter1(
         waiter1_group: Group, waiter1_member: Member, waiter1_message: MessageChain
     ):
-        return
         if waiter1_group.id == group.id:
             if waiter1_message.asDisplay() == "加入赛马":
                 player_list = GROUP_GAME_PROCESS[group.id]["members"]
@@ -173,6 +172,7 @@ async def main(app: Ariadne, group: Group, member: Member):
     async def waiter2(
         waiter2_group: Group, waiter2_member: Member, waiter2_message: MessageChain
     ):
+        return
         if (
             waiter2_group.id == group.id
             and waiter2_member.id in GROUP_GAME_PROCESS[group.id]["members"]
