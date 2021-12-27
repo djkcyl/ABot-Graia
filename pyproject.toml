@@ -8,7 +8,6 @@ version = "2.6.1"
 azure-cognitiveservices-speech = "^1.19.0"
 cos-python-sdk-v5 = "^1.9.14"
 dnspython = "^2.1.0"
-graia-ariadne-dev = "^2021.12.25"
 graia-saya = "^0.0.13"
 graia-scheduler = "^0.0.6"
 graiax-silkcoder = { extras = ["ffmpeg"], version = "^0.1.2" }
@@ -32,6 +31,7 @@ tencentcloud-sdk-python = "^3.0.550"
 triangler-patch = "^0.1.3"
 wordcloud = "^1.8.1"
 xmltodict = "^0.12.0"
+graia-ariadne-dev = "^2021.12.26"
 
 [build-system]
 build-backend = "poetry.core.masonry.api"

@@ -37,18 +37,19 @@ async def update_data():
     DATA = root
 
 
-DATA_FILE = Path(__file__).parent.joinpath("data.json")
-if not DATA_FILE.exists():
-    logger.info("正在初始化词库")
-    asyncio.run(update_data())
-
-DATA = json.loads(DATA_FILE.read_text(encoding="utf-8"))
+if not yaml_data["Saya"]["ChatMS"]["Disabled"]:
+    DATA_FILE = Path(__file__).parent.joinpath("chat_data.json")
+    DATA = json.loads(DATA_FILE.read_text(encoding="utf-8"))
+    if not DATA_FILE.exists():
+        logger.info("正在初始化词库")
+        asyncio.run(update_data())
 
 
 @channel.use(SchedulerSchema(crontabify("0 0 * * *")))
 async def updateDict():
-    await update_data()
-    logger.info(f"已更新完成聊天词库，共计：{len(DATA)}条")
+    if not yaml_data["Saya"]["ChatMS"]["Disabled"]:
+        await update_data()
+        logger.info(f"已更新完成聊天词库，共计：{len(DATA)}条")
 
 
 @channel.use(
