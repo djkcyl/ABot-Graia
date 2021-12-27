@@ -3,6 +3,7 @@ import math
 import httpx
 
 from loguru import logger
+from graia.ariadne.context import ariadne_ctx
 from prettytable import PrettyTable
 from peewee import SqliteDatabase, Model, CharField, IntegerField
 
@@ -227,7 +228,8 @@ async def get_ranking():
     for user_info in user_list[:15]:
         user_id = user_info.id
         user_qq = user_info.qq
-
+        app = ariadne_ctx.get()
+        await app.getm
         async with httpx.AsyncClient(timeout=10) as client:
             r = await client.get(
                 f"https://r.qzone.qq.com/fcg-bin/cgi_get_portrait.fcg?uins={user_qq}"
@@ -235,6 +237,7 @@ async def get_ranking():
             r.encoding = "GBK"
             qqdata = r.text
 
+        logger.debug(qqdata)
         qqdata = json.loads(qqdata[17:-1])
         user_nick = qqdata[user_qq][-2]
 
