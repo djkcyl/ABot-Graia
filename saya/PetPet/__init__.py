@@ -7,10 +7,10 @@ from loguru import logger
 from PIL import Image as IMG
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
+from graia.ariadne.model import Group
 from graia.ariadne.event.mirai import NudgeEvent
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
-from graia.ariadne.model import Group, Member, MemberPerm
 from graia.ariadne.message.element import At, Image, Plain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import Twilight, FullMatch, WildcardMatch
@@ -77,18 +77,7 @@ async def get_nudge(app: Ariadne, nudge: NudgeEvent):
 
         if nudge.target == yaml_data["Basic"]["MAH"]["BotQQ"]:
             try:
-                await app.sendNudge(
-                    Member(
-                        id=nudge.supplicant,
-                        group=Group(
-                            id=nudge.group_id,
-                            name="",
-                            permission=MemberPerm(MemberPerm.Member),
-                        ),
-                        memberName="",
-                        permission=MemberPerm(MemberPerm.Member),
-                    )
-                )
+                await app.sendNudge(nudge.group_id, nudge.supplicant)
             except Exception:
                 pass
 
