@@ -256,24 +256,6 @@ async def get_ranking():
     )
 
 
-def getCutStr(str, cut):
-    si = 0
-    i = 0
-    for s in str:
-        if "\u4e00" <= s <= "\u9fff":
-            si += 2
-        else:
-            si += 1
-        i += 1
-        if si > cut:
-            cutStr = str[:i] + "...."
-            break
-        else:
-            cutStr = str
-
-    return cutStr
-
-
 def ladder_rent_collection():
     user_list = User.select().where(User.gold >= 1000).order_by(User.gold.desc())
     total_rent = 0

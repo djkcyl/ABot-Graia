@@ -62,3 +62,21 @@ def get_cut_str(str, cut):
         non_wrap_str.append(p)
         i += 1
     return non_wrap_str
+
+
+def getCutStr(str, cut):
+    si = 0
+    i = 0
+    for s in str:
+        if "\u4e00" <= s <= "\u9fff":
+            si += 2
+        else:
+            si += 1
+        i += 1
+        if si > cut:
+            cutStr = str[:i] + "...."
+            break
+        else:
+            cutStr = str
+
+    return cutStr

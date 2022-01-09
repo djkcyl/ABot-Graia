@@ -18,10 +18,10 @@ async def safeSendGroupMessage(
         msg = []
         for element in message.__root__:
             if isinstance(element, At):
-                try:
-                    member = await app.getMember(target, element.target)
+                member = await app.getMember(target, element.target)
+                if member:
                     name = member.name
-                except Exception:
+                else:
                     name = str(element.target)
                 msg.append(Plain(name))
                 continue

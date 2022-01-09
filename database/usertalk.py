@@ -106,3 +106,8 @@ async def get_message_analysis():
         r2.append(res[ht])
 
     return r2, r1
+
+
+def chat_count(m: str):
+    c = UserTalk.select().where(UserTalk.msg.contains(m)).count()
+    print(c)

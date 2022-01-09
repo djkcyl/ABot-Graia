@@ -109,6 +109,11 @@ async def recruit(
             tags.append("狙击干员")
         elif i in known_tags:
             tags.append(i)
+    p = re.compile(r"高级.*")
+    for i in ocr_result["result"]:
+        if p.search(i) and "高级资深干员" not in tags:
+            tags.append("高级资深干员")
+
     if len(tags) == 0:
         msg = ["未识别到标签"]
     else:

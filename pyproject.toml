@@ -10,7 +10,7 @@ cos-python-sdk-v5 = "^1.9.14"
 dnspython = "^2.1.0"
 graia-saya = "^0.0.13"
 graia-scheduler = "^0.0.6"
-graiax-silkcoder = { extras = ["ffmpeg"], version = "^0.1.2" }
+graiax-silkcoder = "0.1.2"
 httpx = "^0.21.1"
 jionlp-py39 = "^1.3.45"
 paddleocr = "^2.3.0"
@@ -31,12 +31,13 @@ tencentcloud-sdk-python = "^3.0.550"
 triangler-patch = "^0.1.3"
 wordcloud = "^1.8.1"
 xmltodict = "^0.12.0"
-graia-ariadne-dev = "^2021.12.27"
+graia-ariadne-dev = "^2022.1.1"
+arknights = "^0.1.4"
 
 [build-system]
 build-backend = "poetry.core.masonry.api"
 requires = ["poetry-core>=1.0.0"]
-    
+
 [tool.poetry.dev-dependencies]
 black = { version = "^21.12b0", allow-prereleases = true }
 devtools = "^0.8.0"

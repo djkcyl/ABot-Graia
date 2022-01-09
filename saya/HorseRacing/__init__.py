@@ -63,7 +63,9 @@ async def main(app: Ariadne, group: Group, member: Member):
     elif "HorseRacing" in group_data[str(group.id)]["DisabledFunc"]:
         return
 
-    @Waiter.create_using_function([GroupMessage])
+    @Waiter.create_using_function(
+        listening_events=[GroupMessage], using_decorators=[Permission.require()]
+    )
     async def waiter1(
         waiter1_group: Group, waiter1_member: Member, waiter1_message: MessageChain
     ):
@@ -97,11 +99,8 @@ async def main(app: Ariadne, group: Group, member: Member):
                                 ),
                             ),
                         )
-                        if player_count == 6:
+                        if player_count >= 6:
                             GROUP_GAME_PROCESS[group.id]["status"] = "running"
-                            await safeSendGroupMessage(
-                                group, MessageChain.create("人数已满足，游戏开始！")
-                            )
                             return True
                     else:
                         await safeSendGroupMessage(
@@ -168,7 +167,9 @@ async def main(app: Ariadne, group: Group, member: Member):
                         ),
                     )
 
-    @Waiter.create_using_function([GroupMessage])
+    @Waiter.create_using_function(
+        listening_events=[GroupMessage], using_decorators=[Permission.require()]
+    )
     async def waiter2(
         waiter2_group: Group, waiter2_member: Member, waiter2_message: MessageChain
     ):
@@ -282,6 +283,7 @@ async def main(app: Ariadne, group: Group, member: Member):
             "status": "waiting",
             "members": [member.id],
             "data": None,
+            "last_message": None,
         }
         await safeSendGroupMessage(
             group, MessageChain.create("赛马小游戏开启成功，正在等待其他群成员加入，发送“加入赛马”参与游戏")
@@ -295,6 +297,7 @@ async def main(app: Ariadne, group: Group, member: Member):
         result = await asyncio.wait_for(inc.wait(waiter1), timeout=120)
         if result:
             GROUP_GAME_PROCESS[group.id]["status"] = "running"
+            await safeSendGroupMessage(group, MessageChain.create("人数已满足，游戏开始！"))
         else:
             return
 
@@ -356,7 +359,7 @@ async def main(app: Ariadne, group: Group, member: Member):
             await asyncio.wait_for(inc.wait(waiter2), timeout=5)  # 等待玩家丢道具
         except asyncio.TimeoutError:
             pass
-        await safeSendGroupMessage(
+        GROUP_GAME_PROCESS[group.id]["last_message"] = await safeSendGroupMessage(
             group,
             MessageChain.create(
                 Image(
@@ -367,6 +370,10 @@ async def main(app: Ariadne, group: Group, member: Member):
             ),
         )
         run_game(GROUP_GAME_PROCESS[group.id]["data"])  # 游戏进程前进
+        try:
+            await app.recallMessage(GROUP_GAME_PROCESS[group.id]["last_message"])
+        except Exception:
+            pass
 
     # 结束游戏
     for player, data in GROUP_GAME_PROCESS[group.id]["data"]["player"].items():

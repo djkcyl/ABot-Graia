@@ -23,7 +23,7 @@ channel = Channel.current()
         inline_dispatchers=[
             Twilight(
                 {
-                    "head": FullMatch("你在说什么"),
+                    "head": FullMatch("能不能好好说话"),
                     "anything": WildcardMatch(optional=True),
                 }
             )

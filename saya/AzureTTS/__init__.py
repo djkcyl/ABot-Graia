@@ -18,8 +18,8 @@ from azure.cognitiveservices.speech import (
 )
 
 from database.db import reduce_gold
+from util.control import Permission, Interval
 from util.sendMessage import safeSendGroupMessage
-from util.control import Permission, Interval, Rest
 from config import yaml_data, group_data, COIN_NAME
 
 saya = Saya.current()
@@ -37,7 +37,7 @@ BASEPATH.mkdir(exist_ok=True)
                 {"head": FullMatch("/tts"), "anything": WildcardMatch(optional=True)}
             )
         ],
-        decorators=[Rest.rest_control(), Permission.require(), Interval.require(60)],
+        decorators=[Permission.require(), Interval.require(60)],
     )
 )
 async def azuretts(group: Group, member: Member, message: MessageChain, source: Source):

@@ -4,6 +4,8 @@ from io import BytesIO
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
+from util.strings import getCutStr
+
 from .gamedata import props, HorseStatus
 
 
@@ -18,7 +20,7 @@ def draw_game(data):
     img_size = (arena_size[0], arena_size[1] + name_size + 60)
     name_text = "\n".join(
         [
-            f"{player['horse']} 号马：{player['name']}  "
+            f"{player['horse']} 号马：{getCutStr(player['name'], 8)}  "
             f"{player['status']['effect']}: {player['status']['duration']}: {player['status']['value']}"
             for _, player in data["player"].items()
         ]

@@ -8,7 +8,7 @@ font = ImageFont.truetype(str(Path("./font/sarasa-mono-sc-regular.ttf")), 20)
 font_bold = ImageFont.truetype(str(Path("./font/sarasa-mono-sc-bold.ttf")), 24)
 font28 = ImageFont.truetype(str(Path("./font/sarasa-mono-sc-bold.ttf")), 28)
 
-tag_color = [(44, 62, 80), (155, 89, 182), (241, 196, 15), (211, 84, 0)]
+tag_color = [(44, 62, 80), (155, 89, 182), (243, 156, 18), (211, 84, 0)]
 operator_color = [
     (0, 0, 0),
     (0, 0, 0),
@@ -27,7 +27,7 @@ def draw(recruit_info):
             r = operators[0][1]
         except IndexError:
             continue
-        if rank:
+        if rank > 0:
             i += 1
             tag = " ".join(tags)
             text_list.append([f"\n \n{tag}\n", 1, rank])
@@ -60,8 +60,10 @@ def draw(recruit_info):
             r = operators[0][1]
         except IndexError:
             continue
-        if rank:
+        if rank > 0:
             tag = " ".join(tags)
+            if rank == 0.5:
+                rank = 0
             draw.text(
                 (10, 4 + (h * i)),
                 f"{tag} ★" if len(operators) == 1 else tag,

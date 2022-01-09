@@ -59,7 +59,7 @@ IMAGE_PATH.mkdir(exist_ok=True)
         inline_dispatchers=[
             Twilight(
                 {
-                    "head": RegexMatch(r"^(扔|丢)(漂流瓶|瓶子)"),
+                    "prefix": RegexMatch(r"^(扔|丢)(漂流瓶|瓶子)"),
                     "enter": FullMatch("\n", optional=True),
                     "arg_pic": ArgumentMatch("-P", action="store_true", optional=True),
                     "anythings1": WildcardMatch(optional=True),
