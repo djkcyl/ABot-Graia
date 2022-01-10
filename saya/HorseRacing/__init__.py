@@ -359,7 +359,7 @@ async def main(app: Ariadne, group: Group, member: Member):
             await asyncio.wait_for(inc.wait(waiter2), timeout=5)  # 等待玩家丢道具
         except asyncio.TimeoutError:
             pass
-        GROUP_GAME_PROCESS[group.id]["last_message"] = await safeSendGroupMessage(
+        last_massage = await safeSendGroupMessage(
             group,
             MessageChain.create(
                 Image(
@@ -374,6 +374,7 @@ async def main(app: Ariadne, group: Group, member: Member):
             await app.recallMessage(GROUP_GAME_PROCESS[group.id]["last_message"])
         except Exception:
             pass
+        GROUP_GAME_PROCESS[group.id]["last_message"] = last_massage
 
     # 结束游戏
     for player, data in GROUP_GAME_PROCESS[group.id]["data"]["player"].items():
