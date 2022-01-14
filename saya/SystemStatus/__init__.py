@@ -43,7 +43,7 @@ async def update_scheduled():
 async def cpuStatus():
     await asyncio.sleep(0.1)
     virtual_memory = psutil.virtual_memory()
-    disk = psutil.disk_usage(Path.cwd())
+    disk = psutil.disk_usage(str(Path.cwd()))
     logger.info("=========================")
     logger.info(f"当前系统：{platform.system()}")
     logger.info(f"CPU核心数：{psutil.cpu_count()}")
