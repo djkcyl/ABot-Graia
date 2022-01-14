@@ -23,6 +23,9 @@ from util.sendMessage import safeSendGroupMessage
 saya = Saya.current()
 channel = Channel.current()
 
+DATA_FILE = Path(__file__).parent.joinpath("chat_data.json")
+DATA: dict = json.loads(DATA_FILE.read_text(encoding="utf-8"))
+
 
 async def update_data():
     global DATA
@@ -38,8 +41,6 @@ async def update_data():
 
 
 if not yaml_data["Saya"]["ChatMS"]["Disabled"]:
-    DATA_FILE = Path(__file__).parent.joinpath("chat_data.json")
-    DATA = json.loads(DATA_FILE.read_text(encoding="utf-8"))
     if not DATA_FILE.exists():
         logger.info("正在初始化词库")
         asyncio.run(update_data())
@@ -69,12 +70,12 @@ async def main(group: Group, member: Member, message: MessageChain):
         if message.getFirst(At).target == yaml_data["Basic"]["MAH"]["BotQQ"]:
             try:
                 saying = message.getFirst(Plain).text
-                for key in DATA:
+                for key, value in DATA.items():
                     if key in saying:
                         await Interval.manual(member.id)
                         return await safeSendGroupMessage(
                             group,
-                            MessageChain.create([Plain(random.choice(DATA[key]))]),
+                            MessageChain.create([Plain(random.choice(value))]),
                         )
 
             except IndexError:
