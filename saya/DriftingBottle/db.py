@@ -1,7 +1,11 @@
+import random
 import datetime
 
+from typing import List
 from pathlib import Path
+from loguru import logger
 from graia.ariadne.model import Member
+from decimal import Decimal, ROUND_HALF_UP
 from peewee import (
     BigIntegerField,
     SqliteDatabase,
@@ -53,31 +57,6 @@ def throw_bottle(sender: Member, text=None, image=None) -> int:
     )
     bottle.save()
     return bottle.id
-
-
-def get_bottle() -> dict:
-    "随机捞一个瓶子"
-    if DriftingBottle.select().count() == 0:
-        return None
-    else:
-        bottle: DriftingBottle = (
-            DriftingBottle.select()
-            .where(DriftingBottle.isdelete == 0)
-            .order_by(fn.Random())
-            .get()
-        )
-        DriftingBottle.update(fishing_times=DriftingBottle.fishing_times + 1).where(
-            DriftingBottle.id == bottle.id
-        ).execute()
-        return {
-            "id": bottle.id,
-            "member": bottle.member,
-            "group": bottle.group,
-            "text": bottle.text,
-            "image": bottle.image,
-            "fishing_times": bottle.fishing_times,
-            "send_date": bottle.send_date,
-        }
 
 
 def get_bottle_by_id(bottle_id: int):
@@ -132,3 +111,45 @@ def add_bottle_score(bottle_id: int, member: Member, score: int):
         else:
             BottleScore.create(bottle_id=bottle_id, member=member.id, socre=score)
             return True
+
+
+def get_bottle() -> dict:
+    "随机捞三个瓶子，按权值分配"
+    if DriftingBottle.select().count() == 0:
+        return None
+    else:
+        bottles: List[DriftingBottle] = (
+            DriftingBottle.select()
+            .where(DriftingBottle.isdelete == 0)
+            .order_by(fn.Random())[:3]
+        )
+        logger.debug(bottles)
+
+        bottle_list = []
+        for i, _ in enumerate(bottles):
+            score = get_bottle_score_avg(bottles[i].id)
+            for _ in range(
+                int(
+                    Decimal(float(score) if score else 3.0).quantize(
+                        Decimal("1.0"), rounding=ROUND_HALF_UP
+                    )
+                )
+            ):
+                bottle_list.append(i)
+
+        random.shuffle(bottle_list)
+        logger.debug(bottle_list)
+        bottle: DriftingBottle = bottles[random.choice(bottle_list)]
+
+        DriftingBottle.update(fishing_times=DriftingBottle.fishing_times + 1).where(
+            DriftingBottle.id == bottle.id
+        ).execute()
+        return {
+            "id": bottle.id,
+            "member": bottle.member,
+            "group": bottle.group,
+            "text": bottle.text,
+            "image": bottle.image,
+            "fishing_times": bottle.fishing_times,
+            "send_date": bottle.send_date,
+        }
