@@ -28,7 +28,7 @@ channel = Channel.current()
                 }
             )
         ],
-        decorators=[Rest.rest_control(), Permission.require(), Interval.require(30)],
+        decorators=[Permission.require(), Rest.rest_control(), Interval.require(30)],
     )
 )
 async def fun_dict(group: Group, member: Member, anythings: WildcardMatch):

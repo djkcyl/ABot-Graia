@@ -103,7 +103,9 @@ async def main(group: Group, member: Member):
     elif "Reminder" in group_data[str(group.id)]["DisabledFunc"]:
         return
 
-    @Waiter.create_using_function([GroupMessage])
+    @Waiter.create_using_function(
+        listening_events=[GroupMessage], using_decorators=[Permission.require()]
+    )
     async def message_waiter(
         waiter1_group: Group, waiter1_member: Member, waiter1_message: MessageChain
     ):

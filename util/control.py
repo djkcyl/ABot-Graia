@@ -4,6 +4,7 @@ Xenon 管理 https://github.com/McZoo/Xenon/blob/master/lib/control.py
 """
 
 import time
+import random
 
 from asyncio import Lock
 from graia.saya import Channel
@@ -56,9 +57,22 @@ class Rest:
         global SLEEP
         SLEEP = set
 
-    def rest_control():
-        async def sleep():
-            if SLEEP:
+    def rest_control(zzzz: bool = True):
+        async def sleep(event: GroupMessage):
+            if (
+                SLEEP
+                and yaml_data["Basic"]["Permission"]["Rest"]
+                and event.sender.group.id
+                != yaml_data["Basic"]["Permission"]["DebugGroup"]
+            ):
+                if zzzz:
+                    await safeSendGroupMessage(
+                        event.sender.group,
+                        MessageChain.create(
+                            f"Z{'z'*random.randint(3,8)}{'.'*random.randint(2,6)}"
+                        ),
+                        quote=event.messageChain.getFirst(Source).id,
+                    )
                 raise ExecutionStop()
 
         return Depend(sleep)
@@ -110,8 +124,17 @@ class Permission:
         """
 
         def perm_check(event: GroupMessage):
-            if cls.get(event.sender) < level:
+            member_level = cls.get(event.sender)
+            if member_level == cls.MASTER:
+                pass
+            elif member_level < level:
                 raise ExecutionStop()
+            elif yaml_data["Basic"]["Permission"]["Debug"]:
+                if (
+                    event.sender.group.id
+                    != yaml_data["Basic"]["Permission"]["DebugGroup"]
+                ):
+                    raise ExecutionStop()
 
         return Depend(perm_check)
 
@@ -125,8 +148,15 @@ class Permission:
         if isinstance(member, int):
             member_id = member
 
-        if cls.get(member_id) < level:
+        member_level = cls.get(member_id)
+
+        if member_level == cls.MASTER:
+            pass
+        elif member_level < level:
             raise ExecutionStop()
+        elif yaml_data["Basic"]["Permission"]["Debug"]:
+            if member.group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]:
+                raise ExecutionStop()
 
 
 class Interval:

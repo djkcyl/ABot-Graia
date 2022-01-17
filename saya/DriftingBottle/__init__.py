@@ -66,7 +66,7 @@ IMAGE_PATH.mkdir(exist_ok=True)
                 },
             )
         ],
-        decorators=[Permission.require(), Interval.require(100)],
+        decorators=[Permission.require(), Interval.require(30)],
     )
 )
 async def throw_bottle_handler(
@@ -85,7 +85,9 @@ async def throw_bottle_handler(
     elif "DriftingBottle" in group_data[str(group.id)]["DisabledFunc"]:
         return
 
-    @Waiter.create_using_function([GroupMessage])
+    @Waiter.create_using_function(
+        listening_events=[GroupMessage], using_decorators=[Permission.require()]
+    )
     async def image_waiter(
         waiter1_group: Group, waiter1_member: Member, waiter1_message: MessageChain
     ):

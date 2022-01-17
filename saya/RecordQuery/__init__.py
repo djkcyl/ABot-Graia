@@ -69,7 +69,9 @@ async def main(
     elif "RecordQuery" in group_data[str(group.id)]["DisabledFunc"]:
         return
 
-    @Waiter.create_using_function([GroupMessage])
+    @Waiter.create_using_function(
+        listening_events=[GroupMessage], using_decorators=[Permission.require()]
+    )
     async def waiter1(
         waiter1_group: Group, waiter1_member: Member, waiter1_message: MessageChain
     ):
@@ -84,7 +86,9 @@ async def main(
             else:
                 return waiter1_saying
 
-    @Waiter.create_using_function([GroupMessage])
+    @Waiter.create_using_function(
+        listening_events=[GroupMessage], using_decorators=[Permission.require()]
+    )
     async def confirm(
         confirm_group: Group,
         confirm_member: Member,

@@ -78,7 +78,9 @@ async def main(app: Ariadne, group: Group, member: Member, source: Source):
         return
 
     # 请求确认中断
-    @Waiter.create_using_function([GroupMessage])
+    @Waiter.create_using_function(
+        listening_events=[GroupMessage], using_decorators=[Permission.require()]
+    )
     async def confirm(
         confirm_group: Group,
         confirm_member: Member,
@@ -99,7 +101,9 @@ async def main(app: Ariadne, group: Group, member: Member, source: Source):
                 )
 
     # 等待答案中断
-    @Waiter.create_using_function([GroupMessage])
+    @Waiter.create_using_function(
+        listening_events=[GroupMessage], using_decorators=[Permission.require()]
+    )
     async def start_game(
         submit_answer_group: Group,
         submit_answer_member: Member,

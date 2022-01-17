@@ -111,7 +111,11 @@ async def Announcement(app: Ariadne, friend: Friend, anything: WildcardMatch):
     if anything.matched:
         saying = anything.result.asDisplay()
         image = await create_image(saying)
-        groupList = await app.getGroupList()
+        groupList = (
+            [await app.getGroup(yaml_data["Basic"]["Permission"]["DebugGroup"])]
+            if yaml_data["Basic"]["Permission"]["Debug"]
+            else await app.getGroupList()
+        )
         for group in groupList:
             if group.id not in [885355617, 780537426, 474769367, 690211045, 855895642]:
                 try:
@@ -126,7 +130,7 @@ async def Announcement(app: Ariadne, friend: Friend, anything: WildcardMatch):
                         yaml_data["Basic"]["Permission"]["Master"],
                         MessageChain.create([Plain(f"{group.id} 的公告发送失败\n{err}")]),
                     )
-                await asyncio.sleep(random.uniform(1, 3))
+                await asyncio.sleep(random.uniform(3, 5))
         tt = time.time()
         times = str(tt - ft)
         await app.sendFriendMessage(

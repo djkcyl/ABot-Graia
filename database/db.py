@@ -32,12 +32,12 @@ class User(BaseModel):
 db.create_tables([User], safe=True)
 
 
-def init_user(qq):
-    user = User.select().where(User.qq == qq)
+def init_user(qq: str):
+    user = User.select().where(User.qq == str(qq))
     if not user.exists():
         p = User(qq=qq, gold=60)
         p.save()
-        logger.info("已初始化" + str(qq))
+        logger.info(f"已初始化{qq}")
 
 
 async def sign(qq):

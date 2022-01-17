@@ -27,7 +27,7 @@ Designs = json.loads(
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[Twilight({"head": FullMatch("查看人设")})],
-        decorators=[Rest.rest_control(), Permission.require(), Interval.require()],
+        decorators=[Permission.require(), Rest.rest_control(), Interval.require()],
     )
 )
 async def rand_designs(group: Group, member: Member, source: Source):

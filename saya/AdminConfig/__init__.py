@@ -12,6 +12,7 @@ from graia.ariadne.message.parser.twilight import (
     Twilight,
     FullMatch,
     RegexMatch,
+    ArgumentMatch,
     WildcardMatch,
 )
 
@@ -59,8 +60,8 @@ async def atrep(group: Group, message: MessageChain):
         else:
             image = await create_image(
                 str(
-                    f"我是{yaml_data['Basic']['Permission']['MasterName']}"
-                    + f"的机器人{yaml_data['Basic']['BotName']}"
+                    f"我是 {yaml_data['Basic']['Permission']['MasterName']} "
+                    + f"的机器人 {yaml_data['Basic']['BotName']} "
                     + f"\n如果有需要可以联系主人QQ”{str(yaml_data['Basic']['Permission']['Master'])}“，"
                     + f"\n邀请 {yaml_data['Basic']['BotName']} 加入其他群需先询问主人获得白名单"
                     + f"\n{yaml_data['Basic']['BotName']} 被群禁言后会自动退出该群。"
@@ -173,12 +174,22 @@ async def help(group: Group):
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight({"head": FullMatch("开启功能"), "func": WildcardMatch(optional=True)})
+            Twilight(
+                {
+                    "head": FullMatch("开启功能"),
+                    "all": ArgumentMatch(
+                        "-all",
+                        action="store_true",
+                        optional=True,
+                    ),
+                    "func": WildcardMatch(optional=True),
+                }
+            )
         ],
         decorators=[Permission.require(Permission.GROUP_ADMIN), Interval.require(5)],
     )
 )
-async def on_func(group: Group, func: WildcardMatch):
+async def on_func(group: Group, func: WildcardMatch, all: ArgumentMatch):
     if func.matched:
         say = func.result.asDisplay().strip()
         if say.isdigit():
@@ -214,6 +225,20 @@ async def on_func(group: Group, func: WildcardMatch):
                     )
         else:
             await safeSendGroupMessage(group, MessageChain.create("功能编号仅可为数字"))
+    elif all.matched:
+        i = 0
+        funcDisabledList = group_data[str(group.id)]["DisabledFunc"]
+        for func in funcList:
+            funcname = func["name"]
+            funckey = func["key"]
+            funcGlobalDisabled = yaml_data["Saya"][funckey]["Disabled"]
+            funcGroupDisabled = func["key"] in group_data[str(group.id)]["DisabledFunc"]
+            if not funcGlobalDisabled and funcGroupDisabled:
+                funcDisabledList.remove(funckey)
+                i += 1
+        group_data[str(group.id)]["DisabledFunc"] = funcDisabledList
+        save_config()
+        await safeSendGroupMessage(group, MessageChain.create(f"已一键开启 {i} 个功能"))
     else:
         await safeSendGroupMessage(group, MessageChain.create("请输入功能编号"))
 
@@ -222,12 +247,22 @@ async def on_func(group: Group, func: WildcardMatch):
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight({"head": FullMatch("关闭功能"), "func": WildcardMatch(optional=True)})
+            Twilight(
+                {
+                    "head": FullMatch("关闭功能"),
+                    "all": ArgumentMatch(
+                        "-all",
+                        action="store_true",
+                        optional=True,
+                    ),
+                    "func": WildcardMatch(optional=True),
+                }
+            )
         ],
         decorators=[Permission.require(Permission.GROUP_ADMIN), Interval.require(5)],
     )
 )
-async def off_func(group: Group, func: WildcardMatch):
+async def off_func(group: Group, func: WildcardMatch, all: ArgumentMatch):
     if func.matched:
         say = func.result.asDisplay().strip()
         if say.isdigit():
@@ -261,6 +296,20 @@ async def off_func(group: Group, func: WildcardMatch):
                     )
         else:
             await safeSendGroupMessage(group, MessageChain.create("功能编号仅可为数字"))
+    elif all.matched:
+        i = 0
+        funcDisabledList = group_data[str(group.id)]["DisabledFunc"]
+        for func in funcList:
+            funcname = func["name"]
+            funckey = func["key"]
+            funcCanDisabled = func["can_disabled"]
+            funcGroupDisabled = func["key"] in funcDisabledList
+            if funcCanDisabled and not funcGroupDisabled:
+                funcDisabledList.append(funckey)
+                i += 1
+        group_data[str(group.id)]["DisabledFunc"] = funcDisabledList
+        save_config()
+        await safeSendGroupMessage(group, MessageChain.create(f"已一键关闭 {i} 个功能"))
     else:
         await safeSendGroupMessage(group, MessageChain.create("请输入功能编号"))
 

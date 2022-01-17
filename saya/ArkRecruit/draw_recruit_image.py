@@ -5,8 +5,8 @@ from PIL import Image, ImageDraw, ImageFont
 
 
 font = ImageFont.truetype(str(Path("./font/sarasa-mono-sc-regular.ttf")), 20)
-font_bold = ImageFont.truetype(str(Path("./font/sarasa-mono-sc-bold.ttf")), 24)
-font28 = ImageFont.truetype(str(Path("./font/sarasa-mono-sc-bold.ttf")), 28)
+font_bold = ImageFont.truetype(str(Path("./font/sarasa-mono-sc-bold.ttf")), 20)
+font28 = ImageFont.truetype(str(Path("./font/sarasa-mono-sc-bold.ttf")), 26)
 
 tag_color = [(44, 62, 80), (155, 89, 182), (243, 156, 18), (211, 84, 0)]
 operator_color = [
@@ -46,14 +46,14 @@ def draw(recruit_info):
     logger.debug(f"为你找到以下可用的招募方案：\n{''.join([t[0] for t in text_list])}")
 
     text_x, text_y = font.getsize_multiline(
-        f"为你找到以下可用的招募方案：\n{''.join([t[0] for t in text_list])}"
+        f"为你找到以下可用的招募方案：\n\n{''.join([t[0] for t in text_list])}"
     )
     text_x = max(text_x, 392)
 
     img = Image.new("RGB", (text_x + 20, text_y + 20), (235, 235, 235))
     draw = ImageDraw.Draw(img)
     draw.text((10, 10), "为你找到以下可用的招募方案：", (33, 33, 33), font=font28)
-    h = 24
+    h = 26
     i = 2
     for tags, operators, rank in recruit_info:
         try:
@@ -67,7 +67,8 @@ def draw(recruit_info):
             draw.text(
                 (10, 4 + (h * i)),
                 f"{tag} ★" if len(operators) == 1 else tag,
-                tag_color[rank],
+                (33, 33, 33),
+                # tag_color[rank],
                 font=font_bold,
             )
             i += 1

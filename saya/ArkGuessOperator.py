@@ -43,7 +43,9 @@ async def guess_operator(group: Group, source: Source):
     elif "ArkGuessOperator" in group_data[str(group.id)]["DisabledFunc"]:
         return
 
-    @Waiter.create_using_function([GroupMessage])
+    @Waiter.create_using_function(
+        listening_events=[GroupMessage], using_decorators=[Permission.require()]
+    )
     async def waiter1(
         waiter1_group: Group,
         waiter1_member: Member,

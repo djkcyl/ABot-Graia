@@ -7,6 +7,8 @@ Basic: # 基础配置
     MiraiAuthKey: "xxxxx" # Mirai HTTP API verifyKey
 
   Permission: # 权限管理
+    Rest: true
+    Debug: false
     DebugGroup: 1223456 # 测试群，将忽略功能关闭
     Master: 123456 # 机器人主人QQ号
     MasterName: "xxxx" # 机器人主人昵称
@@ -213,6 +215,9 @@ Saya: # saya 插件配置
     Disabled: false
 
   HorseRacing: # 赛马！
+    Disabled: false
+    
+  UserFunction: # 用户功能 无法关闭
     Disabled: false
 Final: false
 # 配置完成后请调整为 true

@@ -60,8 +60,10 @@ RUNNING = {}
         decorators=[Permission.require()],
     )
 )
-async def group_learn(app: Ariadne, group: Group, member: Member):
-    @Waiter.create_using_function([GroupMessage])
+async def group_learn(group: Group, member: Member):
+    @Waiter.create_using_function(
+        listening_events=[GroupMessage], using_decorators=[Permission.require()]
+    )
     async def confirm(
         waiter_group: Group, waiter_member: Member, waiter_message: MessageChain
     ):
@@ -79,7 +81,9 @@ async def group_learn(app: Ariadne, group: Group, member: Member):
                         group, MessageChain.create([Plain("请输入1-15以内的数字")])
                     )
 
-    @Waiter.create_using_function([GroupMessage])
+    @Waiter.create_using_function(
+        listening_events=[GroupMessage], using_decorators=[Permission.require()]
+    )
     async def waiter(
         waiter_group: Group, waiter_member: Member, waiter_message: MessageChain
     ):

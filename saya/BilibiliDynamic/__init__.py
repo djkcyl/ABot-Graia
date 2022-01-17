@@ -283,7 +283,7 @@ async def update_scheduled(app: Ariadne):
                                 ]
                             ),
                         )
-                        await asyncio.sleep(0.3)
+                        await asyncio.sleep(1)
                     except UnknownTarget:
                         remove_list = []
                         for subid in get_group_sublist(groupid):
@@ -304,7 +304,7 @@ async def update_scheduled(app: Ariadne):
                                 [Plain(f"本群订阅的UP {up_name}（{up_id}）已下播！")]
                             ),
                         )
-                        await asyncio.sleep(0.3)
+                        await asyncio.sleep(1)
                 except UnknownTarget:
                     remove_list = []
                     for subid in get_group_sublist(groupid):
@@ -341,7 +341,7 @@ async def update_scheduled(app: Ariadne):
                                     ]
                                 ),
                             )
-                            await asyncio.sleep(0.3)
+                            await asyncio.sleep(1)
                         except UnknownTarget:
                             remove_list = []
                             for subid in get_group_sublist(groupid):

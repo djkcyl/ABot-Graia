@@ -82,7 +82,9 @@ async def waifu2(
     elif "Real-ESRGAN" in group_data[str(group.id)]["DisabledFunc"]:
         return
 
-    @Waiter.create_using_function([GroupMessage])
+    @Waiter.create_using_function(
+        listening_events=[GroupMessage], using_decorators=[Permission.require()]
+    )
     async def image_waiter(
         waiter1_group: Group, waiter1_member: Member, waiter1_message: MessageChain
     ):

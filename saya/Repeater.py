@@ -22,7 +22,7 @@ repdict = {}
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        decorators=[Rest.rest_control(), Permission.require()],
+        decorators=[Rest.rest_control(False), Permission.require()],
     )
 )
 async def repeater(group: Group, message: MessageChain):
@@ -64,7 +64,7 @@ async def repeater(group: Group, message: MessageChain):
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        decorators=[Rest.rest_control(), Permission.require()],
+        decorators=[Rest.rest_control(False), Permission.require()],
     )
 )
 async def repeateron(group: Group, message: MessageChain):

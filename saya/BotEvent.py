@@ -32,8 +32,9 @@ from graia.ariadne.event.mirai import (
 )
 
 from util.control import Rest
-from util.TextModeration import text_moderation_async
+from database.db import init_user
 from util.sendMessage import safeSendGroupMessage
+from util.TextModeration import text_moderation_async
 from config import save_config, yaml_data, group_data, group_list
 
 from .AdminConfig import groupInitData
@@ -51,6 +52,7 @@ async def groupDataInit(app: Ariadne):
     """
     groupList = await app.getGroupList()
     groupNum = len(groupList)
+    init_user(str(yaml_data["Basic"]["Permission"]["Master"]))
     await app.sendFriendMessage(
         yaml_data["Basic"]["Permission"]["Master"],
         MessageChain.create(
@@ -71,6 +73,19 @@ async def groupDataInit(app: Ariadne):
     msg = [Plain("初始化结束")]
     if i > 0:
         msg.append(Plain(f"\n已为 {i} 个群进行了初始化配置"))
+    if yaml_data["Basic"]["Permission"]["Debug"]:
+        debug_group = await app.getGroup(yaml_data["Basic"]["Permission"]["DebugGroup"])
+        debug_msg = (
+            f"{debug_group.name}（{debug_group.id}）"
+            if debug_group
+            else yaml_data["Basic"]["Permission"]["Debug"]
+        )
+        master = await app.getFriend(yaml_data["Basic"]["Permission"]["Master"])
+        msg.append(
+            Plain(
+                f"，当前为 Debug 模式，将仅接受 {debug_msg} 群以及 {master.nickname}（{master.id}） 的消息"
+            )
+        )
     await app.sendFriendMessage(
         yaml_data["Basic"]["Permission"]["Master"], MessageChain.create(msg)
     )

@@ -127,7 +127,9 @@ async def redeem_lottery(
 
     WAITING.append(member.id)
 
-    @Waiter.create_using_function([GroupMessage])
+    @Waiter.create_using_function(
+        listening_events=[GroupMessage], using_decorators=[Permission.require()]
+    )
     async def waiter(
         waiter_group: Group, waiter_member: Member, waiter_message: MessageChain
     ):

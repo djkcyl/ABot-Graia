@@ -28,7 +28,7 @@ channel = Channel.current()
                 }
             )
         ],
-        decorators=[Rest.rest_control(), Permission.require(), Interval.require()],
+        decorators=[Permission.require(), Interval.require()],
     )
 )
 async def what_are_you_saying(group: Group, member: Member, anything: WildcardMatch):

@@ -25,10 +25,10 @@ channel = Channel.current()
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight(
-                {"head": FullMatch("词典"), "anything": WildcardMatch(optional=True)}
+                {"head": FullMatch("词典"), "anything": WildcardMatch()}
             )
         ],
-        decorators=[Rest.rest_control(), Permission.require(), Interval.require()],
+        decorators=[Permission.require(), Rest.rest_control(), Interval.require()],
     )
 )
 async def dict(group: Group, anything: WildcardMatch):

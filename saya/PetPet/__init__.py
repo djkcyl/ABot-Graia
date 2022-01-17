@@ -35,7 +35,7 @@ FRAMES_PATH = Path(__file__).parent.joinpath("PetPetFrames")
         inline_dispatchers=[
             Twilight({"head": FullMatch("摸"), "arg1": WildcardMatch()})
         ],
-        decorators=[Rest.rest_control(), Permission.require(), Interval.require()],
+        decorators=[Permission.require(), Rest.rest_control(), Interval.require()],
     )
 )
 async def petpet_generator(message: MessageChain, group: Group):
@@ -58,11 +58,11 @@ async def petpet_generator(message: MessageChain, group: Group):
 
 
 @channel.use(
-    ListenerSchema(listening_events=[NudgeEvent], decorators=[Rest.rest_control()])
+    ListenerSchema(listening_events=[NudgeEvent])
 )
 async def get_nudge(app: Ariadne, nudge: NudgeEvent):
 
-    if nudge.group_id:
+    if nudge.group_id and nudge.supplicant != app.account:
 
         if (
             yaml_data["Saya"]["PetPet"]["Disabled"]
@@ -72,12 +72,12 @@ async def get_nudge(app: Ariadne, nudge: NudgeEvent):
         elif "PetPet" in group_data[str(nudge.group_id)]["DisabledFunc"]:
             return
 
-        Permission.manual(nudge.supplicant)
+        Permission.manual(await app.getMember(nudge.group_id, nudge.supplicant))
         await Interval.manual(nudge.group_id, 3)
 
         if nudge.target == yaml_data["Basic"]["MAH"]["BotQQ"]:
             try:
-                await app.sendNudge(nudge.group_id, nudge.supplicant)
+                await app.sendNudge(nudge.supplicant, nudge.group_id)
             except Exception:
                 pass
 

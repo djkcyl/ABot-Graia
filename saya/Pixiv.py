@@ -32,7 +32,7 @@ channel = Channel.current()
                 },
             )
         ],
-        decorators=[Rest.rest_control(), Permission.require(), Interval.require()],
+        decorators=[Permission.require(), Rest.rest_control(), Interval.require()],
     )
 )
 async def main(

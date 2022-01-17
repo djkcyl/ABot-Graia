@@ -24,7 +24,7 @@ channel = Channel.current()
         inline_dispatchers=[
             Twilight({"head": FullMatch("嗷"), "anything": WildcardMatch(optional=True)})
         ],
-        decorators=[Rest.rest_control(), Permission.require(), Interval.require()],
+        decorators=[Permission.require(), Rest.rest_control(), Interval.require()],
     )
 )
 async def main_encode(group: Group, anything: WildcardMatch, source: Source):
@@ -60,7 +60,7 @@ async def main_encode(group: Group, anything: WildcardMatch, source: Source):
         inline_dispatchers=[
             Twilight({"head": FullMatch("呜"), "anything": WildcardMatch(optional=True)})
         ],
-        decorators=[Rest.rest_control(), Permission.require(), Interval.require()],
+        decorators=[Permission.require(), Rest.rest_control(), Interval.require()],
     )
 )
 async def main_decode(group: Group, anything: WildcardMatch, source: Source):

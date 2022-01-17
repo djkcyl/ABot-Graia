@@ -36,7 +36,7 @@ if CONFIG_PATH.joinpath("groupdata.json").exists():
     with CONFIG_PATH.joinpath("groupdata.json").open("r", encoding="utf-8") as f:
         group_data = json.load(f)
 else:
-    with open("groupdata.json", "w", encoding="utf-8") as f:
+    with CONFIG_PATH.joinpath("groupdata.json").open("w", encoding="utf-8") as f:
         group_data = {}
         json.dump(group_data, f, indent=2)
 

@@ -46,7 +46,11 @@ async def send(app: Ariadne):
         return
 
     ts = time.time()
-    groupList = await app.getGroupList()
+    groupList = (
+        [await app.getGroup(yaml_data["Basic"]["Permission"]["DebugGroup"])]
+        if yaml_data["Basic"]["Permission"]["Debug"]
+        else await app.getGroupList()
+    )
     groupNum = len(groupList)
     await app.sendFriendMessage(
         yaml_data["Basic"]["Permission"]["Master"],

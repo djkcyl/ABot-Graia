@@ -11,7 +11,13 @@ from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.event.message import GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import Twilight, FullMatch
-from graia.ariadne.message.element import FlashImage, Image, Plain, Voice
+from graia.ariadne.message.element import (
+    Image,
+    Plain,
+    Voice,
+    FlashImage,
+    MultimediaElement,
+)
 
 from util.control import Permission
 from database.db import add_talk as add_talk_db
@@ -49,9 +55,7 @@ async def get_image(group: Group):
     await safeSendGroupMessage(group, MessageChain.create([Image(data_bytes=image)]))
 
 
-@channel.use(
-    ListenerSchema(listening_events=[GroupMessage], decorators=[Permission.require()])
-)
+@channel.use(ListenerSchema(listening_events=[GroupMessage]))
 async def add_talk_word(group: Group, member: Member, message: MessageChain):
     await add_talk_db(str(member.id))
     if message.has(Plain):
@@ -76,19 +80,27 @@ async def add_talk_word(group: Group, member: Member, message: MessageChain):
         await add_talk(str(member.id), str(group.id), 4, voice_id, voice.url)
 
 
-async def download(element, name, path, type):
-    now_time = datetime.datetime.now()
-    now_path = data_path.joinpath(
-        path, str(now_time.year), str(now_time.month), str(now_time.day)
-    )
-    now_path.mkdir(0o775, True, True)
+async def download(element: MultimediaElement, name, path, type):
+    if type == 2:
+        now_path = data_path.joinpath(path, name[1:4])
+    else:
+        now_time = datetime.datetime.now()
+        now_path = data_path.joinpath(
+            path, str(now_time.year), str(now_time.month), str(now_time.day)
+        )
+    now_path.mkdir(0o755, True, True)
     if not await archive_exists(name, type):
-        for _ in range(3):
+        for _ in range(5):
             try:
                 r = await element.get_bytes()
+                break
             except aiohttp.ClientResponseError as e:
-                logger.warning(f"{name} 下载失败：{str(e)}")
+                logger.warning(f"{name} 下载失败：{str(e)}，正在重试")
                 await asyncio.sleep(1)
+        else:
+            logger.warning(f"{name} 下载失败，已达到最大重试次数")
+            return
+
         if type == 4:
             try:
                 now_path.joinpath(f"{name}.mp3").write_bytes(

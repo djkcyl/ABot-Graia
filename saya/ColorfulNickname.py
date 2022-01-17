@@ -58,7 +58,11 @@ async def tasks(app: Ariadne):
 
     return
 
-    group_list = await app.getGroupList()
+    group_list = (
+        [await app.getGroup(yaml_data["Basic"]["Permission"]["DebugGroup"])]
+        if yaml_data["Basic"]["Permission"]["Debug"]
+        else await app.getGroupList()
+    )
     for group in group_list:
         await app.modifyMemberInfo(
             group=group.id,

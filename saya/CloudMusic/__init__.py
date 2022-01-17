@@ -63,7 +63,7 @@ WAITING = []
         inline_dispatchers=[
             Twilight({"head": FullMatch("点歌"), "music_name": RegexMatch(r".*")})
         ],
-        decorators=[Rest.rest_control(), Permission.require(), Interval.require(120)],
+        decorators=[Permission.require(), Rest.rest_control(), Interval.require(120)],
     )
 )
 async def sing(
@@ -81,7 +81,9 @@ async def sing(
     elif "CloudMusic" in group_data[str(group.id)]["DisabledFunc"]:
         return
 
-    @Waiter.create_using_function([GroupMessage])
+    @Waiter.create_using_function(
+        listening_events=[GroupMessage], using_decorators=[Permission.require()]
+    )
     async def waiter1(
         waiter1_group: Group, waiter1_member: Member, waiter1_message: MessageChain
     ):
@@ -96,7 +98,9 @@ async def sing(
             else:
                 return waiter1_saying
 
-    @Waiter.create_using_function([GroupMessage])
+    @Waiter.create_using_function(
+        listening_events=[GroupMessage], using_decorators=[Permission.require()]
+    )
     async def waiter2(
         waiter2_group: Group, waiter2_member: Member, waiter2_message: MessageChain
     ):

@@ -34,7 +34,7 @@ channel = Channel.current()
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[Twilight({"head": RegexMatch("5000兆 .* .*")})],
-        decorators=[Rest.rest_control(), Permission.require(), Interval.require()],
+        decorators=[Permission.require(), Rest.rest_control(), Interval.require()],
     )
 )
 async def gosencho_handler(message: MessageChain, group: Group):
@@ -59,7 +59,7 @@ async def gosencho_handler(message: MessageChain, group: Group):
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[Twilight({"head": RegexMatch("ph .* .*")})],
-        decorators=[Rest.rest_control(), Permission.require(), Interval.require()],
+        decorators=[Permission.require(), Rest.rest_control(), Interval.require()],
     )
 )
 async def pornhub_handler(message: MessageChain, group: Group):
@@ -81,7 +81,7 @@ async def pornhub_handler(message: MessageChain, group: Group):
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[Twilight({"head": RegexMatch("yt .* .*")})],
-        decorators=[Rest.rest_control(), Permission.require(), Interval.require()],
+        decorators=[Permission.require(), Rest.rest_control(), Interval.require()],
     )
 )
 async def youtube_handler(message: MessageChain, group: Group):

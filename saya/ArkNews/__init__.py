@@ -66,7 +66,11 @@ async def get_weibo_news(app: Ariadne):
         pushed_list["weibo"].append(new_id)
         save_pushed_list()
 
-        group_list = await app.getGroupList()
+        group_list = (
+            [await app.getGroup(yaml_data["Basic"]["Permission"]["DebugGroup"])]
+            if yaml_data["Basic"]["Permission"]["Debug"]
+            else await app.getGroupList()
+        )
         result, detail_url, pics_list = await weibo.requests_content(0)
 
         time_rec = TimeRecorder()
@@ -87,7 +91,7 @@ async def get_weibo_news(app: Ariadne):
             if "ArkNews" in group_data[str(group.id)]["DisabledFunc"]:
                 continue
             await safeSendGroupMessage(group, MessageChain.create(msg))
-            await asyncio.sleep(random.randint(2, 4))
+            await asyncio.sleep(random.uniform(3, 5))
 
         await app.sendFriendMessage(
             yaml_data["Basic"]["Permission"]["Master"],
@@ -136,7 +140,11 @@ async def get_game_news(app: Ariadne):
     pushed_list["game"] = latest_list
     save_pushed_list()
 
-    group_list = await app.getGroupList()
+    group_list = (
+        [await app.getGroup(yaml_data["Basic"]["Permission"]["DebugGroup"])]
+        if yaml_data["Basic"]["Permission"]["Debug"]
+        else await app.getGroupList()
+    )
 
     for announce in new_list:
         time_rec = TimeRecorder()
@@ -151,7 +159,7 @@ async def get_game_news(app: Ariadne):
             if "ArkNews" in group_data[str(group.id)]["DisabledFunc"]:
                 continue
             await safeSendGroupMessage(group, MessageChain.create(msg))
-            await asyncio.sleep(random.randint(3, 5))
+            await asyncio.sleep(random.uniform(3, 5))
 
         await app.sendFriendMessage(
             yaml_data["Basic"]["Permission"]["Master"],

@@ -115,6 +115,12 @@
       "default_disabled": false
     },
     {
+      "name": "用户功能",
+      "key": "UserFunction",
+      "can_disabled": false,
+      "default_disabled": false
+    },
+    {
       "name": "签到",
       "key": "Sign",
       "can_disabled": true,
@@ -136,7 +142,7 @@
       "name": "奖券",
       "key": "Lottery",
       "can_disabled": true,
-      "default_disabled": true
+      "default_disabled": false
     },
     {
       "name": "简易骰娘",
@@ -374,6 +380,12 @@
       "instruction": "防止群内消息撤回",
       "usage": "收到撤回事件自动触发",
       "options": "不会防止撤回的有：机器人被撤回的消息、语音、闪照、Xml消息、Json消息",
+      "example": "（这也需要示例吗？"
+    },
+    "用户功能": {
+      "instruction": "用户基本功能",
+      "usage": "发送指令：\n查看个人信息\n查看排行榜",
+      "options": "无",
       "example": "（这也需要示例吗？"
     },
     "签到": {

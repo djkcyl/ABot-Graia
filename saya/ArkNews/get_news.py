@@ -20,8 +20,8 @@ class Weibo:
 
         target_blog = cards[index]
         blog = target_blog["mblog"]
-        detail_url = target_blog["scheme"]
         item_id = blog["bid"]
+        detail_url = f"https://m.weibo.cn/status{item_id}"
 
         if only_id:
             return item_id
@@ -30,7 +30,9 @@ class Weibo:
         url = "https://m.weibo.cn/statuses/extend?id=" + blog["id"]
 
         async with httpx.AsyncClient(headers=self.headers) as client:
-            r = await client.get(url,)
+            r = await client.get(
+                url,
+            )
             result = r.json()
             r.status_code
 
@@ -106,7 +108,7 @@ class Game:
                 try:
                     page = await browser.new_page()
                     await page.goto(url, wait_until="networkidle", timeout=10000)
-                    await page.set_viewport_size({"width": 300, "height": 273})
+                    await page.set_viewport_size({"width": 500, "height": 273})
                     image = await page.screenshot(
                         full_page=True, type="jpeg", quality=85
                     )
