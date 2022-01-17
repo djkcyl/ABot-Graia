@@ -164,66 +164,65 @@ async def sing(
                     MessageChain.create([Plain("点歌超时")]),
                     quote=waite_musicmessageId.messageId,
                 )
+
+        notfound = 0
+
         times = str(int(time.time()))
         search = httpx.get(
             f"{CLOUD_HOST}/cloudsearch?keywords={musicname}&timestamp={times}",
             cookies=login,
         ).json()
-        try:
-            if search["result"]["songCount"] == 0:
-                WAITING.remove(member.id)
-                return await safeSendGroupMessage(
-                    group, MessageChain.create([Plain("未找到此歌曲")])
-                )
-        except KeyError:
-            WAITING.remove(member.id)
-            return await safeSendGroupMessage(
-                group, MessageChain.create([Plain("内部错误，本次点歌已终止")])
-            )
-        musiclist = search["result"]["songs"]
-        musicIdList = []
-        num = 1
-        i = 1
+        if search["result"].get("songCount", 0) == 0:
+            notfound += 1
+        else:
+            musiclist = search["result"]["songs"]
+            musicIdList = []
+            num = 1
+            i = 1
 
-        msg = "===============================\n为你在网易云音乐找到以下歌曲！\n==============================="
-        for music in musiclist:
-            if num > 10:
-                break
-            music_id = music["id"]
-            music_name = music["name"]
-            music_ar = []
-            for ar in music["ar"]:
-                music_ar.append(ar["name"])
-            music_ar = "/".join(music_ar)
-            num_str = " " + str(i) if i < 10 else str(i)
-            msg += f"\n{num_str}    ===>    {music_name} - {music_ar}"
-            musicIdList.append([1, music_id])
-            num += 1
-            i += 1
+            msg = "===============================\n为你在网易云音乐找到以下歌曲！\n==============================="
+            for music in musiclist:
+                if num > 10:
+                    break
+                music_id = music["id"]
+                music_name = music["name"]
+                music_ar = []
+                for ar in music["ar"]:
+                    music_ar.append(ar["name"])
+                music_ar = "/".join(music_ar)
+                num_str = " " + str(i) if i < 10 else str(i)
+                msg += f"\n{num_str}    ===>    {music_name} - {music_ar}"
+                musicIdList.append([1, music_id])
+                num += 1
+                i += 1
 
         search = httpx.get(f"{QQ_HOST}/getSearchByKey?key={musicname}").json()
         if search["response"]["data"]["song"]["curnum"] == 0:
+            notfound += 1
+        else:
+            musiclist = search["response"]["data"]["song"]["list"]
+            num = 1
+            msg += "\n===============================\n为你在QQ音乐找到以下歌曲！\n==============================="
+            for music in musiclist:
+                if num > 10:
+                    break
+                music_id = music["mid"]
+                music_name = music["name"]
+                music_ar = []
+                for ar in music["singer"]:
+                    music_ar.append(ar["name"])
+                music_ar = "/".join(music_ar)
+                num_str = " " + str(i) if i < 10 else str(i)
+                msg += f"\n{num_str}    ===>    {music_name} - {music_ar}"
+                musicIdList.append([2, music_id])
+                num += 1
+                i += 1
+
+        if notfound == 2:
             WAITING.remove(member.id)
             return await safeSendGroupMessage(
                 group, MessageChain.create([Plain("未找到此歌曲")])
             )
-        musiclist = search["response"]["data"]["song"]["list"]
-        num = 1
-        msg += "\n===============================\n为你在QQ音乐找到以下歌曲！\n==============================="
-        for music in musiclist:
-            if num > 10:
-                break
-            music_id = music["mid"]
-            music_name = music["name"]
-            music_ar = []
-            for ar in music["singer"]:
-                music_ar.append(ar["name"])
-            music_ar = "/".join(music_ar)
-            num_str = " " + str(i) if i < 10 else str(i)
-            msg += f"\n{num_str}    ===>    {music_name} - {music_ar}"
-            musicIdList.append([2, music_id])
-            num += 1
-            i += 1
 
         msg += (
             "\n===============================\n"
