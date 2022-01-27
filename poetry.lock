@@ -28,6 +28,19 @@ url = "https://pypi.tuna.tsinghua.edu.cn/simple"
 reference = "tsinghua"
 
 [[package]]
+name = "aio-mc-rcon"
+version = "3.1.1"
+description = "An async library for utilizing remote console on Minecraft Java Edition servers"
+category = "dev"
+optional = false
+python-versions = ">=3.6,<4.0"
+
+[package.source]
+type = "legacy"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+reference = "tsinghua"
+
+[[package]]
 name = "aiohttp"
 version = "3.7.4.post0"
 description = "Async http client/server framework (asyncio)"
@@ -74,6 +87,19 @@ url = "https://pypi.tuna.tsinghua.edu.cn/simple"
 reference = "tsinghua"
 
 [[package]]
+name = "appnope"
+version = "0.1.2"
+description = "Disable App Nap on macOS >= 10.9"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.source]
+type = "legacy"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+reference = "tsinghua"
+
+[[package]]
 name = "arknights"
 version = "0.1.11"
 description = "arknights CN request library"
@@ -107,7 +133,7 @@ reference = "tsinghua"
 name = "asttokens"
 version = "2.0.5"
 description = "Annotate AST trees with source code positions"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 
@@ -184,6 +210,19 @@ url = "https://pypi.tuna.tsinghua.edu.cn/simple"
 reference = "tsinghua"
 
 [[package]]
+name = "backcall"
+version = "0.2.0"
+description = "Specifications for callback functions passed in to an API"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.source]
+type = "legacy"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+reference = "tsinghua"
+
+[[package]]
 name = "basicsr"
 version = "1.3.4.9"
 description = "Open Source Image and Video Super-Resolution Toolbox"
@@ -235,7 +274,7 @@ reference = "tsinghua"
 name = "black"
 version = "21.12b0"
 description = "The uncompromising code formatter."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6.2"
 
@@ -605,7 +644,7 @@ reference = "tsinghua"
 name = "executing"
 version = "0.8.2"
 description = "Get the currently executing AST node of a frame, and other information"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 
@@ -867,8 +906,8 @@ url = "https://pypi.tuna.tsinghua.edu.cn/simple"
 reference = "tsinghua"
 
 [[package]]
-name = "graia-ariadne-dev"
-version = "2022.1.11.1"
+name = "graia-ariadne"
+version = "0.5.1rc3"
 description = "Another elegant framework for mirai and mirai-api-http v2."
 category = "main"
 optional = false
@@ -877,16 +916,19 @@ python-versions = ">=3.8,<4.0"
 [package.dependencies]
 aiohttp = ">=3.7.4,<4.0.0"
 graia-broadcast = ">=0.14.4"
+graia-saya = {version = ">=0.0.13,<0.0.14", optional = true, markers = "extra == \"graia\" or extra == \"full\""}
+graia-scheduler = {version = ">=0.0.6,<0.0.7", optional = true, markers = "extra == \"graia\" or extra == \"full\""}
 loguru = ">=0.5,<0.6"
 prompt-toolkit = ">=3.0.24,<4.0.0"
 pydantic = ">=1.8.2,<2.0.0"
 regex = ">=2021.11.10,<2022.0.0"
-typing-extensions = ">=3.10.0,<4.0.0"
+typing-extensions = ">=4.0.0,<5.0.0"
 yarl = ">=1.7,<2.0"
 
 [package.extras]
 alconna = ["arclet-alconna (>=0.4.1,<0.5.0)"]
-full = ["graia-saya (>=0.0.13,<0.0.14)", "graia-scheduler (>=0.0.6,<0.0.7)"]
+full = ["arclet-alconna (>=0.4.1,<0.5.0)", "graia-saya (>=0.0.13,<0.0.14)", "graia-scheduler (>=0.0.6,<0.0.7)"]
+graia = ["graia-saya (>=0.0.13,<0.0.14)", "graia-scheduler (>=0.0.6,<0.0.7)"]
 document = ["mkdocs-material (>=8.1.2)", "pdoc (>=8.0,<9.0)"]
 
 [package.source]
@@ -1173,12 +1215,72 @@ url = "https://pypi.tuna.tsinghua.edu.cn/simple"
 reference = "tsinghua"
 
 [[package]]
+name = "ipython"
+version = "8.0.0"
+description = "IPython: Productive Interactive Computing"
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[package.dependencies]
+appnope = {version = "*", markers = "sys_platform == \"darwin\""}
+backcall = "*"
+black = "*"
+colorama = {version = "*", markers = "sys_platform == \"win32\""}
+decorator = "*"
+jedi = ">=0.16"
+matplotlib-inline = "*"
+pexpect = {version = ">4.3", markers = "sys_platform != \"win32\""}
+pickleshare = "*"
+prompt-toolkit = ">=2.0.0,<3.0.0 || >3.0.0,<3.0.1 || >3.0.1,<3.1.0"
+pygments = "*"
+stack-data = "*"
+traitlets = ">=5"
+
+[package.extras]
+all = ["Sphinx (>=1.3)", "curio", "ipykernel", "ipyparallel", "ipywidgets", "matplotlib (!=3.2.0)", "nbconvert", "nbformat", "notebook", "numpy (>=1.19)", "pandas", "pygments", "pytest", "pytest-asyncio", "qtconsole", "testpath", "trio"]
+doc = ["Sphinx (>=1.3)"]
+kernel = ["ipykernel"]
+nbconvert = ["nbconvert"]
+nbformat = ["nbformat"]
+notebook = ["notebook", "ipywidgets"]
+parallel = ["ipyparallel"]
+qtconsole = ["qtconsole"]
+test = ["pytest", "pytest-asyncio", "testpath", "pygments"]
+test_extra = ["pytest", "testpath", "curio", "matplotlib (!=3.2.0)", "nbformat", "numpy (>=1.19)", "pandas", "pygments", "trio"]
+
+[package.source]
+type = "legacy"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+reference = "tsinghua"
+
+[[package]]
 name = "itsdangerous"
 version = "2.0.1"
 description = "Safely pass data to untrusted environments and back."
 category = "main"
 optional = false
 python-versions = ">=3.6"
+
+[package.source]
+type = "legacy"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+reference = "tsinghua"
+
+[[package]]
+name = "jedi"
+version = "0.18.1"
+description = "An autocompletion tool for Python that can be used for text editors."
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+parso = ">=0.8.0,<0.9.0"
+
+[package.extras]
+qa = ["flake8 (==3.8.3)", "mypy (==0.782)"]
+testing = ["Django (<3.1)", "colorama", "docopt", "pytest (<7.0.0)"]
 
 [package.source]
 type = "legacy"
@@ -1398,6 +1500,22 @@ url = "https://pypi.tuna.tsinghua.edu.cn/simple"
 reference = "tsinghua"
 
 [[package]]
+name = "matplotlib-inline"
+version = "0.1.3"
+description = "Inline Matplotlib backend for Jupyter"
+category = "main"
+optional = false
+python-versions = ">=3.5"
+
+[package.dependencies]
+traitlets = "*"
+
+[package.source]
+type = "legacy"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+reference = "tsinghua"
+
+[[package]]
 name = "mccabe"
 version = "0.6.1"
 description = "McCabe checker, plugin for flake8"
@@ -1443,7 +1561,7 @@ reference = "tsinghua"
 name = "mypy-extensions"
 version = "0.4.3"
 description = "Experimental type system extensions for programs checked with the mypy typechecker."
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 
@@ -1795,10 +1913,27 @@ url = "https://pypi.tuna.tsinghua.edu.cn/simple"
 reference = "tsinghua"
 
 [[package]]
+name = "parso"
+version = "0.8.3"
+description = "A Python Parser"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.extras]
+qa = ["flake8 (==3.8.3)", "mypy (==0.782)"]
+testing = ["docopt", "pytest (<6.0.0)"]
+
+[package.source]
+type = "legacy"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+reference = "tsinghua"
+
+[[package]]
 name = "pathspec"
 version = "0.9.0"
 description = "Utility library for gitignore style pattern matching of file paths."
-category = "dev"
+category = "main"
 optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
 
@@ -1811,6 +1946,35 @@ reference = "tsinghua"
 name = "peewee"
 version = "3.14.8"
 description = "a little orm"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.source]
+type = "legacy"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+reference = "tsinghua"
+
+[[package]]
+name = "pexpect"
+version = "4.8.0"
+description = "Pexpect allows easy control of interactive console applications."
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+ptyprocess = ">=0.5"
+
+[package.source]
+type = "legacy"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+reference = "tsinghua"
+
+[[package]]
+name = "pickleshare"
+version = "0.7.5"
+description = "Tiny 'shelve'-like database with concurrency support"
 category = "main"
 optional = false
 python-versions = "*"
@@ -1978,6 +2142,35 @@ url = "https://pypi.tuna.tsinghua.edu.cn/simple"
 reference = "tsinghua"
 
 [[package]]
+name = "ptyprocess"
+version = "0.7.0"
+description = "Run a subprocess in a pseudo terminal"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.source]
+type = "legacy"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+reference = "tsinghua"
+
+[[package]]
+name = "pure-eval"
+version = "0.2.1"
+description = "Safely evaluate AST nodes without side effects"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.extras]
+tests = ["pytest"]
+
+[package.source]
+type = "legacy"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+reference = "tsinghua"
+
+[[package]]
 name = "pyacrcloud-patch"
 version = "1.0.1"
 description = "Python wrapper for acrcloud libraries"
@@ -2098,6 +2291,19 @@ description = "passive checker of Python programs"
 category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+
+[package.source]
+type = "legacy"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+reference = "tsinghua"
+
+[[package]]
+name = "pygments"
+version = "2.11.2"
+description = "Pygments is a syntax highlighting package written in Python."
+category = "main"
+optional = false
+python-versions = ">=3.5"
 
 [package.source]
 type = "legacy"
@@ -2558,6 +2764,27 @@ url = "https://pypi.tuna.tsinghua.edu.cn/simple"
 reference = "tsinghua"
 
 [[package]]
+name = "stack-data"
+version = "0.1.4"
+description = "Extract data from python stack frames and tracebacks for informative displays"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+asttokens = "*"
+executing = "*"
+pure-eval = "*"
+
+[package.extras]
+tests = ["pytest", "typeguard", "pygments", "littleutils"]
+
+[package.source]
+type = "legacy"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+reference = "tsinghua"
+
+[[package]]
 name = "tb-nightly"
 version = "2.8.0a20220109"
 description = "TensorBoard lets you watch Tensors Flow"
@@ -2739,6 +2966,22 @@ url = "https://pypi.tuna.tsinghua.edu.cn/simple"
 reference = "tsinghua"
 
 [[package]]
+name = "traitlets"
+version = "5.1.1"
+description = "Traitlets Python configuration system"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.extras]
+test = ["pytest"]
+
+[package.source]
+type = "legacy"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+reference = "tsinghua"
+
+[[package]]
 name = "triangler-patch"
 version = "0.1.3"
 description = "triangler dependencies version patch"
@@ -2756,11 +2999,11 @@ reference = "tsinghua"
 
 [[package]]
 name = "typing-extensions"
-version = "3.10.0.2"
-description = "Backported and Experimental Type Hints for Python 3.5+"
+version = "4.0.1"
+description = "Backported and Experimental Type Hints for Python 3.6+"
 category = "main"
 optional = false
-python-versions = "*"
+python-versions = ">=3.6"
 
 [package.source]
 type = "legacy"
@@ -2988,7 +3231,7 @@ reference = "tsinghua"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.9,<3.10"
-content-hash = "38647575a605ee4f2857b6e03d6f8d2fa7be1a413632179cb31af39c7b50faca"
+content-hash = "411c6c7f18e803694a59a35d622c86a69c86b1b6210cea6e646342bd97716c20"
 
 [metadata.files]
 absl-py = [
@@ -2998,6 +3241,10 @@ absl-py = [
 addict = [
     {file = "addict-2.4.0-py3-none-any.whl", hash = "sha256:249bb56bbfd3cdc2a004ea0ff4c2b6ddc84d53bc2194761636eb314d5cfa5dfc"},
     {file = "addict-2.4.0.tar.gz", hash = "sha256:b3b2210e0e067a281f5646c8c5db92e99b7231ea8b0eb5f74dbdf9e259d4e494"},
+]
+aio-mc-rcon = [
+    {file = "aio-mc-rcon-3.1.1.tar.gz", hash = "sha256:14ea690e00ca280ee2e4a90620f9f96fb8d103420ba66bb1c3b4fa8f7ad5695e"},
+    {file = "aio_mc_rcon-3.1.1-py3-none-any.whl", hash = "sha256:1baed79ff50596c7d233010344757a12337ada19c8a2b814259ce091b07dfa40"},
 ]
 aiohttp = [
     {file = "aiohttp-3.7.4.post0-cp36-cp36m-macosx_10_14_x86_64.whl", hash = "sha256:3cf75f7cdc2397ed4442594b935a11ed5569961333d49b7539ea741be2cc79d5"},
@@ -3042,6 +3289,10 @@ anyio = [
     {file = "anyio-3.4.0-py3-none-any.whl", hash = "sha256:2855a9423524abcdd652d942f8932fda1735210f77a6b392eafd9ff34d3fe020"},
     {file = "anyio-3.4.0.tar.gz", hash = "sha256:24adc69309fb5779bc1e06158e143e0b6d2c56b302a3ac3de3083c705a6ed39d"},
 ]
+appnope = [
+    {file = "appnope-0.1.2-py2.py3-none-any.whl", hash = "sha256:93aa393e9d6c54c5cd570ccadd8edad61ea0c4b9ea7a01409020c9aa019eb442"},
+    {file = "appnope-0.1.2.tar.gz", hash = "sha256:dd83cd4b5b460958838f6eb3000c660b1f9caf2a5b1de4264e941512f603258a"},
+]
 arknights = [
     {file = "arknights-0.1.11-py3-none-any.whl", hash = "sha256:c99e0da34f017f251f21d8af4366db3f7ea6a0d26af549b3e00835abf3b221e9"},
     {file = "arknights-0.1.11.tar.gz", hash = "sha256:47727635d0fd940ed6d7bf0f8d11760ee45dd488f41b9dd7ccf249d5f464cb7b"},
@@ -3085,6 +3336,10 @@ azure-cognitiveservices-speech = [
 babel = [
     {file = "Babel-2.9.1-py2.py3-none-any.whl", hash = "sha256:ab49e12b91d937cd11f0b67cb259a57ab4ad2b59ac7a3b41d6c06c0ac5b0def9"},
     {file = "Babel-2.9.1.tar.gz", hash = "sha256:bc0c176f9f6a994582230df350aa6e05ba2ebe4b3ac317eab29d9be5d2768da0"},
+]
+backcall = [
+    {file = "backcall-0.2.0-py2.py3-none-any.whl", hash = "sha256:fbbce6a29f263178a1f7915c1940bde0ec2b2a967566fe1c65c1dfb7422bd255"},
+    {file = "backcall-0.2.0.tar.gz", hash = "sha256:5cbdbf27be5e7cfadb448baf0aa95508f91f2bbc6c6437cd9cd06e2a4c215e1e"},
 ]
 basicsr = [
     {file = "basicsr-1.3.4.9.tar.gz", hash = "sha256:87ba1bc09bd5b0c7d257295c90507cfab70edb880bf569143dd5a614f457ead7"},
@@ -3278,9 +3533,9 @@ google-auth-oauthlib = [
     {file = "google-auth-oauthlib-0.4.6.tar.gz", hash = "sha256:a90a072f6993f2c327067bf65270046384cda5a8ecb20b94ea9a687f1f233a7a"},
     {file = "google_auth_oauthlib-0.4.6-py2.py3-none-any.whl", hash = "sha256:3f2a6e802eebbb6fb736a370fbf3b055edcb6b52878bf2f26330b5e041316c73"},
 ]
-graia-ariadne-dev = [
-    {file = "graia-ariadne-dev-2022.1.11.1.tar.gz", hash = "sha256:1b2e0ebc108ba855162cb53be2b227183f09954678fb3aae4e0ea0874d70d6c1"},
-    {file = "graia_ariadne_dev-2022.1.11.1-py3-none-any.whl", hash = "sha256:f9fec2a78f28ce676aed0d4d9fcc905e4b7260e671e54bbc49cdc9f7fa86dc83"},
+graia-ariadne = [
+    {file = "graia-ariadne-0.5.1rc3.tar.gz", hash = "sha256:e9c50395bab53cfb7102f651a1f8074998bcd06f366e67e73d0202c1708d39fa"},
+    {file = "graia_ariadne-0.5.1rc3-py3-none-any.whl", hash = "sha256:328cd0fda6c00c0bd70f7e6383985127730023aaa6970e2ab2f1da22c9573a5c"},
 ]
 graia-broadcast = [
     {file = "graia-broadcast-0.14.5.tar.gz", hash = "sha256:51b4fa0b35e215751c41ce5006a72b35497b818425ea94a3cf296149251ef6f6"},
@@ -3296,7 +3551,42 @@ graia-scheduler = [
 ]
 graiax-silkcoder = [
     {file = "graiax-silkcoder-0.1.4.tar.gz", hash = "sha256:3856392c773b5f64594491ce241fc80128802f82a187274e7998e6dea3cffc15"},
+    {file = "graiax_silkcoder-0.1.4-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:621acdd613183426dd914a3312bba688a2e591a44ad9e8f60b5a6b1ffefcccf5"},
+    {file = "graiax_silkcoder-0.1.4-cp310-cp310-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:fbfc1b62c5eb0b558ddc56beea7ced7a374f5913b7bccdde5c9e779f6a183f08"},
+    {file = "graiax_silkcoder-0.1.4-cp310-cp310-musllinux_1_1_i686.whl", hash = "sha256:4a1f99621d2183eeba6e7148733adf067ba234d6c3fc4f794c8a1772b7965899"},
+    {file = "graiax_silkcoder-0.1.4-cp310-cp310-musllinux_1_1_x86_64.whl", hash = "sha256:03ca526ac5f775985341045824e037569132a3d4f1b221a84920cbf8e3cd9165"},
+    {file = "graiax_silkcoder-0.1.4-cp310-cp310-win32.whl", hash = "sha256:e88ad878c70557c902f39bcbe357064ffdc5dcc66c3d03978d68f07d2b872c06"},
+    {file = "graiax_silkcoder-0.1.4-cp310-cp310-win_amd64.whl", hash = "sha256:0a4737a127408087ba1634067ead79342eb6a1467d30c385a0b8ae3fa40e5825"},
+    {file = "graiax_silkcoder-0.1.4-cp36-cp36m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:a2e2d10a6099468eff2aa6f71757eda622a6e2d05b9640253d47f97a124ca1a9"},
+    {file = "graiax_silkcoder-0.1.4-cp36-cp36m-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:426d9d1d251e09973c8dccf5bf876605f3ca9a9adca76ca18fc3762a73e192f9"},
+    {file = "graiax_silkcoder-0.1.4-cp36-cp36m-musllinux_1_1_i686.whl", hash = "sha256:efb5cafb9ac239f4d539e9ee6150bc80a7a801f7c4b84ae9c6a6614fa9067d1f"},
+    {file = "graiax_silkcoder-0.1.4-cp36-cp36m-musllinux_1_1_x86_64.whl", hash = "sha256:e00e24eb3e183fc7162c0364f935f08654a0e9c650a8c7a633cffb1b935756a8"},
+    {file = "graiax_silkcoder-0.1.4-cp36-cp36m-win32.whl", hash = "sha256:c101804d1916fb6672fb603897ea7b9d6d2d4fbb597d4dca91ece84c1df98711"},
+    {file = "graiax_silkcoder-0.1.4-cp36-cp36m-win_amd64.whl", hash = "sha256:4d875851b770ad254f5ef611ea262c4ebb9336941900e72f4b52709b56bc9ba7"},
+    {file = "graiax_silkcoder-0.1.4-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:3964cd5b32af9d72c3662051a6b75c2555ecccee60bc88e4ee4e69e6d6b112d2"},
+    {file = "graiax_silkcoder-0.1.4-cp37-cp37m-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:6b5999691f1e69ea4e38ee02ba76664b5c74f3098e7b6735e7bcbcc3cb6bec14"},
+    {file = "graiax_silkcoder-0.1.4-cp37-cp37m-musllinux_1_1_i686.whl", hash = "sha256:06c3ccb537a83b05c4d53176a013839d6d46559045a5913e11985b5b51ac0862"},
+    {file = "graiax_silkcoder-0.1.4-cp37-cp37m-musllinux_1_1_x86_64.whl", hash = "sha256:22d6c062212d454f46a73e37f431596338bc2768e95838f98c0ecb7fd0f86171"},
+    {file = "graiax_silkcoder-0.1.4-cp37-cp37m-win32.whl", hash = "sha256:b39f82283375441443b5ebd0e47ce69fe28e212084cfde9ab9a5a309de23ea08"},
+    {file = "graiax_silkcoder-0.1.4-cp37-cp37m-win_amd64.whl", hash = "sha256:3449b9c609afd87321baf5323ab498a55be47eaa401786bca5d41075b11cf08a"},
+    {file = "graiax_silkcoder-0.1.4-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:29b0b3b68e51a4cf79d2662ccc3f0e9fe5f0d83ccc7621c06dfbf886b0d1a7e5"},
+    {file = "graiax_silkcoder-0.1.4-cp38-cp38-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:41ac50772732914a0cbd601a72364a1275c7ad6c234ce517c8daa397b8f08157"},
+    {file = "graiax_silkcoder-0.1.4-cp38-cp38-musllinux_1_1_i686.whl", hash = "sha256:b21b7485f4dd829751fc5af01fbc7147806e002495a719fac8ecbc455bd9d929"},
+    {file = "graiax_silkcoder-0.1.4-cp38-cp38-musllinux_1_1_x86_64.whl", hash = "sha256:7ce65f5ee81d67dc8b55b1051be9472651601cfa045d66b5ef2ce25365899d9c"},
     {file = "graiax_silkcoder-0.1.4-cp38-cp38-win32.whl", hash = "sha256:c28a7d7decdf34983e6d5fd8de0dc257592f48fee5ac100a63b04aface65a36b"},
+    {file = "graiax_silkcoder-0.1.4-cp38-cp38-win_amd64.whl", hash = "sha256:adf6a1c543ce543383d48296566df7952f21a55439ccfa2a006e97cbc325cd9b"},
+    {file = "graiax_silkcoder-0.1.4-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:453df63bd41e1d3f7442697cad1ea501abd53d0e9ad63a0f75e508572fa99023"},
+    {file = "graiax_silkcoder-0.1.4-cp39-cp39-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:4f83a9a793f929c42074fdf04e6947506933b6eefdad8469db35a91f7c7db6dd"},
+    {file = "graiax_silkcoder-0.1.4-cp39-cp39-musllinux_1_1_i686.whl", hash = "sha256:1593fd200761142c59b3e611fea4aaf89eb810f1d6884bb621f634acc185ec71"},
+    {file = "graiax_silkcoder-0.1.4-cp39-cp39-musllinux_1_1_x86_64.whl", hash = "sha256:05cb3c279a74f64fb1daf4ce91f479ec705a30e318006a40ad762fa037a730a0"},
+    {file = "graiax_silkcoder-0.1.4-cp39-cp39-win32.whl", hash = "sha256:031ed02060fe0b902c9478afb38dc35ce5ead5a888d618c30237a43f344005d9"},
+    {file = "graiax_silkcoder-0.1.4-cp39-cp39-win_amd64.whl", hash = "sha256:46a22d9448e2bf1973134d84042eb8fb92ea52fdd7fe1e71fd4e6d3fdd529561"},
+    {file = "graiax_silkcoder-0.1.4-pp37-pypy37_pp73-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:2dfb4de176ed1ffcd91aba26fd74e77aba9f43df89d458cffe07cb91f7169464"},
+    {file = "graiax_silkcoder-0.1.4-pp37-pypy37_pp73-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:fb29693e000e4cb5f5b359f1698311a1cef46e06aee5383e7fd634750ba295d0"},
+    {file = "graiax_silkcoder-0.1.4-pp37-pypy37_pp73-win_amd64.whl", hash = "sha256:f93d1d469916818ab787f0ec7145039b078a58d9fffff413276910f34450f05f"},
+    {file = "graiax_silkcoder-0.1.4-pp38-pypy38_pp73-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:8755520126a8a69211f7925491a4ea1d770437f57c7378b3de51190736071108"},
+    {file = "graiax_silkcoder-0.1.4-pp38-pypy38_pp73-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:9173deae66f7f4115b405f1c589bb5a20932ba291a862d733945734ba98ed9c2"},
+    {file = "graiax_silkcoder-0.1.4-pp38-pypy38_pp73-win_amd64.whl", hash = "sha256:552f32b6cc51d2f010fe3aa6d055954c32cdffaaf00c91bc82f56538650f8226"},
 ]
 greenlet = [
     {file = "greenlet-1.1.2-cp27-cp27m-macosx_10_14_x86_64.whl", hash = "sha256:58df5c2a0e293bf665a51f8a100d3e9956febfbf1d9aaf8c0677cf70218910c6"},
@@ -3451,9 +3741,17 @@ importlib-metadata = [
     {file = "importlib_metadata-4.10.0-py3-none-any.whl", hash = "sha256:b7cf7d3fef75f1e4c80a96ca660efbd51473d7e8f39b5ab9210febc7809012a4"},
     {file = "importlib_metadata-4.10.0.tar.gz", hash = "sha256:92a8b58ce734b2a4494878e0ecf7d79ccd7a128b5fc6014c401e0b61f006f0f6"},
 ]
+ipython = [
+    {file = "ipython-8.0.0-py3-none-any.whl", hash = "sha256:5b58cf977635abad74d76be49dbb2e97fddd825fb8503083d55496aa1160b854"},
+    {file = "ipython-8.0.0.tar.gz", hash = "sha256:004a0d05aeecd32adec4841b6e2586d5ca35785b1477db4d8333a39333e0ce98"},
+]
 itsdangerous = [
     {file = "itsdangerous-2.0.1-py3-none-any.whl", hash = "sha256:5174094b9637652bdb841a3029700391451bd092ba3db90600dea710ba28e97c"},
     {file = "itsdangerous-2.0.1.tar.gz", hash = "sha256:9e724d68fc22902a1435351f84c3fb8623f303fffcc566a4cb952df8c572cff0"},
+]
+jedi = [
+    {file = "jedi-0.18.1-py2.py3-none-any.whl", hash = "sha256:637c9635fcf47945ceb91cd7f320234a7be540ded6f3e99a50cb6febdfd1ba8d"},
+    {file = "jedi-0.18.1.tar.gz", hash = "sha256:74137626a64a99c8eb6ae5832d99b3bdd7d29a3850fe2aa80a4126b2a7d949ab"},
 ]
 jieba = [
     {file = "jieba-0.42.1.tar.gz", hash = "sha256:055ca12f62674fafed09427f176506079bc135638a14e23e25be909131928db2"},
@@ -3764,6 +4062,10 @@ matplotlib = [
     {file = "matplotlib-3.5.1-pp37-pypy37_pp73-manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:6803299cbf4665eca14428d9e886de62e24f4223ac31ab9c5d6d5339a39782c7"},
     {file = "matplotlib-3.5.1-pp37-pypy37_pp73-win_amd64.whl", hash = "sha256:14334b9902ec776461c4b8c6516e26b450f7ebe0b3ef8703bf5cdfbbaecf774a"},
     {file = "matplotlib-3.5.1.tar.gz", hash = "sha256:b2e9810e09c3a47b73ce9cab5a72243a1258f61e7900969097a817232246ce1c"},
+]
+matplotlib-inline = [
+    {file = "matplotlib-inline-0.1.3.tar.gz", hash = "sha256:a04bfba22e0d1395479f866853ec1ee28eea1485c1d69a6faf00dc3e24ff34ee"},
+    {file = "matplotlib_inline-0.1.3-py3-none-any.whl", hash = "sha256:aed605ba3b72462d64d475a21a9296f400a19c4f74a31b59103d2a99ffd5aa5c"},
 ]
 mccabe = [
     {file = "mccabe-0.6.1-py2.py3-none-any.whl", hash = "sha256:ab8a6258860da4b6677da4bd2fe5dc2c659cff31b3ee4f7f5d64e79735b80d42"},
@@ -4136,12 +4438,24 @@ pandas = [
     {file = "pandas-1.3.5-cp39-cp39-win_amd64.whl", hash = "sha256:32e1a26d5ade11b547721a72f9bfc4bd113396947606e00d5b4a5b79b3dcb006"},
     {file = "pandas-1.3.5.tar.gz", hash = "sha256:1e4285f5de1012de20ca46b188ccf33521bff61ba5c5ebd78b4fb28e5416a9f1"},
 ]
+parso = [
+    {file = "parso-0.8.3-py2.py3-none-any.whl", hash = "sha256:c001d4636cd3aecdaf33cbb40aebb59b094be2a74c556778ef5576c175e19e75"},
+    {file = "parso-0.8.3.tar.gz", hash = "sha256:8c07be290bb59f03588915921e29e8a50002acaf2cdc5fa0e0114f91709fafa0"},
+]
 pathspec = [
     {file = "pathspec-0.9.0-py2.py3-none-any.whl", hash = "sha256:7d15c4ddb0b5c802d161efc417ec1a2558ea2653c2e8ad9c19098201dc1c993a"},
     {file = "pathspec-0.9.0.tar.gz", hash = "sha256:e564499435a2673d586f6b2130bb5b95f04a3ba06f81b8f895b651a3c76aabb1"},
 ]
 peewee = [
     {file = "peewee-3.14.8.tar.gz", hash = "sha256:01bd7f734defb08d7a3346a0c0ca7011bc8d0d685934ec0e001b3371d522ec53"},
+]
+pexpect = [
+    {file = "pexpect-4.8.0-py2.py3-none-any.whl", hash = "sha256:0b48a55dcb3c05f3329815901ea4fc1537514d6ba867a152b581d69ae3710937"},
+    {file = "pexpect-4.8.0.tar.gz", hash = "sha256:fc65a43959d153d0114afe13997d439c22823a27cefceb5ff35c2178c6784c0c"},
+]
+pickleshare = [
+    {file = "pickleshare-0.7.5-py2.py3-none-any.whl", hash = "sha256:9649af414d74d4df115d5d718f82acb59c9d418196b7b4290ed47a12ce62df56"},
+    {file = "pickleshare-0.7.5.tar.gz", hash = "sha256:87683d47965c1da65cdacaf31c8441d12b8044cdec9aca500cd78fc2c683afca"},
 ]
 pillow = [
     {file = "Pillow-9.0.0-cp310-cp310-macosx_10_10_universal2.whl", hash = "sha256:113723312215b25c22df1fdf0e2da7a3b9c357a7d24a93ebbe80bfda4f37a8d4"},
@@ -4265,6 +4579,14 @@ psutil = [
     {file = "psutil-5.9.0-cp39-cp39-win32.whl", hash = "sha256:4e2fb92e3aeae3ec3b7b66c528981fd327fb93fd906a77215200404444ec1845"},
     {file = "psutil-5.9.0-cp39-cp39-win_amd64.whl", hash = "sha256:7d190ee2eaef7831163f254dc58f6d2e2a22e27382b936aab51c835fc080c3d3"},
     {file = "psutil-5.9.0.tar.gz", hash = "sha256:869842dbd66bb80c3217158e629d6fceaecc3a3166d3d1faee515b05dd26ca25"},
+]
+ptyprocess = [
+    {file = "ptyprocess-0.7.0-py2.py3-none-any.whl", hash = "sha256:4b41f3967fce3af57cc7e94b888626c18bf37a083e3651ca8feeb66d492fef35"},
+    {file = "ptyprocess-0.7.0.tar.gz", hash = "sha256:5c5d0a3b48ceee0b48485e0c26037c0acd7d29765ca3fbb5cb3831d347423220"},
+]
+pure-eval = [
+    {file = "pure_eval-0.2.1-py3-none-any.whl", hash = "sha256:94eeb505a88721bec7bb21a4ac49758b8b1a01530da1a70d4ffc1d9937689d71"},
+    {file = "pure_eval-0.2.1.tar.gz", hash = "sha256:0f04483b16c9429532d2c0ddc96e2b3bb6b2dc37a2bfb0e986248dbfd0b78873"},
 ]
 pyacrcloud-patch = [
     {file = "pyacrcloud-patch-1.0.1.tar.gz", hash = "sha256:1dfc62ea97b20988f943fc2be49c85e2606ec8ae314e39c312d61df54e8ad6b6"},
@@ -4392,6 +4714,10 @@ pyee = [
 pyflakes = [
     {file = "pyflakes-2.4.0-py2.py3-none-any.whl", hash = "sha256:3bb3a3f256f4b7968c9c788781e4ff07dce46bdf12339dcda61053375426ee2e"},
     {file = "pyflakes-2.4.0.tar.gz", hash = "sha256:05a85c2872edf37a4ed30b0cce2f6093e1d0581f8c19d7393122da7e25b2b24c"},
+]
+pygments = [
+    {file = "Pygments-2.11.2-py3-none-any.whl", hash = "sha256:44238f1b60a76d78fc8ca0528ee429702aae011c265fe6a8dd8b63049ae41c65"},
+    {file = "Pygments-2.11.2.tar.gz", hash = "sha256:4e426f72023d88d03b2fa258de560726ce890ff3b630f88c21cbb8b2503b8c6a"},
 ]
 pyparsing = [
     {file = "pyparsing-3.0.6-py3-none-any.whl", hash = "sha256:04ff808a5b90911829c55c4e26f75fa5ca8a2f5f36aa3a51f68e27033341d3e4"},
@@ -4761,6 +5087,10 @@ srsly = [
     {file = "srsly-2.4.2-cp39-cp39-win_amd64.whl", hash = "sha256:090072830cf2d5bd6765705a02463f586db8a586805d1c31a72080f971d311b5"},
     {file = "srsly-2.4.2.tar.gz", hash = "sha256:2aba252292767875086adf4e4380e27b024d73655456f796f8e07eb3a4dfacc0"},
 ]
+stack-data = [
+    {file = "stack_data-0.1.4-py3-none-any.whl", hash = "sha256:02cc0683cbc445ae4ca8c4e3a0e58cb1df59f252efb0aa016b34804a707cf9bc"},
+    {file = "stack_data-0.1.4.tar.gz", hash = "sha256:7769ed2482ce0030e00175dd1bf4ef1e873603b6ab61cd3da443b410e64e9477"},
+]
 tb-nightly = [
     {file = "tb_nightly-2.8.0a20220109-py3-none-any.whl", hash = "sha256:29de997a889e28fcbebc9586d89b3b3947a9e999025c68f73a255aebab2b5caa"},
 ]
@@ -4836,14 +5166,17 @@ tqdm = [
     {file = "tqdm-4.62.3-py2.py3-none-any.whl", hash = "sha256:8dd278a422499cd6b727e6ae4061c40b48fce8b76d1ccbf5d34fca9b7f925b0c"},
     {file = "tqdm-4.62.3.tar.gz", hash = "sha256:d359de7217506c9851b7869f3708d8ee53ed70a1b8edbba4dbcb47442592920d"},
 ]
+traitlets = [
+    {file = "traitlets-5.1.1-py3-none-any.whl", hash = "sha256:2d313cc50a42cd6c277e7d7dc8d4d7fedd06a2c215f78766ae7b1a66277e0033"},
+    {file = "traitlets-5.1.1.tar.gz", hash = "sha256:059f456c5a7c1c82b98c2e8c799f39c9b8128f6d0d46941ee118daace9eb70c7"},
+]
 triangler-patch = [
     {file = "triangler-patch-0.1.3.tar.gz", hash = "sha256:0e682198de1cb07ea81cd7b5307e7e48ab71d06de2995bb32314b5cf393cbfc5"},
     {file = "triangler_patch-0.1.3-py3-none-any.whl", hash = "sha256:1148a7baba5f4f40265cdf1762b5aac495030bdbe2848299110526ca6f108e74"},
 ]
 typing-extensions = [
-    {file = "typing_extensions-3.10.0.2-py2-none-any.whl", hash = "sha256:d8226d10bc02a29bcc81df19a26e56a9647f8b0a6d4a83924139f4a8b01f17b7"},
-    {file = "typing_extensions-3.10.0.2-py3-none-any.whl", hash = "sha256:f1d25edafde516b146ecd0613dabcc61409817af4766fbbcfb8d1ad4ec441a34"},
-    {file = "typing_extensions-3.10.0.2.tar.gz", hash = "sha256:49f75d16ff11f1cd258e1b988ccff82a3ca5570217d7ad8c5f48205dd99a677e"},
+    {file = "typing_extensions-4.0.1-py3-none-any.whl", hash = "sha256:7f001e5ac290a0c0401508864c7ec868be4e701886d5b573a9528ed3973d9d3b"},
+    {file = "typing_extensions-4.0.1.tar.gz", hash = "sha256:4ca091dea149f945ec56afb48dae714f21e8692ef22a395223bcd328961b6a0e"},
 ]
 urllib3 = [
     {file = "urllib3-1.25.11-py2.py3-none-any.whl", hash = "sha256:f5321fbe4bf3fefa0efd0bfe7fb14e90909eb62a48ccda331726b4319897dd5e"},

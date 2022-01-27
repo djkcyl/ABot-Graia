@@ -7,8 +7,9 @@ Basic: # 基础配置
     MiraiAuthKey: "xxxxx" # Mirai HTTP API verifyKey
 
   Permission: # 权限管理
-    Rest: true
-    Debug: false
+    DefaultAcceptInvite: true # 自动同意入群申请
+    Rest: true # 开启睡眠系统
+    Debug: false # 测试模式
     DebugGroup: 1223456 # 测试群，将忽略功能关闭
     Master: 123456 # 机器人主人QQ号
     MasterName: "xxxx" # 机器人主人昵称

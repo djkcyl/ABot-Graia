@@ -12,7 +12,7 @@ from graia.broadcast.interrupt.waiter import Waiter
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.event.message import FriendMessage
 from graia.broadcast.interrupt import InterruptControl
-from graia.ariadne.model import Group, Friend, MemberInfo
+from graia.ariadne.model import Friend, MemberInfo, Group
 from graia.ariadne.message.element import At, Plain, Image
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.lifecycle import ApplicationLaunched, ApplicationShutdowned
@@ -35,7 +35,7 @@ from util.control import Rest
 from database.db import init_user
 from util.sendMessage import safeSendGroupMessage
 from util.TextModeration import text_moderation_async
-from config import save_config, yaml_data, group_data, group_list
+from config import save_config, yaml_data, group_data, group_list, user_list
 
 from .AdminConfig import groupInitData
 
@@ -204,11 +204,21 @@ async def accept(app: Ariadne, invite: BotInvitedJoinGroupRequestEvent):
                 )
 
         except asyncio.TimeoutError:
-            await invite.reject("由于主人长时间未审核，已自动拒绝")
-            await app.sendFriendMessage(
-                yaml_data["Basic"]["Permission"]["Master"],
-                MessageChain.create([Plain("申请超时已自动拒绝")]),
-            )
+            if yaml_data["Basic"]["Permission"]["DefaultAcceptInvite"]:
+                if invite.groupId not in group_list["white"]:
+                    group_list["white"].append(invite.groupId)
+                    save_config()
+                await invite.accept()
+                await app.sendFriendMessage(
+                    yaml_data["Basic"]["Permission"]["Master"],
+                    MessageChain.create([Plain("已同意申请并加入白名单")]),
+                )
+            else:
+                await invite.reject("由于主人长时间未审核，已自动拒绝")
+                await app.sendFriendMessage(
+                    yaml_data["Basic"]["Permission"]["Master"],
+                    MessageChain.create([Plain("申请超时已自动拒绝")]),
+                )
 
 
 @channel.use(ListenerSchema(listening_events=[BotJoinGroupEvent]))
@@ -340,6 +350,7 @@ async def get_BotMuteGroup(app: Ariadne, group: Group, mute: BotMuteEvent):
     """
     try:
         group_list["white"].remove(group.id)
+        user_list["black"].append(mute.operator.id)
     except Exception:
         pass
     save_config()
@@ -357,6 +368,7 @@ async def get_BotMuteGroup(app: Ariadne, group: Group, mute: BotMuteEvent):
                     ]
                 ),
             )
+
     await app.quitGroup(group)
 
 

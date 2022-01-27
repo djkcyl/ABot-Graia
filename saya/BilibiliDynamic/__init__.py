@@ -121,7 +121,7 @@ async def add_uid(uid, groupid):
                 json.dump(dynamic_list, f, indent=2)
             return Plain(f"成功在本群订阅UP {up_name}（{uid}）")
     else:
-        Plain(f"该UP（{uid}）未发布任何动态，订阅失败")
+        return Plain(f"该UP（{uid}）未发布任何动态，订阅失败")
 
 
 def remove_uid(uid, groupid):
@@ -384,9 +384,10 @@ async def update_scheduled(app: Ariadne):
 async def add_sub(group: Group, anything: WildcardMatch):
 
     if anything.matched:
+        add = await add_uid(anything.result.asDisplay(), group.id)
         await safeSendGroupMessage(
             group,
-            MessageChain.create(await add_uid(anything.result.asDisplay(), group.id)),
+            MessageChain.create(add),
         )
 
 

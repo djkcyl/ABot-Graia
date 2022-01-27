@@ -21,7 +21,7 @@ class Weibo:
         target_blog = cards[index]
         blog = target_blog["mblog"]
         item_id = blog["bid"]
-        detail_url = f"https://m.weibo.cn/status{item_id}"
+        detail_url = f"https://m.weibo.cn/status/{item_id}"
 
         if only_id:
             return item_id

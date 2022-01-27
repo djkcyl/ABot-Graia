@@ -3,7 +3,6 @@ import datetime
 
 from typing import List
 from pathlib import Path
-from loguru import logger
 from graia.ariadne.model import Member
 from decimal import Decimal, ROUND_HALF_UP
 from peewee import (
@@ -123,7 +122,6 @@ def get_bottle() -> dict:
             .where(DriftingBottle.isdelete == 0)
             .order_by(fn.Random())[:3]
         )
-        logger.debug(bottles)
 
         bottle_list = []
         for i, _ in enumerate(bottles):
@@ -138,7 +136,6 @@ def get_bottle() -> dict:
                 bottle_list.append(i)
 
         random.shuffle(bottle_list)
-        logger.debug(bottle_list)
         bottle: DriftingBottle = bottles[random.choice(bottle_list)]
 
         DriftingBottle.update(fishing_times=DriftingBottle.fishing_times + 1).where(

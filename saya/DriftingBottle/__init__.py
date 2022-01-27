@@ -185,14 +185,19 @@ async def throw_bottle_handler(
             resp = await client.get(image_url)
             image_type = resp.headers["Content-Type"]
             image = resp.content
-            if qrdecode(image):
-                if member.id in user_black_list:
-                    pass
-                else:
-                    user_black_list.append(member.id)
-                    save_config()
+            if image:
+                if qrdecode(image):
+                    if member.id in user_black_list:
+                        pass
+                    else:
+                        user_black_list.append(member.id)
+                        save_config()
+                    return await safeSendGroupMessage(
+                        group, MessageChain.create("漂流瓶不能携带二维码哦！你已被拉黑")
+                    )
+            else:
                 return await safeSendGroupMessage(
-                    group, MessageChain.create("漂流瓶不能携带二维码哦！你已被拉黑")
+                    group, MessageChain.create("图片异常，请稍后重试！")
                 )
         image_name = str(time.time()) + "." + image_type.split("/")[1]
         IMAGE_PATH.joinpath(image_name).write_bytes(image)

@@ -2,14 +2,13 @@
 authors = ["djkcyl <cyl@cyllive.cn>"]
 description = ""
 name = "abot-mahv2"
-version = "2.7.3"
+version = "2.7.4"
 
 [tool.poetry.dependencies]
+python = ">=3.9,<3.10"
 azure-cognitiveservices-speech = "^1.19.0"
 cos-python-sdk-v5 = "^1.9.14"
 dnspython = "^2.1.0"
-graia-saya = "^0.0.13"
-graia-scheduler = "^0.0.6"
 graiax-silkcoder = "^0.1.4"
 httpx = "^0.21.1"
 jionlp-py39 = "^1.3.45"
@@ -20,7 +19,6 @@ playwright = "^1.17.2"
 prettytable = "^3.0.0"
 psutil = "^5.9.0"
 pyacrcloud-patch = "^1.0.1"
-python = ">=3.9,<3.10"
 pyyaml = "^6.0"
 pyzbar = "^0.1.8"
 qrcode = "^7.2"
@@ -31,8 +29,9 @@ tencentcloud-sdk-python = "^3.0.565"
 triangler-patch = "^0.1.3"
 wordcloud = "^1.8.1"
 xmltodict = "^0.12.0"
-graia-ariadne-dev = "^2022.1.11"
 arknights = "^0.1.11"
+ipython = "^8.0.0"
+graia-ariadne = {extras = ["graia"], version = "^0.5.0", allow-prereleases = true}
 
 [build-system]
 build-backend = "poetry.core.masonry.api"
@@ -42,6 +41,7 @@ requires = ["poetry-core>=1.0.0"]
 black = { version = "^21.12b0", allow-prereleases = true }
 devtools = "^0.8.0"
 flake8 = "^4.0.1"
+aio-mc-rcon = "^3.1.1"
 
 [[tool.poetry.source]]
 default = true

@@ -10,7 +10,7 @@ from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import Plain, AtAll
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.twilight import Twilight, RegexMatch
+from graia.ariadne.message.parser.twilight import Twilight, FullMatch
 
 from util.control import Interval
 from config import group_data, yaml_data
@@ -28,13 +28,13 @@ if (
     logger.error("禁言套餐最大时长设定超过30天，请检查配置文件")
     exit()
 
+t = r"(?=.*要)(?=.*禁)(?=.*言)(?=.*套)(?=.*餐)"
+
 
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[
-            Twilight({"head": RegexMatch(r"(?=.*要)(?=.*禁)(?=.*言)(?=.*套)(?=.*餐)")})
-        ],
+        inline_dispatchers=[Twilight({"head": FullMatch(r"我要禁言套餐")})],
         decorators=[Interval.require()],
     )
 )

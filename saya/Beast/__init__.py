@@ -22,7 +22,7 @@ channel = Channel.current()
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight({"head": FullMatch("嗷"), "anything": WildcardMatch(optional=True)})
+            Twilight({"head": FullMatch("/嗷"), "anything": WildcardMatch(optional=True)})
         ],
         decorators=[Permission.require(), Rest.rest_control(), Interval.require()],
     )
@@ -58,7 +58,7 @@ async def main_encode(group: Group, anything: WildcardMatch, source: Source):
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight({"head": FullMatch("呜"), "anything": WildcardMatch(optional=True)})
+            Twilight({"head": FullMatch("/呜"), "anything": WildcardMatch(optional=True)})
         ],
         decorators=[Permission.require(), Rest.rest_control(), Interval.require()],
     )

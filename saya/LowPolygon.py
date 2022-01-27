@@ -4,6 +4,7 @@ import triangler
 import matplotlib.pyplot as plt
 
 from io import BytesIO
+from loguru import logger
 from typing import Optional
 from PIL import Image as IMG
 from graia.saya import Saya, Channel
@@ -21,8 +22,9 @@ from graia.ariadne.message.parser.twilight import (
     WildcardMatch,
 )
 
-from config import yaml_data, group_data
+from database.db import reduce_gold
 from util.sendMessage import safeSendGroupMessage
+from config import yaml_data, group_data, COIN_NAME
 from util.control import Permission, Interval, Rest
 
 
@@ -122,30 +124,44 @@ async def low_poly(
 
         async with httpx.AsyncClient() as client:
             resp = await client.get(image_url)
+            if resp.status_code != 200:
+                return await safeSendGroupMessage(
+                    group,
+                    MessageChain.create([Plain(f"图片错误 {resp.status_code}")]),
+                )
             img_bytes = resp.content
+        if not await reduce_gold(str(member.id), 1):
+            WAITING.remove(member.id)
+            return safeSendGroupMessage(group, MessageChain.create(f"你的{COIN_NAME}不足"))
         await safeSendGroupMessage(
             group, MessageChain.create([Plain(f"正在生成{point if point else '默认'}切面，请稍后")])
         )
         image = await asyncio.to_thread(make_low_poly, img_bytes, point)
-        await safeSendGroupMessage(
-            group, MessageChain.create([Image(data_bytes=image)])
-        )
+        if image:
+            await safeSendGroupMessage(
+                group, MessageChain.create([Image(data_bytes=image)])
+            )
+        else:
+            await safeSendGroupMessage(group, MessageChain.create([Plain("生成失败")]))
         WAITING.remove(member.id)
 
 
 def make_low_poly(img_bytes, point: Optional[int] = None):
-
-    img = IMG.open(BytesIO(img_bytes)).convert("RGB")
-    img.thumbnail((1000, 1000))
-    imgx, imgy = img.size
-    t = triangler.Triangler(
-        sample_method=triangler.SampleMethod.POISSON_DISK,
-        points=point if point else max(imgx, imgy),
-    )
-    bio = BytesIO()
-    img = plt.imsave(bio, t.convert(img.__array__()))
-    img = IMG.open(bio).convert("RGB")
-    bio = BytesIO()
-    img.save(bio, "JPEG")
+    try:
+        img = IMG.open(BytesIO(img_bytes)).convert("RGB")
+        img.thumbnail((1000, 1000))
+        imgx, imgy = img.size
+        t = triangler.Triangler(
+            sample_method=triangler.SampleMethod.POISSON_DISK,
+            points=point if point else max(imgx, imgy),
+        )
+        bio = BytesIO()
+        img = plt.imsave(bio, t.convert(img.__array__()))
+        img = IMG.open(bio).convert("RGB")
+        bio = BytesIO()
+        img.save(bio, "JPEG")
+    except Exception as e:
+        logger.error(e)
+        return None
 
     return bio.getvalue()

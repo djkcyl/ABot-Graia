@@ -324,7 +324,9 @@ async def main(app: Ariadne, group: Group, member: Member):
                     "duration": 0,
                 },
                 "score": 0,
-                "name": (await app.getMember(group.id, player)).name,
+                "name": (await app.getMember(group.id, player)).name
+                if await app.getMember(group.id, player)
+                else str(player),
             }
             for i, player in enumerate(player_list, 1)
         },

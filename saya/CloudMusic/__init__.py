@@ -249,7 +249,11 @@ async def sing(
                 quote=waite_musicmessageId.messageId,
             )
 
-        musicid = musicIdList[int(wantMusicID) - 1]
+        try:
+            musicid = musicIdList[int(wantMusicID) - 1]
+        except IndexError:
+            WAITING.remove(member.id)
+            return await safeSendGroupMessage(group, MessageChain.create("输入有误"))
         if musicid[0] == 1:
             times = str(int(time.time()))
             musicinfo = httpx.get(
