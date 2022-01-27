@@ -7,6 +7,7 @@ import time
 import random
 
 from asyncio import Lock
+from typing import Optional
 from graia.saya import Channel
 from collections import defaultdict
 from graia.ariadne.app import Ariadne
@@ -166,8 +167,14 @@ class Interval:
 
     last_exec: DefaultDict[int, Tuple[int, float]] = defaultdict(lambda: (1, 0.0))
     sent_alert: Set[int] = set()
-    lock: Lock = Lock()
+    lock: Optional[Lock] = None
 
+    @classmethod
+    async def get_lock(cls):
+        if not cls.lock:
+            cls.lock = Lock()
+        return cls.lock
+        
     @classmethod
     def require(
         cls,
@@ -190,7 +197,7 @@ class Interval:
             if Permission.get(event.sender) >= override_level:
                 return
             current = time.time()
-            async with cls.lock:
+            async with (await cls.get_lock()):
                 last = cls.last_exec[event.sender.id]
                 if current - cls.last_exec[event.sender.id][1] >= suspend_time:
                     cls.last_exec[event.sender.id] = (1, current)
@@ -232,7 +239,7 @@ class Interval:
         if Permission.get(member) >= override_level:
             return
         current = time.time()
-        async with cls.lock:
+        async with (await cls.get_lock()):
             last = cls.last_exec[member]
             if current - cls.last_exec[member][1] >= suspend_time:
                 cls.last_exec[member] = (1, current)
