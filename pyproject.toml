@@ -1,0 +1,49 @@
+[tool.poetry]
+authors = ["djkcyl <cyl@cyllive.cn>"]
+description = ""
+name = "abot-mahv2"
+version = "2.8.5"
+
+[tool.poetry.dependencies]
+python = ">=3.9,<3.10"
+azure-cognitiveservices-speech = "^1.19.0"
+cos-python-sdk-v5 = "^1.9.15"
+dnspython = "^2.1.0"
+graiax-silkcoder = "^0.1.5"
+httpx = "^0.21.1"
+jionlp-py39 = "^1.3.45"
+paddleocr = "^2.4"
+paddlepaddle = "^2.2.2"
+peewee = "^3.14.4"
+playwright = "^1.18.1"
+prettytable = "^3.0.0"
+psutil = "^5.9.0"
+pyacrcloud-patch = "^1.0.1"
+pyyaml = "^6.0"
+pyzbar = "^0.1.8"
+qrcode = "^7.2"
+realesrgan = "^0.2.3"
+rsa = "^4.7.2"
+saucenao-api = "^2.4.0"
+tencentcloud-sdk-python = "^3.0.565"
+triangler-patch = "^0.1.3"
+wordcloud = "^1.8.1"
+xmltodict = "^0.12.0"
+arknights = "^0.1.11"
+graia-ariadne = {version = "0.5.2-post1", extras = ["graia"], allow-prereleases = true}
+
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core>=1.0.0"]
+
+[tool.poetry.dev-dependencies]
+black = { version = "^21.12b0", allow-prereleases = true }
+devtools = "^0.8.0"
+flake8 = "^4.0.1"
+aio-mc-rcon = "^3.1.1"
+ipython = "^8.0.1"
+
+[[tool.poetry.source]]
+default = true
+name = "tsinghua"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
