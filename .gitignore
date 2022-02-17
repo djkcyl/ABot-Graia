@@ -5,6 +5,7 @@ temp/
 voice_file
 config.json
 *.db*
+!saya/EnglishTest/database/WordData.db
 test.py
 config.yaml
 groupdata.json
