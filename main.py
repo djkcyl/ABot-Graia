@@ -6,29 +6,18 @@ from loguru import logger
 from graia.saya import Saya
 from graia.ariadne.app import Ariadne
 from graia.broadcast import Broadcast
+from prompt_toolkit.styles import Style
+from graia.ariadne.console import Console
 from graia.scheduler import GraiaScheduler
 from graia.ariadne.model import MiraiSession
+from prompt_toolkit.formatted_text import HTML
 from graia.ariadne.adapter import DefaultAdapter
 from graia.broadcast.interrupt import InterruptControl
+from graia.ariadne.console.saya import ConsoleBehaviour
 from graia.scheduler.saya import GraiaSchedulerBehaviour
 from graia.saya.builtins.broadcast import BroadcastBehaviour
 
 from config import yaml_data, save_config
-
-# ANCHOR: Audit debug
-
-# import sys
-
-
-# def broadcast_audit_hook(ev: str, args: tuple):
-#     if ev in ("RequirementCrashed", "BroadcastException"):
-#         logger.error(args[0])
-#         logger.error(args[1])
-
-
-# sys.addaudithook(broadcast_audit_hook)
-
-# Finish
 
 LOGPATH = Path("./logs")
 LOGPATH.mkdir(exist_ok=True)
@@ -61,10 +50,22 @@ app = Ariadne(
         ),
     ),
 )
+console = Console(
+    broadcast=bcc,
+    prompt=HTML("<abot> ABot </abot>> "),
+    style=Style(
+        [
+            ("abot", "fg:#ffffff"),
+        ]
+    ),
+)
+
+
 saya = Saya(bcc)
 saya.install_behaviours(BroadcastBehaviour(bcc))
 saya.install_behaviours(GraiaSchedulerBehaviour(scheduler))
-saya.install_behaviours(InterruptControl(bcc))
+saya.install_behaviours(ConsoleBehaviour(console))
+
 with saya.module_context():
     for module in os.listdir("saya"):
         if module in ignore:

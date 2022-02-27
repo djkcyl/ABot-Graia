@@ -15,7 +15,7 @@ saya = Saya.current()
 channel = Channel.current()
 
 
-async def make_msg_for_unknow_exception(event):
+async def make_msg_for_unknow_exception(event: ExceptionThrowed):
     with StringIO() as fp:
         traceback.print_tb(event.exception.__traceback__, file=fp)
         tb = fp.getvalue()

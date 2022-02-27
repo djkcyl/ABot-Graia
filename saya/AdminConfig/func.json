@@ -241,12 +241,6 @@
       "default_disabled": false
     },
     {
-      "name": "图片超分辨率",
-      "key": "Real-ESRGAN",
-      "can_disabled": true,
-      "default_disabled": false
-    },
-    {
       "name": "明日方舟公招识别",
       "key": "ArkRecruit",
       "can_disabled": true,
@@ -506,12 +500,6 @@
       "instruction": "可以创建定时提醒事件",
       "usage": "发送指令：\n定时提醒\n创建提醒\n删除提醒",
       "options": "无",
-      "example": "（这也需要示例吗？"
-    },
-    "图片超分辨率": {
-      "instruction": "将任意图片的分辨率使用 AI 提升数倍",
-      "usage": "发送指令：\n超分辨率",
-      "options": "本功能极其耗时，请耐心等待完成，使用会消耗 10 个 $COIN_NAME",
       "example": "（这也需要示例吗？"
     },
     "明日方舟公招识别": {
