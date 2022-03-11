@@ -161,7 +161,7 @@ async def get_ranking():
 
     gold_rank = gold_rank.get_string()
 
-    user_list = User.select().order_by(User.talk_num.desc())
+    user_list: list[User] = User.select().order_by(User.talk_num.desc())
     user_num = len(user_list)
     talk_rank = PrettyTable()
     talk_rank.field_names = [
@@ -189,9 +189,12 @@ async def get_ranking():
                 f"https://r.qzone.qq.com/fcg-bin/cgi_get_portrait.fcg?uins={user_qq}"
             )
             r.encoding = "GBK"
+            if r.status_code == 404:
+                continue
             qqdata = r.text
 
         qqdata = json.loads(qqdata[17:-1])
+
         user_nick = qqdata[user_qq][-2]
 
         # user_nick = getCutStr(qqnick, 20)

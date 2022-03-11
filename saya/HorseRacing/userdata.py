@@ -50,6 +50,7 @@ def get_random_prop():
 
 
 def use_prop(user_id: int, prop: str):
+    init_user(user_id)
     if data["users"][str(user_id)]["props"].get(prop, 0) > 0:
         data["users"][str(user_id)]["props"][prop] -= 1
         with DATAFILE.open("w", encoding="utf-8") as f:

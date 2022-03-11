@@ -1,4 +1,3 @@
-import ssl
 import json
 import httpx
 import random
@@ -97,20 +96,8 @@ async def get_weibo_news(app: Ariadne):
             MessageChain.create([Plain(f"微博推送结束，耗时{time_rec.total()}")]),
         )
 
-    except IndexError:
+    except Exception:
         pass
-
-    except httpx.HTTPError:
-        pass
-
-    except ssl.SSLError:
-        pass
-
-    except Exception as e:
-        await app.sendFriendMessage(
-            yaml_data["Basic"]["Permission"]["Master"],
-            MessageChain.create(f"微博推送报错\n{type(e)}\n{str(e)}"),
-        )
 
 
 @channel.use(SchedulerSchema(every_custom_seconds(30)))
