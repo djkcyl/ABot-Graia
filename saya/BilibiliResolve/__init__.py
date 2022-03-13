@@ -38,7 +38,7 @@ async def bilibili_main(
     video_info = None
     if "b23.tv" in saying:
         saying = await b23_extract(saying)
-    p = re.compile(r"av(\d{1,12})|BV(1[A-Za-z0-9]{2}4.1.7[A-Za-z0-9]{2})")
+    p = re.compile(r"av(\d{1,15})|BV(1[A-Za-z0-9]{2}4.1.7[A-Za-z0-9]{2})")
     video_number = p.search(saying)
     if video_number:
         video_number = video_number.group(0)
@@ -57,7 +57,11 @@ async def bilibili_main(
             logger.info(f"开始生成视频信息图片：{video_info['data']['aid']}")
             image = await asyncio.to_thread(binfo_image_create, video_info)
             await safeSendGroupMessage(
-                group, MessageChain.create([Image(data_bytes=image)])
+                group,
+                MessageChain.create(
+                    Image(data_bytes=image),
+                    Plain(f"https://b23.tv/{video_info['data']['bvid']}"),
+                ),
             )
         except Exception as err:
             await app.sendFriendMessage(

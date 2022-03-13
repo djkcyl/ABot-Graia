@@ -177,9 +177,9 @@ async def accept(app: Ariadne, invite: BotInvitedJoinGroupRequestEvent):
         await app.sendFriendMessage(
             invite.supplicant,
             MessageChain.create(
-                await create_image(
-                    Image(
-                        data_bytes="0. 本协议是 ABot（下统称“机器人”）默认服务协议。如果你看到了这句话，意味着你或你的群友应用默认协议，请注意。该协议仅会出现一次。\n"
+                Image(
+                    data_bytes=await create_image(
+                        "0. 本协议是 ABot（下统称“机器人”）默认服务协议。如果你看到了这句话，意味着你或你的群友应用默认协议，请注意。该协议仅会出现一次。\n"
                         "1. 邀请机器人、使用机器人服务和在群内阅读此协议视为同意并承诺遵守此协议，否则请持有管理员或管理员以上权限的用户使用 /quit 移出机器人。"
                         "邀请机器人入群请关闭群内每分钟消息发送限制的设置。\n"
                         "2. 不允许禁言、踢出或刷屏等机器人的不友善行为，这些行为将会提高机器人被制裁的风险。开关机器人功能请持有管理员或管理员以上权限的用户使用相应的指令来进行操作。"
@@ -266,6 +266,11 @@ async def get_BotJoinGroup(app: Ariadne, joingroup: BotJoinGroupEvent):
     """
     收到入群事件
     """
+    if joingroup.group.id not in group_data:
+        group_data[str(joingroup.group.id)] = groupInitData
+        logger.info("已为该群初始化配置文件")
+        save_config()
+
     if joingroup.group.id in group_list["black"]:
         await safeSendGroupMessage(
             joingroup.group.id,
@@ -291,79 +296,79 @@ async def get_BotJoinGroup(app: Ariadne, joingroup: BotJoinGroupEvent):
             ),
         )
 
-        if (
-            joingroup.group.id not in group_list["white"]
-            and not yaml_data["Basic"]["Permission"]["DefaultAcceptInvite"]
-        ):
+    if (
+        joingroup.group.id not in group_list["white"]
+        and not yaml_data["Basic"]["Permission"]["DefaultAcceptInvite"]
+    ):
+        await safeSendGroupMessage(
+            joingroup.group.id,
+            MessageChain.create(
+                f"该群未在白名单中，正在退出，如有需要请联系 {yaml_data['Basic']['Permission']['Master']} 申请白名单"
+            ),
+        )
+        await app.sendFriendMessage(
+            yaml_data["Basic"]["Permission"]["Master"],
+            MessageChain.create("该群未在白名单中，正在退出"),
+        )
+        return await app.quitGroup(joingroup.group.id)
+
+    member_count = len(await app.getMemberList(joingroup.group))
+    if member_count < 15:
+        if joingroup.group.id not in group_list["white"]:
             await safeSendGroupMessage(
                 joingroup.group.id,
                 MessageChain.create(
-                    f"该群未在白名单中，正在退出，如有需要请联系 {yaml_data['Basic']['Permission']['Master']} 申请白名单"
+                    f"当前群人数过少 ({member_count})，暂不加入，如有需要请联系 {yaml_data['Basic']['Permission']['Master']} 申请白名单"
                 ),
             )
             await app.sendFriendMessage(
                 yaml_data["Basic"]["Permission"]["Master"],
-                MessageChain.create("该群未在白名单中，正在退出"),
+                MessageChain.create(f"该群人数过少 ({member_count})，正在退出"),
             )
             return await app.quitGroup(joingroup.group.id)
 
-        member_count = len(await app.getMemberList(joingroup.group))
-        if member_count < 15:
-            if joingroup.group.id not in group_list["white"]:
-                await safeSendGroupMessage(
-                    joingroup.group.id,
-                    MessageChain.create(
-                        f"当前群人数过少 ({member_count})，暂不加入，如有需要请联系 {yaml_data['Basic']['Permission']['Master']} 申请白名单"
-                    ),
-                )
-                await app.sendFriendMessage(
-                    yaml_data["Basic"]["Permission"]["Master"],
-                    MessageChain.create(f"该群人数过少 ({member_count})，正在退出"),
-                )
-                return await app.quitGroup(joingroup.group.id)
-
-        if joingroup.group.id not in group_data:
-            group_data[str(joingroup.group.id)] = groupInitData
-            logger.info("已为该群初始化配置文件")
-            save_config()
-            await safeSendGroupMessage(
-                joingroup.group.id,
-                MessageChain.create(
-                    f"我是 {yaml_data['Basic']['Permission']['MasterName']} "
-                    f"的机器人 {yaml_data['Basic']['BotName']}，"
-                    f"如果有需要可以联系主人QQ”{yaml_data['Basic']['Permission']['Master']}“"
-                    f"\n{yaml_data['Basic']['BotName']}被群禁言后会自动退出该群。"
-                    "\n发送 <菜单> 可以查看功能列表"
-                    "\n拥有管理员以上权限可以开关功能"
-                    f"\n注：@{yaml_data['Basic']['BotName']}不会触发任何功能"
-                ),
-            )
-            await safeSendGroupMessage(
-                joingroup.group.id,
-                MessageChain.create(
-                    Image(
-                        data_bytes=await create_image(
-                            "0. 本协议是 ABot（下统称“机器人”）默认服务协议。如果你看到了这句话，意味着你或你的群友应用默认协议，请注意。该协议仅会出现一次。\n"
-                            "1. 邀请机器人、使用机器人服务和在群内阅读此协议视为同意并承诺遵守此协议，否则请持有管理员或管理员以上权限的用户使用 /quit 移出机器人。"
-                            "邀请机器人入群请关闭群内每分钟消息发送限制的设置。\n"
-                            "2. 不允许禁言、踢出或刷屏等机器人的不友善行为，这些行为将会提高机器人被制裁的风险。开关机器人功能请持有管理员或管理员以上权限的用户使用相应的指令来进行操作。"
-                            "如果发生禁言、踢出等行为，机器人将拉黑该群。\n"
-                            "3. 机器人默认邀请行为已事先得到群内同意，因而会自动同意群邀请。因擅自邀请而使机器人遭遇不友善行为时，邀请者因未履行预见义务而将承担连带责任。\n"
-                            "4. 机器人在运行时将对群内信息进行监听及记录，并将这些信息保存在服务器内，以便功能正常使用。\n"
-                            "5. 禁止将机器人用于违法犯罪行为。\n"
-                            "6. 禁止使用机器人提供的功能来上传或试图上传任何可能导致的资源污染的内容，包括但不限于色情、暴力、恐怖、政治、色情、赌博等内容。"
-                            "如果发生该类行为，机器人将停止对该用户提供所有服务。\n"
-                            "6. 对于设置敏感昵称等无法预见但有可能招致言论审查的行为，机器人可能会出于自我保护而拒绝提供服务。\n"
-                            "7. 由于技术以及资金原因，我们无法保证机器人 100% 的时间稳定运行，可能不定时停机维护或遭遇冻结，对于该类情况恕不通知，敬请谅解。"
-                            "临时停机的机器人不会有任何响应，故而不会影响群内活动，此状态下仍然禁止不友善行为。\n"
-                            "8. 对于违反协议的行为，机器人将终止对用户和所在群提供服务，并将不良记录共享给其他服务提供方。黑名单相关事宜可以与服务提供方协商，但最终裁定权在服务提供方。\n"
-                            "9. 本协议内容随时有可能改动。\n"
-                            "10. 机器人提供的服务是完全免费的，欢迎通过其他渠道进行支持。\n"
-                            "11. 本服务最终解释权归服务提供方所有。",
-                        )
+    if joingroup.group.id not in group_data:
+        group_data[str(joingroup.group.id)] = groupInitData
+        logger.info("已为该群初始化配置文件")
+        save_config()
+        await safeSendGroupMessage(
+            joingroup.group.id,
+            MessageChain.create(
+                f"我是 {yaml_data['Basic']['Permission']['MasterName']} "
+                f"的机器人 {yaml_data['Basic']['BotName']}，"
+                f"如果有需要可以联系主人QQ”{yaml_data['Basic']['Permission']['Master']}“"
+                f"\n{yaml_data['Basic']['BotName']}被群禁言后会自动退出该群。"
+                "\n发送 <菜单> 可以查看功能列表"
+                "\n拥有管理员以上权限可以开关功能"
+                f"\n注：@{yaml_data['Basic']['BotName']}不会触发任何功能"
+            ),
+        )
+        await safeSendGroupMessage(
+            joingroup.group.id,
+            MessageChain.create(
+                Image(
+                    data_bytes=await create_image(
+                        "0. 本协议是 ABot（下统称“机器人”）默认服务协议。如果你看到了这句话，意味着你或你的群友应用默认协议，请注意。该协议仅会出现一次。\n"
+                        "1. 邀请机器人、使用机器人服务和在群内阅读此协议视为同意并承诺遵守此协议，否则请持有管理员或管理员以上权限的用户使用 /quit 移出机器人。"
+                        "邀请机器人入群请关闭群内每分钟消息发送限制的设置。\n"
+                        "2. 不允许禁言、踢出或刷屏等机器人的不友善行为，这些行为将会提高机器人被制裁的风险。开关机器人功能请持有管理员或管理员以上权限的用户使用相应的指令来进行操作。"
+                        "如果发生禁言、踢出等行为，机器人将拉黑该群。\n"
+                        "3. 机器人默认邀请行为已事先得到群内同意，因而会自动同意群邀请。因擅自邀请而使机器人遭遇不友善行为时，邀请者因未履行预见义务而将承担连带责任。\n"
+                        "4. 机器人在运行时将对群内信息进行监听及记录，并将这些信息保存在服务器内，以便功能正常使用。\n"
+                        "5. 禁止将机器人用于违法犯罪行为。\n"
+                        "6. 禁止使用机器人提供的功能来上传或试图上传任何可能导致的资源污染的内容，包括但不限于色情、暴力、恐怖、政治、色情、赌博等内容。"
+                        "如果发生该类行为，机器人将停止对该用户提供所有服务。\n"
+                        "6. 对于设置敏感昵称等无法预见但有可能招致言论审查的行为，机器人可能会出于自我保护而拒绝提供服务。\n"
+                        "7. 由于技术以及资金原因，我们无法保证机器人 100% 的时间稳定运行，可能不定时停机维护或遭遇冻结，对于该类情况恕不通知，敬请谅解。"
+                        "临时停机的机器人不会有任何响应，故而不会影响群内活动，此状态下仍然禁止不友善行为。\n"
+                        "8. 对于违反协议的行为，机器人将终止对用户和所在群提供服务，并将不良记录共享给其他服务提供方。黑名单相关事宜可以与服务提供方协商，但最终裁定权在服务提供方。\n"
+                        "9. 本协议内容随时有可能改动。\n"
+                        "10. 机器人提供的服务是完全免费的，欢迎通过其他渠道进行支持。\n"
+                        "11. 本服务最终解释权归服务提供方所有。",
                     )
-                ),
-            )
+                )
+            ),
+        )
 
 
 @channel.use(ListenerSchema(listening_events=[BotLeaveEventKick]))

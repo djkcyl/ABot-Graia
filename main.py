@@ -27,7 +27,7 @@ logger.add(
     backtrace=True,
     diagnose=True,
     rotation="00:00",
-    retention="30 days",
+    retention="3 years",
     compression="tar.xz",
     colorize=False,
 )
