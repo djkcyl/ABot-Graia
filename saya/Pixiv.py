@@ -58,7 +58,7 @@ async def main(
         )
         async with httpx.AsyncClient() as client:
             r = await client.get(
-                f"http://api.a60.one:404/get/tags/{tag}?num=5&san={san}"
+                f"https://api.a60.one:8443/get/tags/{tag}?num=5&san={san}"
             )
             res = r.json()
         if res.get("code", False) == 200:
@@ -142,7 +142,7 @@ async def main(
             )
     else:
         async with httpx.AsyncClient() as client:
-            r = await client.get(f"http://api.a60.one:404/?num=5&san={san}")
+            r = await client.get(f"https://api.a60.one:8443/?num=5&san={san}")
             res = r.json()
         if res.get("code", False) == 200:
             if yaml_data["Saya"]["Pixiv"]["Forward"]:

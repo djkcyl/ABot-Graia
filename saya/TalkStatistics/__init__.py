@@ -62,18 +62,18 @@ async def add_talk_word(group: Group, member: Member, message: MessageChain):
         plain_list = message.get(Plain)
         plain = MessageChain.create(plain_list).asDisplay()
         await add_talk(str(member.id), str(group.id), 1, plain)
-    elif message.has(Image):
+    if message.has(Image):
         image_list = message.get(Image)
         for image in image_list:
             image_name = image.id
             await download(image, image_name, "image", 2)
             await add_talk(str(member.id), str(group.id), 2, image_name, image.url)
-    elif message.has(FlashImage):
+    if message.has(FlashImage):
         flash_image = message.getFirst(FlashImage)
         image_name = flash_image.id
         await download(flash_image, image_name, "flashimage", 3)
         await add_talk(str(member.id), str(group.id), 3, image_name, flash_image.url)
-    elif message.has(Voice):
+    if message.has(Voice):
         voice = message.getFirst(Voice)
         voice_id = voice.id
         await download(voice, voice_id, "voice", 4)

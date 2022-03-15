@@ -237,7 +237,6 @@ async def get_ranking():
             r.encoding = "GBK"
             qqdata = r.text
 
-        logger.debug(qqdata)
         qqdata = json.loads(qqdata[17:-1])
         user_nick = qqdata[user_qq][-2]
 
