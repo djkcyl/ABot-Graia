@@ -41,6 +41,8 @@ from .db import (
     delete_bottle,
     get_bottle_by_id,
     add_bottle_score,
+    add_bottle_discuss,
+    get_bottle_discuss,
     get_bottle_score_avg,
 )
 
@@ -173,13 +175,13 @@ async def throw_bottle_handler(
                 MessageChain.create(f"你的漂流瓶包含违规内容 {moderation['message']}，请检查后重新丢漂流瓶！"),
             )
         elif moderation["status"] == "error":
-            return await safeSendGroupMessage(
-                group, MessageChain.create("图片审核失败，请稍后重试！")
-            )
+            return await safeSendGroupMessage(group, MessageChain.create("图片审核失败，请稍后重试！"))
         async with httpx.AsyncClient() as client:
             resp = await client.get(image_url)
             image_type = resp.headers["Content-Type"]
             image = resp.content
+            image_name = str(time.time()) + "." + image_type.split("/")[1]
+            IMAGE_PATH.joinpath(image_name).write_bytes(image)
             if image:
                 if qrdecode(image):
                     if member.id in user_black_list:
@@ -194,8 +196,6 @@ async def throw_bottle_handler(
                 return await safeSendGroupMessage(
                     group, MessageChain.create("图片异常，请稍后重试！")
                 )
-        image_name = str(time.time()) + "." + image_type.split("/")[1]
-        IMAGE_PATH.joinpath(image_name).write_bytes(image)
 
     if text or image_name:
         if await reduce_gold(str(member.id), 8):
@@ -242,13 +242,19 @@ async def pick_bottle_handler(group: Group):
         return await safeSendGroupMessage(group, MessageChain.create("没有漂流瓶可以捡哦！"))
     else:
         bottle_score = get_bottle_score_avg(bottle["id"])
+        bottle_discuss = get_bottle_discuss(bottle["id"])
         score_msg = f"瓶子的评分为：{bottle_score}" if bottle_score else "本漂流瓶目前还没有评分"
+        discuss_msg = (
+            f"\n这个瓶子当前有 {len(bottle_discuss)} 条评论\n"
+            if bottle_discuss
+            else "\n本漂流瓶目前还没有评论"
+        )
+
         times = bottle["fishing_times"]
         times_msg = "本漂流瓶已经被捞了" + str(times) + "次" if times > 0 else "本漂流瓶还没有被捞到过"
         msg = [
             Plain(
                 f"你捡到了一个漂流瓶！\n瓶子编号为：{bottle['id']}\n{times_msg}\n{score_msg}\n"
-                #  f"漂流瓶来自 {bottle['group']} 群的 {bottle['member']}\n"
                 "漂流瓶内容为：\n"
             )
         ]
@@ -256,7 +262,20 @@ async def pick_bottle_handler(group: Group):
             image = await create_image(bottle["text"])
             msg.append(Image(data_bytes=image))
         if bottle["image"] is not None:
+            if bottle["text"]:
+                msg.append("\n")
             msg.append(Image(path=IMAGE_PATH.joinpath(bottle["image"])))
+        msg.append(discuss_msg)
+        if bottle_discuss:
+            discuss_img = []
+            i = 1
+            for discuss in bottle_discuss:
+                discuss_img.append(
+                    f"{i} 楼. {discuss.discuss_time} | {discuss.member}：\n{discuss.discuss}"
+                )
+                i += 1
+            discuss_img = await create_image("\n".join(discuss_img))
+            msg.append(Image(data_bytes=discuss_img))
         await safeSendGroupMessage(group, MessageChain.create(msg))
 
 
@@ -288,9 +307,7 @@ async def clear_bottle_handler(group: Group):
         ],
     )
 )
-async def drifting_bottle_handler(
-    group: Group, member: Member, bottleid: WildcardMatch
-):
+async def drifting_bottle_handler(group: Group, member: Member, bottleid: WildcardMatch):
     if bottleid.matched and member.id == yaml_data["Basic"]["Permission"]["Master"]:
         bottle_id = int(bottleid.result.asDisplay())
         bottle = get_bottle_by_id(bottle_id)
@@ -299,10 +316,18 @@ async def drifting_bottle_handler(
 
         bottle = bottle[0]
         bottle_score = get_bottle_score_avg(bottle_id)
+        bottle_discuss = get_bottle_discuss(bottle_id)
         score_msg = f"瓶子的评分为：{bottle_score}" if bottle_score else "本漂流瓶目前还没有评分"
+        discuss_msg = (
+            f"\n这个瓶子当前有 {len(bottle_discuss)} 条评论\n"
+            if bottle_discuss
+            else "\n本漂流瓶目前还没有评论"
+        )
+
         msg = [
             Plain(
                 f"漂流瓶编号为：{bottle.id}\n"
+                f"丢出时间为：{bottle.send_date}\n"
                 f"漂流瓶来自 {bottle.group} 群的 {bottle.member}\n{score_msg}\n"
             )
         ]
@@ -310,7 +335,20 @@ async def drifting_bottle_handler(
             image = await create_image(bottle.text)
             msg.append(Image(data_bytes=image))
         if bottle.image is not None:
+            if bottle.text:
+                msg.append("\n")
             msg.append(Image(path=IMAGE_PATH.joinpath(bottle.image)))
+        msg.append(discuss_msg)
+        if bottle_discuss:
+            discuss_img = []
+            i = 1
+            for discuss in bottle_discuss:
+                discuss_img.append(
+                    f"{i} 楼. {discuss.discuss_time} | {discuss.member}：\n{discuss.discuss}"
+                )
+                i += 1
+            discuss_img = await create_image("\n".join(discuss_img))
+            msg.append(Image(data_bytes=discuss_img))
         await safeSendGroupMessage(group, MessageChain.create(msg))
     else:
         count = count_bottle()
@@ -338,9 +376,7 @@ async def delete_bottle_handler(group: Group, anything: WildcardMatch):
             bottle_id = int(anything.result.asDisplay())
             bottle = get_bottle_by_id(bottle_id)
             if not bottle:
-                return await safeSendGroupMessage(
-                    group, MessageChain.create("没有这个漂流瓶！")
-                )
+                return await safeSendGroupMessage(group, MessageChain.create("没有这个漂流瓶！"))
             delete_bottle(bottle_id)
             await safeSendGroupMessage(group, MessageChain.create("漂流瓶已经删除！"))
         else:
@@ -399,6 +435,7 @@ async def bottle_score_handler(
             else:
                 bottle_id = saying[0]
                 score = saying[1]
+
             if bottle_id.isdigit() and score.isdigit():
                 score = int(score)
                 bottle = get_bottle_by_id(bottle_id)
@@ -415,9 +452,7 @@ async def bottle_score_handler(
                         else:
                             await safeSendGroupMessage(
                                 group,
-                                MessageChain.create(
-                                    At(member.id), " 你已对该漂流瓶评过分，请勿重复评分"
-                                ),
+                                MessageChain.create(At(member.id), " 你已对该漂流瓶评过分，请勿重复评分"),
                             )
                     else:
                         await safeSendGroupMessage(
@@ -439,4 +474,115 @@ async def bottle_score_handler(
     else:
         await safeSendGroupMessage(
             group, MessageChain.create(At(member.id), " 使用方式：漂流瓶评分 <漂流瓶编号> <分数>")
+        )
+
+
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[
+            Twilight(
+                {
+                    "at": ElementMatch(At, optional=True),
+                    "head": FullMatch("漂流瓶评论"),
+                    "anythings": WildcardMatch(optional=True),
+                }
+            )
+        ],
+        decorators=[
+            Function.require("DriftingBottle"),
+            Permission.require(),
+            Interval.require(5),
+        ],
+    )
+)
+async def bottle_discuss_handler(
+    group: Group,
+    member: Member,
+    message: MessageChain,
+    anythings: WildcardMatch,
+    source: Source,
+):
+    if anythings.matched:
+        try:
+            if anythings.result.has(Image):
+                return await safeSendGroupMessage(
+                    group, MessageChain.create(At(member.id), " 不支持图片评论！")
+                )
+
+            saying = anythings.result.asDisplay().split(" ", 2)
+            if message.has(Quote):
+                reply = message.getFirst(Quote)
+                if reply.senderId == yaml_data["Basic"]["MAH"]["BotQQ"]:
+                    reg_search = re.search(r"瓶子编号为：(.*)\n", reply.origin.asDisplay())
+                    if reg_search:
+                        bottle_id = reg_search.group(1)
+                        discuss = anythings.result.asDisplay()
+                    else:
+                        return await safeSendGroupMessage(
+                            group, MessageChain.create(At(member.id), " 请正确回复漂流瓶，并输入评论内容")
+                        )
+                else:
+                    return await safeSendGroupMessage(
+                        group, MessageChain.create(At(member.id), " 请正确回复漂流瓶，并输入评论内容")
+                    )
+            else:
+                bottle_id = saying[0]
+                discuss = saying[1]
+
+            if bottle_id.isdigit():
+                bottle = get_bottle_by_id(bottle_id)
+                if bottle:
+                    if 3 <= len(discuss) <= 500:
+                        moderation = await text_moderation_async(discuss)
+                        if moderation["status"] == "error":
+                            return await safeSendGroupMessage(
+                                group,
+                                MessageChain.create("评论内容审核失败，请稍后重新评论！"),
+                                quote=source,
+                            )
+                        elif not moderation["status"]:
+                            return await safeSendGroupMessage(
+                                group,
+                                MessageChain.create(
+                                    f"你的评论内可能包含违规内容{moderation['message']}，请检查后重新评论！"
+                                ),
+                                quote=source,
+                            )
+                        if add_bottle_discuss(bottle_id, member, discuss):
+                            bottle_discuss = get_bottle_discuss(bottle_id)
+                            await safeSendGroupMessage(
+                                group,
+                                MessageChain.create(
+                                    At(member.id),
+                                    f" 漂流瓶评论成功，当前共有 {len(bottle_discuss)} 条评论",
+                                ),
+                            )
+                        else:
+                            await safeSendGroupMessage(
+                                group,
+                                MessageChain.create(
+                                    At(member.id), " 你已对该漂流瓶发表过 3 条评论，无法再次发送"
+                                ),
+                            )
+                    else:
+                        await safeSendGroupMessage(
+                            group,
+                            MessageChain.create(At(member.id), " 评论字数需在 3-500 字之间"),
+                        )
+                else:
+                    await safeSendGroupMessage(
+                        group, MessageChain.create(At(member.id), " 没有这个漂流瓶")
+                    )
+            else:
+                await safeSendGroupMessage(
+                    group, MessageChain.create(At(member.id), " 请输入正确的漂流瓶编号！")
+                )
+        except Exception:
+            await safeSendGroupMessage(
+                group, MessageChain.create(At(member.id), " 使用方式：漂流瓶评论 <漂流瓶编号> <评论内容>")
+            )
+    else:
+        await safeSendGroupMessage(
+            group, MessageChain.create(At(member.id), " 使用方式：漂流瓶评论 <漂流瓶编号> <评论内容>")
         )

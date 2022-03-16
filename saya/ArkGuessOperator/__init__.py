@@ -1,14 +1,15 @@
-import httpx
-import base64
 import asyncio
 
 from loguru import logger
 from graia.saya import Saya, Channel
 from graia.ariadne.model import Group, Member
+from graia.scheduler.timers import crontabify
 from graia.broadcast.interrupt.waiter import Waiter
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
 from graia.broadcast.interrupt import InterruptControl
+from graia.scheduler.saya.schema import SchedulerSchema
+from graia.ariadne.event.lifecycle import ApplicationLaunched
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.element import Plain, Source, Voice, At
 from graia.ariadne.message.parser.twilight import Twilight, RegexMatch
@@ -16,6 +17,8 @@ from graia.ariadne.message.parser.twilight import Twilight, RegexMatch
 from database.db import add_answer
 from util.sendMessage import safeSendGroupMessage
 from util.control import Permission, Interval, Function
+
+from .data import update_data, get_voice
 
 saya = Saya.current()
 channel = Channel.current()
@@ -28,7 +31,7 @@ RUNNING = {}
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight({"ark": RegexMatch(r"(明日)?方舟猜干员")})],
+        inline_dispatchers=[Twilight({"ark": RegexMatch("(明日)?方舟猜干员")})],
         decorators=[
             Function.require("ArkGuessOperator"),
             Permission.require(),
@@ -58,12 +61,9 @@ async def guess_operator(group: Group, source: Source):
     else:
         RUNNING[group.id] = None
 
-    async with httpx.AsyncClient() as client:
-        resp = await client.get("http://a60.one:8009/random")
-        operator_name = base64.b64decode(resp.headers["X-Operator-Name"]).decode(
-            "utf-8"
-        )
-        operator_voice = resp.content
+    operator_name, operator_voice = get_voice()
+    if operator_name == "阿米娅(近卫)":
+        operator_name = "阿米娅"
 
     logger.info(f"{group.name} 开始猜干员：{operator_name}")
     RUNNING[group.id] = operator_name
@@ -102,3 +102,9 @@ async def guess_operator(group: Group, source: Source):
             MessageChain.create([Plain(f"干员名称：{operator_name}\n没有人猜中，真可惜！")]),
             quote=source,
         )
+
+
+@channel.use(SchedulerSchema(crontabify("0 4 * * *")))
+@channel.use(ListenerSchema(listening_events=[ApplicationLaunched]))
+async def tasks():
+    await update_data()

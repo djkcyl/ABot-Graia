@@ -1,4 +1,3 @@
-from datetime import datetime
 import time
 
 from peewee import IntegerField, SqliteDatabase, Model, CharField, BigIntegerField
@@ -112,12 +111,3 @@ async def get_message_analysis():
 def chat_count(m: str):
     c = UserTalk.select().where(UserTalk.msg.contains(m)).count()
     print(c)
-
-
-a = UserTalk.select().where(UserTalk.qq == "3025905924")
-i = 1
-for talk in a:
-    talk: UserTalk
-    talk_time = datetime.fromtimestamp(talk.time)
-    print(i, talk.type, talk_time, talk.msg)
-    i += 1

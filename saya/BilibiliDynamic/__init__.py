@@ -141,9 +141,7 @@ def remove_uid(uid, groupid):
         dynamic_list["subscription"][uid].remove(groupid)
         if dynamic_list["subscription"][uid] == []:
             del dynamic_list["subscription"][uid]
-        with open(
-            "./saya/BilibiliDynamic/dynamic_list.json", "w", encoding="utf-8"
-        ) as f:
+        with open("./saya/BilibiliDynamic/dynamic_list.json", "w", encoding="utf-8") as f:
             json.dump(dynamic_list, f, indent=2)
         return Plain(f"退订成功（{uid}）")
     else:
@@ -273,9 +271,7 @@ async def update_scheduled(app: Ariadne):
                         await app.sendGroupMessage(
                             groupid,
                             MessageChain.create(
-                                Plain(
-                                    f"本群订阅的UP {up_name}（{up_id}）在 {room_area} 开播啦 ！\n"
-                                ),
+                                Plain(f"本群订阅的UP {up_name}（{up_id}）在 {room_area} 开播啦 ！\n"),
                                 Plain(title),
                                 Image(url=cover_from_user),
                                 Plain(f"\nhttps://live.bilibili.com/{room_id}"),
@@ -320,34 +316,39 @@ async def update_scheduled(app: Ariadne):
                 logger.debug(f"[BiliBili推送] {up_name}（{up_id}）检测完成")
                 if up_last_dynid > DYNAMIC_OFFSET[up_id]:
                     logger.info(f"[BiliBili推送] {up_name} 更新了动态 {up_last_dynid}")
-                    DYNAMIC_OFFSET[up_id] = up_last_dynid
                     dyn_url_str = r["data"]["cards"][0]["desc"]["dynamic_id_str"]
                     shot_image = await get_dynamic_screenshot(
                         r["data"]["cards"][0]["desc"]["dynamic_id_str"]
                     )
-                    for groupid in sub_list[up_id]:
-                        try:
-                            await app.sendGroupMessage(
-                                groupid,
-                                MessageChain.create(
-                                    [
-                                        Plain(f"本群订阅的UP {up_name}（{up_id}）更新动态啦！"),
-                                        Image(data_bytes=shot_image),
-                                        Plain(f"https://t.bilibili.com/{dyn_url_str}"),
-                                    ]
-                                ),
-                            )
-                            await asyncio.sleep(1)
-                        except UnknownTarget:
-                            remove_list = []
-                            for subid in get_group_sublist(groupid):
-                                remove_uid(subid, groupid)
-                                remove_list.append(subid)
-                            logger.info(
-                                f"[BiliBili推送] 推送失败，找不到该群 {groupid}，已删除该群订阅的 {len(remove_list)} 个UP"
-                            )
-                        except Exception as e:
-                            logger.info(f"[BiliBili推送] 推送失败，未知错误 {type(e)}")
+                    if shot_image:
+                        for groupid in sub_list[up_id]:
+                            try:
+                                await app.sendGroupMessage(
+                                    groupid,
+                                    MessageChain.create(
+                                        [
+                                            Plain(f"本群订阅的UP {up_name}（{up_id}）更新动态啦！"),
+                                            Image(data_bytes=shot_image),
+                                            Plain(
+                                                f"https://t.bilibili.com/{dyn_url_str}"
+                                            ),
+                                        ]
+                                    ),
+                                )
+                                await asyncio.sleep(1)
+                            except UnknownTarget:
+                                remove_list = []
+                                for subid in get_group_sublist(groupid):
+                                    remove_uid(subid, groupid)
+                                    remove_list.append(subid)
+                                logger.info(
+                                    f"[BiliBili推送] 推送失败，找不到该群 {groupid}，已删除该群订阅的 {len(remove_list)} 个UP"
+                                )
+                            except Exception as e:
+                                logger.info(f"[BiliBili推送] 推送失败，未知错误 {type(e)}")
+                        DYNAMIC_OFFSET[up_id] = up_last_dynid
+                    else:
+                        logger.error(f"[BiliBili推送] {up_name} 动态截图尝试 3 次后仍失败，将在下次循环中重试")
                 await asyncio.sleep(TIME_INTERVALS)
             else:
                 delete_uid(up_id)
@@ -370,9 +371,7 @@ async def update_scheduled(app: Ariadne):
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight(
-                {"head": FullMatch("订阅"), "anything": WildcardMatch(optional=True)}
-            )
+            Twilight({"head": FullMatch("订阅"), "anything": WildcardMatch(optional=True)})
         ],
         decorators=[Permission.require(Permission.GROUP_ADMIN), Interval.require()],
     )
@@ -391,9 +390,7 @@ async def add_sub(group: Group, anything: WildcardMatch):
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight(
-                {"head": FullMatch("退订"), "anything": WildcardMatch(optional=True)}
-            )
+            Twilight({"head": FullMatch("退订"), "anything": WildcardMatch(optional=True)})
         ],
         decorators=[Permission.require(Permission.GROUP_ADMIN), Interval.require()],
     )
@@ -475,6 +472,4 @@ async def vive_dyn(group: Group, anything: WildcardMatch):
                 group, MessageChain.create([Image(data_bytes=shot_image)])
             )
         else:
-            await safeSendGroupMessage(
-                group, MessageChain.create([Plain("该UP未发布任何动态")])
-            )
+            await safeSendGroupMessage(group, MessageChain.create([Plain("该UP未发布任何动态")]))

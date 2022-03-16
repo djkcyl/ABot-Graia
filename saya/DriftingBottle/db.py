@@ -6,14 +6,14 @@ from pathlib import Path
 from graia.ariadne.model import Member
 from decimal import Decimal, ROUND_HALF_UP
 from peewee import (
-    BigIntegerField,
-    SqliteDatabase,
+    fn,
     Model,
     TextField,
-    DateTimeField,
     BooleanField,
     IntegerField,
-    fn,
+    DateTimeField,
+    SqliteDatabase,
+    BigIntegerField,
 )
 
 
@@ -47,7 +47,17 @@ class BottleScore(BaseModel):
         db_table = "bottle_score"
 
 
-db.create_tables([DriftingBottle, BottleScore], safe=True)
+class BottleDiscuss(BaseModel):
+    member = BigIntegerField()
+    bottle_id = IntegerField()
+    discuss = TextField()
+    discuss_time = DateTimeField(default=datetime.datetime.now)
+
+    class Meta:
+        db_table = "bottle_discuss"
+
+
+db.create_tables([DriftingBottle, BottleScore, BottleDiscuss], safe=True)
 
 
 def throw_bottle(sender: Member, text=None, image=None) -> int:
@@ -86,17 +96,19 @@ def delete_bottle(bottle_id: int):
 
 # 获取漂流瓶评分平均数，保留一位小数
 def get_bottle_score_avg(bottle_id: int):
-    if BottleScore.select().where(BottleScore.bottle_id == bottle_id).count() == 0:
+    bottle_score_count = (
+        BottleScore.select().where(BottleScore.bottle_id == bottle_id).count()
+    )
+    if bottle_score_count == 0:
         return False
     else:
-        count = BottleScore.select().where(BottleScore.bottle_id == bottle_id).count()
         socre = 0
         for i in BottleScore.select(BottleScore.socre).where(
             BottleScore.bottle_id == bottle_id
         ):
             socre += i.socre
 
-        return "%.1f" % (socre / count)
+        return "%.1f" % (socre / bottle_score_count)
 
 
 def add_bottle_score(bottle_id: int, member: Member, score: int):
@@ -150,3 +162,33 @@ def get_bottle() -> dict:
             "fishing_times": bottle.fishing_times,
             "send_date": bottle.send_date,
         }
+
+
+# 漂流瓶评论系统
+
+# 获取漂流瓶评论
+def get_bottle_discuss(bottle_id: int):
+    discuss_count = (
+        BottleDiscuss.select().where(BottleDiscuss.bottle_id == bottle_id).count()
+    )
+    if discuss_count == 0:
+        return None
+    else:
+        bottle_discuss: list[BottleDiscuss] = BottleDiscuss.select().where(
+            BottleDiscuss.bottle_id == bottle_id
+        )
+        return bottle_discuss
+
+
+# 添加漂流瓶评论
+def add_bottle_discuss(bottle_id: int, member: Member, discuss: str):
+    if (
+        BottleDiscuss.select()
+        .where(BottleDiscuss.bottle_id == bottle_id, BottleDiscuss.member == member.id)
+        .count()
+        >= 3
+    ):
+        return False
+    else:
+        BottleDiscuss.create(bottle_id=bottle_id, member=member.id, discuss=discuss)
+        return True
