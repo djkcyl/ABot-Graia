@@ -3,6 +3,7 @@ import traceback
 from io import StringIO
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
+from graia.ariadne.context import ariadne_ctx
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import Image, Plain
 from graia.broadcast.builtin.event import ExceptionThrowed
@@ -30,7 +31,8 @@ async def make_msg_for_unknow_exception(event: ExceptionThrowed):
 
 
 @channel.use(ListenerSchema(listening_events=[ExceptionThrowed]))
-async def except_handle(app: Ariadne, event: ExceptionThrowed):
+async def except_handle( event: ExceptionThrowed):
+    app = ariadne_ctx.get()
     if isinstance(event.event, ExceptionThrowed):
         return
     else:
