@@ -39,6 +39,7 @@ from .db import (
     clear_bottle,
     count_bottle,
     delete_bottle,
+    get_my_bottles,
     get_bottle_by_id,
     add_bottle_score,
     add_bottle_discuss,
@@ -271,7 +272,7 @@ async def pick_bottle_handler(group: Group):
             i = 1
             for discuss in bottle_discuss:
                 discuss_img.append(
-                    f"{i} 楼. {discuss.discuss_time} | {discuss.member}：\n{discuss.discuss}"
+                    f"{i} 楼. {discuss.discuss_time} | {discuss.member}：\n      > {discuss.discuss}"
                 )
                 i += 1
             discuss_img = await create_image("\n".join(discuss_img))
@@ -308,54 +309,77 @@ async def clear_bottle_handler(group: Group):
     )
 )
 async def drifting_bottle_handler(group: Group, member: Member, bottleid: WildcardMatch):
-    if bottleid.matched and member.id == yaml_data["Basic"]["Permission"]["Master"]:
-        bottle_id = int(bottleid.result.asDisplay())
+    if bottleid.matched:
+        if bottleid.result.asDisplay().isdigit():
+            bottle_id = int(bottleid.result.asDisplay())
+        else:
+            return await safeSendGroupMessage(group, MessageChain.create("漂流瓶编号必须是数字！"))
         bottle = get_bottle_by_id(bottle_id)
+
         if not bottle:
             return await safeSendGroupMessage(group, MessageChain.create("没有这个漂流瓶！"))
 
         bottle = bottle[0]
-        bottle_score = get_bottle_score_avg(bottle_id)
-        bottle_discuss = get_bottle_discuss(bottle_id)
-        score_msg = f"瓶子的评分为：{bottle_score}" if bottle_score else "本漂流瓶目前还没有评分"
-        discuss_msg = (
-            f"\n这个瓶子当前有 {len(bottle_discuss)} 条评论\n"
-            if bottle_discuss
-            else "\n本漂流瓶目前还没有评论"
-        )
-
-        msg = [
-            Plain(
-                f"漂流瓶编号为：{bottle.id}\n"
-                f"丢出时间为：{bottle.send_date}\n"
-                f"漂流瓶来自 {bottle.group} 群的 {bottle.member}\n{score_msg}\n"
+        if (
+            member.id == yaml_data["Basic"]["Permission"]["Master"]
+            or bottle.member == member.id
+        ):
+            bottle_score = get_bottle_score_avg(bottle_id)
+            bottle_discuss = get_bottle_discuss(bottle_id)
+            score_msg = f"瓶子的评分为：{bottle_score}" if bottle_score else "本漂流瓶目前还没有评分"
+            discuss_msg = (
+                f"\n这个瓶子当前有 {len(bottle_discuss)} 条评论\n"
+                if bottle_discuss
+                else "\n本漂流瓶目前还没有评论"
             )
-        ]
-        if bottle.text is not None:
-            image = await create_image(bottle.text)
-            msg.append(Image(data_bytes=image))
-        if bottle.image is not None:
-            if bottle.text:
-                msg.append("\n")
-            msg.append(Image(path=IMAGE_PATH.joinpath(bottle.image)))
-        msg.append(discuss_msg)
-        if bottle_discuss:
-            discuss_img = []
-            i = 1
-            for discuss in bottle_discuss:
-                discuss_img.append(
-                    f"{i} 楼. {discuss.discuss_time} | {discuss.member}：\n{discuss.discuss}"
+
+            msg = [
+                Plain(
+                    f"漂流瓶编号为：{bottle.id}\n"
+                    f"丢出时间为：{bottle.send_date}\n"
+                    f"漂流瓶来自 {bottle.group} 群的 {bottle.member}\n{score_msg}\n"
                 )
-                i += 1
-            discuss_img = await create_image("\n".join(discuss_img))
-            msg.append(Image(data_bytes=discuss_img))
-        await safeSendGroupMessage(group, MessageChain.create(msg))
+            ]
+            if bottle.text is not None:
+                image = await create_image(bottle.text)
+                msg.append(Image(data_bytes=image))
+            if bottle.image is not None:
+                if bottle.text:
+                    msg.append("\n")
+                msg.append(Image(path=IMAGE_PATH.joinpath(bottle.image)))
+            msg.append(discuss_msg)
+            if bottle_discuss:
+                discuss_img = []
+                i = 1
+                for discuss in bottle_discuss:
+                    discuss_img.append(
+                        f"{i} 楼. {discuss.discuss_time} | {discuss.member}：\n      > {discuss.discuss}"
+                    )
+                    i += 1
+                discuss_img = await create_image("\n".join(discuss_img))
+                msg.append(Image(data_bytes=discuss_img))
+            await safeSendGroupMessage(group, MessageChain.create(msg))
+        else:
+            await safeSendGroupMessage(group, MessageChain.create("你没有权限查看这个漂流瓶！"))
     else:
         count = count_bottle()
-        msg = f"目前有 {count} 个漂流瓶在漂流" if count > 0 else "目前没有漂流瓶在漂流"
-        msg += "\n漂流瓶可以使用“捞漂流瓶”命令捞到，也可以使用“丢漂流瓶”命令丢出”\n可以使用“漂流瓶评分”为漂流瓶添加评分"
-
-        await safeSendGroupMessage(group, MessageChain.create(msg))
+        my_bottles = get_my_bottles(member)
+        my_bottles_str = "\n================================================\n".join(
+            [f"编号：{x}，日期{x.send_date}，群号：{x.group}" for x in my_bottles]
+        )
+        msg = [
+            f"目前有 {count} 个漂流瓶在漂流" if count > 0 else "目前没有漂流瓶在漂流",
+            "\n漂流瓶可以使用“捞漂流瓶”命令捞到，也可以使用“丢漂流瓶”命令丢出”\n可以使用“漂流瓶评分”为漂流瓶添加评分",
+        ]
+        if my_bottles:
+            msg.append(f"\n截至目前你共丢出 {len(my_bottles)} 个漂流瓶：\n")
+            msg.append(Image(data_bytes=await create_image(my_bottles_str)))
+        else:
+            msg.append("\n截至目前你还没有丢出过漂流瓶")
+        await safeSendGroupMessage(
+            group,
+            MessageChain.create(msg),
+        )
 
 
 @channel.use(
@@ -366,19 +390,26 @@ async def drifting_bottle_handler(group: Group, member: Member, bottleid: Wildca
                 {"head": FullMatch("删漂流瓶"), "anything": WildcardMatch(optional=True)}
             )
         ],
-        decorators=[Permission.require(Permission.MASTER), Interval.require()],
+        decorators=[Permission.require(), Interval.require()],
     )
 )
-async def delete_bottle_handler(group: Group, anything: WildcardMatch):
+async def delete_bottle_handler(group: Group, member: Member, anything: WildcardMatch):
 
     if anything.matched:
         if anything.result.asDisplay().isdigit():
             bottle_id = int(anything.result.asDisplay())
             bottle = get_bottle_by_id(bottle_id)
+            bottle = bottle[0]
             if not bottle:
                 return await safeSendGroupMessage(group, MessageChain.create("没有这个漂流瓶！"))
-            delete_bottle(bottle_id)
-            await safeSendGroupMessage(group, MessageChain.create("漂流瓶已经删除！"))
+            elif (
+                member.id == yaml_data["Basic"]["Permission"]["Master"]
+                or bottle.member == member.id
+            ):
+                delete_bottle(bottle_id)
+                await safeSendGroupMessage(group, MessageChain.create("漂流瓶已经删除！"))
+            else:
+                await safeSendGroupMessage(group, MessageChain.create("你没有权限删除这个漂流瓶！"))
         else:
             await safeSendGroupMessage(group, MessageChain.create("漂流瓶编号必须是数字！"))
     else:

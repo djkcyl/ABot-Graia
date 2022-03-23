@@ -102,6 +102,37 @@ async def echarge(app: Ariadne, friend: Friend, anything: WildcardMatch):
 
 @channel.use(
     ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[
+            Twilight({"head": FullMatch("充值"), "anything": WildcardMatch(optional=True)})
+        ],
+        decorators=[Permission.require(Permission.MASTER)],
+    )
+)
+async def group_echarge(group: Group, anything: WildcardMatch):
+    if anything.matched:
+        saying = anything.result.asDisplay().split()
+        if anything.result.has(At):
+            at = anything.result.getFirst(At).target
+            await add_gold(str(at), int(saying[1]))
+            await safeSendGroupMessage(
+                group,
+                MessageChain.create(f"已向 {at} 充值 {saying[1]} 个{COIN_NAME}"),
+            )
+        elif len(saying) == 2:
+            await add_gold(saying[0], int(saying[1]))
+            await safeSendGroupMessage(
+                group,
+                MessageChain.create(f"已向 {saying[0]} 充值 {saying[1]} 个{COIN_NAME}"),
+            )
+        else:
+            await safeSendGroupMessage(group, MessageChain.create("缺少充值对象或充值数量"))
+    else:
+        await safeSendGroupMessage(group, MessageChain.create("请输入充值对象和充值数量"))
+
+
+@channel.use(
+    ListenerSchema(
         listening_events=[FriendMessage],
         inline_dispatchers=[
             Twilight({"head": FullMatch("公告"), "anything": WildcardMatch(optional=True)})

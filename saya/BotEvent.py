@@ -1,6 +1,5 @@
 import time
 import httpx
-import asyncio
 
 from io import BytesIO
 from loguru import logger
@@ -8,11 +7,9 @@ from typing import Optional
 from PIL import Image as IMG
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
-from graia.broadcast.interrupt.waiter import Waiter
+from graia.ariadne.model import MemberInfo, Group
 from graia.ariadne.message.chain import MessageChain
-from graia.ariadne.event.message import FriendMessage
 from graia.broadcast.interrupt import InterruptControl
-from graia.ariadne.model import Friend, MemberInfo, Group
 from graia.ariadne.message.element import At, Plain, Image
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.lifecycle import ApplicationLaunched, ApplicationShutdowned
@@ -159,20 +156,6 @@ async def accept(app: Ariadne, invite: BotInvitedJoinGroupRequestEvent):
             ),
         )
         await invite.reject("该群已被拉黑")
-    elif invite.groupId in group_list["white"]:
-        await app.sendFriendMessage(
-            yaml_data["Basic"]["Permission"]["Master"],
-            MessageChain.create(
-                [
-                    Plain("收到邀请入群事件"),
-                    Plain(f"\n邀请者：{invite.supplicant} | {invite.nickname}"),
-                    Plain(f"\n群号：{invite.groupId}"),
-                    Plain(f"\n群名：{invite.groupName}"),
-                    Plain("\n该群为白名单群，已同意加入"),
-                ]
-            ),
-        )
-        await invite.accept("")
     else:
         await app.sendFriendMessage(
             invite.supplicant,
@@ -207,58 +190,22 @@ async def accept(app: Ariadne, invite: BotInvitedJoinGroupRequestEvent):
                     Plain(f"\n邀请者：{invite.supplicant} | {invite.nickname}"),
                     Plain(f"\n群号：{invite.groupId}"),
                     Plain(f"\n群名：{invite.groupName}"),
-                    Plain("\n\n请发送“同意”或“拒绝”"),
                 ]
             ),
         )
 
-        @Waiter.create_using_function([FriendMessage])
-        async def waiter(waiter_friend: Friend, waiter_message: MessageChain):
-            if waiter_friend.id == yaml_data["Basic"]["Permission"]["Master"]:
-                saying = waiter_message.asDisplay()
-                if saying == "同意":
-                    return True
-                elif saying == "拒绝":
-                    return False
-                else:
-                    await app.sendFriendMessage(
-                        yaml_data["Basic"]["Permission"]["Master"],
-                        MessageChain.create([Plain("请发送同意或拒绝")]),
-                    )
-
-        try:
-            if await asyncio.wait_for(inc.wait(waiter), timeout=300):
-                if invite.groupId not in group_list["white"]:
-                    group_list["white"].append(invite.groupId)
-                    save_config()
-                await invite.accept()
-                await app.sendFriendMessage(
-                    yaml_data["Basic"]["Permission"]["Master"],
-                    MessageChain.create([Plain("已同意申请并加入白名单")]),
-                )
-            else:
-                await invite.reject("主人拒绝加入该群")
-                await app.sendFriendMessage(
-                    yaml_data["Basic"]["Permission"]["Master"],
-                    MessageChain.create([Plain("已拒绝申请")]),
-                )
-
-        except asyncio.TimeoutError:
-            if yaml_data["Basic"]["Permission"]["DefaultAcceptInvite"]:
-                if invite.groupId not in group_list["white"]:
-                    group_list["white"].append(invite.groupId)
-                    save_config()
-                await invite.accept()
-                await app.sendFriendMessage(
-                    yaml_data["Basic"]["Permission"]["Master"],
-                    MessageChain.create([Plain("已同意申请并加入白名单")]),
-                )
-            else:
-                await invite.reject("由于主人长时间未审核，已自动拒绝")
-                await app.sendFriendMessage(
-                    yaml_data["Basic"]["Permission"]["Master"],
-                    MessageChain.create([Plain("申请超时已自动拒绝")]),
-                )
+        if yaml_data["Basic"]["Permission"]["DefaultAcceptInvite"]:
+            await invite.accept()
+            await app.sendFriendMessage(
+                yaml_data["Basic"]["Permission"]["Master"],
+                MessageChain.create([Plain("已同意申请")]),
+            )
+        else:
+            await invite.reject("由于主人未开启群自动审核，已自动拒绝")
+            await app.sendFriendMessage(
+                yaml_data["Basic"]["Permission"]["Master"],
+                MessageChain.create([Plain("已拒绝申请")]),
+            )
 
 
 @channel.use(ListenerSchema(listening_events=[BotJoinGroupEvent]))

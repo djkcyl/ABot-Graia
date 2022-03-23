@@ -57,7 +57,17 @@ class BottleDiscuss(BaseModel):
         db_table = "bottle_discuss"
 
 
-db.create_tables([DriftingBottle, BottleScore, BottleDiscuss], safe=True)
+class DiscussLike(BaseModel):
+    member = BigIntegerField()
+    discuss_id = IntegerField()
+    like = BooleanField()
+    like_time = DateTimeField(default=datetime.datetime.now)
+
+    class Meta:
+        db_table = "discuss_like"
+
+
+db.create_tables([DriftingBottle, BottleScore, BottleDiscuss, DiscussLike], safe=True)
 
 
 def throw_bottle(sender: Member, text=None, image=None) -> int:
@@ -68,7 +78,7 @@ def throw_bottle(sender: Member, text=None, image=None) -> int:
     return bottle.id
 
 
-def get_bottle_by_id(bottle_id: int):
+def get_bottle_by_id(bottle_id: int) -> list[DriftingBottle]:
     return DriftingBottle.select().where(
         DriftingBottle.id == bottle_id, DriftingBottle.isdelete == 0
     )
@@ -132,7 +142,8 @@ def get_bottle() -> dict:
         bottles: List[DriftingBottle] = (
             DriftingBottle.select()
             .where(DriftingBottle.isdelete == 0)
-            .order_by(fn.Random())[:3]
+            .order_by(fn.Random())
+            .limit(3)
         )
 
         bottle_list = []
@@ -192,3 +203,10 @@ def add_bottle_discuss(bottle_id: int, member: Member, discuss: str):
     else:
         BottleDiscuss.create(bottle_id=bottle_id, member=member.id, discuss=discuss)
         return True
+
+
+# 获取自己的所有漂流瓶
+def get_my_bottles(member: Member) -> list[DriftingBottle]:
+    return DriftingBottle.select().where(
+        DriftingBottle.member == member.id, DriftingBottle.isdelete == 0
+    )

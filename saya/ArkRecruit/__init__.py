@@ -49,7 +49,7 @@ known_tags.update(("资深干员", "高级资深干员"))
         decorators=[
             Function.require("ArkRecruit"),
             Permission.require(),
-            Interval.require(120),
+            Interval.require(30),
         ],
     )
 )

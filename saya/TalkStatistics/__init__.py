@@ -1,5 +1,4 @@
 import asyncio
-import aiohttp
 import datetime
 
 from pathlib import Path
@@ -94,7 +93,7 @@ async def download(element: MultimediaElement, name, path, type):
             try:
                 r = await element.get_bytes()
                 break
-            except aiohttp.ClientResponseError as e:
+            except Exception as e:
                 logger.warning(f"{name} 下载失败：{str(e)}，正在重试")
                 await asyncio.sleep(1)
         else:
