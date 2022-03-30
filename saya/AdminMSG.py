@@ -2,7 +2,7 @@ import time
 import random
 import asyncio
 
-from graia.saya import Saya, Channel
+from graia.saya import Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.exception import UnknownTarget
 from graia.ariadne.message.chain import MessageChain
@@ -13,7 +13,9 @@ from graia.ariadne.message.element import Plain, Source, Quote, At, Image
 from graia.ariadne.message.parser.twilight import (
     Twilight,
     FullMatch,
+    RegexResult,
     ElementMatch,
+    ElementResult,
     WildcardMatch,
 )
 
@@ -32,7 +34,6 @@ from config import (
 
 from .AdminConfig import funcList
 
-saya = Saya.current()
 channel = Channel.current()
 funcList = funcList
 
@@ -58,13 +59,11 @@ async def get_botQueue(app: Ariadne, message: MessageChain, source: Source):
     ListenerSchema(
         listening_events=[FriendMessage],
         inline_dispatchers=[
-            Twilight(
-                {"head": FullMatch("全员充值"), "anything": WildcardMatch(optional=True)}
-            )
+            Twilight([FullMatch("全员充值"), "anything" @ WildcardMatch(optional=True)])
         ],
     )
 )
-async def all_recharge(app: Ariadne, friend: Friend, anything: WildcardMatch):
+async def all_recharge(app: Ariadne, friend: Friend, anything: RegexResult):
     Permission.manual(friend, Permission.MASTER)
     if anything.matched:
         say = anything.result.asDisplay()
@@ -80,11 +79,11 @@ async def all_recharge(app: Ariadne, friend: Friend, anything: WildcardMatch):
     ListenerSchema(
         listening_events=[FriendMessage],
         inline_dispatchers=[
-            Twilight({"head": FullMatch("充值"), "anything": WildcardMatch(optional=True)})
+            Twilight([FullMatch("充值"), "anything" @ WildcardMatch(optional=True)])
         ],
     )
 )
-async def echarge(app: Ariadne, friend: Friend, anything: WildcardMatch):
+async def echarge(app: Ariadne, friend: Friend, anything: RegexResult):
     Permission.manual(friend, Permission.MASTER)
     if anything.matched:
         saying = anything.result.asDisplay().split()
@@ -104,12 +103,12 @@ async def echarge(app: Ariadne, friend: Friend, anything: WildcardMatch):
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight({"head": FullMatch("充值"), "anything": WildcardMatch(optional=True)})
+            Twilight([FullMatch("充值"), "anything" @ WildcardMatch(optional=True)])
         ],
         decorators=[Permission.require(Permission.MASTER)],
     )
 )
-async def group_echarge(group: Group, anything: WildcardMatch):
+async def group_echarge(group: Group, anything: RegexResult):
     if anything.matched:
         saying = anything.result.asDisplay().split()
         if anything.result.has(At):
@@ -135,11 +134,11 @@ async def group_echarge(group: Group, anything: WildcardMatch):
     ListenerSchema(
         listening_events=[FriendMessage],
         inline_dispatchers=[
-            Twilight({"head": FullMatch("公告"), "anything": WildcardMatch(optional=True)})
+            Twilight([FullMatch("公告"), "anything" @ WildcardMatch(optional=True)])
         ],
     )
 )
-async def Announcement(app: Ariadne, friend: Friend, anything: WildcardMatch):
+async def Announcement(app: Ariadne, friend: Friend, anything: RegexResult):
     Permission.manual(friend, Permission.MASTER)
     ft = time.time()
     if anything.matched:
@@ -185,12 +184,12 @@ async def Announcement(app: Ariadne, friend: Friend, anything: WildcardMatch):
         listening_events=[FriendMessage],
         inline_dispatchers=[
             Twilight(
-                {"head": FullMatch("添加群白名单"), "groupid": WildcardMatch(optional=True)},
+                [FullMatch("添加群白名单"), "groupid" @ WildcardMatch(optional=True)],
             )
         ],
     )
 )
-async def add_white_group(app: Ariadne, friend: Friend, groupid: WildcardMatch):
+async def add_white_group(app: Ariadne, friend: Friend, groupid: RegexResult):
     Permission.manual(friend, Permission.MASTER)
     if groupid.matched:
         say = groupid.result.asDisplay()
@@ -212,12 +211,12 @@ async def add_white_group(app: Ariadne, friend: Friend, groupid: WildcardMatch):
         listening_events=[FriendMessage],
         inline_dispatchers=[
             Twilight(
-                {"head": FullMatch("移出群白名单"), "groupid": WildcardMatch(optional=True)},
+                [FullMatch("移出群白名单"), "groupid" @ WildcardMatch(optional=True)],
             )
         ],
     )
 )
-async def remove_white_group(app: Ariadne, friend: Friend, groupid: WildcardMatch):
+async def remove_white_group(app: Ariadne, friend: Friend, groupid: RegexResult):
     Permission.manual(friend, Permission.MASTER)
     if groupid.matched:
         say = groupid.result.asDisplay()
@@ -255,12 +254,12 @@ async def remove_white_group(app: Ariadne, friend: Friend, groupid: WildcardMatc
         listening_events=[FriendMessage],
         inline_dispatchers=[
             Twilight(
-                {"head": FullMatch("拉黑用户"), "userid": WildcardMatch(optional=True)},
+                [FullMatch("拉黑用户"), "userid" @ WildcardMatch(optional=True)],
             )
         ],
     )
 )
-async def fadd_black_user(app: Ariadne, friend: Friend, userid: WildcardMatch):
+async def fadd_black_user(app: Ariadne, friend: Friend, userid: RegexResult):
     Permission.manual(friend, Permission.MASTER)
     if userid.matched:
         say = userid.result.asDisplay()
@@ -295,12 +294,12 @@ async def fadd_black_user(app: Ariadne, friend: Friend, userid: WildcardMatch):
         listening_events=[FriendMessage],
         inline_dispatchers=[
             Twilight(
-                {"head": FullMatch("取消拉黑用户"), "userid": WildcardMatch(optional=True)},
+                [FullMatch("取消拉黑用户"), "userid" @ WildcardMatch(optional=True)],
             )
         ],
     )
 )
-async def fremove_block_user(app: Ariadne, friend: Friend, userid: WildcardMatch):
+async def fremove_block_user(app: Ariadne, friend: Friend, userid: RegexResult):
     Permission.manual(friend, Permission.MASTER)
     if userid.matched:
         say = userid.result.asDisplay()
@@ -322,15 +321,15 @@ async def fremove_block_user(app: Ariadne, friend: Friend, userid: WildcardMatch
         listening_events=[FriendMessage],
         inline_dispatchers=[
             Twilight(
-                {
-                    "head": FullMatch("拉黑群"),
-                    "groupid": WildcardMatch(optional=True),
-                }
+                [
+                    FullMatch("拉黑群"),
+                    "groupid" @ WildcardMatch(optional=True),
+                ]
             )
         ],
     )
 )
-async def fadd_group_black(app: Ariadne, friend: Friend, groupid: WildcardMatch):
+async def fadd_group_black(app: Ariadne, friend: Friend, groupid: RegexResult):
     Permission.manual(friend, Permission.MASTER)
     if groupid.matched:
         say = groupid.result.asDisplay()
@@ -358,13 +357,11 @@ async def fadd_group_black(app: Ariadne, friend: Friend, groupid: WildcardMatch)
     ListenerSchema(
         listening_events=[FriendMessage],
         inline_dispatchers=[
-            Twilight(
-                {"head": FullMatch("取消拉黑群"), "groupid": WildcardMatch(optional=True)}
-            )
+            Twilight([FullMatch("取消拉黑群"), "groupid" @ WildcardMatch(optional=True)])
         ],
     )
 )
-async def fremove_group_black(app: Ariadne, friend: Friend, groupid: WildcardMatch):
+async def fremove_group_black(app: Ariadne, friend: Friend, groupid: RegexResult):
     Permission.manual(friend, Permission.MASTER)
     if groupid.matched:
         say = groupid.result.asDisplay()
@@ -386,13 +383,13 @@ async def fremove_group_black(app: Ariadne, friend: Friend, groupid: WildcardMat
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight(
-                {"head": FullMatch("拉黑用户"), "at": ElementMatch(At, optional=True)},
+                [FullMatch("拉黑用户"), "at" @ ElementMatch(At, optional=True)],
             )
         ],
         decorators=[Permission.require(Permission.MASTER)],
     )
 )
-async def gadd_black_user(app: Ariadne, group: Group, at: ElementMatch):
+async def gadd_black_user(app: Ariadne, group: Group, at: ElementResult):
     if at.matched:
         user = at.result.target
         if user in user_black_list:
@@ -421,13 +418,13 @@ async def gadd_black_user(app: Ariadne, group: Group, at: ElementMatch):
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight(
-                {"head": FullMatch("取消拉黑用户"), "at": ElementMatch(At, optional=True)},
+                [FullMatch("取消拉黑用户"), "at" @ ElementMatch(At, optional=True)],
             )
         ],
         decorators=[Permission.require(Permission.MASTER)],
     )
 )
-async def gremove_block_user(group: Group, at: ElementMatch):
+async def gremove_block_user(group: Group, at: ElementResult):
     if at.matched:
         user = at.result.target
         if user not in user_black_list:
@@ -511,23 +508,27 @@ async def group_card_fix(app: Ariadne, friend: Friend):
         else:
             await app.sendFriendMessage(
                 friend,
-                MessageChain.create([Plain(f"群 {group.name}（{group.id}）名片修改失败，请检查后重试")]),
+                MessageChain.create(
+                    [Plain(f"群 {group.name}（{group.id}）名片修改失败，请检查后重试")]
+                ),
             )
             await asyncio.sleep(0.5)
             break
-    await app.sendFriendMessage(friend, MessageChain.create([Plain(f"共完成 {i} 个群的名片修改。")]))
+    await app.sendFriendMessage(
+        friend, MessageChain.create([Plain(f"共完成 {i} 个群的名片修改。")])
+    )
 
 
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight({"head": FullMatch("全局关闭"), "func": WildcardMatch(optional=True)})
+            Twilight([FullMatch("全局关闭"), "func" @ WildcardMatch(optional=True)])
         ],
         decorators=[Permission.require(Permission.MASTER)],
     )
 )
-async def gset_close(group: Group, func: WildcardMatch):
+async def gset_close(group: Group, func: RegexResult):
 
     func_List = funcList.copy()
 
@@ -559,12 +560,12 @@ async def gset_close(group: Group, func: WildcardMatch):
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight({"head": FullMatch("全局开启"), "func": WildcardMatch(optional=True)})
+            Twilight([FullMatch("全局开启"), "func" @ WildcardMatch(optional=True)])
         ],
         decorators=[Permission.require(Permission.MASTER)],
     )
 )
-async def gset_open(group: Group, func: WildcardMatch):
+async def gset_open(group: Group, func: RegexResult):
 
     func_List = funcList.copy()
 
@@ -596,7 +597,7 @@ async def gset_open(group: Group, func: WildcardMatch):
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight({"head": FullMatch("/quit")})],
+        inline_dispatchers=[Twilight([FullMatch("/quit")])],
         decorators=[Permission.require(Permission.GROUP_ADMIN)],
     )
 )
@@ -604,7 +605,7 @@ async def quit_group(app: Ariadne, group: Group):
     await safeSendGroupMessage(group, MessageChain.create("正在退出群聊"))
     await app.quitGroup(group.id)
     await app.sendFriendMessage(
-        yaml_data["Basic"]["MAH"]["Friend"],
+        yaml_data["Basic"]["Permission"]["Master"],
         MessageChain.create(f"主动退出群聊 {group.name}({group.id})"),
     )
 
@@ -661,46 +662,3 @@ async def user_agreement(app: Ariadne, friend: Friend):
                     MessageChain.create([Plain(f"{group.id} 的公告发送失败\n{err}")]),
                 )
             await asyncio.sleep(random.uniform(2, 4))
-
-
-@channel.use(
-    ListenerSchema(
-        listening_events=[FriendMessage],
-        inline_dispatchers=[Twilight([FullMatch("清理小群")])],
-    )
-)
-async def clean_group(app: Ariadne, friend: Friend):
-    Permission.manual(friend, Permission.MASTER)
-    group_list = await app.getGroupList()
-    i = 0
-    for group in group_list:
-        member_count = len(await app.getMemberList(group))
-        print(member_count)
-        if member_count < 15:
-            if group.id not in group_list["white"]:
-                try:
-                    await safeSendGroupMessage(
-                        group,
-                        MessageChain.create(
-                            f'{yaml_data["Basic"]["BotName"]} 当前暂不加入群人数低于 15 的群，正在退出'
-                        ),
-                    )
-                    await app.quitGroup(group)
-                except Exception as e:
-                    await app.sendFriendMessage(
-                        yaml_data["Basic"]["Permission"]["Master"],
-                        MessageChain.create(f"群 {group.name}({group.id}) 退出失败\n{e}"),
-                    )
-                else:
-                    await app.sendFriendMessage(
-                        yaml_data["Basic"]["Permission"]["Master"],
-                        MessageChain.create(
-                            f"群 {group.name}({group.id}) 退出成功\n当前群人数 {member_count}"
-                        ),
-                    )
-                i += 1
-                await asyncio.sleep(0.3)
-    await app.sendFriendMessage(
-        yaml_data["Basic"]["Permission"]["Master"],
-        MessageChain.create(f"本次共清理了 {i}/{len(group_list)} 个群"),
-    )

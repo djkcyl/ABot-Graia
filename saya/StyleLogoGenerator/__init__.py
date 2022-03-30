@@ -1,14 +1,15 @@
 from io import BytesIO
-from graia.saya import Saya, Channel
+
+from graia.saya import Channel, Saya
 from graia.ariadne.model import Group
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.event.message import GroupMessage
-from graia.ariadne.message.element import Plain, Image
+from graia.ariadne.message.element import Image, Plain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.twilight import Twilight, RegexMatch
+from graia.ariadne.message.parser.twilight import RegexMatch, Twilight
 
 from util.sendMessage import safeSendGroupMessage
-from util.control import Permission, Interval, Rest, Function
+from util.control import Function, Interval, Permission, Rest
 
 from .Pornhub import PornhubStyleUtils
 from .Youtube import YoutubeStyleUtils
@@ -32,7 +33,7 @@ channel = Channel.current()
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight({"head": RegexMatch("5000兆 .* .*")})],
+        inline_dispatchers=[Twilight([RegexMatch("5000兆 .* .*")])],
         decorators=[
             Function.require("StyleLogoGenerator"),
             Permission.require(),
@@ -53,7 +54,7 @@ async def gosencho_handler(message: MessageChain, group: Group):
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight({"head": RegexMatch("ph .* .*")})],
+        inline_dispatchers=[Twilight([RegexMatch("ph .* .*")])],
         decorators=[
             Function.require("StyleLogoGenerator"),
             Permission.require(),
@@ -71,7 +72,7 @@ async def pornhub_handler(message: MessageChain, group: Group):
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight({"head": RegexMatch("yt .* .*")})],
+        inline_dispatchers=[Twilight([RegexMatch("yt .* .*")])],
         decorators=[
             Function.require("StyleLogoGenerator"),
             Permission.require(),

@@ -1,18 +1,22 @@
 import httpx
 
-from graia.saya import Saya, Channel
+from graia.saya import Channel
 from graia.ariadne.model import Group, Member
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import Plain, At, Image
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.twilight import Twilight, FullMatch, WildcardMatch
+from graia.ariadne.message.parser.twilight import (
+    Twilight,
+    FullMatch,
+    RegexResult,
+    WildcardMatch,
+)
 
 from config import yaml_data
 from util.sendMessage import safeSendGroupMessage
 from util.control import Permission, Interval, Function
 
-saya = Saya.current()
 channel = Channel.current()
 
 
@@ -21,10 +25,10 @@ channel = Channel.current()
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight(
-                {
-                    "head": FullMatch("查梗"),
-                    "anything": WildcardMatch(optional=True),
-                }
+                [
+                    FullMatch("查梗"),
+                    "anything" @ WildcardMatch(optional=True),
+                ]
             )
         ],
         decorators=[
@@ -34,7 +38,7 @@ channel = Channel.current()
         ],
     )
 )
-async def fun_dict(group: Group, member: Member, anything: WildcardMatch):
+async def fun_dict(group: Group, member: Member, anything: RegexResult):
     if not anything.matched:
         await safeSendGroupMessage(group, MessageChain.create([Plain("用法：查梗 xxxxx")]))
     else:

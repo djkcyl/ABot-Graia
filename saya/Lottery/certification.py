@@ -18,12 +18,8 @@ if not PRIVATE.exists() or not PUBLIC.exists():
     PUBLIC.write_bytes(public)
     PRIVATE.write_bytes(private)
 else:
-    PUBLIC_PEM = rsa.PublicKey.load_pkcs1(
-        PUBLIC.read_bytes()
-    )
-    PRIVATE_PEM = rsa.PrivateKey.load_pkcs1(
-        PRIVATE.read_bytes()
-    )
+    PUBLIC_PEM = rsa.PublicKey.load_pkcs1(PUBLIC.read_bytes())
+    PRIVATE_PEM = rsa.PrivateKey.load_pkcs1(PRIVATE.read_bytes())
 
 
 def encrypt(text):

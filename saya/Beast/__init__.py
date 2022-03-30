@@ -1,19 +1,22 @@
-from graia.saya import Saya, Channel
+from graia.saya import Channel
 from graia.ariadne.model import Group
 from graia.ariadne.message.element import Source
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.twilight import Twilight, FullMatch, WildcardMatch
+from graia.ariadne.message.parser.twilight import (
+    Twilight,
+    FullMatch,
+    RegexResult,
+    WildcardMatch,
+)
 
 from util.sendMessage import safeSendGroupMessage
 from util.TextModeration import text_moderation_async
-from util.control import Permission, Interval, Rest, Function
+from util.control import Function, Interval, Permission, Rest
 
-from .beast import encode, decode
+from .beast import decode, encode
 
-
-saya = Saya.current()
 channel = Channel.current()
 
 
@@ -21,9 +24,7 @@ channel = Channel.current()
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight(
-                {"head": FullMatch("/嗷"), "anything": WildcardMatch(optional=True)}
-            )
+            Twilight([FullMatch("/嗷"), "anything" @ WildcardMatch(optional=True)])
         ],
         decorators=[
             Function.require("Beast"),
@@ -33,7 +34,7 @@ channel = Channel.current()
         ],
     )
 )
-async def main_encode(group: Group, anything: WildcardMatch, source: Source):
+async def main_encode(group: Group, anything: RegexResult, source: Source):
     if anything.matched:
         try:
             msg = encode(anything.result.asDisplay())
@@ -55,9 +56,7 @@ async def main_encode(group: Group, anything: WildcardMatch, source: Source):
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight(
-                {"head": FullMatch("/呜"), "anything": WildcardMatch(optional=True)}
-            )
+            Twilight([FullMatch("/呜"), "anything" @ WildcardMatch(optional=True)])
         ],
         decorators=[
             Function.require("Beast"),
@@ -67,7 +66,7 @@ async def main_encode(group: Group, anything: WildcardMatch, source: Source):
         ],
     )
 )
-async def main_decode(group: Group, anything: WildcardMatch, source: Source):
+async def main_decode(group: Group, anything: RegexResult, source: Source):
     if anything.matched:
         try:
             msg = decode(anything.result.asDisplay())

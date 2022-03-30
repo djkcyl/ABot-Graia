@@ -6,22 +6,22 @@ import jieba.analyse
 
 from io import BytesIO
 from pathlib import Path
+
 from PIL import Image as IMG
 from matplotlib import pyplot
-from graia.saya import Saya, Channel
+from graia.saya import Channel
 from graia.ariadne.model import Group, Member
-from wordcloud import WordCloud, ImageColorGenerator
+from wordcloud import ImageColorGenerator, WordCloud
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
-from graia.ariadne.message.element import At, Plain, Image
+from graia.ariadne.message.element import At, Image, Plain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.twilight import Twilight, RegexMatch
+from graia.ariadne.message.parser.twilight import RegexMatch, Twilight
 
 from util.sendMessage import safeSendGroupMessage
-from util.control import Permission, Interval, Function
-from database.usertalk import get_user_talk, get_group_talk
+from util.control import Function, Interval, Permission
+from database.usertalk import get_group_talk, get_user_talk
 
-saya = Saya.current()
 channel = Channel.current()
 
 BASEPATH = Path(__file__).parent
@@ -36,7 +36,7 @@ RUNNING_LIST = []
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight({"head": RegexMatch(r"^查看(个人|本群)词云")})],
+        inline_dispatchers=[Twilight([RegexMatch(r"^查看(个人|本群)词云")])],
         decorators=[
             Function.require("WordCloud"),
             Permission.require(),

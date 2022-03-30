@@ -3,21 +3,20 @@ import httpx
 import random
 import asyncio
 
-from graia.saya import Saya, Channel
+from graia.saya import Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.model import Friend
 from graia.scheduler.timers import crontabify
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.event.message import FriendMessage
-from graia.ariadne.message.element import Plain, Image
+from graia.ariadne.message.element import Image, Plain
 from graia.scheduler.saya.schema import SchedulerSchema
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.twilight import Twilight, FullMatch
+from graia.ariadne.message.parser.twilight import FullMatch, Twilight
 
 from util.control import Permission
-from config import yaml_data, group_data
+from config import group_data, yaml_data
 
-saya = Saya.current()
 channel = Channel.current()
 
 
@@ -31,7 +30,7 @@ async def something_scheduled(app: Ariadne):
 @channel.use(
     ListenerSchema(
         listening_events=[FriendMessage],
-        inline_dispatchers=[Twilight({"head": FullMatch("发送早报")})],
+        inline_dispatchers=[Twilight([FullMatch("发送早报")])],
     )
 )
 async def main(app: Ariadne, friend: Friend):

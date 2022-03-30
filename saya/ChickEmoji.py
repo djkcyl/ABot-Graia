@@ -1,18 +1,22 @@
 import httpx
 
-from graia.saya import Saya, Channel
+from graia.saya import Channel
 from graia.ariadne.model import Group, Member
 from graia.ariadne.message.element import Plain, At
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.twilight import Twilight, FullMatch, WildcardMatch
+from graia.ariadne.message.parser.twilight import (
+    Twilight,
+    FullMatch,
+    RegexResult,
+    WildcardMatch,
+)
 
 from util.sendMessage import safeSendGroupMessage
 from util.TextModeration import text_moderation_async
 from util.control import Permission, Interval, Rest, Function
 
-saya = Saya.current()
 channel = Channel.current()
 
 
@@ -21,10 +25,10 @@ channel = Channel.current()
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight(
-                {
-                    "head": FullMatch("/emoji"),
-                    "anythings": WildcardMatch(optional=True),
-                }
+                [
+                    FullMatch("/emoji"),
+                    "anythings" @ WildcardMatch(optional=True),
+                ]
             )
         ],
         decorators=[
@@ -35,7 +39,7 @@ channel = Channel.current()
         ],
     )
 )
-async def fun_dict(group: Group, member: Member, anythings: WildcardMatch):
+async def fun_dict(group: Group, member: Member, anythings: RegexResult):
     if anythings.matched:
 
         saying = anythings.result.asDisplay()

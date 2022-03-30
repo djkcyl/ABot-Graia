@@ -2,8 +2,8 @@ import httpx
 
 from io import BytesIO
 from pathlib import Path
-from PIL import Image, ImageDraw, ImageFont
 
+from PIL import Image, ImageDraw, ImageFont
 
 FONT_PATH = Path("font")
 

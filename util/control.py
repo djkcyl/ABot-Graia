@@ -129,6 +129,9 @@ class Permission:
             user = member
             user_permission = cls.DEFAULT
 
+        if user == 80000000:
+            raise ExecutionStop()
+
         if user in yaml_data["Basic"]["Permission"]["Admin"]:
             res = cls.MASTER
         elif user in user_black_list:

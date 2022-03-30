@@ -3,7 +3,7 @@ import httpx
 import asyncio
 
 from graiax import silkcoder
-from graia.saya import Saya, Channel
+from graia.saya import Channel, Saya
 from graia.ariadne.model import Group, Member
 from graia.broadcast.interrupt.waiter import Waiter
 from graia.ariadne.event.message import GroupMessage
@@ -12,13 +12,18 @@ from graia.broadcast.interrupt import InterruptControl
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.element import Image, Plain, Source, Voice
 from acrcloud.recognizer import ACRCloudRecognizer, ACRCloudRecognizeType
-from graia.ariadne.message.parser.twilight import Twilight, FullMatch, RegexMatch
+from graia.ariadne.message.parser.twilight import (
+    Twilight,
+    FullMatch,
+    RegexMatch,
+    RegexResult,
+)
 
 from database.db import reduce_gold
 from config import COIN_NAME, yaml_data
 from util.text2image import create_image
 from util.sendMessage import safeSendGroupMessage
-from util.control import Permission, Interval, Function
+from util.control import Function, Interval, Permission
 
 saya = Saya.current()
 channel = Channel.current()
@@ -51,7 +56,7 @@ WAITING = []
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight({"head": FullMatch("识曲"), "operate": RegexMatch(r"原曲|哼唱")})
+            Twilight([FullMatch("识曲"), "operate" @ RegexMatch(r"原曲|哼唱")])
         ],
         decorators=[
             Function.require("VoiceMusicRecognition"),
@@ -60,7 +65,7 @@ WAITING = []
         ],
     )
 )
-async def main(group: Group, member: Member, operate: RegexMatch, source: Source):
+async def main(group: Group, member: Member, operate: RegexResult, source: Source):
     @Waiter.create_using_function(
         listening_events=[GroupMessage], using_decorators=[Permission.require()]
     )
@@ -116,7 +121,7 @@ async def main(group: Group, member: Member, operate: RegexMatch, source: Source
             async with httpx.AsyncClient() as client:
                 voice_resp = await client.get(voice_url)
             voice = voice_resp.content
-            voice = await silkcoder.decode(voice)
+            voice = await silkcoder.async_decode(voice)
             voice_info = acr.recognize_by_filebuffer(voice, 0)
             voice_info = json.loads(voice_info)
             music_list = []

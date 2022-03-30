@@ -1,18 +1,22 @@
 import json
 import httpx
 
-from graia.saya import Saya, Channel
+from graia.saya import Channel
 from graia.ariadne.model import Group, Member
 from graia.ariadne.message.element import Plain, At
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.twilight import Twilight, FullMatch, WildcardMatch
+from graia.ariadne.message.parser.twilight import (
+    Twilight,
+    FullMatch,
+    RegexResult,
+    WildcardMatch,
+)
 
 from util.sendMessage import safeSendGroupMessage
 from util.control import Permission, Interval, Function
 
-saya = Saya.current()
 channel = Channel.current()
 
 
@@ -21,10 +25,10 @@ channel = Channel.current()
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight(
-                {
-                    "head": FullMatch("能不能好好说话"),
-                    "anything": WildcardMatch(optional=True),
-                }
+                [
+                    FullMatch("能不能好好说话"),
+                    "anything" @ WildcardMatch(optional=True),
+                ]
             )
         ],
         decorators=[
@@ -34,7 +38,7 @@ channel = Channel.current()
         ],
     )
 )
-async def what_are_you_saying(group: Group, member: Member, anything: WildcardMatch):
+async def what_are_you_saying(group: Group, member: Member, anything: RegexResult):
     if anything.matched:
         api_url = "https://lab.magiconch.com/api/nbnhhsh/guess"
         api_data = {"text": anything.result.asDisplay()}

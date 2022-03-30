@@ -1,28 +1,27 @@
 import time
 import random
 
-from graia.saya import Saya, Channel
+from graia.saya import Channel
 from graia.ariadne.app import Ariadne
-from graia.ariadne.message.element import Plain, At
+from graia.ariadne.message.element import At, Plain
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.model import Friend, Group, Member
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.event.message import GroupMessage, FriendMessage
-from graia.ariadne.message.parser.twilight import Twilight, FullMatch
+from graia.ariadne.event.message import FriendMessage, GroupMessage
+from graia.ariadne.message.parser.twilight import FullMatch, Twilight
 
 from config import COIN_NAME
 from util.sendMessage import safeSendGroupMessage
-from database.db import sign, add_gold, all_sign_num
-from util.control import Permission, Interval, Function
+from database.db import add_gold, all_sign_num, sign
+from util.control import Function, Interval, Permission
 
-saya = Saya.current()
 channel = Channel.current()
 
 
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight({"head": FullMatch("签到")})],
+        inline_dispatchers=[Twilight([FullMatch("签到")])],
         decorators=[Function.require("Sign"), Permission.require(), Interval.require()],
     )
 )
@@ -63,7 +62,7 @@ async def main(group: Group, member: Member):
 @channel.use(
     ListenerSchema(
         listening_events=[FriendMessage],
-        inline_dispatchers=[Twilight({"head": FullMatch("签到率查询")})],
+        inline_dispatchers=[Twilight([FullMatch("签到率查询")])],
     )
 )
 async def inquire(app: Ariadne, friend: Friend):

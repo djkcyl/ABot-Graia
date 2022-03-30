@@ -1,21 +1,20 @@
 import random
 
 from loguru import logger
-from graia.saya import Saya, Channel
+from graia.saya import Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.model import Group, Member
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
-from graia.ariadne.message.element import Plain, AtAll
+from graia.ariadne.message.element import AtAll, Plain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.twilight import Twilight, FullMatch
+from graia.ariadne.message.parser.twilight import FullMatch, Twilight
 
 from config import yaml_data
 from util.TimeTool import calc_time_total
-from util.control import Interval, Function
+from util.control import Function, Interval
 from util.sendMessage import safeSendGroupMessage
 
-saya = Saya.current()
 channel = Channel.current()
 
 if (
@@ -33,7 +32,7 @@ t = r"(?=.*要)(?=.*禁)(?=.*言)(?=.*套)(?=.*餐)"
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight({"head": FullMatch(r"我要禁言套餐")})],
+        inline_dispatchers=[Twilight([FullMatch(r"我要禁言套餐")])],
         decorators=[Function.require("MutePack"), Interval.require()],
     )
 )
@@ -62,7 +61,11 @@ async def random_mute(app: Ariadne, group: Group, member: Member):
                 await safeSendGroupMessage(
                     group,
                     MessageChain.create(
-                        [Plain(f"权限不足，无法使用！\n使用该功能{yaml_data['Basic']['BotName']}需要为管理")]
+                        [
+                            Plain(
+                                f"权限不足，无法使用！\n使用该功能{yaml_data['Basic']['BotName']}需要为管理"
+                            )
+                        ]
                     ),
                 )
         elif (

@@ -2,11 +2,11 @@ import re
 import asyncio
 
 from loguru import logger
-from graia.saya import Saya, Channel
+from graia.saya import Channel, Saya
 from graia.ariadne.model import Group, Member
 from graia.broadcast.interrupt.waiter import Waiter
-from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.event.message import GroupMessage
+from graia.ariadne.message.chain import MessageChain
 from graia.broadcast.interrupt import InterruptControl
 from graia.ariadne.message.element import Image, Source
 from graia.saya.builtins.broadcast.schema import ListenerSchema
@@ -15,11 +15,12 @@ from graia.ariadne.message.parser.twilight import (
     FullMatch,
     RegexMatch,
     ElementMatch,
+    ElementResult,
 )
 
 from util.ocr import OCR
 from util.sendMessage import safeSendGroupMessage
-from util.control import Permission, Interval, Function
+from util.control import Function, Interval, Permission
 
 from .data import recruit_data
 from .recruit_calc import calculate
@@ -39,11 +40,11 @@ known_tags.update(("资深干员", "高级资深干员"))
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight(
-                {
-                    "head": RegexMatch(r"公招识别|查公招"),
-                    "enter": FullMatch("\n", optional=True),
-                    "image": ElementMatch(Image, optional=True),
-                }
+                [
+                    "head" @ RegexMatch(r"公招识别|查公招"),
+                    "enter" @ FullMatch("\n", optional=True),
+                    "image" @ ElementMatch(Image, optional=True),
+                ]
             )
         ],
         decorators=[
@@ -56,7 +57,7 @@ known_tags.update(("资深干员", "高级资深干员"))
 async def recruit(
     member: Member,
     group: Group,
-    image: ElementMatch,
+    image: ElementResult,
     source: Source,
 ):
     @Waiter.create_using_function(

@@ -2,19 +2,18 @@ import json
 import random
 
 from pathlib import Path
-from graia.saya import Saya, Channel
+from graia.saya import Channel
 from graia.ariadne.model import Group, Member
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import Image, Plain, Source
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.twilight import Twilight, FullMatch
+from graia.ariadne.message.parser.twilight import FullMatch, Twilight
 
 from util.text2image import create_image
 from util.sendMessage import safeSendGroupMessage
-from util.control import Permission, Interval, Rest, Function
+from util.control import Function, Interval, Permission, Rest
 
-saya = Saya.current()
 channel = Channel.current()
 
 Designs = json.loads(
@@ -25,7 +24,7 @@ Designs = json.loads(
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight({"head": FullMatch("查看人设")})],
+        inline_dispatchers=[Twilight([FullMatch("查看人设")])],
         decorators=[
             Function.require("CharacterDesignGenerator"),
             Permission.require(),
@@ -63,7 +62,7 @@ def get_rand(qid: int, gid: int):
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight({"head": FullMatch("重载人设")})],
+        inline_dispatchers=[Twilight([FullMatch("重载人设")])],
         decorators=[Permission.require(Permission.MASTER)],
     )
 )

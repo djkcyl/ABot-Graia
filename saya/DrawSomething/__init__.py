@@ -1,27 +1,31 @@
 import json
 import time
-import secrets
 import asyncio
+import secrets
 
 from pathlib import Path
-from graia.saya import Saya, Channel
+from graia.saya import Channel, Saya
 from graia.ariadne.app import Ariadne
 from graia.ariadne.exception import UnknownTarget
 from graia.broadcast.interrupt.waiter import Waiter
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.model import Friend, Group, Member
 from graia.broadcast.interrupt import InterruptControl
-from graia.ariadne.message.element import Source, Plain, At
+from graia.ariadne.message.element import At, Plain, Source
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.lifecycle import ApplicationShutdowned
-from graia.ariadne.event.message import GroupMessage, FriendMessage
-from graia.ariadne.message.parser.twilight import Twilight, FullMatch, WildcardMatch
+from graia.ariadne.event.message import FriendMessage, GroupMessage
+from graia.ariadne.message.parser.twilight import (
+    Twilight,
+    FullMatch,
+    RegexResult,
+    WildcardMatch,
+)
 
-from config import yaml_data, COIN_NAME
+from config import COIN_NAME, yaml_data
 from util.sendMessage import safeSendGroupMessage
-from util.control import Permission, Interval, Function
-from database.db import add_answer, reduce_gold, add_gold
-
+from util.control import Function, Interval, Permission
+from database.db import add_answer, add_gold, reduce_gold
 
 saya = Saya.current()
 channel = Channel.current()
@@ -37,7 +41,7 @@ GROUP_GAME_PROCESS = {}
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight({"head": FullMatch("你画我猜")})],
+        inline_dispatchers=[Twilight([FullMatch("你画我猜")])],
         decorators=[
             Function.require("DrawSomething"),
             Permission.require(),
@@ -56,7 +60,7 @@ async def main(app: Ariadne, group: Group, member: Member, source: Source):
     try:
         await app.sendFriendMessage(
             member.id,
-            MessageChain.create([Plain(f"本消息仅用于测试私信是否可用，无需回复\n{time.time()}")]),
+            MessageChain.create(f"本消息仅用于测试私信是否可用，无需回复\n{time.time()}"),
         )
     except UnknownTarget:
         await safeSendGroupMessage(
@@ -122,9 +126,7 @@ async def main(app: Ariadne, group: Group, member: Member, source: Source):
                 GROUP_GAME_PROCESS[group.id]["player"][submit_answer_member.id] = 1
             if group_id["player"][submit_answer_member.id] < 9:
                 talk_num = group_id["player"][submit_answer_member.id] + 1
-                GROUP_GAME_PROCESS[group.id]["player"][
-                    submit_answer_member.id
-                ] = talk_num
+                GROUP_GAME_PROCESS[group.id]["player"][submit_answer_member.id] = talk_num
                 if saying == question:
                     return [submit_answer_member, submit_answer_source]
             elif group_id["player"][submit_answer_member.id] == 9:
@@ -213,9 +215,7 @@ async def main(app: Ariadne, group: Group, member: Member, source: Source):
                     )
 
                     try:
-                        result = await asyncio.wait_for(
-                            inc.wait(start_game), timeout=180
-                        )
+                        result = await asyncio.wait_for(inc.wait(start_game), timeout=180)
                         if result:
                             owner = owner = str(GROUP_GAME_PROCESS[group.id]["owner"])
                             await add_gold(owner, 2)
@@ -283,15 +283,15 @@ async def main(app: Ariadne, group: Group, member: Member, source: Source):
         listening_events=[FriendMessage],
         inline_dispatchers=[
             Twilight(
-                {
-                    "head": FullMatch("添加你画我猜词库"),
-                    "anything": WildcardMatch(optional=True),
-                }
+                [
+                    FullMatch("添加你画我猜词库"),
+                    "anything" @ WildcardMatch(optional=True),
+                ]
             )
         ],
     )
 )
-async def add_word(app: Ariadne, friend: Friend, anything: WildcardMatch):
+async def add_word(app: Ariadne, friend: Friend, anything: RegexResult):
     if friend.id == yaml_data["Basic"]["Permission"]["Master"]:
         global WORD
         if anything.matched:
@@ -318,15 +318,15 @@ async def add_word(app: Ariadne, friend: Friend, anything: WildcardMatch):
         listening_events=[FriendMessage],
         inline_dispatchers=[
             Twilight(
-                {
-                    "head": FullMatch("删除你画我猜词库"),
-                    "anything": WildcardMatch(optional=True),
-                }
+                [
+                    FullMatch("删除你画我猜词库"),
+                    "anything" @ WildcardMatch(optional=True),
+                ]
             )
         ],
     )
 )
-async def remove_word(app: Ariadne, friend: Friend, anything: WildcardMatch):
+async def remove_word(app: Ariadne, friend: Friend, anything: RegexResult):
 
     if friend.id == yaml_data["Basic"]["Permission"]["Master"]:
         global WORD

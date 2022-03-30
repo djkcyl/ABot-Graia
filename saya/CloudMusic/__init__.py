@@ -3,23 +3,29 @@ import httpx
 import asyncio
 
 from pathlib import Path
+
 from loguru import logger
 from graiax import silkcoder
-from graia.saya import Saya, Channel
+from graia.saya import Channel, Saya
 from graia.ariadne.model import Group, Member
 from graia.broadcast.interrupt.waiter import Waiter
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.event.message import GroupMessage
 from graia.broadcast.interrupt import InterruptControl
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.element import Plain, Image, Voice, Source
-from graia.ariadne.message.parser.twilight import Twilight, FullMatch, RegexMatch
+from graia.ariadne.message.element import Image, Plain, Source, Voice
+from graia.ariadne.message.parser.twilight import (
+    Twilight,
+    FullMatch,
+    RegexResult,
+    WildcardMatch,
+)
 
 from database.db import reduce_gold
-from config import yaml_data, COIN_NAME
+from config import COIN_NAME, yaml_data
 from util.text2image import create_image
 from util.sendMessage import safeSendGroupMessage
-from util.control import Permission, Interval, Rest, Function
+from util.control import Function, Interval, Permission, Rest
 
 saya = Saya.current()
 channel = Channel.current()
@@ -49,9 +55,7 @@ if not yaml_data["Saya"]["CloudMusic"]["Disabled"]:
         httpx.get(QQ_HOST)
         logger.info("QQ音乐登录成功")
     except httpx.ConnectError:
-        logger.error(
-            "无法连接QQ音乐后端，请检查是否完成搭建并成功启动 https://github.com/Rain120/qq-music-api"
-        )
+        logger.error("无法连接QQ音乐后端，请检查是否完成搭建并成功启动 https://github.com/Rain120/qq-music-api")
         exit(1)
 
 WAITING = []
@@ -61,7 +65,7 @@ WAITING = []
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight({"head": FullMatch("点歌"), "music_name": RegexMatch(r".*")})
+            Twilight([FullMatch("点歌"), "music_name" @ WildcardMatch(optional=True)]),
         ],
         decorators=[
             Function.require("CloudMusic"),
@@ -75,7 +79,7 @@ async def sing(
     group: Group,
     member: Member,
     source: Source,
-    music_name: RegexMatch,
+    music_name: RegexResult,
 ):
     @Waiter.create_using_function(
         listening_events=[GroupMessage], using_decorators=[Permission.require()]
@@ -88,9 +92,7 @@ async def sing(
             if waiter1_saying == "取消":
                 return False
             elif waiter1_saying.replace(" ", "") == "":
-                await safeSendGroupMessage(
-                    group, MessageChain.create([Plain("请不要输入空格")])
-                )
+                await safeSendGroupMessage(group, MessageChain.create([Plain("请不要输入空格")]))
             else:
                 return waiter1_saying
 
@@ -300,9 +302,7 @@ async def sing(
                 WAITING.remove(member.id)
                 return await safeSendGroupMessage(
                     group,
-                    MessageChain.create(
-                        [Plain(f"该歌曲（{music_name}）由于版权问题无法点歌，请使用客户端播放")]
-                    ),
+                    MessageChain.create([Plain(f"该歌曲（{music_name}）由于版权问题无法点歌，请使用客户端播放")]),
                 )
             async with httpx.AsyncClient() as client:
                 r = await client.get(musicurl)
@@ -348,7 +348,7 @@ async def sing(
                 group, MessageChain.create([Image(data_bytes=music_lyric_image)])
             )
 
-        music_bytes = await silkcoder.encode(MUSIC_PATH.read_bytes(), t=540)
+        music_bytes = await silkcoder.async_encode(MUSIC_PATH.read_bytes(), t=540)
         await safeSendGroupMessage(
             group, MessageChain.create([Voice(data_bytes=music_bytes)])
         )

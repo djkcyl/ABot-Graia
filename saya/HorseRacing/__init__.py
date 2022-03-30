@@ -23,7 +23,6 @@ from .gamedata import props, HorseStatus
 from .game import draw_game, throw_prop, run_game
 from .userdata import get_props, get_wins, use_prop, add_prop, add_wins, get_random_prop
 
-
 saya = Saya.current()
 channel = Channel.current()
 bcc = saya.broadcast
@@ -37,7 +36,7 @@ GROUP_GAME_PROCESS = {}
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight({"head": FullMatch("赛马")})],
+        inline_dispatchers=[Twilight([FullMatch("赛马")])],
         decorators=[
             Function.require("HorseRacing"),
             Permission.require(),
@@ -54,7 +53,7 @@ async def horse_racing(group: Group):
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight({"head": FullMatch("查看赛马信息")})],
+        inline_dispatchers=[Twilight([FullMatch("查看赛马信息")])],
         decorators=[
             Function.require("HorseRacing"),
             Permission.require(),
@@ -64,7 +63,9 @@ async def horse_racing(group: Group):
 )
 async def check_info(group: Group, member: Member):
     props = (
-        "\n".join([f"{amount} 个 {prop}" for prop, amount in get_props(member.id).items()])
+        "\n".join(
+            [f"{amount} 个 {prop}" for prop, amount in get_props(member.id).items()]
+        )
         or "无"
     )
     await safeSendGroupMessage(
@@ -78,7 +79,7 @@ async def check_info(group: Group, member: Member):
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight({"head": FullMatch("赛马抽奖")})],
+        inline_dispatchers=[Twilight([FullMatch("赛马抽奖")])],
         decorators=[
             Function.require("HorseRacing"),
             Permission.require(),
@@ -112,7 +113,7 @@ async def lottery(group: Group, member: Member):
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight({"head": FullMatch("开始赛马")})],
+        inline_dispatchers=[Twilight([FullMatch("开始赛马")])],
         decorators=[
             Function.require("HorseRacing"),
             Permission.require(),
@@ -137,7 +138,9 @@ async def main(app: Ariadne, group: Group, member: Member):
                     )
                 else:
                     if await reduce_gold(str(waiter1_member.id), 5):
-                        GROUP_GAME_PROCESS[group.id]["members"].append(waiter1_member.id)
+                        GROUP_GAME_PROCESS[group.id]["members"].append(
+                            waiter1_member.id
+                        )
                         player_list = GROUP_GAME_PROCESS[group.id]["members"]
                         player_count = len(player_list)
                         if 8 > player_count > 1:
@@ -247,7 +250,9 @@ async def main(app: Ariadne, group: Group, member: Member):
                     elif effect == HorseStatus.Shield:
                         status_result = f"马匹获得了 {duration} 回合护盾"
                     else:
-                        status_result = f"马匹获得了 {value} 倍率的 {effect} 状态，将持续 {duration} 回合"
+                        status_result = (
+                            f"马匹获得了 {value} 倍率的 {effect} 状态，将持续 {duration} 回合"
+                        )
                     if result.group(1) == "丢":
                         traget = random.choice(
                             list(GROUP_GAME_PROCESS[group.id]["data"]["player"].keys())
@@ -439,7 +444,9 @@ async def main(app: Ariadne, group: Group, member: Member):
     # 结束游戏
     for player, data in GROUP_GAME_PROCESS[group.id]["data"]["player"].items():
         if data["score"] >= 100:
-            GROUP_GAME_PROCESS[group.id]["data"]["player"][player].update({"score": 102})
+            GROUP_GAME_PROCESS[group.id]["data"]["player"][player].update(
+                {"score": 102}
+            )
     await asyncio.sleep(3)
     await safeSendGroupMessage(
         group,

@@ -59,7 +59,7 @@ async def cpuStatus():
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight({"head": FullMatch("查看性能统计")})],
+        inline_dispatchers=[Twilight([FullMatch("查看性能统计")])],
         decorators=[Permission.require(Permission.MASTER)],
     )
 )

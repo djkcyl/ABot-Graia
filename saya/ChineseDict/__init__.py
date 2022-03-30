@@ -1,30 +1,31 @@
 import httpx
-
 from lxml import etree
-from graia.saya import Saya, Channel
+from graia.saya import Channel
 from graia.ariadne.model import Group
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
-from graia.ariadne.message.element import Plain, Image
+from graia.ariadne.message.element import Image, Plain
+from graia.ariadne.message.parser.twilight import (
+    FullMatch,
+    RegexResult,
+    Twilight,
+    WildcardMatch,
+)
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.twilight import Twilight, FullMatch, WildcardMatch
 
 from util.sendMessage import safeSendGroupMessage
-from util.control import Permission, Interval, Rest, Function
+from util.control import Function, Interval, Permission, Rest
 
 from .page_screenshot import get_hans_screenshot
 
 
-saya = Saya.current()
 channel = Channel.current()
 
 
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[
-            Twilight({"head": FullMatch("词典"), "anything": WildcardMatch()})
-        ],
+        inline_dispatchers=[Twilight([FullMatch("词典"), "anything" @ WildcardMatch()])],
         decorators=[
             Function.require("ChineseDict"),
             Permission.require(),
@@ -33,7 +34,7 @@ channel = Channel.current()
         ],
     )
 )
-async def dict(group: Group, anything: WildcardMatch):
+async def dict(group: Group, anything: RegexResult):
     if anything.matched:
         dict_name = anything.result.asDisplay()
         try:

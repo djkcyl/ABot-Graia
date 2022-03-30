@@ -8,7 +8,6 @@ from util.strings import getCutStr
 
 from .gamedata import props, HorseStatus
 
-
 FONT_PATH = Path("./font")
 BASE_PATH = Path(__file__).parent.joinpath("image")
 
@@ -65,7 +64,9 @@ def draw_game(data):
     # 绘制游戏棋盘
     for i, player in enumerate(data["player"], 0):
         # 绘制草块
-        draw.rectangle((20, 20 + (50 * i), 480, 20 + (50 * (i + 1))), fill=grass_color[i])
+        draw.rectangle(
+            (20, 20 + (50 * i), 480, 20 + (50 * (i + 1))), fill=grass_color[i]
+        )
         # 绘制间隔线条
         for n in range(11):
             draw.line(

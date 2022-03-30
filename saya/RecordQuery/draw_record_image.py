@@ -1,16 +1,15 @@
 import httpx
 
 from io import BytesIO
-from typing import List, Union
 from pathlib import Path
+from typing import List, Union
+
 from loguru import logger
 from PIL import Image as IMG
 from PIL import ImageDraw, ImageFont, ImageOps
 from graia.ariadne.message.element import Image, Plain
 
-
 from config import yaml_data
-
 
 AUTH = (
     yaml_data["Saya"]["RecordQuery"]["r6"]["user_id"],

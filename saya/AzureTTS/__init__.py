@@ -4,13 +4,13 @@ import xmltodict
 
 from pathlib import Path
 from graiax import silkcoder
-from graia.saya import Saya, Channel
-from graia.ariadne.model import Member, Group
+from graia.saya import Channel
+from graia.ariadne.model import Group, Member
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
-from graia.ariadne.message.element import Plain, Voice, Source
+from graia.ariadne.message.element import Plain, Source, Voice
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.twilight import Twilight, FullMatch, WildcardMatch
+from graia.ariadne.message.parser.twilight import FullMatch, Twilight, WildcardMatch
 from azure.cognitiveservices.speech import (
     SpeechConfig,
     AudioDataStream,
@@ -18,11 +18,10 @@ from azure.cognitiveservices.speech import (
 )
 
 from database.db import reduce_gold
-from config import yaml_data, COIN_NAME
+from config import COIN_NAME, yaml_data
 from util.sendMessage import safeSendGroupMessage
-from util.control import Permission, Interval, Function
+from util.control import Function, Interval, Permission
 
-saya = Saya.current()
 channel = Channel.current()
 
 BASEPATH = Path(__file__).parent.joinpath("temp")
@@ -33,9 +32,7 @@ BASEPATH.mkdir(exist_ok=True)
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight(
-                {"head": FullMatch("/tts"), "anything": WildcardMatch(optional=True)}
-            )
+            Twilight([FullMatch("/tts"), WildcardMatch(optional=True)])
         ],
         decorators=[
             Function.require("AzureTTS"),
@@ -135,7 +132,7 @@ async def azuretts(group: Group, member: Member, message: MessageChain, source: 
         times = str(int(time.time() * 100))
         voicefile = BASEPATH.joinpath(f"{times}.wav")
         await asyncio.to_thread(gettts, name, style, saying[3], str(voicefile))
-        vioce_bytes = await silkcoder.encode(voicefile.read_bytes())
+        vioce_bytes = await silkcoder.async_encode(voicefile.read_bytes())
         await safeSendGroupMessage(
             group, MessageChain.create([Voice(data_bytes=vioce_bytes)])
         )

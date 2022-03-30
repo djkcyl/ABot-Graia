@@ -4,10 +4,10 @@ import base64
 import dns.resolver
 
 from io import BytesIO
+
 from loguru import logger
 from PIL import Image as IMG
 from graia.ariadne.message.element import Image, Plain
-
 
 from .statusping import StatusPing
 
@@ -105,7 +105,11 @@ async def mcping(say):
     msg_send.append(Plain("玩家数：" + sPlayer))
 
     # 判断是否存在在线玩家
-    if "sample" in get_status["players"] and get_status["players"]["sample"] != []:
+    if (
+        "sample" in get_status["players"]
+        and get_status["players"]["sample"] != []
+        and get_status["players"]["sample"] is not None
+    ):
         sOnlinePlayer = []
         for player in get_status["players"]["sample"]:
             sOnlinePlayer.append(player["name"])

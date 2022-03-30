@@ -5,8 +5,9 @@ import asyncio
 import secrets
 
 from pathlib import Path
+
 from loguru import logger
-from graia.saya import Saya, Channel
+from graia.saya import Channel, Saya
 from graia.ariadne.app import Ariadne
 from graia.scheduler.timers import crontabify
 from graia.broadcast.interrupt.waiter import Waiter
@@ -15,17 +16,22 @@ from graia.ariadne.model import Friend, Group, Member
 from graia.broadcast.interrupt import InterruptControl
 from graia.scheduler.saya.schema import SchedulerSchema
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.element import At, Plain, Source, Image
+from graia.ariadne.message.element import At, Image, Plain, Source
 from graia.ariadne.event.message import FriendMessage, GroupMessage
-from graia.ariadne.message.parser.twilight import Twilight, ElementMatch, FullMatch
+from graia.ariadne.message.parser.twilight import (
+    Twilight,
+    FullMatch,
+    ElementMatch,
+    ElementResult,
+)
 
 from config import COIN_NAME, yaml_data
 from database.db import add_gold, reduce_gold
 from util.sendMessage import safeSendGroupMessage
-from util.control import Interval, Permission, Function
+from util.control import Function, Interval, Permission
 
 from .certification import decrypt
-from .lottery_image import qrgen, qrdecode
+from .lottery_image import qrdecode, qrgen
 
 saya = Saya.current()
 channel = Channel.current()
@@ -52,7 +58,7 @@ else:
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight({"head": FullMatch("购买奖券")})],
+        inline_dispatchers=[Twilight([FullMatch("购买奖券")])],
         decorators=[
             Function.require("Lottery"),
             Permission.require(),
@@ -98,9 +104,7 @@ async def buy_lottery(group: Group, member: Member, source: Source):
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight(
-                {"head": FullMatch("兑换奖券"), "image": ElementMatch(Image, optional=True)}
-            ),
+            Twilight([FullMatch("兑换奖券"), "image" @ ElementMatch(Image, optional=True)]),
         ],
         decorators=[
             Function.require("Lottery"),
@@ -110,7 +114,7 @@ async def buy_lottery(group: Group, member: Member, source: Source):
     )
 )
 async def redeem_lottery(
-    group: Group, member: Member, image: ElementMatch, source: Source
+    group: Group, member: Member, image: ElementResult, source: Source
 ):
 
     if member.id in WAITING:
@@ -215,7 +219,7 @@ async def something_scheduled(app: Ariadne):
 @channel.use(
     ListenerSchema(
         listening_events=[FriendMessage],
-        inline_dispatchers=[Twilight({"head": FullMatch("奖券开奖")})],
+        inline_dispatchers=[Twilight([FullMatch("奖券开奖")])],
     )
 )
 async def lo(app: Ariadne, friend: Friend):
@@ -242,7 +246,7 @@ async def lo(app: Ariadne, friend: Friend):
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight({"head": FullMatch("开奖查询")})],
+        inline_dispatchers=[Twilight([FullMatch("开奖查询")])],
         decorators=[
             Function.require("Lottery"),
             Permission.require(),

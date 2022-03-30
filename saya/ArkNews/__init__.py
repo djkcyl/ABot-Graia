@@ -5,22 +5,21 @@ import asyncio
 
 from pathlib import Path
 from loguru import logger
-from graia.saya import Saya, Channel
+from graia.saya import Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.message.chain import MessageChain
-from graia.ariadne.message.element import Plain, Image
-from graia.scheduler.timers import every_custom_seconds
+from graia.ariadne.message.element import Image, Plain
 from graia.scheduler.saya.schema import SchedulerSchema
+from graia.scheduler.timers import every_custom_seconds
 from graia.ariadne.event.lifecycle import ApplicationLaunched
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 from util.TimeTool import TimeRecorder
-from config import yaml_data, group_data
+from config import group_data, yaml_data
 from util.text2image import create_image
 
-from .get_news import Weibo, Game
+from .get_news import Game, Weibo
 
-saya = Saya.current()
 channel = Channel.current()
 weibo = Weibo()
 game = Game()

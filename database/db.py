@@ -6,8 +6,8 @@ from loguru import logger
 from prettytable import PrettyTable
 from peewee import SqliteDatabase, Model, CharField, IntegerField
 
-from config import COIN_NAME
-
+# from config import COIN_NAME
+COIN_NAME = "金币"
 
 db = SqliteDatabase("./database/userData.db")
 
@@ -121,17 +121,19 @@ async def get_ranking():
     user_num = len(user_list)
     gold_rank = PrettyTable()
     gold_rank.field_names = [
-        " ID ",
-        "      QQ      ",
-        "             NICK             ",
-        "  GOLD  ",
-        "  TALK  ",
+        "ID",
+        "QQ",
+        "NICK",
+        "GOLD",
+        "TALK",
+        "SIGN",
         "ANSWER",
         "RANK",
     ]
-    gold_rank.align[" ID "] = "r"
-    gold_rank.align["  GOLD  "] = "r"
-    gold_rank.align["  TALK  "] = "r"
+    gold_rank.align["ID"] = "r"
+    gold_rank.align["GOLD"] = "r"
+    gold_rank.align["TALK"] = "r"
+    gold_rank.align["SIGN"] = "r"
     gold_rank.align["ANSWER"] = "r"
     gold_rank.align["RANK"] = "r"
     i = 1
@@ -153,9 +155,10 @@ async def get_ranking():
         # user_nick = getCutStr(qqnick, 20)
         user_gold = user_info.gold
         user_talk = user_info.talk_num
+        user_sign = user_info.sign_num
         user_answer = user_info.english_answer
         gold_rank.add_row(
-            [user_id, user_qq, user_nick, user_gold, user_talk, user_answer, i]
+            [user_id, user_qq, user_nick, user_gold, user_talk, user_sign, user_answer, i]
         )
         i += 1
 
@@ -165,17 +168,19 @@ async def get_ranking():
     user_num = len(user_list)
     talk_rank = PrettyTable()
     talk_rank.field_names = [
-        " ID ",
-        "      QQ      ",
-        "             NICK             ",
-        "  GOLD  ",
-        "  TALK  ",
+        "ID",
+        "QQ",
+        "NICK",
+        "GOLD",
+        "TALK",
+        "SIGN",
         "ANSWER",
         "RANK",
     ]
-    talk_rank.align[" ID "] = "r"
-    talk_rank.align["  GOLD  "] = "r"
-    talk_rank.align["  TALK  "] = "r"
+    talk_rank.align["ID"] = "r"
+    talk_rank.align["GOLD"] = "r"
+    talk_rank.align["TALK"] = "r"
+    talk_rank.align["SIGN"] = "r"
     talk_rank.align["ANSWER"] = "r"
     talk_rank.align["RANK"] = "r"
     i = 1
@@ -200,9 +205,10 @@ async def get_ranking():
         # user_nick = getCutStr(qqnick, 20)
         user_gold = user_info.gold
         user_talk = user_info.talk_num
+        user_sign = user_info.sign_num
         user_answer = user_info.english_answer
         talk_rank.add_row(
-            [user_id, user_qq, user_nick, user_gold, user_talk, user_answer, i]
+            [user_id, user_qq, user_nick, user_gold, user_talk, user_sign, user_answer, i]
         )
         i += 1
 
@@ -212,17 +218,19 @@ async def get_ranking():
     user_num = len(user_list)
     answer_rank = PrettyTable()
     answer_rank.field_names = [
-        " ID ",
-        "      QQ      ",
-        "             NICK             ",
-        "  GOLD  ",
-        "  TALK  ",
+        "ID",
+        "QQ",
+        "NICK",
+        "GOLD",
+        "TALK",
+        "SIGN",
         "ANSWER",
         "RANK",
     ]
-    answer_rank.align[" ID "] = "r"
-    answer_rank.align["  GOLD  "] = "r"
-    answer_rank.align["  TALK  "] = "r"
+    answer_rank.align["ID"] = "r"
+    answer_rank.align["GOLD"] = "r"
+    answer_rank.align["TALK"] = "r"
+    answer_rank.align["SIGN"] = "r"
     answer_rank.align["ANSWER"] = "r"
     answer_rank.align["RANK"] = "r"
     i = 1
@@ -243,9 +251,10 @@ async def get_ranking():
         # user_nick = getCutStr(qqnick, 20)
         user_gold = user_info.gold
         user_talk = user_info.talk_num
+        user_sign = user_info.sign_num
         user_answer = user_info.english_answer
         answer_rank.add_row(
-            [user_id, user_qq, user_nick, user_gold, user_talk, user_answer, i]
+            [user_id, user_qq, user_nick, user_gold, user_talk, user_sign, user_answer, i]
         )
         i += 1
 

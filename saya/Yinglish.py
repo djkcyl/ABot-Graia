@@ -3,20 +3,24 @@ import random
 import jieba
 import jieba.posseg as pseg
 
-from graia.saya import Saya, Channel
+from graia.saya import Channel
 from graia.ariadne.model import Group
 from graia.ariadne.message.element import Source
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.twilight import Twilight, FullMatch, WildcardMatch
+from graia.ariadne.message.parser.twilight import (
+    Twilight,
+    FullMatch,
+    RegexResult,
+    WildcardMatch,
+)
 
 from util.sendMessage import safeSendGroupMessage
-from util.control import Permission, Interval, Rest, Function
+from util.control import Function, Interval, Permission, Rest
 
 jieba.setLogLevel(20)
 
-saya = Saya.current()
 channel = Channel.current()
 
 
@@ -42,9 +46,7 @@ def chs2yin(s, 淫乱度=0.5):
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[
-            Twilight({"head": FullMatch("淫语"), "anythings": WildcardMatch()})
-        ],
+        inline_dispatchers=[Twilight([FullMatch("淫语"), "anythings" @ WildcardMatch()])],
         decorators=[
             Function.require("Yinglish"),
             Permission.require(),
@@ -53,7 +55,7 @@ def chs2yin(s, 淫乱度=0.5):
         ],
     )
 )
-async def main(group: Group, anythings: WildcardMatch, source: Source):
+async def main(group: Group, anythings: RegexResult, source: Source):
     if anythings.matched:
         saying = anythings.result.asDisplay()
         if len(saying) < 200:

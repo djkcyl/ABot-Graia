@@ -4,29 +4,31 @@ import triangler
 import matplotlib.pyplot as plt
 
 from io import BytesIO
-from loguru import logger
 from typing import Optional
+
+from loguru import logger
 from PIL import Image as IMG
-from graia.saya import Saya, Channel
+from graia.saya import Channel, Saya
 from graia.ariadne.model import Group, Member
 from graia.broadcast.interrupt.waiter import Waiter
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
 from graia.broadcast.interrupt import InterruptControl
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.element import Plain, At, Source, Image
+from graia.ariadne.message.element import At, Image, Plain, Source
 from graia.ariadne.message.parser.twilight import (
     Twilight,
     FullMatch,
+    RegexResult,
     ArgumentMatch,
     WildcardMatch,
+    ArgResult,
 )
 
 from config import COIN_NAME
 from database.db import reduce_gold
 from util.sendMessage import safeSendGroupMessage
-from util.control import Permission, Interval, Rest, Function
-
+from util.control import Function, Interval, Permission, Rest
 
 saya = Saya.current()
 channel = Channel.current()
@@ -41,13 +43,12 @@ WAITING = []
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight(
-                {
-                    "head": FullMatch("低多边形"),
-                    "args": ArgumentMatch(
-                        "-P", action="store", regex="\\d+", optional=True
-                    ),
-                    "anythings1": WildcardMatch(optional=True),
-                },
+                [
+                    FullMatch("低多边形"),
+                    "args"
+                    @ ArgumentMatch("-P", "-p", action="store", type=int, optional=True),
+                    "anythings" @ WildcardMatch(optional=True),
+                ]
             )
         ],
         decorators=[
@@ -62,8 +63,8 @@ async def low_poly(
     group: Group,
     member: Member,
     source: Source,
-    args: ArgumentMatch,
-    anythings1: WildcardMatch,
+    args: ArgResult,
+    anythings: RegexResult,
 ):
     @Waiter.create_using_function(
         listening_events=[GroupMessage], using_decorators=[Permission.require()]
@@ -94,11 +95,11 @@ async def low_poly(
                     group, MessageChain.create([Plain("-P ：请输入100-3000之间的整数")])
                 )
 
-        if anythings1.matched:
-            if anythings1.result.has(Image):
-                image_url = anythings1.result.getFirst(Image).url
-            elif anythings1.result.has(At):
-                atid = anythings1.result.getFirst(At).target
+        if anythings.matched:
+            if anythings.result.has(Image):
+                image_url = anythings.result.getFirst(Image).url
+            elif anythings.result.has(At):
+                atid = anythings.result.getFirst(At).target
                 image_url = f"http://q1.qlogo.cn/g?b=qq&nk={atid}&s=640"
 
         if not image_url:

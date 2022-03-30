@@ -1,6 +1,6 @@
 import asyncio
 
-from graia.saya import Saya, Channel
+from graia.saya import Channel, Saya
 from graia.ariadne.app import Ariadne
 from graia.broadcast.interrupt.waiter import Waiter
 from graia.ariadne.message.chain import MessageChain
@@ -8,8 +8,8 @@ from graia.ariadne.model import Friend, Group, Member
 from graia.broadcast.interrupt import InterruptControl
 from graia.ariadne.message.element import At, Image, Plain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.event.message import GroupMessage, FriendMessage
-from graia.ariadne.message.parser.twilight import Twilight, FullMatch
+from graia.ariadne.event.message import FriendMessage, GroupMessage
+from graia.ariadne.message.parser.twilight import FullMatch, Twilight
 
 from database.db import add_answer
 from util.control import Permission
@@ -17,7 +17,6 @@ from util.text2image import create_image
 from util.sendMessage import safeSendGroupMessage
 
 from .database.database import random_word
-
 
 saya = Saya.current()
 channel = Channel.current()
@@ -56,7 +55,7 @@ RUNNING = {}
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight({"head": FullMatch("背单词")})],
+        inline_dispatchers=[Twilight([FullMatch("背单词")])],
         decorators=[Permission.require()],
     )
 )
@@ -195,7 +194,7 @@ async def group_learn(group: Group, member: Member):
 @channel.use(
     ListenerSchema(
         listening_events=[FriendMessage],
-        inline_dispatchers=[Twilight({"head": FullMatch("背单词")})],
+        inline_dispatchers=[Twilight([FullMatch("背单词")])],
     )
 )
 async def friend_learn(app: Ariadne, friend: Friend):

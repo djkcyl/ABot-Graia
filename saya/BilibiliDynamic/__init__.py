@@ -4,29 +4,33 @@ import asyncio
 
 from pathlib import Path
 from loguru import logger
-from graia.saya import Saya, Channel
+from graia.saya import Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.model import Group
 from graia.ariadne.exception import UnknownTarget
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import Image, Plain
-from graia.scheduler.timers import every_custom_seconds
 from graia.scheduler.saya.schema import SchedulerSchema
+from graia.scheduler.timers import every_custom_seconds
 from graia.ariadne.event.lifecycle import ApplicationLaunched
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.event.mirai import BotLeaveEventKick, BotLeaveEventActive
-from graia.ariadne.message.parser.twilight import Twilight, FullMatch, WildcardMatch
+from graia.ariadne.event.mirai import BotLeaveEventActive, BotLeaveEventKick
+from graia.ariadne.message.parser.twilight import (
+    Twilight,
+    FullMatch,
+    RegexResult,
+    WildcardMatch,
+)
 
 from config import yaml_data
 from util.text2image import create_image
-from util.control import Permission, Interval
+from util.control import Interval, Permission
+from util.sendMessage import safeSendGroupMessage
 
 from .dynamic_shot import get_dynamic_screenshot
-from util.sendMessage import safeSendGroupMessage
 from .bilibili_request import dynamic_svr, get_status_info_by_uids
 
-saya = Saya.current()
 channel = Channel.current()
 
 if yaml_data["Saya"]["BilibiliDynamic"]["EnabledProxy"]:
@@ -141,7 +145,9 @@ def remove_uid(uid, groupid):
         dynamic_list["subscription"][uid].remove(groupid)
         if dynamic_list["subscription"][uid] == []:
             del dynamic_list["subscription"][uid]
-        with open("./saya/BilibiliDynamic/dynamic_list.json", "w", encoding="utf-8") as f:
+        with open(
+            "./saya/BilibiliDynamic/dynamic_list.json", "w", encoding="utf-8"
+        ) as f:
             json.dump(dynamic_list, f, indent=2)
         return Plain(f"退订成功（{uid}）")
     else:
@@ -271,7 +277,9 @@ async def update_scheduled(app: Ariadne):
                         await app.sendGroupMessage(
                             groupid,
                             MessageChain.create(
-                                Plain(f"本群订阅的UP {up_name}（{up_id}）在 {room_area} 开播啦 ！\n"),
+                                Plain(
+                                    f"本群订阅的UP {up_name}（{up_id}）在 {room_area} 开播啦 ！\n"
+                                ),
                                 Plain(title),
                                 Image(url=cover_from_user),
                                 Plain(f"\nhttps://live.bilibili.com/{room_id}"),
@@ -371,12 +379,12 @@ async def update_scheduled(app: Ariadne):
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight({"head": FullMatch("订阅"), "anything": WildcardMatch(optional=True)})
+            Twilight([FullMatch("订阅"), "anything" @ WildcardMatch(optional=True)])
         ],
         decorators=[Permission.require(Permission.GROUP_ADMIN), Interval.require()],
     )
 )
-async def add_sub(group: Group, anything: WildcardMatch):
+async def add_sub(group: Group, anything: RegexResult):
 
     if anything.matched:
         add = await add_uid(anything.result.asDisplay(), group.id)
@@ -390,12 +398,12 @@ async def add_sub(group: Group, anything: WildcardMatch):
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight({"head": FullMatch("退订"), "anything": WildcardMatch(optional=True)})
+            Twilight([FullMatch("退订"), "anything" @ WildcardMatch(optional=True)])
         ],
         decorators=[Permission.require(Permission.GROUP_ADMIN), Interval.require()],
     )
 )
-async def remove_sub(group: Group, anything: WildcardMatch):
+async def remove_sub(group: Group, anything: RegexResult):
 
     if anything.matched:
         await safeSendGroupMessage(
@@ -407,7 +415,7 @@ async def remove_sub(group: Group, anything: WildcardMatch):
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight({"head": FullMatch("本群订阅列表")})],
+        inline_dispatchers=[Twilight(FullMatch("本群订阅列表"))],
         decorators=[Permission.require(Permission.GROUP_ADMIN), Interval.require()],
     )
 )
@@ -443,12 +451,12 @@ async def bot_leave(group: Group):
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight({"head": FullMatch("查看动态"), "anything": WildcardMatch()})
+            Twilight([FullMatch("查看动态"), "anything" @ WildcardMatch()])
         ],
         decorators=[Permission.require(), Interval.require(20)],
     )
 )
-async def vive_dyn(group: Group, anything: WildcardMatch):
+async def vive_dyn(group: Group, anything: RegexResult):
 
     if anything.matched:
         pattern = re.compile("^[0-9]*$|com/([0-9]*)")
@@ -472,4 +480,6 @@ async def vive_dyn(group: Group, anything: WildcardMatch):
                 group, MessageChain.create([Image(data_bytes=shot_image)])
             )
         else:
-            await safeSendGroupMessage(group, MessageChain.create([Plain("该UP未发布任何动态")]))
+            await safeSendGroupMessage(
+                group, MessageChain.create([Plain("该UP未发布任何动态")])
+            )

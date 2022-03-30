@@ -1,5 +1,5 @@
 from loguru import logger
-from graia.saya import Saya, Channel
+from graia.saya import Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.event.mirai import GroupRecallEvent
@@ -19,8 +19,6 @@ from util.sendMessage import safeSendGroupMessage
 from util.TextModeration import text_moderation_async
 from util.ImageModeration import image_moderation_async
 
-
-saya = Saya.current()
 channel = Channel.current()
 
 

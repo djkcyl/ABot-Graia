@@ -1,18 +1,17 @@
 import random
 
-from graia.saya import Saya, Channel
+from graia.saya import Channel
 from graia.ariadne.model import Group
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.element import Face, Image, Plain, At
+from graia.ariadne.message.element import At, Face, Image, Plain
 
 from config import yaml_data
 from util.sendMessage import safeSendGroupMessage
-from util.control import Permission, Rest, Function
+from util.control import Function, Permission, Rest
 from util.TextModeration import text_moderation_async
 
-saya = Saya.current()
 channel = Channel.current()
 
 

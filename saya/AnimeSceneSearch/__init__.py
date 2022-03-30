@@ -2,7 +2,7 @@ import httpx
 import asyncio
 
 from saucenao_api import AIOSauceNao
-from graia.saya import Saya, Channel
+from graia.saya import Channel, Saya
 from graia.ariadne.model import Group, Member
 from saucenao_api.errors import SauceNaoApiError
 from graia.broadcast.interrupt.waiter import Waiter
@@ -10,13 +10,18 @@ from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
 from graia.broadcast.interrupt import InterruptControl
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.element import At, Plain, Image, Source
-from graia.ariadne.message.parser.twilight import Twilight, FullMatch, ElementMatch
+from graia.ariadne.message.element import At, Image, Plain, Source
+from graia.ariadne.message.parser.twilight import (
+    Twilight,
+    FullMatch,
+    ElementMatch,
+    ElementResult,
+)
 
 from database.db import reduce_gold
 from config import COIN_NAME, yaml_data
 from util.sendMessage import safeSendGroupMessage
-from util.control import Permission, Interval, Function
+from util.control import Function, Interval, Permission
 
 from .draw import draw_tracemoe
 
@@ -72,11 +77,11 @@ saucenao_usage = None
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight(
-                {
-                    "head": FullMatch("以图搜番"),
-                    "enter": FullMatch("\n", optional=True),
-                    "img": ElementMatch(Image, optional=True),
-                }
+                [
+                    FullMatch("以图搜番"),
+                    "enter" @ FullMatch("\n", optional=True),
+                    "img" @ ElementMatch(Image, optional=True),
+                ]
             ),
         ],
         decorators=[
@@ -86,7 +91,9 @@ saucenao_usage = None
         ],
     )
 )
-async def anime_search(group: Group, member: Member, img: ElementMatch, source: Source):
+async def anime_search(
+    group: Group, member: Member, img: ElementResult, source: Source
+):
     @Waiter.create_using_function(
         listening_events=[GroupMessage], using_decorators=[Permission.require()]
     )
@@ -208,11 +215,11 @@ async def anime_search(group: Group, member: Member, img: ElementMatch, source: 
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight(
-                {
-                    "head": FullMatch("以图搜图"),
-                    "enter": FullMatch("\n", optional=True),
-                    "img": ElementMatch(Image, optional=True),
-                }
+                [
+                    FullMatch("以图搜图"),
+                    "enter" @ FullMatch("\n", optional=True),
+                    "img" @ ElementMatch(Image, optional=True),
+                ]
             ),
         ],
         decorators=[
@@ -222,7 +229,7 @@ async def anime_search(group: Group, member: Member, img: ElementMatch, source: 
         ],
     )
 )
-async def saucenao(group: Group, member: Member, img: ElementMatch, source: Source):
+async def saucenao(group: Group, member: Member, img: ElementResult, source: Source):
     @Waiter.create_using_function(
         listening_events=[GroupMessage], using_decorators=[Permission.require()]
     )

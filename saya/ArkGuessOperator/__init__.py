@@ -1,7 +1,7 @@
 import asyncio
 
 from loguru import logger
-from graia.saya import Saya, Channel
+from graia.saya import Channel, Saya
 from graia.ariadne.model import Group, Member
 from graia.scheduler.timers import crontabify
 from graia.broadcast.interrupt.waiter import Waiter
@@ -11,14 +11,14 @@ from graia.broadcast.interrupt import InterruptControl
 from graia.scheduler.saya.schema import SchedulerSchema
 from graia.ariadne.event.lifecycle import ApplicationLaunched
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.element import Plain, Source, Voice, At
-from graia.ariadne.message.parser.twilight import Twilight, RegexMatch
+from graia.ariadne.message.element import At, Plain, Source, Voice
+from graia.ariadne.message.parser.twilight import RegexMatch, Twilight
 
 from database.db import add_answer
 from util.sendMessage import safeSendGroupMessage
-from util.control import Permission, Interval, Function
+from util.control import Function, Interval, Permission
 
-from .data import update_data, get_voice
+from .data import get_voice, update_data
 
 saya = Saya.current()
 channel = Channel.current()
@@ -31,7 +31,7 @@ RUNNING = {}
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight({"ark": RegexMatch("(明日)?方舟猜干员")})],
+        inline_dispatchers=[Twilight([RegexMatch("(明日)?方舟猜干员")])],
         decorators=[
             Function.require("ArkGuessOperator"),
             Permission.require(),

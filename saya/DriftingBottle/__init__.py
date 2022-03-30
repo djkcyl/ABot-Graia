@@ -8,18 +8,20 @@ from io import BytesIO
 from pathlib import Path
 from pyzbar import pyzbar
 from PIL import Image as IMG
-from graia.saya import Saya, Channel
+from graia.saya import Channel, Saya
 from graia.ariadne.model import Group, Member
 from graia.broadcast.interrupt.waiter import Waiter
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.event.message import GroupMessage
 from graia.broadcast.interrupt import InterruptControl
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.element import Image, Plain, At, Quote, Source
+from graia.ariadne.message.element import At, Image, Plain, Quote, Source
 from graia.ariadne.message.parser.twilight import (
     Twilight,
+    ArgResult,
     FullMatch,
     RegexMatch,
+    RegexResult,
     ElementMatch,
     ArgumentMatch,
     WildcardMatch,
@@ -29,9 +31,9 @@ from database.db import reduce_gold
 from util.text2image import create_image
 from util.sendMessage import safeSendGroupMessage
 from util.TextModeration import text_moderation_async
-from util.control import Permission, Interval, Function
+from util.control import Function, Interval, Permission
 from util.ImageModeration import image_moderation_async
-from config import yaml_data, user_black_list, save_config, COIN_NAME
+from config import COIN_NAME, save_config, user_black_list, yaml_data
 
 from .db import (
     get_bottle,
@@ -61,12 +63,16 @@ IMAGE_PATH.mkdir(exist_ok=True)
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight(
-                {
-                    "prefix": RegexMatch(r"^(扔|丢)(漂流瓶|瓶子)"),
-                    "enter": FullMatch("\n", optional=True),
-                    "arg_pic": ArgumentMatch("-P", action="store_true", optional=True),
-                    "anythings1": WildcardMatch(optional=True),
-                },
+                [
+                    RegexMatch(r"^(扔|丢)(漂流瓶|瓶子)|pdb"),
+                    "arg_reg_pic" @ RegexMatch(r"-P|-p|--pic", optional=True),
+                    "arg_pic"
+                    @ ArgumentMatch(
+                        "-p", "-P", "--pic", action="store_true", optional=True
+                    ),
+                    FullMatch("\n", optional=True),
+                    "anythings1" @ WildcardMatch(optional=True),
+                ],
             )
         ],
         decorators=[
@@ -80,8 +86,9 @@ async def throw_bottle_handler(
     group: Group,
     member: Member,
     source: Source,
-    arg_pic: ArgumentMatch,
-    anythings1: WildcardMatch,
+    arg_pic: ArgResult,
+    arg_reg_pic: RegexResult,
+    anythings1: RegexResult,
 ):
     @Waiter.create_using_function(
         listening_events=[GroupMessage], using_decorators=[Permission.require()]
@@ -138,7 +145,7 @@ async def throw_bottle_handler(
                 )
 
         if message_chain.has(Image):
-            if arg_pic.matched:
+            if arg_pic.matched or arg_reg_pic.matched:
                 return await safeSendGroupMessage(
                     group, MessageChain.create("使用手动发图参数后不可附带图片"), quote=source
                 )
@@ -149,7 +156,7 @@ async def throw_bottle_handler(
             else:
                 image_url = message_chain.getFirst(Image).url
 
-    if arg_pic.matched:
+    if arg_pic.matched or arg_reg_pic.matched:
         await safeSendGroupMessage(
             group, MessageChain.create("请在 30 秒内发送你要附带的图片"), quote=source
         )
@@ -228,7 +235,7 @@ async def throw_bottle_handler(
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight({"head": RegexMatch(r"^(捡|打?捞)(漂流瓶|瓶子)$")})],
+        inline_dispatchers=[Twilight([RegexMatch(r"^(捡|打?捞)(漂流瓶|瓶子)|lplp|gdb$")])],
         decorators=[
             Function.require("DriftingBottle"),
             Permission.require(),
@@ -283,7 +290,7 @@ async def pick_bottle_handler(group: Group):
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight({"head": FullMatch("清空漂流瓶")})],
+        inline_dispatchers=[Twilight([FullMatch("清空漂流瓶")])],
         decorators=[Permission.require(Permission.MASTER), Interval.require()],
     )
 )
@@ -297,9 +304,7 @@ async def clear_bottle_handler(group: Group):
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight(
-                {"head": FullMatch("查漂流瓶"), "bottleid": WildcardMatch(optional=True)}
-            )
+            Twilight([FullMatch("查漂流瓶"), "bottleid" @ WildcardMatch(optional=True)])
         ],
         decorators=[
             Function.require("DriftingBottle"),
@@ -308,7 +313,8 @@ async def clear_bottle_handler(group: Group):
         ],
     )
 )
-async def drifting_bottle_handler(group: Group, member: Member, bottleid: WildcardMatch):
+async def drifting_bottle_handler(group: Group, member: Member, bottleid: RegexResult):
+    print(bottleid)
     if bottleid.matched:
         if bottleid.result.asDisplay().isdigit():
             bottle_id = int(bottleid.result.asDisplay())
@@ -364,7 +370,7 @@ async def drifting_bottle_handler(group: Group, member: Member, bottleid: Wildca
     else:
         count = count_bottle()
         my_bottles = get_my_bottles(member)
-        my_bottles_str = "\n================================================\n".join(
+        my_bottles_str = "\n".join(
             [f"编号：{x}，日期{x.send_date}，群号：{x.group}" for x in my_bottles]
         )
         msg = [
@@ -386,23 +392,21 @@ async def drifting_bottle_handler(group: Group, member: Member, bottleid: Wildca
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight(
-                {"head": FullMatch("删漂流瓶"), "anything": WildcardMatch(optional=True)}
-            )
+            Twilight([FullMatch("删漂流瓶"), "anything" @ WildcardMatch(optional=True)])
         ],
         decorators=[Permission.require(), Interval.require()],
     )
 )
-async def delete_bottle_handler(group: Group, member: Member, anything: WildcardMatch):
+async def delete_bottle_handler(group: Group, member: Member, anything: RegexResult):
 
     if anything.matched:
         if anything.result.asDisplay().isdigit():
             bottle_id = int(anything.result.asDisplay())
             bottle = get_bottle_by_id(bottle_id)
-            bottle = bottle[0]
             if not bottle:
                 return await safeSendGroupMessage(group, MessageChain.create("没有这个漂流瓶！"))
-            elif (
+            bottle = bottle[0]
+            if (
                 member.id == yaml_data["Basic"]["Permission"]["Master"]
                 or bottle.member == member.id
             ):
@@ -428,11 +432,11 @@ def qrdecode(img):
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight(
-                {
-                    "at": ElementMatch(At, optional=True),
-                    "head": FullMatch("漂流瓶评分"),
-                    "anythings": WildcardMatch(optional=True),
-                }
+                [
+                    ElementMatch(At, optional=True),
+                    FullMatch("漂流瓶评分"),
+                    "anythings" @ WildcardMatch(optional=True),
+                ]
             )
         ],
         decorators=[
@@ -443,7 +447,7 @@ def qrdecode(img):
     )
 )
 async def bottle_score_handler(
-    group: Group, member: Member, message: MessageChain, anythings: WildcardMatch
+    group: Group, member: Member, message: MessageChain, anythings: RegexResult
 ):
     if anythings.matched:
         try:
@@ -513,11 +517,11 @@ async def bottle_score_handler(
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight(
-                {
-                    "at": ElementMatch(At, optional=True),
-                    "head": FullMatch("漂流瓶评论"),
-                    "anythings": WildcardMatch(optional=True),
-                }
+                [
+                    ElementMatch(At, optional=True),
+                    FullMatch("漂流瓶评论"),
+                    "anythings" @ WildcardMatch(optional=True),
+                ]
             )
         ],
         decorators=[
@@ -531,7 +535,7 @@ async def bottle_discuss_handler(
     group: Group,
     member: Member,
     message: MessageChain,
-    anythings: WildcardMatch,
+    anythings: RegexResult,
     source: Source,
 ):
     if anythings.matched:
@@ -551,7 +555,8 @@ async def bottle_discuss_handler(
                         discuss = anythings.result.asDisplay()
                     else:
                         return await safeSendGroupMessage(
-                            group, MessageChain.create(At(member.id), " 请正确回复漂流瓶，并输入评论内容")
+                            group,
+                            MessageChain.create(At(member.id), " 请正确回复漂流瓶，并输入评论内容"),
                         )
                 else:
                     return await safeSendGroupMessage(

@@ -1,16 +1,16 @@
-from graia.saya import Saya, Channel
+import asyncio
+from graia.saya import Channel
 from graia.ariadne.app import Ariadne
 from graia.scheduler.timers import crontabify
 from graia.ariadne.message.element import Plain
 from graia.ariadne.message.chain import MessageChain
 from graia.scheduler.saya.schema import SchedulerSchema
 
-from config import COIN_NAME, yaml_data
 from util.text2image import delete_old_cache
-from database.db import reset_sign, all_sign_num, ladder_rent_collection
+from util.sendMessage import safeSendGroupMessage
+from config import COIN_NAME, yaml_data, group_white_list
+from database.db import all_sign_num, ladder_rent_collection, reset_sign
 
-
-saya = Saya.current()
 channel = Channel.current()
 
 
@@ -31,3 +31,40 @@ async def tasks(app: Ariadne):
             ],
         ),
     )
+
+
+@channel.use(SchedulerSchema(crontabify("* * * * *")))
+async def clean_group(app: Ariadne):
+    group_list = await app.getGroupList()
+    i = 0
+    for group in group_list:
+        member_count = len(await app.getMemberList(group))
+        if member_count < 15:
+            if group.id not in group_white_list:
+                try:
+                    await safeSendGroupMessage(
+                        group,
+                        MessageChain.create(
+                            f'{yaml_data["Basic"]["BotName"]} 当前暂不加入群人数低于 15 的群，正在退出'
+                        ),
+                    )
+                    await app.quitGroup(group)
+                except Exception as e:
+                    await app.sendFriendMessage(
+                        yaml_data["Basic"]["Permission"]["Master"],
+                        MessageChain.create(f"群 {group.name}({group.id}) 退出失败\n{e}"),
+                    )
+                else:
+                    await app.sendFriendMessage(
+                        yaml_data["Basic"]["Permission"]["Master"],
+                        MessageChain.create(
+                            f"群 {group.name}({group.id}) 退出成功\n当前群人数 {member_count}"
+                        ),
+                    )
+                i += 1
+                await asyncio.sleep(0.3)
+    if i != 0:
+        await app.sendFriendMessage(
+            yaml_data["Basic"]["Permission"]["Master"],
+            MessageChain.create(f"本次共清理了 {i}/{len(group_list)} 个群"),
+        )

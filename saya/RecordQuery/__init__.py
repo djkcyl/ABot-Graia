@@ -2,26 +2,27 @@ import json
 import httpx
 import asyncio
 
-from graia.saya import Saya, Channel
+from graia.saya import Channel, Saya
 from graia.ariadne.model import Group, Member
 from graia.broadcast.interrupt.waiter import Waiter
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
 from graia.broadcast.interrupt import InterruptControl
-from graia.ariadne.message.element import Source, Plain, At
+from graia.ariadne.message.element import At, Plain, Source
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import (
     Twilight,
     FullMatch,
+    RegexResult,
     ElementMatch,
+    ElementResult,
     WildcardMatch,
 )
 
 from util.sendMessage import safeSendGroupMessage
-from util.control import Permission, Interval, Function
+from util.control import Function, Interval, Permission
 
 from .draw_record_image import AUTH, DATABASE, draw_r6
-
 
 saya = Saya.current()
 channel = Channel.current()
@@ -45,12 +46,12 @@ WAITING = []
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight(
-                {
-                    "head": FullMatch("查战绩"),
-                    "game": FullMatch("r6"),
-                    "at": ElementMatch(At, optional=True),
-                    "name": WildcardMatch(optional=True),
-                }
+                [
+                    FullMatch("查战绩"),
+                    FullMatch("r6"),
+                    "at" @ ElementMatch(At, optional=True),
+                    "name" @ WildcardMatch(optional=True),
+                ]
             ),
         ],
         decorators=[
@@ -61,7 +62,7 @@ WAITING = []
     )
 )
 async def main(
-    group: Group, member: Member, at: ElementMatch, name: WildcardMatch, source: Source
+    group: Group, member: Member, at: ElementResult, name: RegexResult, source: Source
 ):
     @Waiter.create_using_function(
         listening_events=[GroupMessage], using_decorators=[Permission.require()]

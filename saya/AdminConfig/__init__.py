@@ -2,26 +2,28 @@ import time
 import json
 
 from pathlib import Path
-from graia.saya import Saya, Channel
+
+from graia.saya import Channel
 from graia.ariadne.model import Group
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.event.message import GroupMessage
-from graia.ariadne.message.element import At, Plain, Image
+from graia.ariadne.message.element import At, Image, Plain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import (
     Twilight,
+    ArgResult,
     FullMatch,
     RegexMatch,
-    ArgumentMatch,
+    RegexResult,
     WildcardMatch,
+    ArgumentMatch,
 )
 
 from util.text2image import create_image
-from util.control import Permission, Interval
+from util.control import Interval, Permission
 from util.sendMessage import safeSendGroupMessage
-from config import save_config, yaml_data, group_data, COIN_NAME
+from config import COIN_NAME, group_data, save_config, yaml_data
 
-saya = Saya.current()
 channel = Channel.current()
 
 data = json.loads(
@@ -81,11 +83,11 @@ async def atrep(group: Group, message: MessageChain):
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight([FullMatch("功能")], {"func": WildcardMatch()})],
+        inline_dispatchers=[Twilight([FullMatch("功能"), "func" @ WildcardMatch()])],
         decorators=[Permission.require(), Interval.require(5)],
     )
 )
-async def funchelp(group: Group, func: WildcardMatch):
+async def funchelp(group: Group, func: RegexResult):
     if func.matched:
         num = func.result.asDisplay().strip()
         if num.isdigit():
@@ -130,7 +132,7 @@ async def funchelp(group: Group, func: WildcardMatch):
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight({"head": RegexMatch(r"^[。\./]?help$|^帮助$|^菜单$")})],
+        inline_dispatchers=[Twilight([RegexMatch(r"^[。\./]?help$|^帮助$|^菜单$")])],
         decorators=[Permission.require(), Interval.require(10)],
     )
 )
@@ -175,21 +177,22 @@ async def help(group: Group):
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight(
-                {
-                    "head": FullMatch("开启功能"),
-                    "all": ArgumentMatch(
+                [
+                    FullMatch("开启功能"),
+                    "all"
+                    @ ArgumentMatch(
                         "-all",
                         action="store_true",
                         optional=True,
                     ),
-                    "func": WildcardMatch(optional=True),
-                }
+                    "func" @ WildcardMatch(optional=True),
+                ]
             )
         ],
         decorators=[Permission.require(Permission.GROUP_ADMIN), Interval.require(5)],
     )
 )
-async def on_func(group: Group, func: WildcardMatch, all: ArgumentMatch):
+async def on_func(group: Group, func: RegexResult, all: ArgResult):
     if func.matched:
         say = func.result.asDisplay().strip()
         if say.isdigit():
@@ -248,21 +251,22 @@ async def on_func(group: Group, func: WildcardMatch, all: ArgumentMatch):
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight(
-                {
-                    "head": FullMatch("关闭功能"),
-                    "all": ArgumentMatch(
+                [
+                    FullMatch("关闭功能"),
+                    "all"
+                    @ ArgumentMatch(
                         "-all",
                         action="store_true",
                         optional=True,
                     ),
-                    "func": WildcardMatch(optional=True),
-                }
+                    "func" @ WildcardMatch(optional=True),
+                ]
             )
         ],
         decorators=[Permission.require(Permission.GROUP_ADMIN), Interval.require(5)],
     )
 )
-async def off_func(group: Group, func: WildcardMatch, all: ArgumentMatch):
+async def off_func(group: Group, func: RegexResult, all: ArgResult):
     if func.matched:
         say = func.result.asDisplay().strip()
         if say.isdigit():
@@ -319,21 +323,22 @@ async def off_func(group: Group, func: WildcardMatch, all: ArgumentMatch):
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight(
-                [FullMatch("群功能")],
-                {
-                    "reg1": RegexMatch("修改|查看|关闭|开启", optional=True),
-                    "reg2": RegexMatch(
+                [
+                    FullMatch("群功能"),
+                    "reg1" @ RegexMatch("修改|查看|关闭|开启", optional=True),
+                    "reg2"
+                    @ RegexMatch(
                         "|".join(x["name"] for x in configList), optional=True
                     ),
-                    "reg3": WildcardMatch(optional=True),
-                },
+                    "reg3" @ WildcardMatch(optional=True),
+                ],
             )
         ],
         decorators=[Permission.require(Permission.GROUP_ADMIN), Interval.require(5)],
     )
 )
 async def group_func(
-    group: Group, reg1: RegexMatch, reg2: RegexMatch, reg3: WildcardMatch
+    group: Group, reg1: RegexResult, reg2: RegexResult, reg3: RegexResult
 ):
 
     if reg1.matched:

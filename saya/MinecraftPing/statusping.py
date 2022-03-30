@@ -1,7 +1,7 @@
-import socket
-import struct
 import json
 import time
+import socket
+import struct
 
 
 class StatusPing:

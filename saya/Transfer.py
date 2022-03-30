@@ -1,4 +1,4 @@
-from graia.saya import Saya, Channel
+from graia.saya import Channel
 from graia.ariadne.model import Group, Member
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
@@ -6,18 +6,20 @@ from graia.ariadne.message.element import At, Plain, Source
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import (
     Twilight,
+    ArgResult,
     FullMatch,
+    RegexResult,
     ElementMatch,
-    WildcardMatch,
     ArgumentMatch,
+    ElementResult,
+    WildcardMatch,
 )
 
 from config import COIN_NAME
 from util.sendMessage import safeSendGroupMessage
-from util.control import Permission, Interval, Function
-from database.db import reduce_gold, add_gold, trans_all_gold
+from util.control import Function, Interval, Permission
+from database.db import add_gold, reduce_gold, trans_all_gold
 
-saya = Saya.current()
 channel = Channel.current()
 
 
@@ -26,12 +28,12 @@ channel = Channel.current()
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight(
-                {
-                    "head": FullMatch(f"赠送{COIN_NAME}"),
-                    "at1": ElementMatch(At, optional=True),
-                    "anythings1": WildcardMatch(optional=True),
-                    "arg1": ArgumentMatch("-all", action="store_true", optional=True),
-                },
+                [
+                    FullMatch(f"赠送{COIN_NAME}"),
+                    "at1" @ ElementMatch(At, optional=True),
+                    "anythings1" @ WildcardMatch(optional=True),
+                    "arg1" @ ArgumentMatch("-all", action="store_true", optional=True),
+                ],
             )
         ],
         decorators=[
@@ -45,9 +47,9 @@ async def adminmain(
     group: Group,
     member: Member,
     source: Source,
-    at1: ElementMatch,
-    anythings1: WildcardMatch,
-    arg1: ArgumentMatch,
+    at1: ElementResult,
+    anythings1: RegexResult,
+    arg1: ArgResult,
 ):
     if not at1.matched:
         await safeSendGroupMessage(

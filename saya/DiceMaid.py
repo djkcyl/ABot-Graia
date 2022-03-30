@@ -2,26 +2,23 @@ import re
 import heapq
 import random
 
-from graia.saya import Saya, Channel
+from graia.saya import Channel
 from graia.ariadne.message.element import Plain
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.twilight import Twilight, RegexMatch
+from graia.ariadne.message.parser.twilight import RegexMatch, Twilight
 
 from util.sendMessage import safeSendGroupMessage
-from util.control import Permission, Interval, Function
+from util.control import Function, Interval, Permission
 
-saya = Saya.current()
 channel = Channel.current()
 
 
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[
-            Twilight({"head": RegexMatch(r"^\.r(\d+)?d?(\d+)?k?(\d+)?")})
-        ],
+        inline_dispatchers=[Twilight([RegexMatch(r"^\.r(\d+)?d?(\d+)?k?(\d+)?")])],
         decorators=[
             Function.require("DiceMaid"),
             Permission.require(),

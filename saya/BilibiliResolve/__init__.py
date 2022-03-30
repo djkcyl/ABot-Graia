@@ -3,7 +3,7 @@ import httpx
 import asyncio
 
 from loguru import logger
-from graia.saya import Saya, Channel
+from graia.saya import Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.model import Group, Member
 from graia.broadcast.exceptions import ExecutionStop
@@ -14,11 +14,10 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 from config import yaml_data
 from util.sendMessage import safeSendGroupMessage
-from util.control import Permission, Interval, Function
+from util.control import Function, Interval, Permission
 
 from .draw_bili_image import binfo_image_create
 
-saya = Saya.current()
 channel = Channel.current()
 
 

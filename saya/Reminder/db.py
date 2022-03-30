@@ -2,14 +2,13 @@ from pathlib import Path
 from datetime import datetime
 
 from peewee import (
-    BigIntegerField,
-    SqliteDatabase,
     Model,
-    DateTimeField,
-    BooleanField,
     TextField,
+    BooleanField,
+    DateTimeField,
+    SqliteDatabase,
+    BigIntegerField,
 )
-
 
 database = SqliteDatabase(Path(__file__).parent.joinpath("reminder.db"))
 

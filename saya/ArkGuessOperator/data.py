@@ -6,8 +6,7 @@ import asyncio
 from lxml import etree
 from pathlib import Path
 from loguru import logger
-from graiax.silkcoder import encode
-
+from graiax.silkcoder import async_decode
 
 DATAPATH = Path(__file__).parent.joinpath("data")
 DATAPATH.mkdir(exist_ok=True)
@@ -66,10 +65,14 @@ async def update_data():
                             continue
                         voice = resp.content
                     except httpx.ReadTimeout:
-                        logger.warning(f"[明日方舟猜干员] 语音下载失败：{cnname}-{language}，将在下次更新时重试")
+                        logger.warning(
+                            f"[明日方舟猜干员] 语音下载失败：{cnname}-{language}，将在下次更新时重试"
+                        )
                         continue
-                    voice_silk = await encode(voice)
-                    DATAPATH.joinpath(f"{cnname}_{language}.silk").write_bytes(voice_silk)
+                    voice_silk = await async_decode(voice)
+                    DATAPATH.joinpath(f"{cnname}_{language}.silk").write_bytes(
+                        voice_silk
+                    )
                     DATA[cnname].append(language)
                     logger.info(f"[明日方舟猜干员] 语音下载完成：{cnname}-{language}")
             await asyncio.sleep(0.3)

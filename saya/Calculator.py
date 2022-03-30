@@ -1,19 +1,22 @@
 import re
 import asyncio
 
-from graia.saya import Saya, Channel
+from graia.saya import Channel
 from graia.ariadne.model import Group
 from graia.ariadne.message.element import Source
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.twilight import Twilight, FullMatch, WildcardMatch
+from graia.ariadne.message.parser.twilight import (
+    Twilight,
+    FullMatch,
+    RegexResult,
+    WildcardMatch,
+)
 
 from util.sendMessage import safeSendGroupMessage
 from util.control import Permission, Interval, Function
 
-
-saya = Saya.current()
 channel = Channel.current()
 
 
@@ -22,10 +25,10 @@ channel = Channel.current()
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight(
-                {
-                    "head": FullMatch("计算器"),
-                    "formula": WildcardMatch(optional=True),
-                }
+                [
+                    FullMatch("计算器"),
+                    "formula" @ WildcardMatch(optional=True),
+                ]
             )
         ],
         decorators=[
@@ -35,7 +38,7 @@ channel = Channel.current()
         ],
     )
 )
-async def calculator_main(group: Group, formula: WildcardMatch, source: Source):
+async def calculator_main(group: Group, formula: RegexResult, source: Source):
     if formula.matched:
         expression = rep_str(formula.result.asDisplay())
         if len(expression) > 800:

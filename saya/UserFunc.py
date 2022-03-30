@@ -1,22 +1,21 @@
 from loguru import logger
-from graia.saya import Saya, Channel
+from graia.saya import Channel
 from graia.ariadne.model import Group, Member
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import Image, Plain
-from graia.scheduler.timers import every_custom_minutes
 from graia.scheduler.saya.schema import SchedulerSchema
+from graia.scheduler.timers import every_custom_minutes
 from graia.ariadne.event.lifecycle import ApplicationLaunched
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.twilight import Twilight, FullMatch
+from graia.ariadne.message.parser.twilight import FullMatch, Twilight
 
 from config import COIN_NAME
 from util.text2image import create_image
-from database.db import get_ranking, get_info
-from util.control import Permission, Interval
+from database.db import get_info, get_ranking
+from util.control import Interval, Permission
 from util.sendMessage import safeSendGroupMessage
 
-saya = Saya.current()
 channel = Channel.current()
 
 RANK_LIST = None
@@ -25,7 +24,7 @@ RANK_LIST = None
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight({"head": FullMatch("查看排行榜")})],
+        inline_dispatchers=[Twilight([FullMatch("查看排行榜")])],
         decorators=[Permission.require(), Interval.require()],
     )
 )
@@ -55,7 +54,7 @@ async def bot_Launched():
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight({"head": FullMatch("查看个人信息")})],
+        inline_dispatchers=[Twilight([FullMatch("查看个人信息")])],
         decorators=[Permission.require(), Interval.require()],
     )
 )

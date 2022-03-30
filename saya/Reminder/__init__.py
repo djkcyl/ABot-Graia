@@ -1,21 +1,26 @@
 import asyncio
-
 from datetime import datetime
-from graia.saya import Saya, Channel
+
+from graia.saya import Channel, Saya
 from graia.ariadne.app import Ariadne
 from graia.ariadne.model import Group, Member
 from graia.ariadne.message.element import At, Plain
 from graia.broadcast.interrupt.waiter import Waiter
-from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.event.message import GroupMessage
+from graia.ariadne.message.chain import MessageChain
 from graia.broadcast.interrupt import InterruptControl
 from graia.scheduler.timers import every_custom_seconds
 from graia.scheduler.saya.schema import SchedulerSchema
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.twilight import Twilight, FullMatch, WildcardMatch
+from graia.ariadne.message.parser.twilight import (
+    Twilight,
+    FullMatch,
+    RegexResult,
+    WildcardMatch,
+)
 
 from util.sendMessage import safeSendGroupMessage
-from util.control import Permission, Interval, Function
+from util.control import Function, Interval, Permission
 
 from .time_parser import time_parser
 from .db import (
@@ -25,7 +30,6 @@ from .db import (
     set_reminder_deleted,
     set_reminder_completed,
 )
-
 
 saya = Saya.current()
 channel = Channel.current()
@@ -53,7 +57,7 @@ async def scheduler(app: Ariadne):
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight({"head": FullMatch("定时提醒")})],
+        inline_dispatchers=[Twilight([FullMatch("定时提醒")])],
         decorators=[
             Function.require("Reminder"),
             Permission().require(),
@@ -84,7 +88,7 @@ async def get_reminder(group: Group, member: Member):
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight({"head": FullMatch("新建提醒")})],
+        inline_dispatchers=[Twilight([FullMatch("新建提醒")])],
         decorators=[
             Function.require("Reminder"),
             Permission().require(),
@@ -159,9 +163,7 @@ async def main(group: Group, member: Member):
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight(
-                {"head": FullMatch("删除提醒"), "anything": WildcardMatch(optional=True)}
-            )
+            Twilight([FullMatch("删除提醒"), "anything" @ WildcardMatch(optional=True)])
         ],
         decorators=[
             Function.require("Reminder"),
@@ -170,7 +172,7 @@ async def main(group: Group, member: Member):
         ],
     )
 )
-async def del_reminder(group: Group, member: Member, anything: WildcardMatch):
+async def del_reminder(group: Group, member: Member, anything: RegexResult):
     if anything.matched:
         say = anything.result.asDisplay()
         if say.isdigit():

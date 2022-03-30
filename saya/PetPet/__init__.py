@@ -1,11 +1,11 @@
 import httpx
-
 from io import BytesIO
 from pathlib import Path
+
 from PIL import ImageOps
 from loguru import logger
 from PIL import Image as IMG
-from graia.saya import Saya, Channel
+from graia.saya import Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.model import Group
 from graia.ariadne.event.mirai import NudgeEvent
@@ -13,14 +13,12 @@ from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import At, Image, Plain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.twilight import Twilight, FullMatch, WildcardMatch
+from graia.ariadne.message.parser.twilight import FullMatch, Twilight, WildcardMatch
 
-from config import yaml_data, group_data
+from config import group_data, yaml_data
+from util.control import Function, Interval, Permission, Rest
 from util.sendMessage import safeSendGroupMessage
-from util.control import Interval, Permission, Rest, Function
 
-
-saya = Saya.current()
 channel = Channel.current()
 
 
@@ -32,9 +30,7 @@ FRAMES_PATH = Path(__file__).parent.joinpath("PetPetFrames")
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[
-            Twilight({"head": FullMatch("摸"), "arg1": WildcardMatch()})
-        ],
+        inline_dispatchers=[Twilight([FullMatch("摸"), WildcardMatch()])],
         decorators=[
             Function.require("PetPet"),
             Permission.require(),

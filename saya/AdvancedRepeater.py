@@ -1,4 +1,4 @@
-from graia.saya import Saya, Channel
+from graia.saya import Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.model import Group, Member
 from graia.ariadne.event.message import GroupMessage
@@ -10,14 +10,14 @@ from graia.ariadne.message.parser.twilight import (
     Twilight,
     FullMatch,
     RegexMatch,
+    RegexResult,
     ElementMatch,
+    ElementResult,
 )
 
 from util.control import Permission
 from util.sendMessage import safeSendGroupMessage
 
-
-saya = Saya.current()
 channel = Channel.current()
 
 
@@ -31,17 +31,17 @@ MESSAGEID = {"origin": [], "bot": []}
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight(
-                {
-                    "head": FullMatch("/rep"),
-                    "operate": RegexMatch(r"on|off", optional=True),
-                    "at": ElementMatch(At, optional=True),
-                }
+                [
+                    FullMatch("/rep"),
+                    "operate" @ RegexMatch(r"on|off", optional=True),
+                    "at" @ ElementMatch(At, optional=True),
+                ]
             )
         ],
         decorators=[Permission.require(Permission.MASTER)],
     )
 )
-async def main(group: Group, operate: RegexMatch, at: ElementMatch):
+async def main(group: Group, operate: RegexResult, at: ElementResult):
 
     global REPEATER
 
