@@ -8,6 +8,7 @@ import random
 
 from asyncio import Lock
 from typing import Optional
+from datetime import datetime
 from graia.saya import Channel
 from collections import defaultdict
 from graia.ariadne.app import Ariadne
@@ -29,6 +30,17 @@ channel = Channel.current()
 
 
 SLEEP = 0
+BOT_SHUTDOWN = False
+
+
+def bot_shutdown(shutdown=None):
+    global BOT_SHUTDOWN
+    if shutdown is None:
+        return BOT_SHUTDOWN
+    elif shutdown:
+        BOT_SHUTDOWN = True
+    else:
+        BOT_SHUTDOWN = False
 
 
 @channel.use(SchedulerSchema(crontabify("30 7 * * *")))
@@ -92,6 +104,8 @@ class Function:
                 or member.group.id == yaml_data["Basic"]["Permission"]["DebugGroup"]
             ):
                 pass
+            elif bot_shutdown():
+                raise ExecutionStop()
             elif yaml_data["Saya"][funcname]["Disabled"]:
                 raise ExecutionStop()
             elif funcname not in group_data[str(member.group.id)]["DisabledFunc"]:
@@ -100,6 +114,26 @@ class Function:
                 raise ExecutionStop()
 
         return Depend(func_check)
+
+
+class RollQQ:
+    """
+    用于功能单双号限制的类，不应该被实例化
+    """
+
+    def require() -> Depend:
+        def qq_check(member: Member):
+            day = datetime.now().day
+            if member.id == yaml_data["Basic"]["Permission"]["Master"]:
+                pass
+            elif (day % 2) == 0 and (member.id % 2) == 0:
+                pass
+            elif (day % 2) != 0 and (member.id % 2) != 0:
+                pass
+            else:
+                raise ExecutionStop()
+
+        return Depend(qq_check)
 
 
 class Permission:

@@ -20,16 +20,16 @@ from graia.ariadne.message.parser.twilight import (
 )
 
 from util.text2image import create_image
-from util.control import Rest, Permission
 from database.db import add_gold, give_all_gold
 from util.sendMessage import safeSendGroupMessage
+from util.control import Rest, Permission, bot_shutdown
 from config import (
     COIN_NAME,
     yaml_data,
-    group_list,
     save_config,
     user_black_list,
     group_black_list,
+    group_white_list,
 )
 
 from .AdminConfig import funcList
@@ -194,10 +194,10 @@ async def add_white_group(app: Ariadne, friend: Friend, groupid: RegexResult):
     if groupid.matched:
         say = groupid.result.asDisplay()
         if say.isdigit():
-            if int(say) in group_list["white"]:
+            if int(say) in group_white_list:
                 await app.sendFriendMessage(friend, MessageChain.create("该群已在白名单中"))
             else:
-                group_list["white"].append(int(say))
+                group_white_list.append(int(say))
                 save_config()
                 await app.sendFriendMessage(friend, MessageChain.create("成功将该群加入白名单"))
         else:
@@ -221,7 +221,7 @@ async def remove_white_group(app: Ariadne, friend: Friend, groupid: RegexResult)
     if groupid.matched:
         say = groupid.result.asDisplay()
         if say.isdigit():
-            if int(say) not in group_list["white"]:
+            if int(say) not in group_white_list:
                 try:
                     await app.quitGroup(int(say))
                     await app.sendFriendMessage(
@@ -232,7 +232,7 @@ async def remove_white_group(app: Ariadne, friend: Friend, groupid: RegexResult)
                         friend, MessageChain.create("该群未在白名单中，且退出失败")
                     )
             else:
-                group_list["white"].remove(int(say))
+                group_white_list.remove(int(say))
                 save_config()
                 try:
                     await safeSendGroupMessage(
@@ -490,6 +490,54 @@ async def gset_rest(group: Group):
 @channel.use(
     ListenerSchema(
         listening_events=[FriendMessage],
+        inline_dispatchers=[Twilight([FullMatch("开机")])],
+    )
+)
+async def fpw_on(app: Ariadne, friend: Friend):
+    Permission.manual(friend, Permission.MASTER)
+    bot_shutdown(False)
+    await app.sendFriendMessage(friend, MessageChain.create([Plain("已开机")]))
+
+
+@channel.use(
+    ListenerSchema(
+        listening_events=[FriendMessage],
+        inline_dispatchers=[Twilight([FullMatch("关机")])],
+    )
+)
+async def fpw_off(app: Ariadne, friend: Friend):
+    Permission.manual(friend, Permission.MASTER)
+    bot_shutdown(True)
+    await app.sendFriendMessage(friend, MessageChain.create([Plain("已关机")]))
+
+
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[Twilight([FullMatch("关机")])],
+        decorators=[Permission.require(Permission.MASTER)],
+    )
+)
+async def gpw_off(group: Group):
+    bot_shutdown(True)
+    await safeSendGroupMessage(group, MessageChain.create([Plain("已关机")]))
+
+
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[Twilight([FullMatch("开机")])],
+        decorators=[Permission.require(Permission.MASTER)],
+    )
+)
+async def gpw_on(group: Group):
+    bot_shutdown(False)
+    await safeSendGroupMessage(group, MessageChain.create([Plain("已开机")]))
+
+
+@channel.use(
+    ListenerSchema(
+        listening_events=[FriendMessage],
         inline_dispatchers=[Twilight([FullMatch("群名片修正")])],
     )
 )
@@ -508,15 +556,11 @@ async def group_card_fix(app: Ariadne, friend: Friend):
         else:
             await app.sendFriendMessage(
                 friend,
-                MessageChain.create(
-                    [Plain(f"群 {group.name}（{group.id}）名片修改失败，请检查后重试")]
-                ),
+                MessageChain.create([Plain(f"群 {group.name}（{group.id}）名片修改失败，请检查后重试")]),
             )
             await asyncio.sleep(0.5)
             break
-    await app.sendFriendMessage(
-        friend, MessageChain.create([Plain(f"共完成 {i} 个群的名片修改。")])
-    )
+    await app.sendFriendMessage(friend, MessageChain.create([Plain(f"共完成 {i} 个群的名片修改。")]))
 
 
 @channel.use(

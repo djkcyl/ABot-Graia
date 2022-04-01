@@ -86,11 +86,11 @@ def save_config():
     with CONFIG_PATH.joinpath("groupdata.json").open("w", encoding="utf-8") as f:
         json.dump(group_data, f, indent=2, ensure_ascii=False)
     with CONFIG_PATH.joinpath("grouplist.json").open("w", encoding="utf-8") as f:
-        group_list["black"] = list(set(group_black_list))
-        group_list["white"] = list(set(group_white_list))
+        group_list["black"] = list(set(group_black_list + group_list["black"]))
+        group_list["white"] = list(set(group_white_list + group_list["white"]))
         json.dump(group_list, f, indent=2, ensure_ascii=False)
     with CONFIG_PATH.joinpath("userlist.json").open("w", encoding="utf-8") as f:
-        user_list["black"] = list(set(user_black_list))
+        user_list["black"] = list(set(user_black_list + user_list["black"]))
         json.dump(user_list, f, indent=2, ensure_ascii=False)
 
 

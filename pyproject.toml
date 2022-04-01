@@ -2,7 +2,7 @@
 authors = ["djkcyl <cyl@cyllive.cn>"]
 description = ""
 name = "abot-mahv2"
-version = "2.11.0"
+version = "2.11.1"
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.10"
@@ -28,7 +28,7 @@ tencentcloud-sdk-python = "^3.0.565"
 triangler-patch = "^0.1.3"
 wordcloud = "^1.8.1"
 xmltodict = "^0.12.0"
-graia-ariadne = {version = "0.6.13", extras = ["graia"]}
+graia-ariadne = {extras = ["graia"], version = "^0.6.14"}
 grpcio = "^1.45.0"
 grpcio-status = "^1.45.0"
 numba = "^0.55.1"

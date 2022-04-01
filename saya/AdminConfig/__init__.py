@@ -1,5 +1,6 @@
 import time
 import json
+import toml
 
 from pathlib import Path
 
@@ -25,7 +26,7 @@ from util.sendMessage import safeSendGroupMessage
 from config import COIN_NAME, group_data, save_config, yaml_data
 
 channel = Channel.current()
-
+pyproject = toml.loads(Path("pyproject.toml").read_text(encoding="utf-8"))
 data = json.loads(
     Path(__file__)
     .parent.joinpath("func.json")
@@ -122,9 +123,7 @@ async def funchelp(group: Group, func: RegexResult):
             + funcHelp[sayfunc]["example"]
         )
         image = await create_image(help)
-        await safeSendGroupMessage(
-            group, MessageChain.create([Image(data_bytes=image)])
-        )
+        await safeSendGroupMessage(group, MessageChain.create([Image(data_bytes=image)]))
     else:
         await safeSendGroupMessage(group, MessageChain.create([Plain("请输入功能编号")]))
 
@@ -161,12 +160,14 @@ async def help(group: Group):
         i += 1
     msg += str(
         "\n========================================================"
-        + "\n详细查看功能使用方法请发送 功能 <id>，例如：功能 1"
-        + "\n管理员可发送 开启功能/关闭功能 <功能id> "
-        + "\n每日00:00至07:30为休息时间，将关闭部分功能"
-        + "\n所有功能均无需@机器人本身"
-        + "\n源码：github.com/djkcyl/ABot-Graia"
-        + f"\n更多功能待开发，如有特殊需求可以向 {yaml_data['Basic']['Permission']['Master']} 询问"
+        "\n详细查看功能使用方法请发送 功能 <id>，例如：功能 1"
+        "\n管理员可发送 开启功能/关闭功能 <功能id> "
+        "\n每日00:00至07:30为休息时间，将关闭部分功能"
+        "\n所有功能均无需@机器人本身"
+        "\n源码：github.com/djkcyl/ABot-Graia"
+        f"\n更多功能待开发，如有特殊需求可以向 {yaml_data['Basic']['Permission']['Master']} 询问"
+        f"\n \nABot 版本：{pyproject['tool']['poetry']['version']}"
+        "\n========================================================"
     )
     image = await create_image(msg, 80)
     await safeSendGroupMessage(group, MessageChain.create([Image(data_bytes=image)]))
@@ -327,9 +328,7 @@ async def off_func(group: Group, func: RegexResult, all: ArgResult):
                     FullMatch("群功能"),
                     "reg1" @ RegexMatch("修改|查看|关闭|开启", optional=True),
                     "reg2"
-                    @ RegexMatch(
-                        "|".join(x["name"] for x in configList), optional=True
-                    ),
+                    @ RegexMatch("|".join(x["name"] for x in configList), optional=True),
                     "reg3" @ WildcardMatch(optional=True),
                 ],
             )

@@ -32,21 +32,19 @@ async def safeSendGroupMessage(
                 msg.append(Plain(name))
                 continue
             msg.append(element)
-        try:
-            return await app.sendGroupMessage(
-                target, MessageChain.create(msg), quote=quote
+        return await app.sendGroupMessage(target, MessageChain.create(msg), quote=quote)
+
+    except RemoteException as e:
+        if "GROUP_CHAT_LIMITED" in str(e):
+            if isinstance(target, Group):
+                group_id = target.id
+            else:
+                group_id = target
+            await app.sendFriendMessage(
+                yaml_data["Basic"]["Permission"]["Master"],
+                MessageChain.create(f"由于 {group_id} 群开启消息限制，正在退出"),
             )
-        except RemoteException as e:
-            if "GROUP_CHAT_LIMITED" in str(e):
-                if isinstance(target, Group):
-                    group_id = target.id
-                else:
-                    group_id = target
-                await app.sendFriendMessage(
-                    yaml_data["Basic"]["Permission"]["Master"],
-                    MessageChain.create(f"由于 {group_id} 群开启消息限制，正在退出"),
-                )
-                await app.quitGroup(target)
+            await app.quitGroup(target)
 
 
 async def autoSendMessage(

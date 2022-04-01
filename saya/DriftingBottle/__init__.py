@@ -31,8 +31,8 @@ from database.db import reduce_gold
 from util.text2image import create_image
 from util.sendMessage import safeSendGroupMessage
 from util.TextModeration import text_moderation_async
-from util.control import Function, Interval, Permission
 from util.ImageModeration import image_moderation_async
+from util.control import Function, Interval, Permission, RollQQ
 from config import COIN_NAME, save_config, user_black_list, yaml_data
 
 from .db import (
@@ -239,16 +239,21 @@ async def throw_bottle_handler(
         decorators=[
             Function.require("DriftingBottle"),
             Permission.require(),
+            RollQQ.require(),
             Interval.require(30),
         ],
     )
 )
-async def pick_bottle_handler(group: Group):
+async def pick_bottle_handler(group: Group, member: Member):
     bottle = get_bottle()
 
     if bottle is None:
         return await safeSendGroupMessage(group, MessageChain.create("没有漂流瓶可以捡哦！"))
     else:
+        if not await reduce_gold(str(member.id), 2):
+            return await safeSendGroupMessage(
+                group, MessageChain.create(f"你的{COIN_NAME}不足，无法捞漂流瓶！")
+            )
         bottle_score = get_bottle_score_avg(bottle["id"])
         bottle_discuss = get_bottle_discuss(bottle["id"])
         score_msg = f"瓶子的评分为：{bottle_score}" if bottle_score else "本漂流瓶目前还没有评分"

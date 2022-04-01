@@ -1,4 +1,6 @@
 import os
+import time
+import httpx
 import asyncio
 
 from pathlib import Path
@@ -78,5 +80,19 @@ with saya.module_context():
 
 
 if __name__ == "__main__":
-    app.launch_blocking()
-    save_config()
+    logger.info("正在检测 MAH 是否启动")
+    while True:
+        try:
+            mah = httpx.get(yaml_data["Basic"]["MAH"]["MiraiHost"] + "/about")
+            if mah.status_code == 200:
+                app.launch_blocking()
+                save_config()
+                break
+            else:
+                time.sleep(3)
+                logger.critical("MAH 尚未启动，正在重试...")
+        except httpx.HTTPError:
+            logger.critical("MAH 尚未启动，请检查")
+            break
+        except KeyboardInterrupt:
+            break
