@@ -6,8 +6,7 @@ from loguru import logger
 from prettytable import PrettyTable
 from peewee import SqliteDatabase, Model, CharField, IntegerField
 
-# from config import COIN_NAME
-COIN_NAME = "金币"
+from config import COIN_NAME
 
 db = SqliteDatabase("./database/userData.db")
 

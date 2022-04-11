@@ -270,19 +270,19 @@ class Interval:
                         cls.sent_alert.remove(event.sender.id)
                     return
                 if event.sender.id not in cls.sent_alert:
-                    if not silent:
-                        await safeSendGroupMessage(
-                            event.sender.group,
-                            MessageChain.create(
-                                [
-                                    Plain(
-                                        f"冷却还有{last[1] + suspend_time - current:.2f}秒结束，"
-                                        f"之后可再执行{max_exec}次"
-                                    )
-                                ]
-                            ),
-                            quote=event.messageChain.getFirst(Source).id,
-                        )
+                    # if not silent:
+                    #     await safeSendGroupMessage(
+                    #         event.sender.group,
+                    #         MessageChain.create(
+                    #             [
+                    #                 Plain(
+                    #                     f"冷却还有{last[1] + suspend_time - current:.2f}秒结束，"
+                    #                     f"之后可再执行{max_exec}次"
+                    #                 )
+                    #             ]
+                    #         ),
+                    #         quote=event.messageChain.getFirst(Source).id,
+                    #     )
                     cls.sent_alert.add(event.sender.id)
                 raise ExecutionStop()
 

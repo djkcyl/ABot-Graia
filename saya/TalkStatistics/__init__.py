@@ -57,7 +57,7 @@ async def get_image(group: Group):
     await safeSendGroupMessage(group, MessageChain.create([Image(data_bytes=image)]))
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage], priority=-60))
+@channel.use(ListenerSchema(listening_events=[GroupMessage], priority=-16))
 async def add_talk_word(
     app: Ariadne, group: Group, member: Member, message: MessageChain
 ):

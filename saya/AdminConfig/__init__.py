@@ -166,8 +166,8 @@ async def help(group: Group):
         "\n所有功能均无需@机器人本身"
         "\n源码：github.com/djkcyl/ABot-Graia"
         f"\n更多功能待开发，如有特殊需求可以向 {yaml_data['Basic']['Permission']['Master']} 询问"
-        f"\n \nABot 版本：{pyproject['tool']['poetry']['version']}"
         "\n========================================================"
+        f"\n \nABot 当前版本：{pyproject['tool']['poetry']['version']}"
     )
     image = await create_image(msg, 80)
     await safeSendGroupMessage(group, MessageChain.create([Image(data_bytes=image)]))

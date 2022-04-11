@@ -4,7 +4,6 @@ from io import StringIO
 from graia.saya import Channel
 from graia.ariadne import get_running
 from graia.ariadne.app import Ariadne
-from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import Image, Plain
 from graia.broadcast.builtin.event import ExceptionThrowed
@@ -12,7 +11,6 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 from config import yaml_data
 from util.text2image import create_image
-from util.sendMessage import safeSendGroupMessage
 
 channel = Channel.current()
 
@@ -37,6 +35,7 @@ async def except_handle(event: ExceptionThrowed):
     if isinstance(event.event, ExceptionThrowed):
         return
     else:
+        return
         eimg = await make_msg_for_unknow_exception(event)
         # try:
         #     if isinstance(event.event, GroupMessage):

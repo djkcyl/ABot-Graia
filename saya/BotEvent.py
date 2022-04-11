@@ -1,4 +1,5 @@
 import time
+
 # import asyncio
 
 from io import BytesIO
@@ -28,11 +29,20 @@ from graia.ariadne.event.mirai import (
 )
 
 from util.control import Rest
+
 from database.db import init_user
 from util.text2image import create_image
 from util.sendMessage import safeSendGroupMessage
 from util.TextModeration import text_moderation_async
-from config import save_config, yaml_data, group_data, user_black_list, group_black_list, group_white_list
+from config import (
+    yaml_data,
+    group_data,
+    save_config,
+    user_black_list,
+    group_black_list,
+    group_white_list,
+)
+
 
 from .AdminConfig import groupInitData
 
@@ -44,7 +54,6 @@ async def groupDataInit(app: Ariadne):
     """
     Graia 成功启动
     """
-    # await asyncio.sleep(1)  # 这是必须的，否则会报错
     groupList = await app.getGroupList()
     groupNum = len(groupList)
     init_user(str(yaml_data["Basic"]["Permission"]["Master"]))

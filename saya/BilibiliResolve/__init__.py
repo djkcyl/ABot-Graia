@@ -9,8 +9,8 @@ from graia.ariadne.model import Group, Member
 from graia.broadcast.exceptions import ExecutionStop
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
-from graia.ariadne.message.element import Image, Plain, Voice
 from graia.saya.builtins.broadcast.schema import ListenerSchema
+from graia.ariadne.message.element import Image, Plain, Voice, FlashImage
 
 from config import yaml_data
 from util.sendMessage import safeSendGroupMessage
@@ -30,15 +30,15 @@ channel = Channel.current()
 async def bilibili_main(
     app: Ariadne, group: Group, member: Member, message: MessageChain
 ):
-    if message.has(Image) or message.has(Voice):
+    if message.has(Image) or message.has(Voice) or message.has(FlashImage):
         return
 
-    saying = message.asPersistentString()
+    message_str = message.asPersistentString()
     video_info = None
-    if "b23.tv" in saying:
-        saying = await b23_extract(saying)
+    if "b23.tv" in message_str:
+        message_str = await b23_extract(message_str)
     p = re.compile(r"av(\d{1,15})|BV(1[A-Za-z0-9]{2}4.1.7[A-Za-z0-9]{2})")
-    video_number = p.search(saying)
+    video_number = p.search(message_str)
     if video_number:
         video_number = video_number.group(0)
         if video_number:
