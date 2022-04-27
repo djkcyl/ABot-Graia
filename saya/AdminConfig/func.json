@@ -251,6 +251,12 @@
       "key": "HorseRacing",
       "can_disabled": true,
       "default_disabled": false
+    },
+    {
+      "name":"公共画板",
+      "key":"ABotPlace",
+      "can_disabled":true,
+      "default_disabled":false
     }
   ],
   "configList": [
@@ -512,6 +518,12 @@
       "instruction": "赛马小游戏！是正经赛马，不是赛马娘！",
       "usage": "发送指令：\n开始赛马\n查看赛马信息\n赛马抽奖",
       "options": "开启和加入均需要 5 个 $COIN_NAME，纯随机运行，每次抽奖需要消耗 2 个 $COIN_NAME",
+      "example": "（这也需要示例吗？"
+    },
+    "公共画板":{
+      "instruction": "公共画板，可以让你和所有的 Bot 用户一起画画",
+      "usage": "发送指令：\n查看画板\n画板作画",
+      "options": "使用需要消耗 2 个 $COIN_NAME",
       "example": "（这也需要示例吗？"
     }
   }

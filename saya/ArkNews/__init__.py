@@ -39,7 +39,7 @@ def save_pushed_list():
         json.dump(pushed_list, f, indent=2)
 
 
-@channel.use(SchedulerSchema(every_custom_seconds(30)))
+@channel.use(SchedulerSchema(every_custom_seconds(60)))
 @channel.use(ListenerSchema(listening_events=[ApplicationLaunched]))
 async def get_weibo_news(app: Ariadne):
 
@@ -121,6 +121,7 @@ async def get_weibo_news(app: Ariadne):
                 f"{result.user_name} 的微博 {new_id} 推送结束，耗时{time_rec.total()}"
             ),
         ),
+        await asyncio.sleep(2)
 
 
 @channel.use(SchedulerSchema(every_custom_seconds(30)))

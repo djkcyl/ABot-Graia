@@ -224,6 +224,9 @@ Saya: # saya 插件配置
 
   UserFunction: # 用户功能 无法关闭
     Disabled: false
+
+  ABotPlace: # ABot 公共画板
+    Disabled: false
 Final: false
 # 配置完成后请调整为 true
 # 配置完成后请调整为 true
