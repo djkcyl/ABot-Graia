@@ -37,5 +37,5 @@ async def az(group: Group, message: MessageChain):
     if saying == "流汗黄豆.jpg":
         await Interval.manual(5)
         await safeSendGroupMessage(
-            group, MessageChain.create([Image(path=HOME.joinpath("jpg"))])
+            group, MessageChain.create([Image(path=HOME.joinpath("huangtou.jpg"))])
         )

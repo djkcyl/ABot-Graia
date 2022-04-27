@@ -107,4 +107,5 @@ async def guess_operator(group: Group, source: Source):
 @channel.use(SchedulerSchema(crontabify("0 4 * * *")))
 @channel.use(ListenerSchema(listening_events=[ApplicationLaunched]))
 async def tasks():
-    await update_data()
+    pass
+    # await update_data()

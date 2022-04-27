@@ -91,6 +91,8 @@
 
 感谢[HarukaBot](../../../../SK-415/HarukaBot)提供的哔哩哔哩推送灵感及部分实现思路
 
+感谢[Amiya-Bot](../../../../AmiyaBot/Amiya-Bot)提供的微博订阅推送实现
+
 ## License
 
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fdjkcyl%2FABot-Graia.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fdjkcyl%2FABot-Graia?ref=badge_large)

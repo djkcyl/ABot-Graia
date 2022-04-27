@@ -18,10 +18,9 @@ from util.TimeTool import TimeRecorder
 from config import group_data, yaml_data
 from util.text2image import create_image
 
-from .get_news import Game, Weibo
+from .get_news import Game, WeiboUser
 
 channel = Channel.current()
-weibo = Weibo()
 game = Game()
 
 HOME = Path(__file__).parent
@@ -31,7 +30,7 @@ if PUSHED_LIST_FILE.exists():
         pushed_list = json.load(f)
 else:
     with PUSHED_LIST_FILE.open("w") as f:
-        pushed_list = {"weibo": None, "game": None}
+        pushed_list = {"weibo": {}, "game": None}
         json.dump(pushed_list, f, indent=2)
 
 
@@ -40,63 +39,88 @@ def save_pushed_list():
         json.dump(pushed_list, f, indent=2)
 
 
-@channel.use(SchedulerSchema(every_custom_seconds(15)))
+@channel.use(SchedulerSchema(every_custom_seconds(30)))
 @channel.use(ListenerSchema(listening_events=[ApplicationLaunched]))
 async def get_weibo_news(app: Ariadne):
 
+    # 总开关
     if yaml_data["Saya"]["ArkNews"]["Disabled"]:
         return
 
-    try:
+    # 遍历需要推送的微博 id 表
+    for weibo_id in yaml_data["Saya"]["ArkNews"]["WeiboUserList"]:
+        # 实例化微博用户
+        weibo = WeiboUser(weibo_id)
         pushed = pushed_list["weibo"]
-        new_id = await weibo.requests_content(0, only_id=True)
+        weibo_id = str(weibo_id)
+        if weibo_id not in pushed:
+            pushed[weibo_id] = []
+        new_id = await weibo.get_weibo_id(0)
 
-        if not pushed:
-            pushed_list["weibo"] = [new_id]
+        # 如果获取失败，则跳过
+        if not new_id:
+            continue
+
+        # 如果获取到的 id 与之前的 id 相同或者为空，则跳过
+        if not pushed[weibo_id]:
+            pushed_list["weibo"][weibo_id].append(new_id)
             save_pushed_list()
             await asyncio.sleep(1)
-            logger.info(f"[明日方舟蹲饼] 微博初始化成功，当前最新微博：{new_id}")
-            return
-        elif not isinstance(new_id, str) or new_id in pushed:
+            logger.info(f"[明日方舟蹲饼] {weibo_id} 微博初始化成功，当前最新微博：{new_id}")
+            continue
+        elif not isinstance(new_id, str) or new_id in pushed[weibo_id]:
+            continue
+
+        # 存储获取到的 id 至已推送列表
+        pushed_list["weibo"][weibo_id].append(new_id)
+        save_pushed_list()
+
+        # 进入推送流程
+        # 获取最新微博正文内容
+        result = await weibo.get_weibo_content(0)
+        if not result:
+            await app.sendFriendMessage(
+                yaml_data["Basic"]["Permission"]["Master"],
+                MessageChain.create(f"微博推送失败，USER：{weibo_id}，ID：{new_id}，终止本次流程"),
+            )
             return
 
-        pushed_list["weibo"].append(new_id)
-        save_pushed_list()
+        # 开始计时并推送
+        time_rec = TimeRecorder()
 
         group_list = (
             [await app.getGroup(yaml_data["Basic"]["Permission"]["DebugGroup"])]
             if yaml_data["Basic"]["Permission"]["Debug"]
-            else await app.getGroupList()
+            else [
+                x
+                for x in await app.getGroupList()
+                if "ArkNews" in group_data[str(x.id)]["DisabledFunc"]
+            ]
         )
-        result, detail_url, pics_list = await weibo.requests_content(0)
 
-        time_rec = TimeRecorder()
-        logger.info(f"[明日方舟蹲饼] 微博已更新：{new_id}")
-        image = await create_image(result, 72)
+        group_count = len(group_list)
+        logger.info(f"[明日方舟蹲饼] {result.user_name} 微博已更新：{new_id}，共需推送 {group_count} 个群")
+
+        # 构建消息链
         msg = [
-            Plain("明日方舟更新了新的微博\n"),
-            Plain(f"{detail_url}\n"),
-            Image(data_bytes=image),
-        ] + [Image(url=x) for x in pics_list]
-        await app.sendFriendMessage(
-            yaml_data["Basic"]["Permission"]["Master"], MessageChain.create(new_id)
-        )
+            Plain(f"{result.user_name} 更新了新的微博 {new_id}\n"),
+            Plain(f"{result.detail_url}\n"),
+            Image(data_bytes=await create_image(result.html_text, 72)),
+        ] + [Image(url=x) for x in result.pics_list]
+
         await app.sendFriendMessage(
             yaml_data["Basic"]["Permission"]["Master"], MessageChain.create(msg)
         )
         for group in group_list:
-            if "ArkNews" in group_data[str(group.id)]["DisabledFunc"]:
-                continue
             await app.sendMessage(group, MessageChain.create(msg))
             await asyncio.sleep(random.uniform(2, 4))
 
         await app.sendFriendMessage(
             yaml_data["Basic"]["Permission"]["Master"],
-            MessageChain.create([Plain(f"微博推送结束，耗时{time_rec.total()}")]),
-        )
-
-    except Exception:
-        pass
+            MessageChain.create(
+                f"{result.user_name} 的微博 {new_id} 推送结束，耗时{time_rec.total()}"
+            ),
+        ),
 
 
 @channel.use(SchedulerSchema(every_custom_seconds(30)))
