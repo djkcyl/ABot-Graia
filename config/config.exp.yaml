@@ -173,6 +173,15 @@ Saya: # saya 插件配置
 
   ArkNews: # 明日方舟蹲饼
     Disabled: false
+    WeiboUserList: # 监听微博用户列表
+      - 6279793937 # 明日方舟
+      - 7461423907 # 鹰角网络
+      - 7506039414 # 一拾山
+      - 1652903644 # 海猫
+      - 7745672941 # 明日方舟终末地
+      - 7499841383 # 泰拉记事社
+      - 7719744839 # CubesCollective
+      - 6441489862 # 明日方舟朝陇山
 
   LowPolygon: # 低多边形图片生成
     Disabled: false
@@ -212,7 +221,7 @@ Saya: # saya 插件配置
 
   HorseRacing: # 赛马！
     Disabled: false
-    
+
   UserFunction: # 用户功能 无法关闭
     Disabled: false
 Final: false
