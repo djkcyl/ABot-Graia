@@ -1,4 +1,4 @@
-color_plant = [
+color_plant_source = [
     [
         (0, 0, 0),
         (128, 0, 0),

@@ -4,7 +4,7 @@ from loguru import logger
 
 from PIL import Image, ImageDraw, ImageFont
 
-from .color import color_plant
+from .color import color_plant_source
 
 image_path = Path(__file__).parent.joinpath("image")
 image_path.mkdir(exist_ok=True)
@@ -27,7 +27,7 @@ else:
     text_font = ImageFont.truetype("./font/sarasa-mono-sc-regular.ttf", 22)
 
     i = 0
-    for x, colors in enumerate(color_plant):
+    for x, colors in enumerate(color_plant_source):
         for y, color in enumerate(colors):
             # 绘制圆形，每个之间间隔20像素
             draw.ellipse(
@@ -63,7 +63,7 @@ else:
     color_plant_img = color_plant_bio.getvalue()
 
 color_plant = []
-for color in color_plant:
+for color in color_plant_source:
     color_plant += color
 
 place_chunk = {}
