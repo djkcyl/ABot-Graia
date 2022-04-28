@@ -218,7 +218,7 @@ async def place_draw(group: Group, member: Member):
                     FullMatch("快捷作画"),
                     "coordinates"
                     @ RegexMatch(
-                        r"(\d{1,2})[|;:,，\s](\d{1,2})[|;:,，\s](\d{1,2})[|;:,，\s](\d{1,2})[|;:,，\s](\d{1,2})$"
+                        r"(\d{1,2})[|;:,，\s](\d{1,2})[|;:,，\s](\d{1,2})[|;:,，\s](\d{1,2})[|;:,，\s](\d{1,3})$"
                     ),
                 ],
             )
