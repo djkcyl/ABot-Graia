@@ -1,16 +1,26 @@
+import asyncio
 import re
 import time
 import httpx
 
 from dataclasses import dataclass
+
+from loguru import logger
 from util.browser import get_browser
 
 
 async def get_result(url, headers):
     async with httpx.AsyncClient() as session:
-        res = await session.get(url, headers=headers)
-        if res.status_code == 200:
-            return res.json()
+        for _ in range(3):
+            try:
+                res = await session.get(url, headers=headers)
+                if res.status_code == 200:
+                    return res.json()
+            except httpx.ReadTimeout:
+                logger.warning(f"{url} 请求超时，正在重试")
+                await asyncio.sleep(3)
+        else:
+            logger.warning(f"{url} 请求失败")
 
 
 def remove_xml_tag(text: str):

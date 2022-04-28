@@ -71,10 +71,6 @@ async def get_weibo_news(app: Ariadne):
         elif not isinstance(new_id, str) or new_id in pushed[weibo_id]:
             continue
 
-        # 存储获取到的 id 至已推送列表
-        pushed_list["weibo"][weibo_id].append(new_id)
-        save_pushed_list()
-
         # 进入推送流程
         # 获取最新微博正文内容
         result = await weibo.get_weibo_content(0)
@@ -83,7 +79,7 @@ async def get_weibo_news(app: Ariadne):
                 yaml_data["Basic"]["Permission"]["Master"],
                 MessageChain.create(f"微博推送失败，USER：{weibo_id}，ID：{new_id}，终止本次流程"),
             )
-            return
+            continue
 
         # 开始计时并推送
         time_rec = TimeRecorder()
@@ -121,6 +117,11 @@ async def get_weibo_news(app: Ariadne):
                 f"{result.user_name} 的微博 {new_id} 推送结束，耗时{time_rec.total()}"
             ),
         ),
+
+        # 存储获取到的 id 至已推送列表
+        pushed_list["weibo"][weibo_id].append(new_id)
+        save_pushed_list()
+
         await asyncio.sleep(5)
 
 

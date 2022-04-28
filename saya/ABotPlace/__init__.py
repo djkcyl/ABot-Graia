@@ -22,7 +22,7 @@ from util.sendMessage import safeSendGroupMessage
 from util.control import Function, Interval, Permission
 
 from .database import fill_pixel
-from .draw import get_draw_line, draw_pixel, merge_chunk, color_plant_img
+from .draw import get_draw_line, draw_pixel, zoom_merge_chunk, color_plant_img
 
 saya = Saya.current()
 channel = Channel.current()
@@ -35,7 +35,10 @@ inc = InterruptControl(bcc)
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight(
-                [FullMatch("查看画板")],
+                [
+                    FullMatch("查看画板"),
+                    "chunk" @ RegexMatch(r"(\d{1,2})[|;:,，\s](\d{1,2})$", optional=True),
+                ],
             )
         ],
         decorators=[
@@ -45,10 +48,20 @@ inc = InterruptControl(bcc)
         ],
     )
 )
-async def vive_full_image(group: Group):
-    await safeSendGroupMessage(
-        group, MessageChain.create(Image(data_bytes=merge_chunk()))
-    )
+async def vive_image(group: Group, chunk: RegexResult):
+    if chunk.matched:
+        p = re.compile(r"(\d{1,2})[|;:,，\s](\d{1,2})")
+        chunk_x, chunk_y = p.match(chunk.result.asDisplay()).groups()
+        await safeSendGroupMessage(
+            group,
+            MessageChain.create(
+                [Image(data_bytes=get_draw_line(int(chunk_x), int(chunk_y)))]
+            ),
+        )
+    else:
+        await safeSendGroupMessage(
+            group, MessageChain.create(Image(data_bytes=zoom_merge_chunk()))
+        )
 
 
 @channel.use(
@@ -109,18 +122,18 @@ async def place_draw(group: Group, member: Member):
             if waiter1_message.asDisplay() == "取消":
                 return False
             else:
-                p = re.compile(r"^(\d{1,2})$")
+                p = re.compile(r"^(\d{1,3})$")
                 if p.match(waiter1_message.asDisplay()):
                     color = int(waiter1_message.asDisplay())
                     print(color)
-                    if 32 >= color >= 1:
+                    if 256 >= color >= 1:
                         return int(color)
                     else:
                         await safeSendGroupMessage(
                             waiter1_group,
                             MessageChain.create(
                                 At(waiter1_member),
-                                Plain(" 颜色超出范围（0-31），请重新输入"),
+                                Plain(" 颜色超出范围（0-255），请重新输入"),
                             ),
                         )
 
@@ -219,7 +232,7 @@ async def place_draw(group: Group, member: Member):
 )
 async def fast_place(group: Group, member: Member, coordinates: RegexResult):
     p = re.compile(
-        r"^(\d{1,2})[|;:,，\s](\d{1,2})[|;:,，\s](\d{1,2})[|;:,，\s](\d{1,2})[|;:,，\s](\d{1,2})$"
+        r"^(\d{1,2})[|;:,，\s](\d{1,2})[|;:,，\s](\d{1,2})[|;:,，\s](\d{1,2})[|;:,，\s](\d{1,3})$"
     )
     coordinate = p.match(coordinates.result.asDisplay())
     chunk_x, chunk_y, pixel_x, pixel_y, color = coordinate.groups()
@@ -236,7 +249,7 @@ async def fast_place(group: Group, member: Member, coordinates: RegexResult):
         and 31 >= chunk_y >= 0
         and 31 >= pixel_x >= 0
         and 31 >= pixel_y >= 0
-        and 32 >= color >= 1
+        and 256 >= color >= 1
     ):
         if await reduce_gold(str(member.id), 1):
             fill_id = fill_pixel(member, group, color, chunk_x, chunk_y, pixel_x, pixel_y)
@@ -257,3 +270,24 @@ async def fast_place(group: Group, member: Member, coordinates: RegexResult):
         await safeSendGroupMessage(
             group, MessageChain.create(At(member), Plain(" 你输入的数值错误，无法绘制，请检查后重发"))
         )
+
+
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[
+            Twilight(
+                [FullMatch("查看色板")],
+            )
+        ],
+        decorators=[
+            Function.require("ABotPlace"),
+            Permission.require(),
+            Interval.require(10),
+        ],
+    )
+)
+async def vive_color_image(group: Group):
+    await safeSendGroupMessage(
+        group, MessageChain.create(Image(data_bytes=color_plant_img))
+    )

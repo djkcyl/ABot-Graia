@@ -4,44 +4,11 @@ from loguru import logger
 
 from PIL import Image, ImageDraw, ImageFont
 
+from .color import color_plant
+
 image_path = Path(__file__).parent.joinpath("image")
 image_path.mkdir(exist_ok=True)
 font = ImageFont.truetype("./font/sarasa-mono-sc-regular.ttf", 20)
-
-color_plant = [
-    (0, 0, 0),
-    (255, 255, 255),
-    (170, 170, 170),
-    (85, 85, 85),
-    (254, 211, 199),
-    (255, 196, 206),
-    (250, 172, 142),
-    (255, 139, 131),
-    (244, 67, 54),
-    (233, 30, 99),
-    (226, 102, 158),
-    (156, 39, 176),
-    (103, 58, 183),
-    (63, 81, 181),
-    (0, 70, 112),
-    (5, 113, 151),
-    (33, 150, 243),
-    (0, 188, 212),
-    (59, 229, 219),
-    (151, 253, 220),
-    (22, 115, 0),
-    (55, 169, 60),
-    (137, 230, 66),
-    (215, 255, 7),
-    (255, 246, 209),
-    (248, 203, 140),
-    (255, 235, 59),
-    (255, 193, 7),
-    (255, 152, 0),
-    (255, 87, 34),
-    (184, 63, 39),
-    (121, 85, 72),
-]
 
 
 if image_path.joinpath("full.png").exists():
@@ -50,40 +17,54 @@ else:
     full_image = Image.new("RGB", (1024, 1024), (255, 255, 255))
     full_image.save(image_path.joinpath("full.png"))
 
+if image_path.joinpath("color_plant.png").exists():
+    color_plant_img = image_path.joinpath("color_plant.png").read_bytes()
+else:
+    logger.info("正在绘制色盘")
+    color_plant_img = Image.new("RGB", (1866, 1000), (255, 255, 255))
+    line = 0
+    draw = ImageDraw.Draw(color_plant_img)
+    text_font = ImageFont.truetype("./font/sarasa-mono-sc-regular.ttf", 22)
 
-# 绘制圆形色块，每行 8 个
-color_plant_img = Image.new("RGB", (1000, 800), (255, 255, 255))
-line = 0
-draw = ImageDraw.Draw(color_plant_img)
-text_font = ImageFont.truetype("./font/sarasa-mono-sc-regular.ttf", 50)
-for i, color in enumerate(color_plant):
-    # 当 i 能被 8 整除时，绘制一行
-    if i % 8 == 0:
-        line += 1
-    draw.ellipse(
-        (
-            (i % 8) * 100 + 20 * (i % 8 + 1),
-            (line - 1) * 100 + 90 * (line),
-            (i % 8 + 1) * 100 + 20 * (i % 8 + 1),
-            (line) * 100 + 90 * (line),
-        ),
-        fill=color,
-        outline="black",
-        width=3,
-    )
-    draw.text(
-        (
-            (i % 8) * 100 + 20 * (i % 8 + 1) + 25,
-            (line - 1) * 100 + 90 * (line) - 60,
-        ),
-        f"0{i+1}" if i + 1 < 10 else f"{i+1}",
-        fill="black",
-        font=text_font,
-    )
-color_plant_img.save(image_path.joinpath("color_plant.png"))
-color_plant_bio = BytesIO()
-color_plant_img.save(color_plant_bio, "png")
-color_plant_img = color_plant_bio.getvalue()
+    i = 0
+    for x, colors in enumerate(color_plant):
+        for y, color in enumerate(colors):
+            # 绘制圆形，每个之间间隔20像素
+            draw.ellipse(
+                (
+                    20 + x * 20 + x * 24,
+                    48 + y * 20 + y * 88,
+                    20 + x * 20 + 64 + x * 24,
+                    48 + y * 20 + 64 + y * 88,
+                ),
+                fill=color,
+                outline="black",
+                width=2,
+            )
+            i += 1
+
+            if i < 10:
+                it = f"00{i}"
+            elif i < 100:
+                it = f"0{i}"
+            else:
+                it = f"{i}"
+
+            draw.text(
+                (36 + x * 20 + x * 24, 18 + y * 20 + y * 88),
+                it,
+                fill="black",
+                font=text_font,
+            )
+
+    color_plant_img.save(image_path.joinpath("color_plant.png"))
+    color_plant_bio = BytesIO()
+    color_plant_img.save(color_plant_bio, "png")
+    color_plant_img = color_plant_bio.getvalue()
+
+color_plant = []
+for color in color_plant:
+    color_plant += color
 
 place_chunk = {}
 
@@ -109,6 +90,7 @@ logger.info("画板区块加载完成")
 
 
 def merge_chunk():
+    global full_image
     logger.info("正在合并区块全图")
     for chunk_x in [str(x) for x in range(32)]:
         for chunk_y in [str(x) for x in range(32)]:
@@ -120,6 +102,16 @@ def merge_chunk():
     full_bio = BytesIO()
     full_image.save(full_bio, "png")
     return full_bio.getvalue()
+
+
+def zoom_merge_chunk(zoom: int = 3):
+    global full_image
+    zoom_image = full_image.resize(
+        (full_image.width * zoom, full_image.height * zoom), Image.NEAREST
+    )
+    zoom_bio = BytesIO()
+    zoom_image.save(zoom_bio, "png")
+    return zoom_bio.getvalue()
 
 
 def get_draw_line(chunk_x: int = None, chunk_y: int = None):
@@ -170,3 +162,4 @@ def draw_pixel(chunk_x: int, chunk_y: int, pixel_x: int, pixel_y: int, color: in
     draw = ImageDraw.Draw(img)
     draw.point((pixel_x, pixel_y), fill=color_plant[color - 1])
     img.save(image_path.joinpath(f"{chunk_x}_{chunk_y}.png"))
+    merge_chunk()
