@@ -123,12 +123,15 @@ def merge_chunk():
 
 
 def get_draw_line(chunk_x: int = None, chunk_y: int = None):
-    if chunk_x and chunk_y:
+    if chunk_x is not None and chunk_y is not None:
         need_draw = place_chunk[str(chunk_x)][str(chunk_y)].resize(
             (1024, 1024), Image.NEAREST
         )
+        title = f"区块：{chunk_x}_{chunk_y}"
     else:
         need_draw = full_image
+        title = "全图"
+
     logger.info("正在绘制棋盘")
     draw = ImageDraw.Draw(need_draw)
     y_line = False
@@ -154,6 +157,8 @@ def get_draw_line(chunk_x: int = None, chunk_y: int = None):
 
         draw.text((107 + i * 32, 74), t, fill="black", font=font)
         draw.text((107 + i * 32, 1130), t, fill="black", font=font)
+
+    draw.text((10, 10), title, fill="black", font=font)
 
     bio = BytesIO()
     img.save(bio, "png")

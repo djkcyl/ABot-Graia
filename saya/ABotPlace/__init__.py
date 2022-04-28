@@ -12,6 +12,8 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import (
     Twilight,
     FullMatch,
+    RegexMatch,
+    RegexResult,
 )
 
 from config import COIN_NAME
@@ -78,7 +80,7 @@ async def place_draw(group: Group, member: Member):
                 p = re.compile(r"^(\d{1,2})[|;:,，\s](\d{1,2})$")
                 if p.match(waiter1_message.asDisplay()):
                     x, y = p.match(waiter1_message.asDisplay()).groups()
-                    if 32 > int(x) > 0 and 32 > int(y) > 0:
+                    if 31 >= int(x) >= 0 and 31 >= int(y) >= 0:
                         return int(x), int(y)
                     else:
                         await safeSendGroupMessage(
@@ -154,7 +156,7 @@ async def place_draw(group: Group, member: Member):
                 )
                 color = await asyncio.wait_for(inc.wait(waiter_color), 60)
                 if color:
-                    if await reduce_gold(str(member.id), 2):
+                    if await reduce_gold(str(member.id), 1):
                         fill_id = fill_pixel(
                             member, group, color, chunk_x, chunk_y, pixel_x, pixel_y
                         )
@@ -191,3 +193,67 @@ async def place_draw(group: Group, member: Member):
             MessageChain.create(At(member), Plain(" 等待超时，操作已取消")),
         )
         return
+
+
+# 快捷绘制
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[
+            Twilight(
+                [
+                    FullMatch("快捷作画"),
+                    "coordinates"
+                    @ RegexMatch(
+                        r"(\d{1,2})[|;:,，\s](\d{1,2})[|;:,，\s](\d{1,2})[|;:,，\s](\d{1,2})[|;:,，\s](\d{1,2})$"
+                    ),
+                ],
+            )
+        ],
+        decorators=[
+            Function.require("ABotPlace"),
+            Permission.require(),
+            Interval.require(10),
+        ],
+    )
+)
+async def fast_place(group: Group, member: Member, coordinates: RegexResult):
+    p = re.compile(
+        r"^(\d{1,2})[|;:,，\s](\d{1,2})[|;:,，\s](\d{1,2})[|;:,，\s](\d{1,2})[|;:,，\s](\d{1,2})$"
+    )
+    coordinate = p.match(coordinates.result.asDisplay())
+    chunk_x, chunk_y, pixel_x, pixel_y, color = coordinate.groups()
+    chunk_x, chunk_y, pixel_x, pixel_y, color = (
+        int(chunk_x),
+        int(chunk_y),
+        int(pixel_x),
+        int(pixel_y),
+        int(color),
+    )
+
+    if (
+        31 >= chunk_x >= 0
+        and 31 >= chunk_y >= 0
+        and 31 >= pixel_x >= 0
+        and 31 >= pixel_y >= 0
+        and 32 >= color >= 1
+    ):
+        if await reduce_gold(str(member.id), 1):
+            fill_id = fill_pixel(member, group, color, chunk_x, chunk_y, pixel_x, pixel_y)
+            draw_pixel(chunk_x, chunk_y, pixel_x, pixel_y, color)
+            await safeSendGroupMessage(
+                group,
+                MessageChain.create(
+                    f"ID: {fill_id} 绘制成功\n",
+                    Image(data_bytes=get_draw_line(chunk_x, chunk_y)),
+                ),
+            )
+        else:
+            await safeSendGroupMessage(
+                group,
+                MessageChain.create(At(member), Plain(f"，你的{COIN_NAME}不足，无法绘制")),
+            )
+    else:
+        await safeSendGroupMessage(
+            group, MessageChain.create(At(member), Plain(" 你输入的数值错误，无法绘制，请检查后重发"))
+        )

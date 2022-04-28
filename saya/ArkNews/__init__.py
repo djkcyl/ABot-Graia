@@ -94,7 +94,7 @@ async def get_weibo_news(app: Ariadne):
             else [
                 x
                 for x in await app.getGroupList()
-                if "ArkNews" in group_data[str(x.id)]["DisabledFunc"]
+                if "ArkNews" not in group_data[str(x.id)]["DisabledFunc"]
             ]
         )
 
@@ -121,7 +121,7 @@ async def get_weibo_news(app: Ariadne):
                 f"{result.user_name} 的微博 {new_id} 推送结束，耗时{time_rec.total()}"
             ),
         ),
-        await asyncio.sleep(2)
+        await asyncio.sleep(5)
 
 
 @channel.use(SchedulerSchema(every_custom_seconds(30)))

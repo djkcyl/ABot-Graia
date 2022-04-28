@@ -477,7 +477,7 @@ async def getMemberJoinEvent(events: MemberJoinEvent):
     有人加入群聊
     """
     msg = [
-        Image(data_bytes=events.member.getAvatar()),
+        Image(data_bytes=await events.member.getAvatar()),
         Plain("\n欢迎 "),
         At(events.member.id),
         Plain(" 加入本群"),
