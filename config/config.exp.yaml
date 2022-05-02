@@ -152,6 +152,8 @@ Saya: # saya 插件配置
     Disabled: false
     Intervals: 15 # 间隔时间（秒）
     EnabledProxy: false # 启用代理
+    Username: 1xxxxxxxxxx # 用户名
+    Password: xxxxx # 密码
     Proxy: # 代理地址
       - http://127.0.0.1:1080
 

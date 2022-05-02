@@ -2666,7 +2666,7 @@ message Module {
 // 动态列表-用户模块-广告卡
 message ModuleAd {
     // 广告透传信息
-    google.protobuf.Any source_content = 1;
+    // google.protobuf.Any source_content = 1;
     // 用户模块
     ModuleAuthor module_author = 2;
     //
