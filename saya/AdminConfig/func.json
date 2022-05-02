@@ -257,6 +257,12 @@
       "key": "ABotPlace",
       "can_disabled": true,
       "default_disabled": false
+    },
+    {
+      "name": "一眼顶针",
+      "key": "DingZhen",
+      "can_disabled": true,
+      "default_disabled": false
     }
   ],
   "configList": [
@@ -525,6 +531,12 @@
       "usage": "发送指令：\n查看画板\n画板作画\n查看色板\n快捷作画 * * * * *",
       "options": "使用需要消耗 1 个 $COIN_NAME\n快捷作画的五个参数分别为：区块横坐标，区块纵坐标，像素横坐标，像素纵坐标，颜色代码。如果不知道颜色代码是什么可以发送查看色板来获取",
       "example": "快捷作画 2 25 12 4 15"
+    },
+    "一眼顶针": {
+      "instruction": "快速获取一张丁真图",
+      "usage": "发送指令：\n来张丁真",
+      "options": "更多用法可参见匹配正则\n^(一眼|来[点张])[顶丁钉][真针]|[Dd]ing[！!]?$",
+      "example": "一眼丁真"
     }
   }
 }

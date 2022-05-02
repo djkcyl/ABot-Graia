@@ -229,6 +229,9 @@ Saya: # saya 插件配置
 
   ABotPlace: # ABot 公共画板
     Disabled: false
+
+  DingZhen: # 来张丁真
+    Disabled: false
 Final: false
 # 配置完成后请调整为 true
 # 配置完成后请调整为 true
