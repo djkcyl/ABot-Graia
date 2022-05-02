@@ -24,6 +24,8 @@ channel = Channel.current()
 game = Game()
 
 HOME = Path(__file__).parent
+WEIBO_LOCK = False
+GAME_LOCK = False
 PUSHED_LIST_FILE = HOME.joinpath("pushed_list.json")
 if PUSHED_LIST_FILE.exists():
     with PUSHED_LIST_FILE.open("r") as f:
@@ -43,9 +45,16 @@ def save_pushed_list():
 @channel.use(ListenerSchema(listening_events=[ApplicationLaunched]))
 async def get_weibo_news(app: Ariadne):
 
+    global WEIBO_LOCK
+
     # 总开关
     if yaml_data["Saya"]["ArkNews"]["Disabled"]:
         return
+
+    if WEIBO_LOCK:
+        return
+    else:
+        WEIBO_LOCK = True
 
     # 遍历需要推送的微博 id 表
     for weibo_id in yaml_data["Saya"]["ArkNews"]["WeiboUserList"]:
@@ -124,13 +133,22 @@ async def get_weibo_news(app: Ariadne):
 
         await asyncio.sleep(5)
 
+    WEIBO_LOCK = False
+
 
 @channel.use(SchedulerSchema(every_custom_seconds(30)))
 @channel.use(ListenerSchema(listening_events=[ApplicationLaunched]))
 async def get_game_news(app: Ariadne):
 
+    global GAME_LOCK
+
     if yaml_data["Saya"]["ArkNews"]["Disabled"]:
         return
+
+    if GAME_LOCK:
+        return
+    else:
+        GAME_LOCK = True
 
     pushed = pushed_list["game"] if pushed_list["game"] else []
     try:
@@ -178,3 +196,5 @@ async def get_game_news(app: Ariadne):
         )
 
         await asyncio.sleep(3)
+
+    GAME_LOCK = False

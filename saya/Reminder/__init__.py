@@ -114,7 +114,6 @@ async def main(group: Group, member: Member):
         time_waiter = await asyncio.wait_for(inc.wait(message_waiter), 60)
         if time_waiter:
             time = await time_parser(time_waiter)
-            print(time)
             if time:
                 if datetime.strptime(time, "%Y-%m-%d %H:%M:%S") < datetime.now():
                     await safeSendGroupMessage(

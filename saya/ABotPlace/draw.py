@@ -72,11 +72,12 @@ logger.info("正在加载画板区块")
 for chunk_x in [str(x) for x in range(32)]:
     for chunk_y in [str(x) for x in range(32)]:
         if image_path.joinpath(f"{chunk_x}_{chunk_y}.png").exists():
-            img = Image.open(image_path.joinpath(f"{chunk_x}_{chunk_y}.png"))
-            if chunk_x in place_chunk:
-                place_chunk[chunk_x][chunk_y] = img
-            else:
-                place_chunk[chunk_x] = {chunk_y: img}
+            with image_path.joinpath(f"{chunk_x}_{chunk_y}.png").open("rb") as f:
+                img = Image.open(f)
+                if chunk_x in place_chunk:
+                    place_chunk[chunk_x][chunk_y] = img
+                else:
+                    place_chunk[chunk_x] = {chunk_y: img}
         else:
             img = Image.new("RGB", (32, 32), (255, 255, 255))
             if chunk_x in place_chunk:

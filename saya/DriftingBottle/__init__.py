@@ -319,7 +319,6 @@ async def clear_bottle_handler(group: Group):
     )
 )
 async def drifting_bottle_handler(group: Group, member: Member, bottleid: RegexResult):
-    print(bottleid)
     if bottleid.matched:
         if bottleid.result.asDisplay().isdigit():
             bottle_id = int(bottleid.result.asDisplay())

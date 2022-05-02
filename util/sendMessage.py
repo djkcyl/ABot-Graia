@@ -45,6 +45,16 @@ async def safeSendGroupMessage(
                 MessageChain.create(f"由于 {group_id} 群开启消息限制，正在退出"),
             )
             await app.quitGroup(target)
+        elif "账号在对象所在聊天区域被封禁" in str(e):
+            if isinstance(target, Group):
+                group_id = target.id
+            else:
+                group_id = target
+            await app.sendFriendMessage(
+                yaml_data["Basic"]["Permission"]["Master"],
+                MessageChain.create(f"由于 {group_id} 群被封禁，正在退出"),
+            )
+            await app.quitGroup(target)
 
 
 async def autoSendMessage(

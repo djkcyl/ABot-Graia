@@ -546,20 +546,21 @@ async def group_card_fix(app: Ariadne, friend: Friend):
     grouplits = await app.getGroupList()
     i = 0
     for group in grouplits:
-        opt = await app.modifyMemberInfo(
-            member=yaml_data["Basic"]["MAH"]["BotQQ"],
-            info=MemberInfo(name=yaml_data["Basic"]["BotName"]),
-            group=group.id,
-        )
-        if opt is None:
+        try:
+            await app.modifyMemberInfo(
+                member=yaml_data["Basic"]["MAH"]["BotQQ"],
+                info=MemberInfo(name=yaml_data["Basic"]["BotName"]),
+                group=group.id,
+            )
             i += 1
-        else:
+        except Exception as e:
             await app.sendFriendMessage(
                 friend,
-                MessageChain.create([Plain(f"群 {group.name}（{group.id}）名片修改失败，请检查后重试")]),
+                MessageChain.create(f"群 {group.name}（{group.id}）名片修改失败，请检查后重试\n{e}"),
             )
-            await asyncio.sleep(0.5)
+            await asyncio.sleep(1)
             break
+        await asyncio.sleep(0.1)
     await app.sendFriendMessage(friend, MessageChain.create([Plain(f"共完成 {i} 个群的名片修改。")]))
 
 

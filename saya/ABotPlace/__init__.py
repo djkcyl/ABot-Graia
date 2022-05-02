@@ -125,7 +125,6 @@ async def place_draw(group: Group, member: Member):
                 p = re.compile(r"^(\d{1,3})$")
                 if p.match(waiter1_message.asDisplay()):
                     color = int(waiter1_message.asDisplay())
-                    print(color)
                     if 256 >= color >= 1:
                         return int(color)
                     else:

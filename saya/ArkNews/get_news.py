@@ -133,7 +133,7 @@ class WeiboUser:
     async def get_weibo_id(self, index: int):
         cards = await self.get_cards_list()
         if cards:
-            return cards[index]["itemid"]
+            return cards[index]["mblog"]["bid"]
 
     async def get_weibo_content(self, index: int):
         cards = await self.get_cards_list()
@@ -143,7 +143,7 @@ class WeiboUser:
 
         target_blog = cards[index]
         blog = target_blog["mblog"]
-        detail_url = target_blog["scheme"]
+        detail_url = f"https://m.weibo.cn/status/{blog['bid']}"
 
         # 获取完整正文
         result = await get_result(
