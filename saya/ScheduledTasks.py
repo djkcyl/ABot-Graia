@@ -8,7 +8,7 @@ from graia.scheduler.saya.schema import SchedulerSchema
 
 from util.text2image import delete_old_cache
 from util.sendMessage import safeSendGroupMessage
-from config import COIN_NAME, yaml_data, group_white_list
+from config import COIN_NAME, yaml_data, group_list
 from database.db import all_sign_num, ladder_rent_collection, reset_sign
 
 channel = Channel.current()
@@ -35,12 +35,12 @@ async def tasks(app: Ariadne):
 
 @channel.use(SchedulerSchema(crontabify("* * * * *")))
 async def clean_group(app: Ariadne):
-    group_list = await app.getGroupList()
+    get_group_list = await app.getGroupList()
     i = 0
-    for group in group_list:
+    for group in get_group_list:
         member_count = len(await app.getMemberList(group))
         if member_count < 15:
-            if group.id not in group_white_list:
+            if group.id not in group_list["white"]:
                 try:
                     await safeSendGroupMessage(
                         group,
@@ -66,5 +66,5 @@ async def clean_group(app: Ariadne):
     if i != 0:
         await app.sendFriendMessage(
             yaml_data["Basic"]["Permission"]["Master"],
-            MessageChain.create(f"本次共清理了 {i}/{len(group_list)} 个群"),
+            MessageChain.create(f"本次共清理了 {i}/{len(get_group_list)} 个群"),
         )

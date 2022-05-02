@@ -33,7 +33,7 @@ from util.sendMessage import safeSendGroupMessage
 from util.TextModeration import text_moderation_async
 from util.ImageModeration import image_moderation_async
 from util.control import Function, Interval, Permission, RollQQ
-from config import COIN_NAME, save_config, user_black_list, yaml_data
+from config import COIN_NAME, save_config, user_list, yaml_data
 
 from .db import (
     get_bottle,
@@ -192,10 +192,10 @@ async def throw_bottle_handler(
             IMAGE_PATH.joinpath(image_name).write_bytes(image)
             if image:
                 if qrdecode(image):
-                    if member.id in user_black_list:
+                    if member.id in user_list["black"]:
                         pass
                     else:
-                        user_black_list.append(member.id)
+                        user_list["black"].append(member.id)
                         save_config()
                     return await safeSendGroupMessage(
                         group, MessageChain.create("漂流瓶不能携带二维码哦！你已被拉黑")

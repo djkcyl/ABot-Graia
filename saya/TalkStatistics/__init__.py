@@ -24,7 +24,7 @@ from saya.AdminConfig import groupInitData
 from database.db import add_talk as add_talk_db
 from util.sendMessage import safeSendGroupMessage
 from database.usertalk import get_message_analysis, add_talk, archive_exists
-from config import save_config, group_data, yaml_data, group_black_list, group_white_list
+from config import save_config, group_data, yaml_data, group_list
 
 from .mapping import get_mapping
 
@@ -67,7 +67,7 @@ async def add_talk_word(
         logger.info("已为该群初始化配置文件")
         save_config()
 
-        if group.id in group_black_list:
+        if group.id in group_list["black"]:
             await safeSendGroupMessage(
                 group.id,
                 MessageChain.create("该群已被拉黑，正在退出"),
@@ -79,7 +79,7 @@ async def add_talk_word(
             return await app.quitGroup(group.id)
 
         if (
-            group.id not in group_white_list
+            group.id not in group_list["white"]
             and not yaml_data["Basic"]["Permission"]["DefaultAcceptInvite"]
         ):
             await safeSendGroupMessage(

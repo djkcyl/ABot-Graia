@@ -26,10 +26,9 @@ from util.control import Rest, Permission, bot_shutdown
 from config import (
     COIN_NAME,
     yaml_data,
+    user_list,
+    group_list,
     save_config,
-    user_black_list,
-    group_black_list,
-    group_white_list,
 )
 
 from .AdminConfig import funcList
@@ -194,10 +193,10 @@ async def add_white_group(app: Ariadne, friend: Friend, groupid: RegexResult):
     if groupid.matched:
         say = groupid.result.asDisplay()
         if say.isdigit():
-            if int(say) in group_white_list:
+            if int(say) in group_list["white"]:
                 await app.sendFriendMessage(friend, MessageChain.create("该群已在白名单中"))
             else:
-                group_white_list.append(int(say))
+                group_list["white"].append(int(say))
                 save_config()
                 await app.sendFriendMessage(friend, MessageChain.create("成功将该群加入白名单"))
         else:
@@ -221,7 +220,7 @@ async def remove_white_group(app: Ariadne, friend: Friend, groupid: RegexResult)
     if groupid.matched:
         say = groupid.result.asDisplay()
         if say.isdigit():
-            if int(say) not in group_white_list:
+            if int(say) not in group_list["white"]:
                 try:
                     await app.quitGroup(int(say))
                     await app.sendFriendMessage(
@@ -232,7 +231,7 @@ async def remove_white_group(app: Ariadne, friend: Friend, groupid: RegexResult)
                         friend, MessageChain.create("该群未在白名单中，且退出失败")
                     )
             else:
-                group_white_list.remove(int(say))
+                group_list["white"].remove(int(say))
                 save_config()
                 try:
                     await safeSendGroupMessage(
@@ -264,12 +263,12 @@ async def fadd_black_user(app: Ariadne, friend: Friend, userid: RegexResult):
     if userid.matched:
         say = userid.result.asDisplay()
         if say.isdigit():
-            if int(say) in user_black_list:
+            if int(say) in user_list["black"]:
                 await app.sendFriendMessage(
                     friend, MessageChain.create([Plain("该用户已在黑名单中")])
                 )
             else:
-                user_black_list.append(int(say))
+                user_list["black"].append(int(say))
                 save_config()
                 await app.sendFriendMessage(
                     friend, MessageChain.create([Plain("成功将该用户加入黑名单")])
@@ -304,10 +303,10 @@ async def fremove_block_user(app: Ariadne, friend: Friend, userid: RegexResult):
     if userid.matched:
         say = userid.result.asDisplay()
         if say.isdigit():
-            if int(say) not in user_black_list:
+            if int(say) not in user_list["black"]:
                 await app.sendFriendMessage(friend, MessageChain.create("该用户未在黑名单中"))
             else:
-                user_black_list.remove(int(say))
+                user_list["black"].remove(int(say))
                 save_config()
                 await app.sendFriendMessage(friend, MessageChain.create("成功将该用户移出白名单"))
         else:
@@ -334,10 +333,10 @@ async def fadd_group_black(app: Ariadne, friend: Friend, groupid: RegexResult):
     if groupid.matched:
         say = groupid.result.asDisplay()
         if say.isdigit():
-            if int(say) in group_black_list:
+            if int(say) in group_list["black"]:
                 await app.sendFriendMessage(friend, MessageChain.create("该群已在黑名单中"))
             else:
-                group_black_list.append(int(say))
+                group_list["black"].append(int(say))
                 save_config()
                 await app.sendFriendMessage(friend, MessageChain.create("成功将该群加入黑名单"))
                 try:
@@ -366,10 +365,10 @@ async def fremove_group_black(app: Ariadne, friend: Friend, groupid: RegexResult
     if groupid.matched:
         say = groupid.result.asDisplay()
         if say.isdigit():
-            if int(say) not in group_black_list:
+            if int(say) not in group_list["black"]:
                 await app.sendFriendMessage(friend, MessageChain.create("该群未在黑名单中"))
             else:
-                group_black_list.remove(int(say))
+                group_list["black"].remove(int(say))
                 save_config()
                 await app.sendFriendMessage(friend, MessageChain.create("成功将该群移出黑名单"))
         else:
@@ -392,12 +391,12 @@ async def fremove_group_black(app: Ariadne, friend: Friend, groupid: RegexResult
 async def gadd_black_user(app: Ariadne, group: Group, at: ElementResult):
     if at.matched:
         user = at.result.target
-        if user in user_black_list:
+        if user in user_list["black"]:
             await safeSendGroupMessage(
                 group, MessageChain.create([At(user), Plain(" 已在黑名单中")])
             )
         else:
-            user_black_list.append(user)
+            user_list["black"].append(user)
             save_config()
             await safeSendGroupMessage(
                 group, MessageChain.create([Plain("成功将 "), At(user), Plain(" 加入黑名单")])
@@ -427,10 +426,10 @@ async def gadd_black_user(app: Ariadne, group: Group, at: ElementResult):
 async def gremove_block_user(group: Group, at: ElementResult):
     if at.matched:
         user = at.result.target
-        if user not in user_black_list:
+        if user not in user_list["black"]:
             await safeSendGroupMessage(group, MessageChain.create(f"{user} 未在黑名单中"))
         else:
-            user_black_list.remove(user)
+            user_list["black"].remove(user)
             save_config()
             await safeSendGroupMessage(
                 group, MessageChain.create([Plain("成功将 "), At(user), Plain(" 移出黑名单")])

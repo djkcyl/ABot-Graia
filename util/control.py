@@ -22,7 +22,7 @@ from graia.scheduler.saya.schema import SchedulerSchema
 from graia.ariadne.message.element import Plain, Source
 from graia.ariadne.model import Friend, Member, MemberPerm
 
-from config import user_black_list, yaml_data, group_data
+from config import user_list, yaml_data, group_data
 
 from .sendMessage import safeSendGroupMessage
 
@@ -168,7 +168,7 @@ class Permission:
 
         if user in yaml_data["Basic"]["Permission"]["Admin"]:
             res = cls.MASTER
-        elif user in user_black_list:
+        elif user in user_list["black"]:
             res = cls.BANNED
         elif user_permission in [MemberPerm.Administrator, MemberPerm.Owner]:
             res = cls.GROUP_ADMIN

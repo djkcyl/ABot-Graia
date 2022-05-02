@@ -36,11 +36,10 @@ from util.sendMessage import safeSendGroupMessage
 from util.TextModeration import text_moderation_async
 from config import (
     yaml_data,
+    user_list,
     group_data,
+    group_list,
     save_config,
-    user_black_list,
-    group_black_list,
-    group_white_list,
 )
 
 
@@ -148,7 +147,7 @@ async def accept(app: Ariadne, invite: BotInvitedJoinGroupRequestEvent):
     """
     被邀请入群
     """
-    if invite.sourceGroup in group_black_list:
+    if invite.sourceGroup in group_list["black"]:
         await app.sendFriendMessage(
             yaml_data["Basic"]["Permission"]["Master"],
             MessageChain.create(
@@ -224,7 +223,7 @@ async def get_BotJoinGroup(app: Ariadne, joingroup: BotJoinGroupEvent):
         logger.info("已为该群初始化配置文件")
         save_config()
 
-    if joingroup.group.id in group_black_list:
+    if joingroup.group.id in group_list["black"]:
         await safeSendGroupMessage(
             joingroup.group.id,
             MessageChain.create("该群已被拉黑，正在退出"),
@@ -236,7 +235,7 @@ async def get_BotJoinGroup(app: Ariadne, joingroup: BotJoinGroupEvent):
         return await app.quitGroup(joingroup.group.id)
 
     if (
-        joingroup.group.id not in group_white_list
+        joingroup.group.id not in group_list["white"]
         and not yaml_data["Basic"]["Permission"]["DefaultAcceptInvite"]
     ):
         await safeSendGroupMessage(
@@ -253,7 +252,7 @@ async def get_BotJoinGroup(app: Ariadne, joingroup: BotJoinGroupEvent):
 
     member_count = len(await app.getMemberList(joingroup.group))
     if member_count < 15:
-        if joingroup.group.id not in group_white_list:
+        if joingroup.group.id not in group_list["white"]:
             await safeSendGroupMessage(
                 joingroup.group.id,
                 MessageChain.create(f"当前群人数过少 ({member_count}/15)，暂不加入"),
@@ -323,11 +322,11 @@ async def get_BotKickGroup(app: Ariadne, kickgroup: BotLeaveEventKick):
     被踢出群
     """
     try:
-        group_white_list.remove(kickgroup.group.id)
+        group_list["white"].remove(kickgroup.group.id)
     except Exception:
         pass
     try:
-        group_black_list.append(kickgroup.group.id)
+        group_list["black"].append(kickgroup.group.id)
     except Exception:
         pass
     save_config()
@@ -351,7 +350,7 @@ async def get_BotLeaveEventActive(app: Ariadne, events: BotLeaveEventActive):
     主动退群
     """
     try:
-        group_white_list.remove(events.group.id)
+        group_list["white"].remove(events.group.id)
     except Exception:
         pass
     save_config()
@@ -397,15 +396,15 @@ async def get_BotMuteGroup(app: Ariadne, group: Group, mute: BotMuteEvent):
     被禁言
     """
     try:
-        group_white_list.remove(group.id)
+        group_list["white"].remove(group.id)
     except Exception:
         pass
     try:
-        group_black_list.append(group.id)
+        group_list["black"].append(group.id)
     except Exception:
         pass
     try:
-        user_black_list.append(mute.operator.id)
+        user_list["black"].append(mute.operator.id)
     except Exception:
         pass
     save_config()
