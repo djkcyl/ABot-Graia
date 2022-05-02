@@ -2,7 +2,7 @@
 authors = ["djkcyl <cyl@cyllive.cn>"]
 description = ""
 name = "abot-mahv2"
-version = "2.14.0"
+version = "2.14.1"
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.10"
