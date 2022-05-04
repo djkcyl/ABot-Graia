@@ -30,7 +30,7 @@ data.json
 /mirai/
 util/UpImage.py
 saya/BilibiliDynamic/dynamic_list.json
-archive/
+/archive/
 cache/
 data/
 logs/
