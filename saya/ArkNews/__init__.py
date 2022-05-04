@@ -1,4 +1,5 @@
 import json
+import time
 import httpx
 import random
 import asyncio
@@ -32,13 +33,30 @@ if PUSHED_LIST_FILE.exists():
         pushed_list = json.load(f)
 else:
     with PUSHED_LIST_FILE.open("w") as f:
-        pushed_list = {"weibo": {}, "game": None}
+        pushed_list = {"weibo": {}, "game": None, "last_time": int(time.time())}
         json.dump(pushed_list, f, indent=2)
 
 
 def save_pushed_list():
     with PUSHED_LIST_FILE.open("w") as f:
         json.dump(pushed_list, f, indent=2)
+
+
+def last_time():
+
+    global pushed_list
+
+    now_time = int(time.time())
+    last_time = pushed_list.get("last_time", now_time)
+    if now_time - last_time > 3600:
+        logger.info("[明日方舟蹲饼] 与上次间隔过长，重新计算")
+        pushed_list = {"weibo": {}, "game": None, "last_time": now_time}
+        resp = True
+    else:
+        resp = False
+    pushed_list["last_time"] = now_time
+    save_pushed_list()
+    return resp
 
 
 @channel.use(SchedulerSchema(every_custom_seconds(60)))
@@ -51,7 +69,7 @@ async def get_weibo_news(app: Ariadne):
     if yaml_data["Saya"]["ArkNews"]["Disabled"]:
         return
 
-    if WEIBO_LOCK:
+    if WEIBO_LOCK or last_time():
         return
     else:
         WEIBO_LOCK = True
@@ -145,7 +163,7 @@ async def get_game_news(app: Ariadne):
     if yaml_data["Saya"]["ArkNews"]["Disabled"]:
         return
 
-    if GAME_LOCK:
+    if GAME_LOCK or last_time():
         return
     else:
         GAME_LOCK = True
