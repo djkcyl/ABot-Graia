@@ -250,6 +250,11 @@ async def update_scheduled(app: Ariadne):
                             ),
                         )
                         await asyncio.sleep(1)
+                    except KeyError:
+                        # 处理账号已经订阅但没有任何群订阅此 UP 的情况
+                        logger.info(
+                            f"[BiliBili推送] 订阅的UP {up_name}（{up_id}）在 {room_area} 区开播，但无任何群订阅此 UP ，已跳过处理！"
+                        )
                     except UnknownTarget:
                         remove_list = []
                         for subid in get_group_sublist(groupid):
@@ -279,6 +284,11 @@ async def update_scheduled(app: Ariadne):
                             MessageChain.create(f"本群订阅的UP {up_name}（{up_id}）已下播！"),
                         )
                         await asyncio.sleep(1)
+                except KeyError:
+                    # 处理账号已经订阅但没有任何群订阅此 UP 的情况
+                    logger.info(
+                        f"[BiliBili推送] 订阅的UP {up_name}（{up_id}）已下播，但无任何群订阅此 UP ，已跳过处理！"
+                    )
                 except UnknownTarget:
                     remove_list = []
                     for subid in get_group_sublist(groupid):
@@ -354,6 +364,7 @@ async def update_scheduled(app: Ariadne):
                     except Exception as e:
                         logger.info(f"[BiliBili推送] 推送失败，未知错误 {type(e)}")
             else:
+                # 建议添加是否自动退订选项
                 logger.warning(f"[BiliBili推送] 没有找到订阅UP {up_name}（{up_id}）的群，正在退订！")
                 resp = await relation_modify(up_id, 2)
                 if resp["code"] == 0:
