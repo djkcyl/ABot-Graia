@@ -79,12 +79,16 @@ async def send(app: Ariadne):
     )
     for group in groupList:
 
+        if yaml_data["Basic"]["Permission"]["Debug"]:
+            if group.id == yaml_data["Basic"]["Permission"]["DebugGroup"]:
+                pass
+            else:
+                continue
+
         if "DailyNewspaper" in group_data[str(group.id)]["DisabledFunc"]:
             continue
         try:
-            await app.sendMessage(
-                group, MessageChain.create(Image(data_bytes=paperimg))
-            )
+            await app.sendMessage(group, MessageChain.create(Image(data_bytes=paperimg)))
         except Exception as err:
             await app.sendFriendMessage(
                 yaml_data["Basic"]["Permission"]["Master"],

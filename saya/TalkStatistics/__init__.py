@@ -23,16 +23,16 @@ from util.control import Permission
 from saya.AdminConfig import groupInitData
 from database.db import add_talk as add_talk_db
 from util.sendMessage import safeSendGroupMessage
-from database.usertalk import get_message_analysis, add_talk, archive_exists
 from config import save_config, group_data, yaml_data, group_list
+from database.usertalk import get_message_analysis, add_talk, archive_exists
 
 from .mapping import get_mapping
 
 saya = Saya.current()
 channel = Channel.current()
-data_path = Path("archive")
+data_path = Path(yaml_data["Basic"]["Archive"]["Path"])
 
-if not data_path.exists():
+if not data_path.exists() and yaml_data["Basic"]["Archive"]["Enable"]:
     logger.warning("存档目录不存在，正在创建")
     data_path.mkdir()
     image = data_path.joinpath("image").mkdir()
@@ -118,34 +118,36 @@ async def add_talk_word(
 
 
 async def download(element: MultimediaElement, name, path, type):
-    if type == 2:
-        now_path = data_path.joinpath(path, name[1:4])
-    else:
-        now_time = datetime.datetime.now()
-        now_path = data_path.joinpath(
-            path, str(now_time.year), str(now_time.month), str(now_time.day)
-        )
-    now_path.mkdir(0o755, True, True)
-    if not await archive_exists(name, type):
-        for _ in range(5):
-            try:
-                r = await element.get_bytes()
-                break
-            except Exception as e:
-                logger.warning(f"{name} 下载失败：{str(e)}，正在重试")
-                await asyncio.sleep(1)
-        else:
-            logger.warning(f"{name} 下载失败，已达到最大重试次数")
-            return
 
-        if type == 4:
-            try:
-                now_path.joinpath(f"{name}.mp3").write_bytes(
-                    await silkcoder.async_encode(r, audio_format="mp3")
-                )
-            except silkcoder.utils.CoderError:
-                now_path.joinpath(f"{name}.silk").write_bytes(r)
+    if yaml_data["Basic"]["Archive"]["Enable"]:
+        if type == 2:
+            now_path = data_path.joinpath(path, name[1:4])
         else:
-            now_path.joinpath(name).write_bytes(r)
-    else:
-        logger.info(f"已存在的文件 - {name}")
+            now_time = datetime.datetime.now()
+            now_path = data_path.joinpath(
+                path, str(now_time.year), str(now_time.month), str(now_time.day)
+            )
+        now_path.mkdir(0o755, True, True)
+        if not await archive_exists(name, type):
+            for _ in range(5):
+                try:
+                    r = await element.get_bytes()
+                    break
+                except Exception as e:
+                    logger.warning(f"{name} 下载失败：{str(e)}，正在重试")
+                    await asyncio.sleep(1)
+            else:
+                logger.warning(f"{name} 下载失败，已达到最大重试次数")
+                return
+
+            if type == 4:
+                try:
+                    now_path.joinpath(f"{name}.mp3").write_bytes(
+                        await silkcoder.async_encode(r, audio_format="mp3")
+                    )
+                except silkcoder.utils.CoderError:
+                    now_path.joinpath(f"{name}.silk").write_bytes(r)
+            else:
+                now_path.joinpath(name).write_bytes(r)
+        else:
+            logger.info(f"已存在的文件 - {name}")

@@ -99,10 +99,7 @@ class Function:
 
     def require(funcname: str) -> Depend:
         def func_check(member: Member):
-            if (
-                member.id == yaml_data["Basic"]["Permission"]["Master"]
-                or member.group.id == yaml_data["Basic"]["Permission"]["DebugGroup"]
-            ):
+            if member.id == yaml_data["Basic"]["Permission"]["Master"]:
                 pass
             elif bot_shutdown():
                 raise ExecutionStop()

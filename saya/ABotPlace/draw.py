@@ -29,7 +29,6 @@ else:
     i = 0
     for x, colors in enumerate(color_plant_source):
         for y, color in enumerate(colors):
-            # 绘制圆形，每个之间间隔20像素
             draw.ellipse(
                 (
                     20 + x * 20 + x * 24,
@@ -72,12 +71,13 @@ logger.info("正在加载画板区块")
 for chunk_x in [str(x) for x in range(32)]:
     for chunk_y in [str(x) for x in range(32)]:
         if image_path.joinpath(f"{chunk_x}_{chunk_y}.png").exists():
-            with image_path.joinpath(f"{chunk_x}_{chunk_y}.png").open("rb") as f:
-                img = Image.open(f)
-                if chunk_x in place_chunk:
-                    place_chunk[chunk_x][chunk_y] = img
-                else:
-                    place_chunk[chunk_x] = {chunk_y: img}
+            img = Image.open(
+                BytesIO(image_path.joinpath(f"{chunk_x}_{chunk_y}.png").read_bytes())
+            )
+            if chunk_x in place_chunk:
+                place_chunk[chunk_x][chunk_y] = img
+            else:
+                place_chunk[chunk_x] = {chunk_y: img}
         else:
             img = Image.new("RGB", (32, 32), (255, 255, 255))
             if chunk_x in place_chunk:
@@ -86,8 +86,6 @@ for chunk_x in [str(x) for x in range(32)]:
                 place_chunk[chunk_x] = {chunk_y: img}
             img.save(image_path.joinpath(f"{chunk_x}_{chunk_y}.png"))
 logger.info("画板区块加载完成")
-
-# 合并画板区块并写入区块号
 
 
 def merge_chunk():
@@ -125,7 +123,7 @@ def get_draw_line(chunk_x: int = None, chunk_y: int = None):
         need_draw = full_image
         title = "全图"
 
-    logger.info("正在绘制棋盘")
+    logger.info(f"正在绘制棋盘：{title}")
     draw = ImageDraw.Draw(need_draw)
     y_line = False
     img = Image.new("RGB", (1224, 1224), (255, 255, 255))

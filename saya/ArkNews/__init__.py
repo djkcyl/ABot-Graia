@@ -48,7 +48,7 @@ def last_time():
 
     now_time = int(time.time())
     last_time = pushed_list.get("last_time", now_time)
-    if now_time - last_time > 3600:
+    if (now_time - last_time) > 3600:
         logger.info("[明日方舟蹲饼] 与上次间隔过长，重新计算")
         pushed_list = {"weibo": {}, "game": None, "last_time": now_time}
         resp = True
@@ -190,7 +190,11 @@ async def get_game_news(app: Ariadne):
     group_list = (
         [await app.getGroup(yaml_data["Basic"]["Permission"]["DebugGroup"])]
         if yaml_data["Basic"]["Permission"]["Debug"]
-        else await app.getGroupList()
+        else [
+            x
+            for x in await app.getGroupList()
+            if "ArkNews" not in group_data[str(x.id)]["DisabledFunc"]
+        ]
     )
 
     for announce in new_list:
@@ -203,8 +207,6 @@ async def get_game_news(app: Ariadne):
             yaml_data["Basic"]["Permission"]["Master"], MessageChain.create(msg)
         )
         for group in group_list:
-            if "ArkNews" in group_data[str(group.id)]["DisabledFunc"]:
-                continue
             await app.sendMessage(group, MessageChain.create(msg))
             await asyncio.sleep(random.uniform(2, 4))
 

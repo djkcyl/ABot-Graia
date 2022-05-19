@@ -32,6 +32,10 @@ Basic: # 基础配置
     PermissionChange: true
     NewFriend: true
 
+  Archive: # 归档，存储收到的图片，语音等
+    Enable: true # 开启归档
+    Path: "./archive" # 归档路径
+
 Saya: # saya 插件配置
   AzureTTS: # 微软文字转语音
     Disabled: false # 是否禁用

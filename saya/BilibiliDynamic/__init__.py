@@ -235,6 +235,11 @@ async def update_scheduled(app: Ariadne):
                 logger.info(f"[BiliBili推送] {up_name} 开播了 - {room_area} - {title}")
 
                 for groupid in sub_list[up_id]:
+                    if yaml_data["Basic"]["Permission"]["Debug"]:
+                        if groupid == yaml_data["Basic"]["Permission"]["DebugGroup"]:
+                            pass
+                        else:
+                            continue
                     try:
                         await app.sendGroupMessage(
                             groupid,
@@ -264,6 +269,11 @@ async def update_scheduled(app: Ariadne):
                 logger.info(f"[BiliBili推送] {up_name} 已下播")
                 try:
                     for groupid in sub_list[up_id]:
+                        if yaml_data["Basic"]["Permission"]["Debug"]:
+                            if groupid == yaml_data["Basic"]["Permission"]["DebugGroup"]:
+                                pass
+                            else:
+                                continue
                         await app.sendGroupMessage(
                             groupid,
                             MessageChain.create(f"本群订阅的UP {up_name}（{up_id}）已下播！"),
@@ -281,10 +291,10 @@ async def update_scheduled(app: Ariadne):
     # 动态更新检测
     # 获取当前登录账号的动态列表
     dynall = await grpc_dynall_get()
+    dynall.reverse()
     for dyn in dynall:
         # 如果这条动态 id 新于上次更新的 id 则推送
         if int(dyn.extend.dyn_id_str) > OFFSET:
-            print(dyn)
             up_id = str(dyn.modules[0].module_author.author.mid)
             up_name = dyn.modules[0].module_author.author.name
             up_last_dynid = dyn.extend.dyn_id_str
@@ -317,6 +327,11 @@ async def update_scheduled(app: Ariadne):
 
                 for groupid in sub_list[up_id]:
                     try:
+                        if yaml_data["Basic"]["Permission"]["Debug"]:
+                            if groupid == yaml_data["Basic"]["Permission"]["DebugGroup"]:
+                                pass
+                            else:
+                                continue
                         await app.sendGroupMessage(
                             groupid,
                             MessageChain.create(
@@ -349,11 +364,9 @@ async def update_scheduled(app: Ariadne):
                             f"[BiliBili推送] 未找到订阅 {up_name}（{up_id}）的群，已被退订！",
                         ),
                     )
-        else:
-            break
 
     # 将当前检测到的第一条动态 id 设置为最新的动态 id
-    OFFSET = int(dynall[0].extend.dyn_id_str)
+    OFFSET = int(dynall[-1].extend.dyn_id_str)
 
 
 @channel.use(

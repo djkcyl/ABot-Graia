@@ -56,6 +56,12 @@ async def groupDataInit(app: Ariadne):
     groupList = await app.getGroupList()
     groupNum = len(groupList)
     init_user(str(yaml_data["Basic"]["Permission"]["Master"]))
+    master = await app.getFriend(yaml_data["Basic"]["Permission"]["Master"])
+    if master:
+        pass
+    else:
+        logger.error(f"当前未添加主人好友（{yaml_data['Basic']['Permission']['Master']}），请手动添加")
+        exit()
     await app.sendFriendMessage(
         yaml_data["Basic"]["Permission"]["Master"],
         MessageChain.create(
@@ -81,9 +87,8 @@ async def groupDataInit(app: Ariadne):
         debug_msg = (
             f"{debug_group.name}（{debug_group.id}）"
             if debug_group
-            else yaml_data["Basic"]["Permission"]["Debug"]
+            else f"{yaml_data['Basic']['Permission']['DebugGroup']}（当前未加入该群）"
         )
-        master = await app.getFriend(yaml_data["Basic"]["Permission"]["Master"])
         msg.append(
             Plain(
                 f"，当前为 Debug 模式，将仅接受 {debug_msg} 群以及 {master.nickname}（{master.id}） 的消息"
