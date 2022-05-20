@@ -204,8 +204,8 @@ async def sing(
             for music in musiclist:
                 if num > 10:
                     break
-                music_id = music["mid"]
-                music_name = music["name"]
+                music_id = music["songmid"]
+                music_name = music["songname"]
                 music_ar = []
                 for ar in music["singer"]:
                     music_ar.append(ar["name"])

@@ -16,7 +16,7 @@ async def get_result(url, headers):
                 res = await session.get(url, headers=headers)
                 if res.status_code == 200:
                     return res.json()
-            except httpx.ReadTimeout:
+            except httpx.TransportError:
                 logger.warning(f"{url} 请求超时，正在重试")
                 await asyncio.sleep(3)
         else:
