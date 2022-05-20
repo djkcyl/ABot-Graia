@@ -39,10 +39,9 @@ async def update_data():
     DATA = root
 
 
-if not yaml_data["Saya"]["ChatMS"]["Disabled"]:
-    if not DATA_FILE.exists():
-        logger.info("正在初始化词库")
-        asyncio.run(update_data())
+if not yaml_data["Saya"]["ChatMS"]["Disabled"] and not DATA_FILE.exists():
+    logger.info("正在初始化词库")
+    asyncio.run(update_data())
 
 
 @channel.use(SchedulerSchema(crontabify("0 0 * * *")))
@@ -62,17 +61,19 @@ async def updateDict():
     )
 )
 async def main(group: Group, member: Member, message: MessageChain):
-    if message.has(At):
-        if message.getFirst(At).target == yaml_data["Basic"]["MAH"]["BotQQ"]:
-            try:
-                saying = message.getFirst(Plain).text
-                for key, value in DATA.items():
-                    if key in saying:
-                        await Interval.manual(member.id)
-                        return await safeSendGroupMessage(
-                            group,
-                            MessageChain.create([Plain(random.choice(value))]),
-                        )
+    if (
+        message.has(At)
+        and message.getFirst(At).target == yaml_data["Basic"]["MAH"]["BotQQ"]
+    ):
+        try:
+            saying = message.getFirst(Plain).text
+            for key, value in DATA.items():
+                if key in saying:
+                    await Interval.manual(member.id)
+                    return await safeSendGroupMessage(
+                        group,
+                        MessageChain.create([Plain(random.choice(value))]),
+                    )
 
-            except IndexError:
-                pass
+        except IndexError:
+            pass

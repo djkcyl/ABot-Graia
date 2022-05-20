@@ -71,16 +71,17 @@ async def get_reminder(group: Group, member: Member):
         msg = "你没有创建需要提醒的内容，如需创建请发送“新建提醒”"
     else:
         msg = [At(member.id), Plain("你当前有以下提醒内容")]
-        for reminder in reminders:
-            msg.append(
-                Plain(
-                    "\n===============\n"
-                    f"ID：{reminder.id}\n"
-                    f"创建时间：{reminder.start_date}\n"
-                    f"内容：{reminder.thing}\n"
-                    f"到期时间：{reminder.end_date}"
-                )
+        msg.extend(
+            Plain(
+                "\n===============\n"
+                f"ID：{reminder.id}\n"
+                f"创建时间：{reminder.start_date}\n"
+                f"内容：{reminder.thing}\n"
+                f"到期时间：{reminder.end_date}"
             )
+            for reminder in reminders
+        )
+
         msg.append(Plain("\n===============\n如需删除请发送“删除提醒 <ID>”"))
     await safeSendGroupMessage(group, MessageChain.create(msg))
 

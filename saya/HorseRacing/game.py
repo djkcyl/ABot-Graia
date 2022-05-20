@@ -137,15 +137,15 @@ def run_game(data):
                 data["player"][player]["status"]["duration"] -= 1
                 basic_score *= 0.8
         else:
-            if (
-                data["player"][player]["status"]["effect"] == HorseStatus.Freeze
-                or data["player"][player]["status"]["effect"] == HorseStatus.Dizziness
-            ):
+            if data["player"][player]["status"]["effect"] in [
+                HorseStatus.Freeze,
+                HorseStatus.Dizziness,
+            ]:
                 basic_score = 0
-            elif (
-                data["player"][player]["status"]["effect"] == HorseStatus.Slowness
-                or data["player"][player]["status"]["effect"] == HorseStatus.SpeedUp
-            ):
+            elif data["player"][player]["status"]["effect"] in [
+                HorseStatus.Slowness,
+                HorseStatus.SpeedUp,
+            ]:
                 basic_score *= data["player"][player]["status"]["value"]
 
             if data["player"][player]["status"]["duration"] > 0:

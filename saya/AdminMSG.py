@@ -626,12 +626,11 @@ async def gset_open(group: Group, func: RegexResult):
                         group,
                         MessageChain.create([Plain(f"{sayfunc['name']} 已处于全局开启状态")]),
                     )
-                else:
-                    yaml_data["Saya"][sayfunc["key"]]["Disabled"] = False
-                    save_config()
-                    return await safeSendGroupMessage(
-                        group, MessageChain.create([Plain(f"{sayfunc['name']} 已全局开启")])
-                    )
+                yaml_data["Saya"][sayfunc["key"]]["Disabled"] = False
+                save_config()
+                return await safeSendGroupMessage(
+                    group, MessageChain.create([Plain(f"{sayfunc['name']} 已全局开启")])
+                )
         else:
             await safeSendGroupMessage(group, MessageChain.create("功能编号仅可为数字"))
     else:

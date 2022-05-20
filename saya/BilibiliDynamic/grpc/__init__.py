@@ -63,7 +63,7 @@ def make_metadata():
 async def grpc_dyn_get(uid: int):
     async with grpc.aio.secure_channel(server, grpc.ssl_channel_credentials()) as channel:
         stub = DynamicStub(channel)
-        req = DynSpaceReq(host_uid=int(uid))
+        req = DynSpaceReq(host_uid=uid)
         meta = make_metadata()
         try:
             resp = await stub.DynSpace(req, metadata=meta)

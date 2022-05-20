@@ -249,47 +249,44 @@ async def pick_bottle_handler(group: Group, member: Member):
 
     if bottle is None:
         return await safeSendGroupMessage(group, MessageChain.create("没有漂流瓶可以捡哦！"))
-    else:
-        if not await reduce_gold(str(member.id), 2):
-            return await safeSendGroupMessage(
-                group, MessageChain.create(f"你的{COIN_NAME}不足，无法捞漂流瓶！")
-            )
-        bottle_score = get_bottle_score_avg(bottle["id"])
-        bottle_discuss = get_bottle_discuss(bottle["id"])
-        score_msg = f"瓶子的评分为：{bottle_score}" if bottle_score else "本漂流瓶目前还没有评分"
-        discuss_msg = (
-            f"\n这个瓶子当前有 {len(bottle_discuss)} 条评论\n"
-            if bottle_discuss
-            else "\n本漂流瓶目前还没有评论"
+    if not await reduce_gold(str(member.id), 2):
+        return await safeSendGroupMessage(
+            group, MessageChain.create(f"你的{COIN_NAME}不足，无法捞漂流瓶！")
         )
+    bottle_score = get_bottle_score_avg(bottle["id"])
+    bottle_discuss = get_bottle_discuss(bottle["id"])
+    score_msg = f"瓶子的评分为：{bottle_score}" if bottle_score else "本漂流瓶目前还没有评分"
+    discuss_msg = (
+        f"\n这个瓶子当前有 {len(bottle_discuss)} 条评论\n"
+        if bottle_discuss
+        else "\n本漂流瓶目前还没有评论"
+    )
 
-        times = bottle["fishing_times"]
-        times_msg = "本漂流瓶已经被捞了" + str(times) + "次" if times > 0 else "本漂流瓶还没有被捞到过"
-        msg = [
-            Plain(
-                f"你捡到了一个漂流瓶！\n瓶子编号为：{bottle['id']}\n{times_msg}\n{score_msg}\n"
-                "漂流瓶内容为：\n"
-            )
+    times = bottle["fishing_times"]
+    times_msg = f"本漂流瓶已经被捞了{str(times)}次" if times > 0 else "本漂流瓶还没有被捞到过"
+    msg = [
+        Plain(
+            f"你捡到了一个漂流瓶！\n瓶子编号为：{bottle['id']}\n{times_msg}\n{score_msg}\n"
+            "漂流瓶内容为：\n"
+        )
+    ]
+    if bottle["text"] is not None:
+        image = await create_image(bottle["text"])
+        msg.append(Image(data_bytes=image))
+    if bottle["image"] is not None:
+        if bottle["text"]:
+            msg.append("\n")
+        msg.append(Image(path=IMAGE_PATH.joinpath(bottle["image"])))
+    msg.append(discuss_msg)
+    if bottle_discuss:
+        discuss_img = [
+            f"{i} 楼. {discuss.discuss_time} | {discuss.member}：\n      > {discuss.discuss}"
+            for i, discuss in enumerate(bottle_discuss, start=1)
         ]
-        if bottle["text"] is not None:
-            image = await create_image(bottle["text"])
-            msg.append(Image(data_bytes=image))
-        if bottle["image"] is not None:
-            if bottle["text"]:
-                msg.append("\n")
-            msg.append(Image(path=IMAGE_PATH.joinpath(bottle["image"])))
-        msg.append(discuss_msg)
-        if bottle_discuss:
-            discuss_img = []
-            i = 1
-            for discuss in bottle_discuss:
-                discuss_img.append(
-                    f"{i} 楼. {discuss.discuss_time} | {discuss.member}：\n      > {discuss.discuss}"
-                )
-                i += 1
-            discuss_img = await create_image("\n".join(discuss_img))
-            msg.append(Image(data_bytes=discuss_img))
-        await safeSendGroupMessage(group, MessageChain.create(msg))
+
+        discuss_img = await create_image("\n".join(discuss_img))
+        msg.append(Image(data_bytes=discuss_img))
+    await safeSendGroupMessage(group, MessageChain.create(msg))
 
 
 @channel.use(
@@ -359,13 +356,11 @@ async def drifting_bottle_handler(group: Group, member: Member, bottleid: RegexR
                 msg.append(Image(path=IMAGE_PATH.joinpath(bottle.image)))
             msg.append(discuss_msg)
             if bottle_discuss:
-                discuss_img = []
-                i = 1
-                for discuss in bottle_discuss:
-                    discuss_img.append(
-                        f"{i} 楼. {discuss.discuss_time} | {discuss.member}：\n      > {discuss.discuss}"
-                    )
-                    i += 1
+                discuss_img = [
+                    f"{i} 楼. {discuss.discuss_time} | {discuss.member}：\n      > {discuss.discuss}"
+                    for i, discuss in enumerate(bottle_discuss, start=1)
+                ]
+
                 discuss_img = await create_image("\n".join(discuss_img))
                 msg.append(Image(data_bytes=discuss_img))
             await safeSendGroupMessage(group, MessageChain.create(msg))
@@ -374,15 +369,15 @@ async def drifting_bottle_handler(group: Group, member: Member, bottleid: RegexR
     else:
         count = count_bottle()
         my_bottles = get_my_bottles(member)
-        my_bottles_str = "\n".join(
-            [f"编号：{x}，日期{x.send_date}，群号：{x.group}" for x in my_bottles]
-        )
         msg = [
             f"目前有 {count} 个漂流瓶在漂流" if count > 0 else "目前没有漂流瓶在漂流",
             "\n漂流瓶可以使用“捞漂流瓶”命令捞到，也可以使用“丢漂流瓶”命令丢出”\n可以使用“漂流瓶评分”为漂流瓶添加评分",
         ]
         if my_bottles:
             msg.append(f"\n截至目前你共丢出 {len(my_bottles)} 个漂流瓶：\n")
+            my_bottles_str = "\n".join(
+                [f"编号：{x}，日期{x.send_date}，群号：{x.group}" for x in my_bottles]
+            )
             msg.append(Image(data_bytes=await create_image(my_bottles_str)))
         else:
             msg.append("\n截至目前你还没有丢出过漂流瓶")
@@ -458,27 +453,27 @@ async def bottle_score_handler(
             saying = anythings.result.asDisplay().split(" ", 2)
             if message.has(Quote):
                 reply = message.getFirst(Quote)
-                if reply.senderId == yaml_data["Basic"]["MAH"]["BotQQ"]:
-                    reg_search = re.search(r"瓶子编号为：(.*)\n", reply.origin.asDisplay())
-                    if reg_search:
-                        bottle_id = reg_search.group(1)
-                        score = anythings.result.asDisplay()
-                    else:
-                        return await safeSendGroupMessage(
-                            group, MessageChain.create(At(member.id), " 请正确回复漂流瓶，并输入分数")
-                        )
-                else:
+                if reply.senderId != yaml_data["Basic"]["MAH"]["BotQQ"]:
                     return await safeSendGroupMessage(
                         group, MessageChain.create(At(member.id), " 请正确回复漂流瓶，并输入分数")
                     )
+                if not (
+                    reg_search := re.search(
+                        r"瓶子编号为：(.*)\n", reply.origin.asDisplay()
+                    )
+                ):
+                    return await safeSendGroupMessage(
+                        group, MessageChain.create(At(member.id), " 请正确回复漂流瓶，并输入分数")
+                    )
+                bottle_id = reg_search.group(1)
+                score = anythings.result.asDisplay()
             else:
                 bottle_id = saying[0]
                 score = saying[1]
 
             if bottle_id.isdigit() and score.isdigit():
                 score = int(score)
-                bottle = get_bottle_by_id(bottle_id)
-                if bottle:
+                if bottle := get_bottle_by_id(bottle_id):
                     if 1 <= score <= 5:
                         if add_bottle_score(bottle_id, member, score):
                             bottle_score = get_bottle_score_avg(bottle_id)
@@ -552,27 +547,27 @@ async def bottle_discuss_handler(
             saying = anythings.result.asDisplay().split(" ", 2)
             if message.has(Quote):
                 reply = message.getFirst(Quote)
-                if reply.senderId == yaml_data["Basic"]["MAH"]["BotQQ"]:
-                    reg_search = re.search(r"瓶子编号为：(.*)\n", reply.origin.asDisplay())
-                    if reg_search:
-                        bottle_id = reg_search.group(1)
-                        discuss = anythings.result.asDisplay()
-                    else:
-                        return await safeSendGroupMessage(
-                            group,
-                            MessageChain.create(At(member.id), " 请正确回复漂流瓶，并输入评论内容"),
-                        )
-                else:
+                if reply.senderId != yaml_data["Basic"]["MAH"]["BotQQ"]:
                     return await safeSendGroupMessage(
                         group, MessageChain.create(At(member.id), " 请正确回复漂流瓶，并输入评论内容")
                     )
+                if not (
+                    reg_search := re.search(
+                        r"瓶子编号为：(.*)\n", reply.origin.asDisplay()
+                    )
+                ):
+                    return await safeSendGroupMessage(
+                        group,
+                        MessageChain.create(At(member.id), " 请正确回复漂流瓶，并输入评论内容"),
+                    )
+                bottle_id = reg_search.group(1)
+                discuss = anythings.result.asDisplay()
             else:
                 bottle_id = saying[0]
                 discuss = saying[1]
 
             if bottle_id.isdigit():
-                bottle = get_bottle_by_id(bottle_id)
-                if bottle:
+                if bottle := get_bottle_by_id(bottle_id):
                     if 3 <= len(discuss) <= 500:
                         moderation = await text_moderation_async(discuss)
                         if moderation["status"] == "error":

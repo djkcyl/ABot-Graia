@@ -97,8 +97,11 @@ async def fun_dict(group: Group, member: Member, anything: RegexResult):
                         r_fun_tags = "标签：" + " | ".join(tags)
                     msg_text = f"词条：{r_fun_title}\n{r_fun_tags}\n----------------------\n{r_fun_text}\n"
                     msg_chain = [Plain(msg_text)]
-                    for image in r_fun_data["images"]:
-                        msg_chain.append(Image(url=image["full"]["path"]))
+                    msg_chain.extend(
+                        Image(url=image["full"]["path"])
+                        for image in r_fun_data["images"]
+                    )
+
                     msg_chain.append(
                         Plain(
                             "----------------------\n数据来源为小鸡词典\nhttps://jikipedia.com/\n"

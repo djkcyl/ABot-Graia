@@ -32,7 +32,7 @@ db.create_tables([User], safe=True)
 
 
 def init_user(qq: str):
-    user = User.select().where(User.qq == str(qq))
+    user = User.select().where(User.qq == qq)
     if not user.exists():
         p = User(qq=qq, gold=60)
         p.save()
@@ -44,10 +44,9 @@ async def sign(qq):
     user = User.get(qq=qq)
     if user.is_sign:
         return False
-    else:
-        p = User.update(is_sign=1, sign_num=User.sign_num + 1).where(User.qq == qq)
-        p.execute()
-        return True
+    p = User.update(is_sign=1, sign_num=User.sign_num + 1).where(User.qq == qq)
+    p.execute()
+    return True
 
 
 async def get_info(qq):
@@ -67,12 +66,11 @@ async def reduce_gold(qq: str, num: int, force: bool = False):
     init_user(qq)
     gold_num = User.get(qq=qq).gold
     if gold_num < num:
-        if force:
-            p = User.update(gold=0).where(User.qq == qq)
-            p.execute()
-            return
-        else:
+        if not force:
             return False
+        p = User.update(gold=0).where(User.qq == qq)
+        p.execute()
+        return
     else:
         p = User.update(gold=User.gold - num).where(User.qq == qq)
         p.execute()

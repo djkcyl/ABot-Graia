@@ -32,7 +32,7 @@ def qrgen(qq, id, name, period):
     draw.text(qq_coordinate, qq, font=font_48, fill="black")
     draw.text(name_coordinate, name, font=font_42, fill="black")
     draw.text(id_coordinate, id, font=font_36, fill="black")
-    draw.text((10, 10), period + "期", font=font_36, fill="black")
+    draw.text((10, 10), f"{period}期", font=font_36, fill="black")
     bg_bio = BytesIO()
     bg.save(bg_bio, format="jpeg")
     return bg_bio.getvalue()
@@ -43,21 +43,17 @@ async def qrdecode(url):
         resp = await client.get(url)
     image = Image.open(BytesIO(resp.content))
     image_array = np.array(image)
-    image_data = pyzbar.decode(image_array)[0].data.decode("utf-8")
-    return image_data
+    return pyzbar.decode(image_array)[0].data.decode("utf-8")
 
 
 def getCutStr(str, cut):
     si = 0
     i = 0
     for s in str:
-        if "\u4e00" <= s <= "\u9fff":
-            si += 1.5
-        else:
-            si += 1
+        si += 1.5 if "\u4e00" <= s <= "\u9fff" else 1
         i += 1
         if si > cut:
-            cutStr = str[:i] + "...."
+            cutStr = f"{str[:i]}...."
             break
         else:
             cutStr = str

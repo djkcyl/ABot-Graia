@@ -46,18 +46,12 @@ class ABotMember(Member):
 
     async def reduce_coin(self, num: int, forec: bool = False, all: bool = False) -> int:
         data = await self.get_data()
-        if all:
-            reduce_num = data.coin.total_num
-            data.coin.total_num = 0
+        if not all and data.coin.total_num >= num and forec:
+            data.coin.total_num -= num
             await data.save()
-            return reduce_num
-        elif data.coin.total_num >= num:
-            if forec:
-                data.coin.total_num -= num
-                await data.save()
-                return num
-            else:
-                return 0
+            return num
+        elif not all and data.coin.total_num >= num:
+            return 0
         else:
             reduce_num = data.coin.total_num
             data.coin.total_num = 0
@@ -80,12 +74,11 @@ class ABotMember(Member):
         data = await self.get_data()
         if data.sign.is_sign:
             return False
-        else:
-            data.sign.is_sign = True
-            data.sign.total_days += 1
-            data.sign.continuous_days += 1
-            await data.save()
-            return True
+        data.sign.is_sign = True
+        data.sign.total_days += 1
+        data.sign.continuous_days += 1
+        await data.save()
+        return True
 
     async def add_talk(self, event_id: int) -> None:
         data = await self.get_data()

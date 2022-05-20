@@ -186,7 +186,7 @@ def genBaseImage(width=1500, height=500):
             (0, 0, width, height)
         ),  # Width: 8
     }
-    for k in result.keys():
+    for k in result:
         result[k].putalpha(255)
     return result
 
@@ -259,7 +259,7 @@ def genImage(
         "L", (upper_width + leftmargin, _round(height / 2) + upmargin), 0
     )
 
-    mask_img_upper = list()
+    mask_img_upper = []
     upper_data = [
         [(4, 4), (4, 4), (0, 0), (0, 0), (2, -3), (0, -3), (0, -3), (0, -3)],
         [22, 20, 16, 10, 6, 6, 3, 0],
@@ -289,7 +289,7 @@ def genImage(
     downer_mask_base = Image.new(
         "L", (downer_width + leftmargin, _round(height / 2) + upmargin), 0
     )
-    mask_img_downer = list()
+    mask_img_downer = []
     downer_data = [
         [(5, 2), (5, 2), (0, 0), (0, 0), (0, 0), (0, -3)],
         [22, 19, 17, 8, 7, 0],
@@ -341,7 +341,7 @@ def genImage(
     # img_upper.save("./uptemp.png")
     # img_downer.save("./downtemp.png")
     # tilt image
-    tiltres = list()
+    tiltres = []
     angle = 20
     for img in [img_upper, img_downer]:
         dist = img.height * tan(radians(angle))

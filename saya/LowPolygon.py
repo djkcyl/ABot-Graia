@@ -150,8 +150,9 @@ def make_low_poly(img_bytes, point: Optional[int] = None):
         imgx, imgy = img.size
         t = triangler.Triangler(
             sample_method=triangler.SampleMethod.POISSON_DISK,
-            points=point if point else max(imgx, imgy),
+            points=point or max(imgx, imgy),
         )
+
         bio = BytesIO()
         img = plt.imsave(bio, t.convert(img.__array__()))
         img = IMG.open(bio).convert("RGB")

@@ -140,8 +140,7 @@ async def help(group: Group):
         f"{yaml_data['Basic']['BotName']} 群菜单 / {str(group.id)}\n{group.name}\n"
         + "========================================================"
     )
-    i = 1
-    for func in funcList:
+    for i, func in enumerate(funcList, start=1):
         funcname = func["name"]
         funckey = func["key"]
         funcGlobalDisabled = yaml_data["Saya"][funckey]["Disabled"]
@@ -152,12 +151,8 @@ async def help(group: Group):
             statu = "【  关闭  】"
         else:
             statu = "            "
-        if i < 10:
-            si = " " + str(i)
-        else:
-            si = str(i)
+        si = f" {str(i)}" if i < 10 else str(i)
         msg += f"\n{si}  {statu}  {funcname}"
-        i += 1
     msg += str(
         "\n========================================================"
         "\n详细查看功能使用方法请发送 功能 <id>，例如：功能 1"
@@ -343,118 +338,111 @@ async def group_func(
     if reg1.matched:
         ctrl = reg1.result.getFirst(Plain).text
         if ctrl == "修改":
-            if reg2.matched:
-                configname = reg2.result.getFirst(Plain).text
-                for config in configList:
-                    if config["name"] == configname:
-                        if config["can_edit"]:
-                            if reg3.matched:
-                                config_Message = reg3.result.getFirst(Plain).text
-                                group_data[str(group.id)][config["key"]][
-                                    "Message"
-                                ] = config_Message
-                                save_config()
-                                return await safeSendGroupMessage(
-                                    group,
-                                    MessageChain.create(
-                                        [Plain(f"{configname} 已修改为 {config_Message}")]
-                                    ),
-                                )
-                            else:
-                                return await safeSendGroupMessage(
-                                    group, MessageChain.create([Plain("请输入修改后的值")])
-                                )
-                        else:
-                            return await safeSendGroupMessage(
-                                group,
-                                MessageChain.create([Plain(f"{configname} 不可修改")]),
-                            )
-                else:
-                    return await safeSendGroupMessage(
-                        group, MessageChain.create([Plain(f"{configname} 不存在")])
-                    )
-            else:
+            if not reg2.matched:
                 return await safeSendGroupMessage(
                     group, MessageChain.create([Plain("请输入需要修改的配置名称")])
                 )
-        elif ctrl == "查看":
-            if reg2.matched:
-                configname = reg2.result.getFirst(Plain).text
-                for config in configList:
-                    if config["name"] == configname:
-                        config_Message = group_data[str(group.id)][config["key"]][
-                            "Message"
-                        ]
-                        if config_Message:
-                            return await safeSendGroupMessage(
-                                group,
-                                MessageChain.create(
-                                    [Plain(f"{configname} 当前值为 {config_Message}")]
-                                ),
-                            )
-                        else:
-                            return await safeSendGroupMessage(
-                                group,
-                                MessageChain.create([Plain(f"{configname} 当前值为 空")]),
-                            )
-                else:
+            configname = reg2.result.getFirst(Plain).text
+            for config in configList:
+                if config["name"] == configname:
+                    if not config["can_edit"]:
+                        return await safeSendGroupMessage(
+                            group,
+                            MessageChain.create([Plain(f"{configname} 不可修改")]),
+                        )
+                    if not reg3.matched:
+                        return await safeSendGroupMessage(
+                            group, MessageChain.create([Plain("请输入修改后的值")])
+                        )
+                    config_Message = reg3.result.getFirst(Plain).text
+                    group_data[str(group.id)][config["key"]][
+                        "Message"
+                    ] = config_Message
+                    save_config()
                     return await safeSendGroupMessage(
-                        group, MessageChain.create([Plain(f"{configname} 不存在")])
+                        group,
+                        MessageChain.create(
+                            [Plain(f"{configname} 已修改为 {config_Message}")]
+                        ),
                     )
-            else:
+            return await safeSendGroupMessage(
+                group, MessageChain.create([Plain(f"{configname} 不存在")])
+            )
+        elif ctrl == "查看":
+            if not reg2.matched:
                 return await safeSendGroupMessage(
                     group, MessageChain.create([Plain("请输入需要查看的配置名称")])
                 )
-        elif ctrl == "关闭":
-            if reg2.matched:
-                configname = reg2.result.getFirst(Plain).text
-                for config in configList:
-                    if config["name"] == configname:
-                        configkey = config["key"]
-                        if group_data[str(group.id)][configkey]["Enabled"]:
-                            group_data[str(group.id)][configkey]["Enabled"] = False
-                            save_config()
-                            return await safeSendGroupMessage(
-                                group, MessageChain.create([Plain(f"{configname} 已关闭")])
-                            )
-                        else:
-                            return await safeSendGroupMessage(
-                                group,
-                                MessageChain.create([Plain(f"{configname} 已处于关闭状态")]),
-                            )
-                else:
-                    return await safeSendGroupMessage(
-                        group, MessageChain.create([Plain(f"{configname} 不存在")])
+            configname = reg2.result.getFirst(Plain).text
+            for config in configList:
+                if config["name"] == configname:
+                    return (
+                        await safeSendGroupMessage(
+                            group,
+                            MessageChain.create(
+                                [Plain(f"{configname} 当前值为 {config_Message}")]
+                            ),
+                        )
+                        if (
+                            config_Message := group_data[str(group.id)][
+                                config["key"]
+                            ]["Message"]
+                        )
+                        else await safeSendGroupMessage(
+                            group,
+                            MessageChain.create(
+                                [Plain(f"{configname} 当前值为 空")]
+                            ),
+                        )
                     )
-            else:
+
+            return await safeSendGroupMessage(
+                group, MessageChain.create([Plain(f"{configname} 不存在")])
+            )
+        elif ctrl == "关闭":
+            if not reg2.matched:
                 return await safeSendGroupMessage(
                     group, MessageChain.create([Plain("请输入需要关闭的配置名称")])
                 )
-        elif ctrl == "开启":
-            if reg2.matched:
-                configname = reg2.result.getFirst(Plain).text
-                for config in configList:
-                    if config["name"] == configname:
-                        configkey = config["key"]
-                        if not group_data[str(group.id)][configkey]["Enabled"]:
-                            group_data[str(group.id)][configkey]["Enabled"] = True
-                            save_config()
-                            return await safeSendGroupMessage(
-                                group, MessageChain.create([Plain(f"{configname} 已开启")])
-                            )
-                        else:
-                            return await safeSendGroupMessage(
-                                group,
-                                MessageChain.create([Plain(f"{configname} 已处于开启状态")]),
-                            )
-                else:
+            configname = reg2.result.getFirst(Plain).text
+            for config in configList:
+                if config["name"] == configname:
+                    configkey = config["key"]
+                    if not group_data[str(group.id)][configkey]["Enabled"]:
+                        return await safeSendGroupMessage(
+                            group,
+                            MessageChain.create([Plain(f"{configname} 已处于关闭状态")]),
+                        )
+                    group_data[str(group.id)][configkey]["Enabled"] = False
+                    save_config()
                     return await safeSendGroupMessage(
-                        group, MessageChain.create([Plain(f"{configname} 不存在")])
+                        group, MessageChain.create([Plain(f"{configname} 已关闭")])
                     )
-            else:
+            return await safeSendGroupMessage(
+                group, MessageChain.create([Plain(f"{configname} 不存在")])
+            )
+        elif ctrl == "开启":
+            if not reg2.matched:
                 return await safeSendGroupMessage(
                     group, MessageChain.create([Plain("请输入需要开启的配置名称")])
                 )
+            configname = reg2.result.getFirst(Plain).text
+            for config in configList:
+                if config["name"] == configname:
+                    configkey = config["key"]
+                    if group_data[str(group.id)][configkey]["Enabled"]:
+                        return await safeSendGroupMessage(
+                            group,
+                            MessageChain.create([Plain(f"{configname} 已处于开启状态")]),
+                        )
+                    group_data[str(group.id)][configkey]["Enabled"] = True
+                    save_config()
+                    return await safeSendGroupMessage(
+                        group, MessageChain.create([Plain(f"{configname} 已开启")])
+                    )
+            return await safeSendGroupMessage(
+                group, MessageChain.create([Plain(f"{configname} 不存在")])
+            )
         else:
             return await safeSendGroupMessage(
                 group, MessageChain.create([Plain("请输入修改|查看|关闭|开启")])

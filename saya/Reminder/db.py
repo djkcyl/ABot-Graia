@@ -34,10 +34,9 @@ database.create_tables([Reminder], safe=True)
 def add_reminder(member, group, end_date, thing) -> int:
     if get_all_reminder(member).count() > 4:
         return False
-    else:
-        thing = Reminder(member=member, group=group, end_date=end_date, thing=thing)
-        thing.save()
-        return thing.id
+    thing = Reminder(member=member, group=group, end_date=end_date, thing=thing)
+    thing.save()
+    return thing.id
 
 
 def get_undone_reminder() -> list[Reminder]:
@@ -64,13 +63,12 @@ def set_reminder_deleted(id: int) -> None:
         == 0
     ):
         return False
-    else:
-        Reminder.update(isdeleted=True).where(
-            Reminder.id == id,
-            Reminder.isdeleted == 0,
-            Reminder.completed == 0,
-        ).execute()
-        return True
+    Reminder.update(isdeleted=True).where(
+        Reminder.id == id,
+        Reminder.isdeleted == 0,
+        Reminder.completed == 0,
+    ).execute()
+    return True
 
 
 def get_all_reminder(member: int) -> list[Reminder]:

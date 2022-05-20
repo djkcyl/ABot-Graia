@@ -122,11 +122,7 @@ async def main(
 
             msg = await safeSendGroupMessage(group, message)
             if yaml_data["Saya"]["Pixiv"]["Recall"]:
-                await asyncio.sleep(
-                    yaml_data["Saya"]["Pixiv"]["Interval"]
-                    if yaml_data["Saya"]["Pixiv"]["Interval"] < 110
-                    else 110
-                )
+                await asyncio.sleep(min(yaml_data["Saya"]["Pixiv"]["Interval"], 110))
                 try:
                     await app.recallMessage(msg)
                 except Exception:
@@ -198,11 +194,7 @@ async def main(
                 )
             msg = await safeSendGroupMessage(group, message)
             if yaml_data["Saya"]["Pixiv"]["Recall"]:
-                await asyncio.sleep(
-                    yaml_data["Saya"]["Pixiv"]["Interval"]
-                    if yaml_data["Saya"]["Pixiv"]["Interval"] < 110
-                    else 110
-                )
+                await asyncio.sleep(min(yaml_data["Saya"]["Pixiv"]["Interval"], 110))
                 try:
                     await app.recallMessage(msg)
                 except Exception:

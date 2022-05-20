@@ -157,8 +157,7 @@ def dict2xml(name: str, style: str, text: str):
             },
         }
     }
-    con = xmltodict.unparse(xml_json, encoding="utf-8", pretty=1)
-    return con
+    return xmltodict.unparse(xml_json, encoding="utf-8", pretty=1)
 
 
 def gettts(name, style, text, voicefile):

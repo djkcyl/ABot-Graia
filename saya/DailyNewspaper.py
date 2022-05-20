@@ -79,11 +79,11 @@ async def send(app: Ariadne):
     )
     for group in groupList:
 
-        if yaml_data["Basic"]["Permission"]["Debug"]:
-            if group.id == yaml_data["Basic"]["Permission"]["DebugGroup"]:
-                pass
-            else:
-                continue
+        if (
+            yaml_data["Basic"]["Permission"]["Debug"]
+            and group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
+        ):
+            continue
 
         if "DailyNewspaper" in group_data[str(group.id)]["DisabledFunc"]:
             continue
@@ -98,5 +98,5 @@ async def send(app: Ariadne):
     allTime = time.time() - ts
     await app.sendFriendMessage(
         yaml_data["Basic"]["Permission"]["Master"],
-        MessageChain.create([Plain(f"每日日报已发送完毕，共用时 {str(int(allTime))} 秒")]),
+        MessageChain.create([Plain(f"每日日报已发送完毕，共用时 {int(allTime)} 秒")]),
     )

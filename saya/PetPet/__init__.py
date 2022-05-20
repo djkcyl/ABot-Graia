@@ -107,7 +107,7 @@ squish_factor = [
 
 squish_translation_factor = [0, 20, 34, 21, 0]
 
-frames = tuple([FRAMES_PATH.joinpath(f"frame{i}.png") for i in range(5)])
+frames = tuple(FRAMES_PATH.joinpath(f"frame{i}.png") for i in range(5))
 
 
 # 生成函数（非数学意味）

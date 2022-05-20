@@ -101,12 +101,10 @@ class bilibiliMobile:
                 "ts": str(int(time.time())),
             }
             keys = sorted(data.keys())
-            data_sorted = {}
-            for key in keys:
-                data_sorted[key] = data[key]
+            data_sorted = {key: data[key] for key in keys}
             data = data_sorted
             sign = self.calcSign(data)
-            data.update({"sign": sign})
+            data["sign"] = sign
             response = await self.session.post(
                 self.login_url, data=data, headers=self.headers
             )
@@ -126,21 +124,19 @@ class bilibiliMobile:
                 )
             logger.info(f"[BiliBili推送] {self.username} 登录成功")
             infos_return = {"username": self.username}
-            infos_return.update(response_json)
+            infos_return |= response_json
             app = get_running(Ariadne)
             await app.sendFriendMessage(
                 yaml_data["Basic"]["Permission"]["Master"],
                 MessageChain.create(f"[BiliBili推送] {self.username} 登录成功"),
             )
             return infos_return
-        # 账号密码错误
         elif response_json["code"] == -629:
             await app.sendFriendMessage(
                 yaml_data["Basic"]["Permission"]["Master"],
                 MessageChain.create(f"[BiliBili推送] {self.username} 登录失败，账号或密码错误"),
             )
             raise RuntimeError(f"[BiliBili推送] {self.username} 登录失败，账号或密码错误")
-        # 其他错误
         else:
             await app.sendFriendMessage(
                 yaml_data["Basic"]["Permission"]["Master"],
@@ -152,7 +148,7 @@ class bilibiliMobile:
 
     def calcSign(self, param, salt="2653583c8873dea268ab9386918b1d65"):
         param = urllib.parse.urlencode(param)
-        sign = hashlib.md5("{}{}".format(param, salt).encode("utf-8"))
+        sign = hashlib.md5(f"{param}{salt}".encode("utf-8"))
         return sign.hexdigest()
 
     """伪造buvid"""
@@ -167,8 +163,7 @@ class bilibiliMobile:
         md5.update(rand_mac.encode())
         md5_mac_str = md5.hexdigest()
         md5_mac = list(md5_mac_str)
-        fake_mac = ("XY" + md5_mac[2] + md5_mac[12] + md5_mac[22] + md5_mac_str).upper()
-        return fake_mac
+        return f"XY{md5_mac[2]}{md5_mac[12]}{md5_mac[22]}{md5_mac_str}".upper()
 
     """通过SMS登录"""
 
@@ -190,12 +185,12 @@ class bilibiliMobile:
             "tel": self.username,
             "statistics": '{"appId":1,"platform":3,"version":"6.70.0","abtest":""}',
         }
-        data, data_sorted = {**data, **default}, {}
+        data, data_sorted = data | default, {}
         for key in sorted(data.keys()):
-            data_sorted.update({key: data[key]})
+            data_sorted[key] = data[key]
         data = data_sorted
         sign = self.calcSign(data)
-        data.update({"sign": sign})
+        data["sign"] = sign
         response = await self.session.post(self.send_url, headers=self.headers, data=data)
         # 验证登录
         if response.json()["code"] == 0:
@@ -213,12 +208,12 @@ class bilibiliMobile:
                 "statistics": data["statistics"],
                 "code": code,
             }
-            data_sms, data_sms_sorted = {**data_sms, **default}, {}
+            data_sms, data_sms_sorted = data_sms | default, {}
             for key in sorted(data_sms.keys()):
-                data_sms_sorted.update({key: data_sms[key]})
+                data_sms_sorted[key] = data_sms[key]
             data_sms = data_sms_sorted
             sign = self.calcSign(data_sms)
-            data_sms.update({"sign": sign})
+            data_sms["sign"] = sign
             response = await self.session.post(
                 self.sms_url, headers=self.headers, data=data_sms
             )
@@ -250,9 +245,5 @@ class bilibiliMobile:
             "Accept-Encoding": "gzip",
             "Accept-Language": "zh-cn",
             "Connection": "keep-alive",
-            "User-Agent": str(
-                "Mozilla/5.0 BiliDroid/6.70.0 (bbcallen@gmail.com) "
-                "os/android model/KB2000 mobi_app/android build/6700300 "
-                "channel/yingyongbao innerVer/6700310 osVer/12 network/2"
-            ),
+            "User-Agent": "Mozilla/5.0 BiliDroid/6.70.0 (bbcallen@gmail.com) os/android model/KB2000 mobi_app/android build/6700300 channel/yingyongbao innerVer/6700310 osVer/12 network/2",
         }

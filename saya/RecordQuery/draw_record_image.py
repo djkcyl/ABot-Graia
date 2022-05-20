@@ -48,12 +48,7 @@ font_regular_20 = ImageFont.truetype(
 )
 
 
-text_info = str(
-    """\
-场均击杀          击杀              死亡              助攻
-胜率              胜场              负场              游戏局数
-爆头              击倒              破坏              K/D"""
-)
+text_info = """\\\x1f场均击杀          击杀              死亡              助攻\x1f胜率              胜场              负场              游戏局数\x1f爆头              击倒              破坏              K/D"""
 
 
 def sec_to_minsec(sec):
@@ -83,47 +78,42 @@ def circle_corner(img, radii):
 
 
 def division_zero(a, b):
-    if not a or not b:
-        return 0
-    else:
-        return a / b
+    return 0 if not a or not b else a / b
 
 
 def inverted_image(image):
-    if image.mode == "RGBA":
-        r, g, b, a = image.split()
-        rgb_image = IMG.merge("RGB", (r, g, b))
-        inverted_image = ImageOps.invert(rgb_image)
-        r2, g2, b2 = inverted_image.split()
-        return IMG.merge("RGBA", (r2, g2, b2, a))
-    else:
+    if image.mode != "RGBA":
         return ImageOps.invert(image)
+    r, g, b, a = image.split()
+    rgb_image = IMG.merge("RGB", (r, g, b))
+    inverted_image = ImageOps.invert(rgb_image)
+    r2, g2, b2 = inverted_image.split()
+    return IMG.merge("RGBA", (r2, g2, b2, a))
 
 
 async def get_pic(type, name):
     PICPATH = DATABASE.joinpath(type, f"{name}.png")
     if PICPATH.exists():
         return IMG.open(BytesIO(PICPATH.read_bytes())).convert("RGBA")
-    else:
-        async with httpx.AsyncClient(timeout=10) as client:
-            for _ in range(3):
-                try:
-                    if type == "operators":
-                        r = await client.get(
-                            f"https://api.statsdb.net/r6/assets/operators/{name}/figure/small",
-                            timeout=10,
-                        )
-                    elif type == "weapons":
-                        r = await client.get(
-                            f"https://api.statsdb.net/r6/assets/weapons/{name}",
-                            timeout=10,
-                        )
-                    break
-                except httpx.HTTPError:
-                    continue
-        logger.info(f"图片下载完成：{type} - {name}")
-        PICPATH.write_bytes(r.content)
-        return IMG.open(BytesIO(r.content)).convert("RGBA")
+    async with httpx.AsyncClient(timeout=10) as client:
+        for _ in range(3):
+            try:
+                if type == "operators":
+                    r = await client.get(
+                        f"https://api.statsdb.net/r6/assets/operators/{name}/figure/small",
+                        timeout=10,
+                    )
+                elif type == "weapons":
+                    r = await client.get(
+                        f"https://api.statsdb.net/r6/assets/weapons/{name}",
+                        timeout=10,
+                    )
+                break
+            except httpx.HTTPError:
+                continue
+    logger.info(f"图片下载完成：{type} - {name}")
+    PICPATH.write_bytes(r.content)
+    return IMG.open(BytesIO(r.content)).convert("RGBA")
 
 
 async def draw_r6(nick_name: str) -> List[Union[Image, Plain]]:

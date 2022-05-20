@@ -31,7 +31,7 @@ class OCR:
             img: np.ndarray = self.image_data.convert("RGB").__array__()
         elif isinstance(self.image_data, np.ndarray):
             img = self.image_data
-        elif isinstance(self.image_data, Path) or isinstance(self.image_data, str):
+        elif isinstance(self.image_data, (Path, str)):
             img = Image.open(self.image_data).convert("RGB").__array__()
         elif isinstance(self.image_data, bytes):
             img = Image.open(BytesIO(self.image_data)).convert("RGB").__array__()

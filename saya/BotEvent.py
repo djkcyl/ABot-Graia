@@ -57,9 +57,7 @@ async def groupDataInit(app: Ariadne):
     groupNum = len(groupList)
     init_user(str(yaml_data["Basic"]["Permission"]["Master"]))
     master = await app.getFriend(yaml_data["Basic"]["Permission"]["Master"])
-    if master:
-        pass
-    else:
+    if not master:
         logger.error(f"当前未添加主人好友（{yaml_data['Basic']['Permission']['Master']}），请手动添加")
         exit()
     await app.sendFriendMessage(
@@ -122,11 +120,7 @@ async def get_BotNewFriend(app: Ariadne, events: NewFriendRequestEvent):
     sourceGroup: Optional[int] = events.sourceGroup
     if sourceGroup:
         groupname = await app.getGroup(sourceGroup)
-        if groupname:
-            groupname = groupname.name
-        else:
-            groupname = "未知"
-
+        groupname = groupname.name if groupname else "未知"
     if yaml_data["Basic"]["Event"]["NewFriend"]:
         for qq in yaml_data["Basic"]["Permission"]["Admin"]:
             await app.sendFriendMessage(
@@ -256,17 +250,16 @@ async def get_BotJoinGroup(app: Ariadne, joingroup: BotJoinGroupEvent):
         return await app.quitGroup(joingroup.group.id)
 
     member_count = len(await app.getMemberList(joingroup.group))
-    if member_count < 15:
-        if joingroup.group.id not in group_list["white"]:
-            await safeSendGroupMessage(
-                joingroup.group.id,
-                MessageChain.create(f"当前群人数过少 ({member_count}/15)，暂不加入"),
-            )
-            await app.sendFriendMessage(
-                yaml_data["Basic"]["Permission"]["Master"],
-                MessageChain.create(f"该群人数过少 ({member_count})，正在退出"),
-            )
-            return await app.quitGroup(joingroup.group.id)
+    if member_count < 15 and joingroup.group.id not in group_list["white"]:
+        await safeSendGroupMessage(
+            joingroup.group.id,
+            MessageChain.create(f"当前群人数过少 ({member_count}/15)，暂不加入"),
+        )
+        await app.sendFriendMessage(
+            yaml_data["Basic"]["Permission"]["Master"],
+            MessageChain.create(f"该群人数过少 ({member_count})，正在退出"),
+        )
+        return await app.quitGroup(joingroup.group.id)
 
     if yaml_data["Basic"]["Event"]["JoinGroup"]:
         membernum = len(await app.getMemberList(joingroup.group))
@@ -487,10 +480,9 @@ async def getMemberJoinEvent(events: MemberJoinEvent):
         Plain(" 加入本群"),
     ]
     if group_data[str(events.member.group.id)]["EventBroadcast"]["Enabled"]:
-        EventBroadcast = group_data[str(events.member.group.id)]["EventBroadcast"][
-            "Message"
-        ]
-        if EventBroadcast:
+        if EventBroadcast := group_data[str(events.member.group.id)][
+            "EventBroadcast"
+        ]["Message"]:
             msg.append(Plain(f"\n{EventBroadcast}"))
         await safeSendGroupMessage(events.member.group, MessageChain.create(msg))
 
