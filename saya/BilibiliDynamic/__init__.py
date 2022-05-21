@@ -211,35 +211,31 @@ async def update_scheduled(app: Ariadne):
     for up in live_statu["items"]:
         up_id = up["uid"]
         up_name = up["name"]
-        if up_id in sub_list:
-            # 如果已经在被检测过的列表里，则跳过
-            if up_id in lives:
+
+        # 如果已经在被检测过的列表里，则跳过
+        if up_id in lives:
+            continue
+        else:
+            lives.append(up_id)
+        # 如果存在直播信息则为已开播
+        if "live_info" in up:
+            # 如果已经记录为已开播，则跳过
+            if up_id in LIVEING:
                 continue
             else:
-                lives.append(up_id)
-            # 如果存在直播信息则为已开播
-            if "live_info" in up:
-                # 如果已经记录为已开播，则跳过
-                if up_id in LIVEING:
-                    continue
-                else:
-                    room_id = up["live_info"]["room_id"]
-                    resp = await get_status_info_by_uids({"uids": [up_id]})
-                    room_area = (
-                        resp["data"][up_id]["area_v2_parent_name"]
-                        + " / "
-                        + resp["data"][up_id]["area_v2_name"]
-                    )
-                    cover_from_user = resp["data"][up_id]["cover_from_user"]
-                    title = resp["data"][up_id]["title"]
-                    logger.info(f"[BiliBili推送] {up_name} 开播了 - {room_area} - {title}")
-
+                room_id = up["live_info"]["room_id"]
+                resp = await get_status_info_by_uids({"uids": [up_id]})
+                room_area = (
+                    resp["data"][up_id]["area_v2_parent_name"]
+                    + " / "
+                    + resp["data"][up_id]["area_v2_name"]
+                )
+                cover_from_user = resp["data"][up_id]["cover_from_user"]
+                title = resp["data"][up_id]["title"]
+                logger.info(f"[BiliBili推送] {up_name} 开播了 - {room_area} - {title}")
+                
+                try:
                     for groupid in sub_list[up_id]:
-                        if (
-                            yaml_data["Basic"]["Permission"]["Debug"]
-                            and groupid != yaml_data["Basic"]["Permission"]["DebugGroup"]
-                        ):
-                            continue
                         try:
                             await app.sendGroupMessage(
                                 groupid,
@@ -258,56 +254,47 @@ async def update_scheduled(app: Ariadne):
                             logger.info(
                                 f"[BiliBili推送] 推送失败，找不到该群 {groupid}，已删除该群订阅的 {len(remove_list)} 个UP"
                             )
-
-                    LIVEING.append(up_id)
-            else:
-                # 判断是否存在于已开播列表中
-                if up_id not in LIVEING:
-                    continue
-                else:
-                    LIVEING.remove(up_id)
-                    logger.info(f"[BiliBili推送] {up_name} 已下播")
-                    try:
-                        for groupid in sub_list[up_id]:
-                            if (
-                                yaml_data["Basic"]["Permission"]["Debug"]
-                                and groupid
-                                != yaml_data["Basic"]["Permission"]["DebugGroup"]
-                            ):
-                                continue
-                            await app.sendGroupMessage(
-                                groupid,
-                                MessageChain.create(f"本群订阅的UP {up_name}（{up_id}）已下播！"),
-                            )
-                            await asyncio.sleep(1)
-                    except UnknownTarget:
-                        remove_list = []
-                        for subid in get_group_sublist(groupid):
-                            await remove_uid(subid, groupid)
-                            remove_list.append(subid)
-                        logger.info(
-                            f"[BiliBili推送] 推送失败，找不到该群 {groupid}，已删除该群订阅的 {len(remove_list)} 个UP"
-                        )
-
+                except KeyError:
+                    # 处理账号已经订阅但没有任何群订阅此 UP 的情况
+                    logger.info(
+                        f"[BiliBili推送] 订阅的UP {up_name}（{up_id}）在 {room_area} 区开播，但无任何群订阅此 UP ，已跳过处理！"
+                    )
+                LIVEING.append(up_id)
         else:
-            logger.warning(f"[BiliBili推送] 没有找到订阅UP {up_name}（{up_id}）的群，正在退订！")
-            resp = await relation_modify(up_id, 2)
-            if resp["code"] == 0:
-                logger.info("[BiliBili推送] 退订成功！")
-                await app.sendFriendMessage(
-                    yaml_data["Basic"]["Permission"]["Master"],
-                    MessageChain.create(
-                        f"[BiliBili推送] 未找到订阅 {up_name}（{up_id}）的群，已被退订！",
-                    ),
-                )
+            # 判断是否存在于已开播列表中
+            if up_id not in LIVEING:
+                continue
+            else:
+                LIVEING.remove(up_id)
+                logger.info(f"[BiliBili推送] {up_name} 已下播")
+                try:
+                    for groupid in sub_list[up_id]:
+                        await app.sendGroupMessage(
+                            groupid,
+                            MessageChain.create(f"本群订阅的UP {up_name}（{up_id}）已下播！"),
+                        )
+                        await asyncio.sleep(1)
+                except KeyError:
+                    # 处理账号已经订阅但没有任何群订阅此 UP 的情况
+                    logger.info(
+                        f"[BiliBili推送] 订阅的UP {up_name}（{up_id}）已下播，但无任何群订阅此 UP ，已跳过处理！"
+                    )
+                except UnknownTarget:
+                    remove_list = []
+                    for subid in get_group_sublist(groupid):
+                        await remove_uid(subid, groupid)
+                        remove_list.append(subid)
+                    logger.info(
+                        f"[BiliBili推送] 推送失败，找不到该群 {groupid}，已删除该群订阅的 {len(remove_list)} 个UP"
+                    )
 
     # 动态更新检测
     # 获取当前登录账号的动态列表
     dynall = await grpc_dynall_get()
-    dynall.reverse()
     for dyn in dynall:
         # 如果这条动态 id 新于上次更新的 id 则推送
         if int(dyn.extend.dyn_id_str) > OFFSET:
+            print(dyn)
             up_id = str(dyn.modules[0].module_author.author.mid)
             up_name = dyn.modules[0].module_author.author.name
             up_last_dynid = dyn.extend.dyn_id_str
@@ -340,11 +327,6 @@ async def update_scheduled(app: Ariadne):
 
                 for groupid in sub_list[up_id]:
                     try:
-                        if yaml_data["Basic"]["Permission"]["Debug"]:
-                            if groupid == yaml_data["Basic"]["Permission"]["DebugGroup"]:
-                                pass
-                            else:
-                                continue
                         await app.sendGroupMessage(
                             groupid,
                             MessageChain.create(
@@ -368,7 +350,8 @@ async def update_scheduled(app: Ariadne):
                         logger.info(f"[BiliBili推送] 推送失败，未知错误 {type(e)}")
             else:
                 # 建议添加是否自动退订选项
-                logger.warning(f"[BiliBili推送] 没有找到订阅UP {up_name}（{up_id}）的群，正在退订！")
+                logger.warning(f"[BiliBili推送] 没有找到订阅UP {up_name}（{up_id}）的群，已跳过！")
+                """
                 resp = await relation_modify(up_id, 2)
                 if resp["code"] == 0:
                     logger.info("[BiliBili推送] 退订成功！")
@@ -378,9 +361,12 @@ async def update_scheduled(app: Ariadne):
                             f"[BiliBili推送] 未找到订阅 {up_name}（{up_id}）的群，已被退订！",
                         ),
                     )
+                """
+        else:
+            break
 
     # 将当前检测到的第一条动态 id 设置为最新的动态 id
-    OFFSET = int(dynall[-1].extend.dyn_id_str)
+    OFFSET = int(dynall[0].extend.dyn_id_str)
 
 
 @channel.use(
