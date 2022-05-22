@@ -59,7 +59,7 @@ async def bot_Launched():
     )
 )
 async def get_user_info(group: Group, member: Member):
-    user_info = await get_info(str(member.id))
+    user_info = await get_info(member.id)
     await safeSendGroupMessage(
         group,
         MessageChain.create(

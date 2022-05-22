@@ -67,10 +67,8 @@ else:
     )
 )
 async def buy_lottery(group: Group, member: Member, source: Source):
-    if await reduce_gold(str(member.id), 2):
-        number = "".join(
-            random.sample(string.digits + string.digits + string.digits, 24)
-        )
+    if await reduce_gold(member.id, 2):
+        number = "".join(random.sample(string.digits + string.digits + string.digits, 24))
         period = str(LOTTERY["period"])
         lottery = qrgen(str(member.id), number, member.name, period)
 
@@ -128,11 +126,14 @@ async def redeem_lottery(
     async def waiter(
         waiter_group: Group, waiter_member: Member, waiter_message: MessageChain
     ):
-        if all([waiter_group.id == group.id, waiter_member.id == member.id]):
-            has_pic = waiter_message.has(Image)
-            if has_pic:
-                get_pic = waiter_message.getFirst(Image).url
-                return get_pic
+        if all(
+            [
+                waiter_group.id == group.id,
+                waiter_member.id == member.id,
+                waiter_message.has(Image),
+            ]
+        ):
+            return waiter_message.getFirst(Image).url
 
     if image.matched:
         waite_pic = image.result.url
@@ -256,12 +257,11 @@ async def lo(app: Ariadne, friend: Friend):
 )
 async def q_lottery(group: Group):
     lottery = LOTTERY
-    period = str(lottery["period"] - 1)
     winner = lottery["lastweek"]["number"]
-    lottery_len = LOTTERY["lastweek"]["len"]
-    if lottery_len:
+    if lottery_len := LOTTERY["lastweek"]["len"]:
         gold = int(lottery_len * 2 * 0.9)
         received = "已领取" if lottery["lastweek"]["received"] else "未领取"
+        period = str(lottery["period"] - 1)
         await safeSendGroupMessage(
             group,
             MessageChain.create(

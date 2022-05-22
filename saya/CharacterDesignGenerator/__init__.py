@@ -45,17 +45,15 @@ async def rand_designs(group: Group, member: Member, source: Source):
 
 
 def get_rand(qid: int, gid: int):
-    i = 1
     s = 1
     designs_list = []
     for _i in Designs:
         for _ in Designs[_i]:
             s += 1
 
-    for type in Designs:
+    for i, type in enumerate(Designs, start=1):
         random.seed(qid + gid + i + s)
         designs_list.append([type, random.choice(Designs[type])])
-        i += 1
     return designs_list
 
 

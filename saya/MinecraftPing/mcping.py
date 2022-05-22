@@ -20,7 +20,7 @@ async def mcping(say):
         get_status = StatusPing(host=host, port=int(port)).get_status()
     except Exception:
         try:
-            srv_records = dns.resolver.query("_minecraft._tcp." + host, "SRV")
+            srv_records = dns.resolver.query(f"_minecraft._tcp.{host}", "SRV")
             srvInfo = {}
             for srv in srv_records:
                 srvInfo["host"] = str(srv.target).rstrip(".")
@@ -59,50 +59,49 @@ async def mcping(say):
     logger.debug(get_status["description"])
     if type(get_status["description"]) == str:
         sMotd = get_status["description"]
-        msg_send.append(Plain("描述：" + sMotd + "\n"))
+        msg_send.append(Plain(f"描述：{sMotd}" + "\n"))
         logger.debug(sMotd)
     elif get_status["description"].get("text", "") != "":
         sMotd = get_status["description"]["text"]
-        msg_send.append(Plain("描述：" + sMotd + "\n"))
+        msg_send.append(Plain(f"描述：{sMotd}" + "\n"))
         logger.debug(sMotd)
     elif "extra" in get_status["description"]:
         sMotd = ""
         for extra in get_status["description"]["extra"]:
             sMotd = sMotd + extra["text"]
-        msg_send.append(Plain("描述：" + sMotd + "\n"))
+        msg_send.append(Plain(f"描述：{sMotd}" + "\n"))
         logger.debug(sMotd)
     elif "translate" in get_status["description"]:
         sMotd = get_status["description"]["translate"]
-        msg_send.append(Plain("描述：" + sMotd + "\n"))
+        msg_send.append(Plain(f"描述：{sMotd}" + "\n"))
         logger.debug(sMotd)
 
     # 服务端版本判断
     if "Requires" in get_status["version"]["name"]:
         sType = "Vanilla"
         sVer = get_status["version"]["name"]
+    elif get_status["version"]["name"].find(" ") > 0:
+        serType = get_status["version"]["name"].rsplit(" ", 1)
+        sType = serType[0]
+        sVer = serType[1]
+        logger.debug(serType)
+        logger.debug(sType)
+        logger.debug(sVer)
     else:
-        if get_status["version"]["name"].find(" ") > 0:
-            serType = get_status["version"]["name"].rsplit(" ", 1)
-            sType = serType[0]
-            sVer = serType[1]
-            logger.debug(serType)
-            logger.debug(sType)
-            logger.debug(sVer)
-        else:
-            sType = "Vanilla"
-            sVer = get_status["version"]["name"]
+        sType = "Vanilla"
+        sVer = get_status["version"]["name"]
 
     sDevVer = str(get_status["version"]["protocol"])
     sPlayer = (
         str(get_status["players"]["online"]) + " / " + str(get_status["players"]["max"])
     )
 
-    msg_send.append(Plain("游戏版本：" + sVer + "\n"))
-    msg_send.append(Plain("协议版本：" + sDevVer + "\n"))
-    msg_send.append(Plain("服务端：" + sType + "\n"))
+    msg_send.append(Plain(f"游戏版本：{sVer}" + "\n"))
+    msg_send.append(Plain(f"协议版本：{sDevVer}" + "\n"))
+    msg_send.append(Plain(f"服务端：{sType}" + "\n"))
 
     # 玩家数
-    msg_send.append(Plain("玩家数：" + sPlayer))
+    msg_send.append(Plain(f"玩家数：{sPlayer}"))
 
     # 判断是否存在在线玩家
     if (
@@ -110,16 +109,13 @@ async def mcping(say):
         and get_status["players"]["sample"] != []
         and get_status["players"]["sample"] is not None
     ):
-        sOnlinePlayer = []
-        for player in get_status["players"]["sample"]:
-            sOnlinePlayer.append(player["name"])
+        sOnlinePlayer = [player["name"] for player in get_status["players"]["sample"]]
         msg_send.append(Plain("\n在线玩家：" + " | ".join(sOnlinePlayer)))
 
     # 如果为原版 Forge
-    if "modinfo" in get_status:
-        if "FML" in get_status["modinfo"]["type"]:
-            sModApi = "Forge"
-            msg_send.append(Plain("\n模组Api：" + sModApi))
+    if "modinfo" in get_status and "FML" in get_status["modinfo"]["type"]:
+        sModApi = "Forge"
+        msg_send.append(Plain("\n模组Api：" + sModApi))
 
     # Mod 列表
     if "modinfo" in get_status:

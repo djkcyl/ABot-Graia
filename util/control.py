@@ -66,9 +66,9 @@ class Rest:
     用于控制睡眠的类，不应被实例化
     """
 
-    def set_sleep(set):
+    def set_sleep(self):
         global SLEEP
-        SLEEP = set
+        SLEEP = self
 
     def rest_control(zzzz: bool = True):
         async def sleep(event: GroupMessage):
@@ -100,14 +100,12 @@ class Function:
     def require(funcname: str) -> Depend:
         def func_check(member: Member):
             if member.id == yaml_data["Basic"]["Permission"]["Master"]:
-                pass
-            elif bot_shutdown():
+                return
+            if bot_shutdown():
                 raise ExecutionStop()
             elif yaml_data["Saya"][funcname]["Disabled"]:
                 raise ExecutionStop()
-            elif funcname not in group_data[str(member.group.id)]["DisabledFunc"]:
-                pass
-            else:
+            elif funcname in group_data[str(member.group.id)]["DisabledFunc"]:
                 raise ExecutionStop()
 
         return Depend(func_check)
@@ -125,9 +123,7 @@ class RollQQ:
                 pass
             elif (day % 2) == 0 and (member.id % 2) == 0:
                 pass
-            elif (day % 2) != 0 and (member.id % 2) != 0:
-                pass
-            else:
+            elif day % 2 == 0 or member.id % 2 == 0:
                 raise ExecutionStop()
 
         return Depend(qq_check)
@@ -164,14 +160,13 @@ class Permission:
             raise ExecutionStop()
 
         if user in yaml_data["Basic"]["Permission"]["Admin"]:
-            res = cls.MASTER
+            return cls.MASTER
         elif user in user_list["black"]:
-            res = cls.BANNED
+            return cls.BANNED
         elif user_permission in [MemberPerm.Administrator, MemberPerm.Owner]:
-            res = cls.GROUP_ADMIN
+            return cls.GROUP_ADMIN
         else:
-            res = cls.DEFAULT
-        return res
+            return cls.DEFAULT
 
     @classmethod
     def require(cls, level: int = DEFAULT) -> Depend:

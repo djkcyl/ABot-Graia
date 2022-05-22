@@ -19,8 +19,7 @@ async def get_result(url, headers):
             except httpx.TransportError:
                 logger.warning(f"{url} 请求超时，正在重试")
                 await asyncio.sleep(3)
-        else:
-            logger.warning(f"{url} 请求失败")
+        logger.warning(f"{url} 请求失败")
 
 
 def remove_xml_tag(text: str):
@@ -58,6 +57,7 @@ class WeiboUser:
         return f"{self.url}?type=uid&uid={self.weibo_id}&value={self.weibo_id}{c_id}"
 
     async def get_user_name(self, result=None):
+        # sourcery skip: hoist-if-from-if
         if self.user_name:
             return self.user_name
 
@@ -97,13 +97,15 @@ class WeiboUser:
         if not result:
             return cards
 
-        for item in result["data"]["cards"]:
+        cards.extend(
+            item
+            for item in result["data"]["cards"]
             if (
                 item["card_type"] == 9
                 and "isTop" not in item["mblog"]
                 and item["mblog"]["mblogtype"] == 0
-            ):
-                cards.append(item)
+            )
+        )
 
         return cards
 
@@ -182,7 +184,7 @@ class Game:
         async with httpx.AsyncClient() as client:
             r = await client.get(url)
             if "banner-image-container cover" in r.text:
-                html = re.search(r'src="(.*)"', r.text).group(1)
+                html = re.search(r'src="(.*)"', r.text)[1]
                 img_req = await client.get(html)
                 return img_req.content
             else:

@@ -196,10 +196,76 @@ async def update_scheduled(app: Ariadne):
     for up in live_statu["items"]:
         up_id = up["uid"]
         up_name = up["name"]
+        if up_id in sub_list:
+            # 如果已经在被检测过的列表里，则跳过
+            if up_id in lives:
+                continue
+            else:
+                lives.append(up_id)
+            # 如果存在直播信息则为已开播
+            if "live_info" in up:
+                if up_id in LIVEING:
+                    continue
+                room_id = up["live_info"]["room_id"]
+                resp = await get_status_info_by_uids({"uids": [up_id]})
+                room_area = (
+                    resp["data"][up_id]["area_v2_parent_name"]
+                    + " / "
+                    + resp["data"][up_id]["area_v2_name"]
+                )
+                cover_from_user = resp["data"][up_id]["cover_from_user"]
+                title = resp["data"][up_id]["title"]
+                logger.info(f"[BiliBili推送] {up_name} 开播了 - {room_area} - {title}")
 
-        # 如果已经在被检测过的列表里，则跳过
-        if up_id in lives:
-            continue
+                for groupid in sub_list[up_id]:
+                    if (
+                        yaml_data["Basic"]["Permission"]["Debug"]
+                        and groupid != yaml_data["Basic"]["Permission"]["DebugGroup"]
+                    ):
+                        continue
+                    try:
+                        await app.sendGroupMessage(
+                            groupid,
+                            MessageChain.create(
+                                f"本群订阅的UP {up_name}（{up_id}）在 {room_area} 区开播啦 ！\n{title}\n",
+                                Image(url=cover_from_user),
+                                Plain(f"\nhttps://live.bilibili.com/{room_id}"),
+                            ),
+                        )
+                        await asyncio.sleep(1)
+                    except UnknownTarget:
+                        remove_list = []
+                        for subid in get_group_sublist(groupid):
+                            await remove_uid(subid, groupid)
+                            remove_list.append(subid)
+                        logger.info(
+                            f"[BiliBili推送] 推送失败，找不到该群 {groupid}，已删除该群订阅的 {len(remove_list)} 个UP"
+                        )
+
+                LIVEING.append(up_id)
+            elif up_id in LIVEING:
+                LIVEING.remove(up_id)
+                logger.info(f"[BiliBili推送] {up_name} 已下播")
+                try:
+                    for groupid in sub_list[up_id]:
+                        if (
+                            yaml_data["Basic"]["Permission"]["Debug"]
+                            and groupid != yaml_data["Basic"]["Permission"]["DebugGroup"]
+                        ):
+                            continue
+                        await app.sendGroupMessage(
+                            groupid,
+                            MessageChain.create(f"本群订阅的UP {up_name}（{up_id}）已下播！"),
+                        )
+                        await asyncio.sleep(1)
+                except UnknownTarget:
+                    remove_list = []
+                    for subid in get_group_sublist(groupid):
+                        await remove_uid(subid, groupid)
+                        remove_list.append(subid)
+                    logger.info(
+                        f"[BiliBili推送] 推送失败，找不到该群 {groupid}，已删除该群订阅的 {len(remove_list)} 个UP"
+                    )
         else:
             lives.append(up_id)
         # 如果存在直播信息则为已开播
@@ -220,6 +286,11 @@ async def update_scheduled(app: Ariadne):
             try:
                 for groupid in sub_list[up_id]:
                     try:
+                        if (
+                            yaml_data["Basic"]["Permission"]["Debug"]
+                            and groupid != yaml_data["Basic"]["Permission"]["DebugGroup"]
+                        ):
+                            continue
                         await app.sendGroupMessage(
                             groupid,
                             MessageChain.create(
@@ -447,9 +518,7 @@ async def vive_dyn(group: Group, anything: RegexResult):
 
     res = await grpc_dyn_get(uid)
     if res:
-        shot_image = await get_dynamic_screenshot(
-            res["list"][0]["extend"]["dyn_id_str"]
-        )
+        shot_image = await get_dynamic_screenshot(res["list"][0]["extend"]["dyn_id_str"])
         await safeSendGroupMessage(
             group, MessageChain.create([Image(data_bytes=shot_image)])
         )

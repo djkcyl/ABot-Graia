@@ -127,7 +127,7 @@ async def low_poly(
                     MessageChain.create([Plain(f"图片错误 {resp.status_code}")]),
                 )
             img_bytes = resp.content
-        if not await reduce_gold(str(member.id), 1):
+        if not await reduce_gold(member.id, 1):
             WAITING.remove(member.id)
             return safeSendGroupMessage(group, MessageChain.create(f"你的{COIN_NAME}不足"))
         await safeSendGroupMessage(
@@ -148,10 +148,7 @@ def make_low_poly(img_bytes, point: Optional[int] = None):
         img = IMG.open(BytesIO(img_bytes)).convert("RGB")
         img.thumbnail((1000, 1000))
         imgx, imgy = img.size
-        t = triangler.Triangler(
-            sample_method=triangler.SampleMethod.POISSON_DISK,
-            points=point if point else max(imgx, imgy),
-        )
+        t = triangler.Triangler(sample_method=triangler.SampleMethod.POISSON_DISK, points=point or max(imgx, imgy))
         bio = BytesIO()
         img = plt.imsave(bio, t.convert(img.__array__()))
         img = IMG.open(bio).convert("RGB")

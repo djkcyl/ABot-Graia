@@ -33,10 +33,9 @@ def _词转换(x, y, 淫乱度):
         return "❤"
     if len(x) > 1 and random.random() < 0.5:
         return f"{x[0]}……{x}"
-    else:
-        if y == "n" and random.random() < 0.5:
-            x = "〇" * len(x)
-        return f"……{x}"
+    if y == "n" and random.random() < 0.5:
+        x = "〇" * len(x)
+    return f"……{x}"
 
 
 def chs2yin(s, 淫乱度=0.5):

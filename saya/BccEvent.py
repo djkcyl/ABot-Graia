@@ -34,16 +34,14 @@ async def except_handle(event: ExceptionThrowed):
     app = get_running(Ariadne)
     if isinstance(event.event, ExceptionThrowed):
         return
-    else:
-        return
-        eimg = await make_msg_for_unknow_exception(event)
-        # try:
-        #     if isinstance(event.event, GroupMessage):
-        #         e: GroupMessage = event.event
-        #         await safeSendGroupMessage(e.sender.group.id, eimg)
-        # except Exception:
-        #     pass
-        return await app.sendFriendMessage(
-            yaml_data["Basic"]["Permission"]["Master"],
-            eimg,
-        )
+    eimg = await make_msg_for_unknow_exception(event)
+    # try:
+    #     if isinstance(event.event, GroupMessage):
+    #         e: GroupMessage = event.event
+    #         await safeSendGroupMessage(e.sender.group.id, eimg)
+    # except Exception:
+    #     pass
+    return await app.sendFriendMessage(
+        yaml_data["Basic"]["Permission"]["Master"],
+        eimg,
+    )

@@ -63,9 +63,7 @@ async def horse_racing(group: Group):
 )
 async def check_info(group: Group, member: Member):
     props = (
-        "\n".join(
-            [f"{amount} 个 {prop}" for prop, amount in get_props(member.id).items()]
-        )
+        "\n".join([f"{amount} 个 {prop}" for prop, amount in get_props(member.id).items()])
         or "无"
     )
     await safeSendGroupMessage(
@@ -89,25 +87,21 @@ async def check_info(group: Group, member: Member):
 )
 async def lottery(group: Group, member: Member):
     prop_amount = get_props(member.id)
-    i = 0
-    for prop, amount in prop_amount.items():
-        if amount:
-            i += amount
+    i = sum(amount for _, amount in prop_amount.items() if amount)
     if i >= 10:
         await safeSendGroupMessage(
             group, MessageChain.create(At(member.id), Plain(" 你的背包已经满啦，请使用后再抽取吧！"))
         )
+    elif await reduce_gold(member.id, 2):
+        prop = get_random_prop()
+        add_prop(str(member.id), prop)
+        await safeSendGroupMessage(
+            group, MessageChain.create(At(member.id), Plain(f" 你获得了一个 {prop}"))
+        )
     else:
-        if await reduce_gold(str(member.id), 2):
-            prop = get_random_prop()
-            add_prop(str(member.id), prop)
-            await safeSendGroupMessage(
-                group, MessageChain.create(At(member.id), Plain(f" 你获得了一个 {prop}"))
-            )
-        else:
-            await safeSendGroupMessage(
-                group, MessageChain.create(At(member.id), f" 你的{COIN_NAME}不足，无法抽奖")
-            )
+        await safeSendGroupMessage(
+            group, MessageChain.create(At(member.id), f" 你的{COIN_NAME}不足，无法抽奖")
+        )
 
 
 @channel.use(
@@ -128,103 +122,95 @@ async def main(app: Ariadne, group: Group, member: Member):
     async def waiter1(
         waiter1_group: Group, waiter1_member: Member, waiter1_message: MessageChain
     ):
-        if waiter1_group.id == group.id:
-            if waiter1_message.asDisplay() == "加入赛马":
+        if waiter1_group.id != group.id:
+            return
+        if waiter1_message.asDisplay() == "加入赛马":
+            player_list = GROUP_GAME_PROCESS[group.id]["members"]
+            player_count = len(player_list)
+            if waiter1_member.id in GROUP_GAME_PROCESS[group.id]["members"]:
+                await safeSendGroupMessage(
+                    group, MessageChain.create("你已经参与了本轮游戏，请不要重复加入")
+                )
+            elif await reduce_gold(waiter1_member.id, 5):
+                GROUP_GAME_PROCESS[group.id]["members"].append(waiter1_member.id)
                 player_list = GROUP_GAME_PROCESS[group.id]["members"]
                 player_count = len(player_list)
-                if waiter1_member.id in GROUP_GAME_PROCESS[group.id]["members"]:
-                    await safeSendGroupMessage(
-                        group, MessageChain.create("你已经参与了本轮游戏，请不要重复加入")
-                    )
+                if 8 > player_count > 1:
+                    GROUP_GAME_PROCESS[group.id]["status"] = "pre_start"
+                    add_msg = "，发起者可发送“提前开始”来强制开始本场游戏"
                 else:
-                    if await reduce_gold(str(waiter1_member.id), 5):
-                        GROUP_GAME_PROCESS[group.id]["members"].append(
-                            waiter1_member.id
-                        )
-                        player_list = GROUP_GAME_PROCESS[group.id]["members"]
-                        player_count = len(player_list)
-                        if 8 > player_count > 1:
-                            GROUP_GAME_PROCESS[group.id]["status"] = "pre_start"
-                            add_msg = "，发起者可发送“提前开始”来强制开始本场游戏"
-                        else:
-                            GROUP_GAME_PROCESS[group.id]["status"] = "waiting"
-                            add_msg = ""
-                        await safeSendGroupMessage(
-                            group,
-                            MessageChain.create(
-                                At(waiter1_member.id),
-                                Plain(
-                                    f" 你已成功加入本轮游戏，当前共有 {player_count} / 8 人参与{add_msg}"
-                                ),
-                            ),
-                        )
-                        if player_count >= 8:
-                            GROUP_GAME_PROCESS[group.id]["status"] = "running"
-                            return True
-                    else:
-                        await safeSendGroupMessage(
-                            group, MessageChain.create(f"你的{COIN_NAME}不足，无法参加游戏")
-                        )
-            elif waiter1_message.asDisplay() == "退出赛马":
+                    GROUP_GAME_PROCESS[group.id]["status"] = "waiting"
+                    add_msg = ""
+                await safeSendGroupMessage(
+                    group,
+                    MessageChain.create(
+                        At(waiter1_member.id),
+                        Plain(f" 你已成功加入本轮游戏，当前共有 {player_count} / 8 人参与{add_msg}"),
+                    ),
+                )
+                if player_count >= 8:
+                    GROUP_GAME_PROCESS[group.id]["status"] = "running"
+                    return True
+            else:
+                await safeSendGroupMessage(
+                    group, MessageChain.create(f"你的{COIN_NAME}不足，无法参加游戏")
+                )
+        elif waiter1_message.asDisplay() == "退出赛马":
+            player_list = GROUP_GAME_PROCESS[group.id]["members"]
+            player_count = len(player_list)
+            if waiter1_member.id == member.id:
+                for player in GROUP_GAME_PROCESS[group.id]["members"]:
+                    await add_gold(player, 5)
+                MEMBER_RUNING_LIST.remove(member.id)
+                GROUP_RUNING_LIST.remove(group.id)
+                del GROUP_GAME_PROCESS[group.id]
+                await safeSendGroupMessage(group, MessageChain.create("由于您是房主，本场房间已解散"))
+                return False
+            elif waiter1_member.id in GROUP_GAME_PROCESS[group.id]["members"]:
+                GROUP_GAME_PROCESS[group.id]["members"].remove(waiter1_member.id)
                 player_list = GROUP_GAME_PROCESS[group.id]["members"]
                 player_count = len(player_list)
-                if waiter1_member.id == member.id:
-                    for player in GROUP_GAME_PROCESS[group.id]["members"]:
-                        await add_gold(str(player), 5)
-                    MEMBER_RUNING_LIST.remove(member.id)
-                    GROUP_RUNING_LIST.remove(group.id)
-                    del GROUP_GAME_PROCESS[group.id]
-                    await safeSendGroupMessage(
-                        group, MessageChain.create("由于您是房主，本场房间已解散")
-                    )
-                    return False
-                elif waiter1_member.id in GROUP_GAME_PROCESS[group.id]["members"]:
-                    GROUP_GAME_PROCESS[group.id]["members"].remove(waiter1_member.id)
-                    player_list = GROUP_GAME_PROCESS[group.id]["members"]
-                    player_count = len(player_list)
-                    if 8 > player_count > 1:
-                        GROUP_GAME_PROCESS[group.id]["status"] = "pre_start"
-                    else:
-                        GROUP_GAME_PROCESS[group.id]["status"] = "waiting"
+                if 8 > player_count > 1:
+                    GROUP_GAME_PROCESS[group.id]["status"] = "pre_start"
+                else:
+                    GROUP_GAME_PROCESS[group.id]["status"] = "waiting"
+                await safeSendGroupMessage(
+                    group,
+                    MessageChain.create(
+                        At(waiter1_member.id),
+                        Plain(f" 你已退出本轮游戏，当前共有 {player_count} / 8 人参与"),
+                    ),
+                )
+            else:
+                await safeSendGroupMessage(group, MessageChain.create("你未参与本场游戏，无法退出"))
+        elif waiter1_message.asDisplay() == "提前开始":
+            if waiter1_member.id == member.id:
+                if GROUP_GAME_PROCESS[group.id]["status"] == "pre_start":
                     await safeSendGroupMessage(
                         group,
                         MessageChain.create(
                             At(waiter1_member.id),
-                            Plain(f" 你已退出本轮游戏，当前共有 {player_count} / 8 人参与"),
+                            Plain(" 已强制开始本场游戏"),
                         ),
                     )
-                else:
-                    await safeSendGroupMessage(
-                        group, MessageChain.create("你未参与本场游戏，无法退出")
-                    )
-            elif waiter1_message.asDisplay() == "提前开始":
-                if waiter1_member.id == member.id:
-                    if GROUP_GAME_PROCESS[group.id]["status"] == "pre_start":
-                        await safeSendGroupMessage(
-                            group,
-                            MessageChain.create(
-                                At(waiter1_member.id),
-                                Plain(" 已强制开始本场游戏"),
-                            ),
-                        )
-                        GROUP_GAME_PROCESS[group.id]["status"] = "running"
-                        return True
-                    else:
-                        await safeSendGroupMessage(
-                            group,
-                            MessageChain.create(
-                                At(waiter1_member.id),
-                                Plain(" 当前游戏人数不足，无法强制开始"),
-                            ),
-                        )
+                    GROUP_GAME_PROCESS[group.id]["status"] = "running"
+                    return True
                 else:
                     await safeSendGroupMessage(
                         group,
                         MessageChain.create(
                             At(waiter1_member.id),
-                            Plain(" 你不是本轮游戏的发起者，无法强制开始本场游戏"),
+                            Plain(" 当前游戏人数不足，无法强制开始"),
                         ),
                     )
+            else:
+                await safeSendGroupMessage(
+                    group,
+                    MessageChain.create(
+                        At(waiter1_member.id),
+                        Plain(" 你不是本轮游戏的发起者，无法强制开始本场游戏"),
+                    ),
+                )
 
     @Waiter.create_using_function(
         listening_events=[GroupMessage], using_decorators=[Permission.require()]
@@ -233,88 +219,88 @@ async def main(app: Ariadne, group: Group, member: Member):
         waiter2_group: Group, waiter2_member: Member, waiter2_message: MessageChain
     ):
         if (
-            waiter2_group.id == group.id
-            and waiter2_member.id in GROUP_GAME_PROCESS[group.id]["members"]
+            waiter2_group.id != group.id
+            or waiter2_member.id not in GROUP_GAME_PROCESS[group.id]["members"]
         ):
-            props_list = list(props.keys())
-            pattern = re.compile(f"(丢|使用)({'|'.join(props_list)})")
-            result = pattern.search(waiter2_message.asDisplay())
-            if result:
-                prop = result.group(2)
-                if use_prop(waiter2_member.id, result.group(2)):
-                    effect, value, duration, _ = props[prop]
-                    if effect == HorseStatus.Death:
-                        status_result = "马匹遇害！"
-                    elif effect == HorseStatus.Poisoning:
-                        status_result = f"马匹获得中毒效果！将在 {duration} 回合后死亡"
-                    elif effect == HorseStatus.Shield:
-                        status_result = f"马匹获得了 {duration} 回合护盾"
-                    else:
-                        status_result = (
-                            f"马匹获得了 {value} 倍率的 {effect} 状态，将持续 {duration} 回合"
-                        )
-                    if result.group(1) == "丢":
-                        traget = random.choice(
-                            list(GROUP_GAME_PROCESS[group.id]["data"]["player"].keys())
-                        )
-                        if (
-                            GROUP_GAME_PROCESS[group.id]["data"]["player"][traget][
-                                "status"
-                            ]["effect"]
-                            == HorseStatus.Shield
-                        ):
-                            await safeSendGroupMessage(
-                                group,
-                                MessageChain.create(
-                                    At(waiter2_member.id),
-                                    Plain(" 你对 "),
-                                    At(traget),
-                                    Plain(f" 使用了 {prop}，但是该马匹获得了护盾，无法生效"),
-                                ),
-                            )
-                            return
-                        elif (
-                            GROUP_GAME_PROCESS[group.id]["data"]["player"][traget][
-                                "status"
-                            ]["effect"]
-                            == HorseStatus.Death
-                        ):
-                            await safeSendGroupMessage(
-                                group, MessageChain.create("马匹已经死亡，无法使用道具")
-                            )
-                        else:
-                            await safeSendGroupMessage(
-                                group,
-                                MessageChain.create(
-                                    At(waiter2_member.id),
-                                    " 对 ",
-                                    "自己" if traget == waiter2_member.id else At(traget),
-                                    f" 丢出了{result.group(2)}，目标{status_result}",
-                                ),
-                            )
-                    elif result.group(1) == "使用":
-                        traget = waiter2_member.id
-                        if (
-                            GROUP_GAME_PROCESS[group.id]["data"]["player"][traget][
-                                "status"
-                            ]["effect"]
-                            == HorseStatus.Death
-                        ):
-                            await safeSendGroupMessage(
-                                group, MessageChain.create("马匹已经死亡，无法使用道具")
-                            )
-                            return
-                        else:
-                            await safeSendGroupMessage(
-                                group,
-                                MessageChain.create(
-                                    At(waiter2_member.id),
-                                    f" 对自己使用了{result.group(2)}，{status_result}",
-                                ),
-                            )
-                    throw_prop(GROUP_GAME_PROCESS[group.id]["data"], traget, prop)
+            return
+        props_list = list(props.keys())
+        pattern = re.compile(f"(丢|使用)({'|'.join(props_list)})")
+        if result := pattern.search(waiter2_message.asDisplay()):
+            prop = result[2]
+            if use_prop(waiter2_member.id, result[2]):
+                effect, value, duration, _ = props[prop]
+                if effect == HorseStatus.Death:
+                    status_result = "马匹遇害！"
+                elif effect == HorseStatus.Poisoning:
+                    status_result = f"马匹获得中毒效果！将在 {duration} 回合后死亡"
+                elif effect == HorseStatus.Shield:
+                    status_result = f"马匹获得了 {duration} 回合护盾"
                 else:
-                    await safeSendGroupMessage(group, MessageChain.create("你没有这个道具"))
+                    status_result = f"马匹获得了 {value} 倍率的 {effect} 状态，将持续 {duration} 回合"
+                if result[1] == "丢":
+                    traget = random.choice(
+                        list(GROUP_GAME_PROCESS[group.id]["data"]["player"].keys())
+                    )
+                    if (
+                        GROUP_GAME_PROCESS[group.id]["data"]["player"][traget]["status"][
+                            "effect"
+                        ]
+                        == HorseStatus.Shield
+                    ):
+                        await safeSendGroupMessage(
+                            group,
+                            MessageChain.create(
+                                At(waiter2_member.id),
+                                Plain(" 你对 "),
+                                At(traget),
+                                Plain(f" 使用了 {prop}，但是该马匹获得了护盾，无法生效"),
+                            ),
+                        )
+                        return
+                    elif (
+                        GROUP_GAME_PROCESS[group.id]["data"]["player"][traget]["status"][
+                            "effect"
+                        ]
+                        == HorseStatus.Death
+                    ):
+                        await safeSendGroupMessage(
+                            group, MessageChain.create("马匹已经死亡，无法使用道具")
+                        )
+                    else:
+                        await safeSendGroupMessage(
+                            group,
+                            MessageChain.create(
+                                At(waiter2_member.id),
+                                " 对 ",
+                                "自己" if traget == waiter2_member.id else At(traget),
+                                f" 丢出了{result[2]}，目标{status_result}",
+                            ),
+                        )
+
+                elif result[1] == "使用":
+                    traget = waiter2_member.id
+                    if (
+                        GROUP_GAME_PROCESS[group.id]["data"]["player"][traget]["status"][
+                            "effect"
+                        ]
+                        == HorseStatus.Death
+                    ):
+                        await safeSendGroupMessage(
+                            group, MessageChain.create("马匹已经死亡，无法使用道具")
+                        )
+                        return
+                    else:
+                        await safeSendGroupMessage(
+                            group,
+                            MessageChain.create(
+                                At(waiter2_member.id),
+                                f" 对自己使用了{result[2]}，{status_result}",
+                            ),
+                        )
+
+                throw_prop(GROUP_GAME_PROCESS[group.id]["data"], traget, prop)
+            else:
+                await safeSendGroupMessage(group, MessageChain.create("你没有这个道具"))
 
     if group.id in GROUP_RUNING_LIST:
         if GROUP_GAME_PROCESS[group.id]["status"] == "running":
@@ -339,7 +325,7 @@ async def main(app: Ariadne, group: Group, member: Member):
             group, MessageChain.create(" 你已经参与了其他群的游戏，请等待游戏结束")
         )
 
-    if await reduce_gold(str(member.id), 5):
+    if await reduce_gold(member.id, 5):
         MEMBER_RUNING_LIST.append(member.id)
         GROUP_RUNING_LIST.append(group.id)
         GROUP_GAME_PROCESS[group.id] = {
@@ -366,7 +352,7 @@ async def main(app: Ariadne, group: Group, member: Member):
 
     except asyncio.TimeoutError:
         for player in GROUP_GAME_PROCESS[group.id]["members"]:
-            await add_gold(str(player), 5)
+            await add_gold(player, 5)
         MEMBER_RUNING_LIST.remove(member.id)
         GROUP_RUNING_LIST.remove(group.id)
         del GROUP_GAME_PROCESS[group.id]
@@ -444,9 +430,7 @@ async def main(app: Ariadne, group: Group, member: Member):
     # 结束游戏
     for player, data in GROUP_GAME_PROCESS[group.id]["data"]["player"].items():
         if data["score"] >= 100:
-            GROUP_GAME_PROCESS[group.id]["data"]["player"][player].update(
-                {"score": 102}
-            )
+            GROUP_GAME_PROCESS[group.id]["data"]["player"][player].update({"score": 102})
     await asyncio.sleep(3)
     await safeSendGroupMessage(
         group,
@@ -485,7 +469,7 @@ async def main(app: Ariadne, group: Group, member: Member):
         + drop_str,
     )
     add_wins(GROUP_GAME_PROCESS[group.id]["data"]["winer"])
-    await add_gold(str(GROUP_GAME_PROCESS[group.id]["data"]["winer"]), gold_count)
+    await add_gold(GROUP_GAME_PROCESS[group.id]["data"]["winer"], gold_count)
     MEMBER_RUNING_LIST.remove(member.id)
     GROUP_RUNING_LIST.remove(group.id)
     del GROUP_GAME_PROCESS[group.id]
@@ -496,7 +480,7 @@ async def bot_restart():
     for game_group in GROUP_RUNING_LIST:
         if game_group in GROUP_GAME_PROCESS:
             for player in GROUP_GAME_PROCESS[game_group]["members"]:
-                await add_gold(str(player), 5)
+                await add_gold(player, 5)
             await safeSendGroupMessage(
                 game_group,
                 MessageChain.create(

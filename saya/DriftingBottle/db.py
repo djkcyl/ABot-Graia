@@ -111,14 +111,14 @@ def get_bottle_score_avg(bottle_id: int):
     )
     if bottle_score_count == 0:
         return False
-    else:
-        socre = 0
+    socre = sum(
+        i.socre
         for i in BottleScore.select(BottleScore.socre).where(
             BottleScore.bottle_id == bottle_id
-        ):
-            socre += i.socre
+        )
+    )
 
-        return "%.1f" % (socre / bottle_score_count)
+    return "%.1f" % (socre / bottle_score_count)
 
 
 def add_bottle_score(bottle_id: int, member: Member, score: int):
@@ -129,50 +129,50 @@ def add_bottle_score(bottle_id: int, member: Member, score: int):
             .exists()
         ):
             return False
-        else:
-            BottleScore.create(bottle_id=bottle_id, member=member.id, socre=score)
-            return True
+        BottleScore.create(bottle_id=bottle_id, member=member.id, socre=score)
+        return True
 
 
 def get_bottle() -> dict:
     "随机捞三个瓶子，按权值分配"
     if DriftingBottle.select().count() == 0:
         return None
-    else:
-        bottles: List[DriftingBottle] = (
-            DriftingBottle.select()
-            .where(DriftingBottle.isdelete == 0)
-            .order_by(fn.Random())
-            .limit(3)
-        )
+    bottles: List[DriftingBottle] = (
+        DriftingBottle.select()
+        .where(DriftingBottle.isdelete == 0)
+        .order_by(fn.Random())
+        .limit(3)
+    )
 
-        bottle_list = []
-        for i, _ in enumerate(bottles):
-            score = get_bottle_score_avg(bottles[i].id)
+    bottle_list = []
+    for i, _ in enumerate(bottles):
+        score = get_bottle_score_avg(bottles[i].id)
+        bottle_list.extend(
+            i
             for _ in range(
                 int(
                     Decimal(float(score) if score else 3.0).quantize(
                         Decimal("1.0"), rounding=ROUND_HALF_UP
                     )
                 )
-            ):
-                bottle_list.append(i)
+            )
+        )
 
-        random.shuffle(bottle_list)
-        bottle: DriftingBottle = bottles[random.choice(bottle_list)]
+    random.shuffle(bottle_list)
+    bottle: DriftingBottle = bottles[random.choice(bottle_list)]
 
-        DriftingBottle.update(fishing_times=DriftingBottle.fishing_times + 1).where(
-            DriftingBottle.id == bottle.id
-        ).execute()
-        return {
-            "id": bottle.id,
-            "member": bottle.member,
-            "group": bottle.group,
-            "text": bottle.text,
-            "image": bottle.image,
-            "fishing_times": bottle.fishing_times,
-            "send_date": bottle.send_date,
-        }
+    DriftingBottle.update(fishing_times=DriftingBottle.fishing_times + 1).where(
+        DriftingBottle.id == bottle.id
+    ).execute()
+    return {
+        "id": bottle.id,
+        "member": bottle.member,
+        "group": bottle.group,
+        "text": bottle.text,
+        "image": bottle.image,
+        "fishing_times": bottle.fishing_times,
+        "send_date": bottle.send_date,
+    }
 
 
 # 漂流瓶评论系统
@@ -185,10 +185,7 @@ def get_bottle_discuss(bottle_id: int):
     if discuss_count == 0:
         return None
     else:
-        bottle_discuss: list[BottleDiscuss] = BottleDiscuss.select().where(
-            BottleDiscuss.bottle_id == bottle_id
-        )
-        return bottle_discuss
+        return BottleDiscuss.select().where(BottleDiscuss.bottle_id == bottle_id)
 
 
 # 添加漂流瓶评论
@@ -200,9 +197,8 @@ def add_bottle_discuss(bottle_id: int, member: Member, discuss: str):
         >= 3
     ):
         return False
-    else:
-        BottleDiscuss.create(bottle_id=bottle_id, member=member.id, discuss=discuss)
-        return True
+    BottleDiscuss.create(bottle_id=bottle_id, member=member.id, discuss=discuss)
+    return True
 
 
 # 获取自己的所有漂流瓶

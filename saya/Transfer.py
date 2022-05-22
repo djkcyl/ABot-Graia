@@ -76,58 +76,59 @@ async def adminmain(
                 quote=source,
             )
 
-        if anythings1.matched:
-            result = anythings1.result.getFirst(Plain).text
-            if len(result) > 20:
-                return await safeSendGroupMessage(group, MessageChain.create("消息过长"))
+        if not anythings1.matched:
+            return await safeSendGroupMessage(
+                group, MessageChain.create([Plain("请输入需要赠送的金额")]), quote=source
+            )
+        result = anythings1.result.getFirst(Plain).text
+        if len(result) > 20:
+            return await safeSendGroupMessage(group, MessageChain.create("消息过长"))
 
-            try:
-                num = abs(int(result.strip()))
-            except Exception:
-                return await safeSendGroupMessage(
-                    group, MessageChain.create([Plain("请输入正确的数字")]), quote=source
-                )
-            if "-" in result:
-                if await reduce_gold(str(member.id), num, force=True) is None:
-                    return await safeSendGroupMessage(
-                        group,
-                        MessageChain.create(
-                            [
-                                At(member.id),
-                                Plain(f"你的当前{COIN_NAME}不足以扣除 {num}，已清零！"),
-                            ]
-                        ),
-                    )
-                else:
-                    return await safeSendGroupMessage(
-                        group,
-                        MessageChain.create(
-                            [Plain("已扣除 "), At(member.id), Plain(f" {num} {COIN_NAME}")]
-                        ),
-                        quote=source,
-                    )
-            if not 0 < num <= 1000:
-                return await safeSendGroupMessage(
-                    group,
-                    MessageChain.create([Plain("请输入 1-1000 以内的金额")]),
-                    quote=source,
-                )
-            elif await reduce_gold(str(member.id), num):
-                await add_gold(to, num)
+        try:
+            num = abs(int(result.strip()))
+        except Exception:
+            return await safeSendGroupMessage(
+                group, MessageChain.create([Plain("请输入正确的数字")]), quote=source
+            )
+        if "-" in result:
+            return (
                 await safeSendGroupMessage(
                     group,
                     MessageChain.create(
-                        [Plain("你已成功向 "), At(int(to)), Plain(f" 赠送 {num} 个{COIN_NAME}")]
+                        [
+                            At(member.id),
+                            Plain(f"你的当前{COIN_NAME}不足以扣除 {num}，已清零！"),
+                        ]
+                    ),
+                )
+                if await reduce_gold(member.id, num, force=True) is None
+                else await safeSendGroupMessage(
+                    group,
+                    MessageChain.create(
+                        [Plain("已扣除 "), At(member.id), Plain(f" {num} {COIN_NAME}")]
                     ),
                     quote=source,
                 )
-            else:
-                await safeSendGroupMessage(
-                    group,
-                    MessageChain.create([Plain(f"你的{COIN_NAME}不足，无法赠送")]),
-                    quote=source,
-                )
-        else:
+            )
+
+        if not 0 < num <= 1000:
             return await safeSendGroupMessage(
-                group, MessageChain.create([Plain("请输入需要赠送的金额")]), quote=source
+                group,
+                MessageChain.create([Plain("请输入 1-1000 以内的金额")]),
+                quote=source,
+            )
+        elif await reduce_gold(member.id, num):
+            await add_gold(to, num)
+            await safeSendGroupMessage(
+                group,
+                MessageChain.create(
+                    [Plain("你已成功向 "), At(int(to)), Plain(f" 赠送 {num} 个{COIN_NAME}")]
+                ),
+                quote=source,
+            )
+        else:
+            await safeSendGroupMessage(
+                group,
+                MessageChain.create([Plain(f"你的{COIN_NAME}不足，无法赠送")]),
+                quote=source,
             )

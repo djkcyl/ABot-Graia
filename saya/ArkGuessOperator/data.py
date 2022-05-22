@@ -30,9 +30,7 @@ async def update_data():
         for smw in smwdata:
             cnname = smw.xpath("@data-cn").pop()
 
-            if cnname in DATA:
-                pass
-            else:
+            if cnname not in DATA:
                 DATA[cnname] = []
                 logger.info(f"[明日方舟猜干员] 新增干员：{cnname}，正在更新")
             try:
@@ -46,14 +44,9 @@ async def update_data():
             voice_base = voice_data.xpath("@data-voice-base").pop()
             for language in voice_base.split(","):
                 language, voice_path = language.split(":")
-                if language in DATA[cnname]:
-                    pass
-                else:
+                if language not in DATA[cnname]:
                     logger.info(f"[明日方舟猜干员] 新增语音：{cnname}-{language}，正在下载")
-                    if cnname == "阿米娅(近卫)":
-                        name = "阿米娅"
-                    else:
-                        name = cnname
+                    name = "阿米娅" if cnname == "阿米娅(近卫)" else cnname
                     try:
                         resp = await client.get(
                             f"https://static.prts.wiki/{voice_path}/{name}_标题.wav"

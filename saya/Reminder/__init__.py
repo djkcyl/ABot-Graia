@@ -1,4 +1,5 @@
 import asyncio
+import contextlib
 from datetime import datetime
 
 from graia.saya import Channel, Saya
@@ -40,7 +41,7 @@ inc = InterruptControl(bcc)
 @channel.use(SchedulerSchema(every_custom_seconds(10)))
 async def scheduler(app: Ariadne):
     for thing in get_undone_reminder():
-        try:
+        with contextlib.suppress(Exception):
             await app.sendGroupMessage(
                 thing.group,
                 MessageChain.create(
@@ -48,8 +49,6 @@ async def scheduler(app: Ariadne):
                     f" 你在 {thing.start_date} 创建了这个提醒，请注意查看\n==================\n{thing.thing}",
                 ),
             )
-        except Exception:
-            pass
         set_reminder_completed(thing.id)
         await asyncio.sleep(0.3)
 
@@ -71,16 +70,16 @@ async def get_reminder(group: Group, member: Member):
         msg = "你没有创建需要提醒的内容，如需创建请发送“新建提醒”"
     else:
         msg = [At(member.id), Plain("你当前有以下提醒内容")]
-        for reminder in reminders:
-            msg.append(
-                Plain(
-                    "\n===============\n"
-                    f"ID：{reminder.id}\n"
-                    f"创建时间：{reminder.start_date}\n"
-                    f"内容：{reminder.thing}\n"
-                    f"到期时间：{reminder.end_date}"
-                )
+        msg.extend(
+            Plain(
+                "\n===============\n"
+                f"ID：{reminder.id}\n"
+                f"创建时间：{reminder.start_date}\n"
+                f"内容：{reminder.thing}\n"
+                f"到期时间：{reminder.end_date}"
             )
+            for reminder in reminders
+        )
         msg.append(Plain("\n===============\n如需删除请发送“删除提醒 <ID>”"))
     await safeSendGroupMessage(group, MessageChain.create(msg))
 
@@ -123,9 +122,7 @@ async def main(group: Group, member: Member):
                     await safeSendGroupMessage(
                         group, MessageChain.create("请在60秒内发送要提醒的内容")
                     )
-                    content_waiter = await asyncio.wait_for(
-                        inc.wait(message_waiter), 60
-                    )
+                    content_waiter = await asyncio.wait_for(inc.wait(message_waiter), 60)
                     if content_waiter:
                         thing = add_reminder(
                             member.id,
@@ -149,9 +146,7 @@ async def main(group: Group, member: Member):
                     else:
                         await safeSendGroupMessage(group, MessageChain.create("已取消"))
             else:
-                await safeSendGroupMessage(
-                    group, MessageChain.create("时间输入有误，或包含不止一个时间")
-                )
+                await safeSendGroupMessage(group, MessageChain.create("时间输入有误，或包含不止一个时间"))
         else:
             await safeSendGroupMessage(group, MessageChain.create("已取消"))
     except asyncio.TimeoutError:
