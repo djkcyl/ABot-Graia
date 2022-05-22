@@ -1,6 +1,7 @@
 import httpx
 import random
 import asyncio
+import contextlib
 
 from datetime import datetime
 
@@ -122,15 +123,9 @@ async def main(
 
             msg = await safeSendGroupMessage(group, message)
             if yaml_data["Saya"]["Pixiv"]["Recall"]:
-                await asyncio.sleep(
-                    yaml_data["Saya"]["Pixiv"]["Interval"]
-                    if yaml_data["Saya"]["Pixiv"]["Interval"] < 110
-                    else 110
-                )
-                try:
+                await asyncio.sleep(min(yaml_data["Saya"]["Pixiv"]["Interval"], 110))
+                with contextlib.suppress(Exception):
                     await app.recallMessage(msg)
-                except Exception:
-                    pass
         elif res.get("code", False) == 404:
             await safeSendGroupMessage(group, MessageChain.create("未找到相应tag的色图"))
         else:
@@ -198,14 +193,8 @@ async def main(
                 )
             msg = await safeSendGroupMessage(group, message)
             if yaml_data["Saya"]["Pixiv"]["Recall"]:
-                await asyncio.sleep(
-                    yaml_data["Saya"]["Pixiv"]["Interval"]
-                    if yaml_data["Saya"]["Pixiv"]["Interval"] < 110
-                    else 110
-                )
-                try:
+                await asyncio.sleep(min(yaml_data["Saya"]["Pixiv"]["Interval"], 110))
+                with contextlib.suppress(Exception):
                     await app.recallMessage(msg)
-                except Exception:
-                    pass
         else:
             await safeSendGroupMessage(group, MessageChain.create("慢一点慢一点，别冲辣！"))

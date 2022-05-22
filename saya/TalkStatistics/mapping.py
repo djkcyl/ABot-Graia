@@ -12,7 +12,7 @@ zhfont1 = FontProperties(fname=font)
 
 async def get_mapping(talk_num, time):
 
-    x_range = range(1, 25, 1)
+    x_range = range(1, 25)
     x = np.array(x_range)
     y = np.array(talk_num)
 

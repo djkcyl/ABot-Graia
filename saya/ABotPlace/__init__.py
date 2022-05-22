@@ -86,31 +86,31 @@ async def place_draw(group: Group, member: Member):
     async def waiter_chunk(
         waiter1_group: Group, waiter1_member: Member, waiter1_message: MessageChain
     ):
-        if waiter1_group.id == group.id and waiter1_member.id == member.id:
-            if waiter1_message.asDisplay() == "取消":
-                return False
+        if waiter1_group.id != group.id or waiter1_member.id != member.id:
+            return
+        if waiter1_message.asDisplay() == "取消":
+            return False
+        p = re.compile(r"^(\d{1,2})[|;:,，\s](\d{1,2})$")
+        if p.match(waiter1_message.asDisplay()):
+            x, y = p.match(waiter1_message.asDisplay()).groups()
+            if 31 >= int(x) >= 0 and 31 >= int(y) >= 0:
+                return int(x), int(y)
             else:
-                p = re.compile(r"^(\d{1,2})[|;:,，\s](\d{1,2})$")
-                if p.match(waiter1_message.asDisplay()):
-                    x, y = p.match(waiter1_message.asDisplay()).groups()
-                    if 31 >= int(x) >= 0 and 31 >= int(y) >= 0:
-                        return int(x), int(y)
-                    else:
-                        await safeSendGroupMessage(
-                            waiter1_group,
-                            MessageChain.create(
-                                At(waiter1_member),
-                                Plain("坐标超出范围（0-31），请重新输入"),
-                            ),
-                        )
-                else:
-                    await safeSendGroupMessage(
-                        waiter1_group,
-                        MessageChain.create(
-                            At(waiter1_member),
-                            Plain("请输入正确的坐标，格式：x,y"),
-                        ),
-                    )
+                await safeSendGroupMessage(
+                    waiter1_group,
+                    MessageChain.create(
+                        At(waiter1_member),
+                        Plain("坐标超出范围（0-31），请重新输入"),
+                    ),
+                )
+        else:
+            await safeSendGroupMessage(
+                waiter1_group,
+                MessageChain.create(
+                    At(waiter1_member),
+                    Plain("请输入正确的坐标，格式：x,y"),
+                ),
+            )
 
     @Waiter.create_using_function(
         listening_events=[GroupMessage], using_decorators=[Permission.require()]
@@ -121,20 +121,19 @@ async def place_draw(group: Group, member: Member):
         if waiter1_group.id == group.id and waiter1_member.id == member.id:
             if waiter1_message.asDisplay() == "取消":
                 return False
-            else:
-                p = re.compile(r"^(\d{1,3})$")
-                if p.match(waiter1_message.asDisplay()):
-                    color = int(waiter1_message.asDisplay())
-                    if 256 >= color >= 1:
-                        return int(color)
-                    else:
-                        await safeSendGroupMessage(
-                            waiter1_group,
-                            MessageChain.create(
-                                At(waiter1_member),
-                                Plain(" 颜色超出范围（0-255），请重新输入"),
-                            ),
-                        )
+            p = re.compile(r"^(\d{1,3})$")
+            if p.match(waiter1_message.asDisplay()):
+                color = int(waiter1_message.asDisplay())
+                if 256 >= color >= 1:
+                    return color
+                else:
+                    await safeSendGroupMessage(
+                        waiter1_group,
+                        MessageChain.create(
+                            At(waiter1_member),
+                            Plain(" 颜色超出范围（0-255），请重新输入"),
+                        ),
+                    )
 
     await safeSendGroupMessage(
         group,
@@ -168,7 +167,7 @@ async def place_draw(group: Group, member: Member):
                 )
                 color = await asyncio.wait_for(inc.wait(waiter_color), 60)
                 if color:
-                    if await reduce_gold(str(member.id), 1):
+                    if await reduce_gold(member.id, 1):
                         fill_id = fill_pixel(
                             member, group, color, chunk_x, chunk_y, pixel_x, pixel_y
                         )
@@ -250,7 +249,7 @@ async def fast_place(group: Group, member: Member, coordinates: RegexResult):
         and 31 >= pixel_y >= 0
         and 256 >= color >= 1
     ):
-        if await reduce_gold(str(member.id), 1):
+        if await reduce_gold(member.id, 1):
             fill_id = fill_pixel(member, group, color, chunk_x, chunk_y, pixel_x, pixel_y)
             draw_pixel(chunk_x, chunk_y, pixel_x, pixel_y, color)
             await safeSendGroupMessage(

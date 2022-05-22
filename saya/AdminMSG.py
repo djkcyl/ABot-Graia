@@ -1,6 +1,7 @@
 import time
 import random
 import asyncio
+import contextlib
 
 from graia.saya import Channel
 from graia.ariadne.app import Ariadne
@@ -47,11 +48,9 @@ funcList = funcList
 async def get_botQueue(app: Ariadne, message: MessageChain, source: Source):
     if message.has(Quote):
         messageid = message.getFirst(Quote).id
-        try:
+        with contextlib.suppress(PermissionError):
             await app.recallMessage(messageid)
             await app.recallMessage(source)
-        except PermissionError:
-            pass
 
 
 @channel.use(
@@ -112,7 +111,7 @@ async def group_echarge(group: Group, anything: RegexResult):
         saying = anything.result.asDisplay().split()
         if anything.result.has(At):
             at = anything.result.getFirst(At).target
-            await add_gold(str(at), int(saying[1]))
+            await add_gold(at, int(saying[1]))
             await safeSendGroupMessage(
                 group,
                 MessageChain.create(f"已向 {at} 充值 {saying[1]} 个{COIN_NAME}"),
@@ -233,14 +232,12 @@ async def remove_white_group(app: Ariadne, friend: Friend, groupid: RegexResult)
             else:
                 group_list["white"].remove(int(say))
                 save_config()
-                try:
+                with contextlib.suppress(UnknownTarget):
                     await safeSendGroupMessage(
                         int(say), MessageChain.create("该群已被移出白名单，将在3秒后退出")
                     )
                     await asyncio.sleep(3)
                     await app.quitGroup(int(say))
-                except UnknownTarget:
-                    pass
                 await app.sendFriendMessage(friend, MessageChain.create("成功将该群移出白名单"))
         else:
             await app.sendFriendMessage(friend, MessageChain.create("群号仅可为数字"))
@@ -626,12 +623,11 @@ async def gset_open(group: Group, func: RegexResult):
                         group,
                         MessageChain.create([Plain(f"{sayfunc['name']} 已处于全局开启状态")]),
                     )
-                else:
-                    yaml_data["Saya"][sayfunc["key"]]["Disabled"] = False
-                    save_config()
-                    return await safeSendGroupMessage(
-                        group, MessageChain.create([Plain(f"{sayfunc['name']} 已全局开启")])
-                    )
+                yaml_data["Saya"][sayfunc["key"]]["Disabled"] = False
+                save_config()
+                return await safeSendGroupMessage(
+                    group, MessageChain.create([Plain(f"{sayfunc['name']} 已全局开启")])
+                )
         else:
             await safeSendGroupMessage(group, MessageChain.create("功能编号仅可为数字"))
     else:

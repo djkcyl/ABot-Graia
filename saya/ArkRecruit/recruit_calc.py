@@ -17,14 +17,14 @@ def calculate(tags):
     tags = sorted(tags)
     operator_for_tags = {}
     for tag in tags:
-        if tag == "高级资深干员":
-            operator_for_tags[(tag,)] = [x[:2] for x in recruit_data if x[1] == 5]
-        elif tag == "资深干员":
+        if tag == "资深干员":
             operator_for_tags[(tag,)] = [x[:2] for x in recruit_data if x[1] == 4]
+        elif tag == "高级资深干员":
+            operator_for_tags[(tag,)] = [x[:2] for x in recruit_data if x[1] == 5]
         else:
             operators = [x[:2] for x in recruit_data if tag in x[2]]
-            if len(operators) == 0:
-                raise ValueError("未知 tag: " + tag)
+            if not operators:
+                raise ValueError(f"未知 tag: {tag}")
             operator_for_tags[(tag,)] = operators
 
     for comb2 in itertools.combinations(tags, 2):

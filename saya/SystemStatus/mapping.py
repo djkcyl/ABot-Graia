@@ -13,7 +13,7 @@ async def get_mapping(cpu, ram, max_ram):
     plt.figure(dpi=96, figsize=(16, 10))
     plt.subplots_adjust(hspace=0.5)
 
-    x_range = range(1, 601, 1)
+    x_range = range(1, 601)
     x = np.array(x_range)
 
     plt.subplot(2, 1, 1)

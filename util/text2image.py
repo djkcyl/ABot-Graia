@@ -28,13 +28,13 @@ async def create_image(text: str, cut=64) -> bytes:
 def _cache(text: str, cut: int) -> bytes:
     str_hash = hashlib.md5(text.encode("utf-8")).hexdigest()
     cache.joinpath(str_hash[:2]).mkdir(exist_ok=True)
-    cache_file = cache.joinpath(f"{str_hash[:2]}", f"{str_hash}.jpg")
+    cache_file = cache.joinpath(f"{str_hash}.jpg")
     if cache_file.exists():
         logger.info(f"T2I Cache hit: {str_hash}")
-        return cache_file.read_bytes()
     else:
         cache_file.write_bytes(_create_image(text, cut))
-        return cache_file.read_bytes()
+
+    return cache_file.read_bytes()
 
 
 def _create_image(text: str, cut: int) -> bytes:
@@ -54,8 +54,8 @@ def _create_image(text: str, cut: int) -> bytes:
     return imageio.getvalue()
 
 
-async def delete_old_cache():
-    cache_files = cache.glob("**/*")
+def delete_old_cache():
+    cache_files = cache.glob("*")
     i = 0
     r = 0
     for cache_file in cache_files:
@@ -64,9 +64,8 @@ async def delete_old_cache():
             (datetime.now() - timedelta(days=14)).timestamp()
         ):
             cache_file.unlink()
-            try:
-                cache_file.parent.rmdir()
-            except OSError:
-                pass
             r += 1
     return i, r
+
+
+delete_old_cache()

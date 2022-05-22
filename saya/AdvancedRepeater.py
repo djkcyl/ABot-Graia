@@ -93,7 +93,10 @@ async def rep(group: Group, member: Member, message: MessageChain, source: Sourc
 @channel.use(ListenerSchema(listening_events=[GroupRecallEvent]))
 async def rep_recal(app: Ariadne, event: GroupRecallEvent):
 
-    if REPEATER["statu"] and REPEATER["group"] == event.group.id:
-        if event.messageId in MESSAGEID["origin"]:
-            index = MESSAGEID["origin"].index(event.messageId)
-            await app.revokeMessage(MESSAGEID["bot"][index])
+    if (
+        REPEATER["statu"]
+        and REPEATER["group"] == event.group.id
+        and event.messageId in MESSAGEID["origin"]
+    ):
+        index = MESSAGEID["origin"].index(event.messageId)
+        await app.revokeMessage(MESSAGEID["bot"][index])

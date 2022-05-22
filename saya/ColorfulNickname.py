@@ -52,7 +52,7 @@ def generate_color_code() -> str:
 
 @channel.use(SchedulerSchema(every_custom_minutes(10)))
 @channel.use(ListenerSchema(listening_events=[ApplicationLaunched]))
-async def tasks(app: Ariadne):
+async def tasks(app: Ariadne):  # sourcery skip: remove-unreachable-code
 
     # 本功能已废弃，请勿开启，后果自负
 

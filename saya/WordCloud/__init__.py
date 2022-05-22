@@ -48,13 +48,11 @@ async def wordcloud(group: Group, member: Member, message: MessageChain):
 
     global RUNNING, RUNNING_LIST
     pattern = re.compile(r"^查看(个人|本群)词云")
-    match = pattern.match(message.asDisplay())
-
-    if match:
+    if match := pattern.match(message.asDisplay()):
         if RUNNING < 5:
             RUNNING += 1
             RUNNING_LIST.append(member.id)
-            mode = match.group(1)
+            mode = match[1]
             before_week = int(time.time() - 604800)
             if mode == "个人":
                 talk_list = await get_user_talk(

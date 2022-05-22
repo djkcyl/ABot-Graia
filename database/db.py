@@ -31,66 +31,64 @@ class User(BaseModel):
 db.create_tables([User], safe=True)
 
 
-def init_user(qq: str):
-    user = User.select().where(User.qq == str(qq))
+def init_user(qq):
+    user = User.select().where(User.qq == qq)
     if not user.exists():
-        p = User(qq=qq, gold=60)
+        p = User(qq=str(qq), gold=60)
         p.save()
         logger.info(f"已初始化{qq}")
 
 
 async def sign(qq):
     init_user(qq)
-    user = User.get(qq=qq)
+    user = User.get(qq=str(qq))
     if user.is_sign:
         return False
-    else:
-        p = User.update(is_sign=1, sign_num=User.sign_num + 1).where(User.qq == qq)
-        p.execute()
-        return True
-
-
-async def get_info(qq):
-    init_user(qq)
-    user = User.get(qq=qq)
-    return [user.id, user.is_sign, user.sign_num, user.gold, user.talk_num]
-
-
-async def add_gold(qq: str, num: int):
-    init_user(qq)
-    p = User.update(gold=User.gold + num).where(User.qq == qq)
+    p = User.update(is_sign=1, sign_num=User.sign_num + 1).where(User.qq == qq)
     p.execute()
     return True
 
 
-async def reduce_gold(qq: str, num: int, force: bool = False):
+async def get_info(qq):
     init_user(qq)
-    gold_num = User.get(qq=qq).gold
+    user = User.get(qq=str(qq))
+    return [user.id, user.is_sign, user.sign_num, user.gold, user.talk_num]
+
+
+async def add_gold(qq, num: int):
+    init_user(qq)
+    p = User.update(gold=User.gold + num).where(User.qq == str(qq))
+    p.execute()
+    return True
+
+
+async def reduce_gold(qq, num: int, force: bool = False):
+    init_user(qq)
+    gold_num = User.get(qq=str(qq)).gold
     if gold_num < num:
-        if force:
-            p = User.update(gold=0).where(User.qq == qq)
-            p.execute()
-            return
-        else:
+        if not force:
             return False
+        p = User.update(gold=0).where(User.qq == str(qq))
+        p.execute()
+        return
     else:
-        p = User.update(gold=User.gold - num).where(User.qq == qq)
+        p = User.update(gold=User.gold - num).where(User.qq == str(qq))
         p.execute()
         return True
 
 
-async def trans_all_gold(from_qq: str, to_qq: str) -> int:
+async def trans_all_gold(from_qq, to_qq) -> int:
     init_user(from_qq)
     init_user(to_qq)
-    from_user_gold = User.get(qq=from_qq).gold
+    from_user_gold = User.get(qq=str(from_qq)).gold
     await reduce_gold(from_qq, from_user_gold)
     await add_gold(to_qq, from_user_gold)
     return from_user_gold
 
 
-async def add_talk(qq: str):
+async def add_talk(qq):
     init_user(qq)
-    User.update(talk_num=User.talk_num + 1).where(User.qq == qq).execute()
+    User.update(talk_num=User.talk_num + 1).where(User.qq == str(qq)).execute()
     return
 
 
@@ -110,8 +108,10 @@ async def give_all_gold(num: int):
     return
 
 
-async def add_answer(qq: str):
-    User.update(english_answer=User.english_answer + 1).where(User.qq == qq).execute()
+async def add_answer(qq):
+    User.update(english_answer=User.english_answer + 1).where(
+        User.qq == str(qq)
+    ).execute()
     return
 
 

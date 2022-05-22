@@ -140,8 +140,7 @@ def binfo_image_create(video_info: dict):
     up_title_font = ImageFont.truetype("./font/sarasa-mono-sc-bold.ttf", 20)
     follower_font = ImageFont.truetype("./font/sarasa-mono-sc-semibold.ttf", 22)
 
-    i = 0
-    for up in up_list:
+    for i, up in enumerate(up_list):
         if up["level"] == 0:
             up_level = "\uE6CB"
             level_color = (191, 191, 191)
@@ -200,8 +199,6 @@ def binfo_image_create(video_info: dict):
             "#474747",
             follower_font,
         )
-        i += 1
-
     up_bg_y = up_bg.size[1]
     bg_y += up_bg_y
 

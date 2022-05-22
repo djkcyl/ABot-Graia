@@ -32,9 +32,9 @@ async def dice(group: Group, message: MessageChain):
     pattern = re.compile(r"^.r(?P<times>\d+)?d?(?P<maxvalue>\d+)?k?(?P<kiswhat>\d+)?")
     match = re.match(pattern, saying)
 
-    r = match.group("times")
-    d = match.group("maxvalue")
-    k = match.group("kiswhat")
+    r = match["times"]
+    d = match["maxvalue"]
+    k = match["kiswhat"]
 
     if not r:
         dr = 1

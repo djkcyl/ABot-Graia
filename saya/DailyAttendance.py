@@ -26,13 +26,10 @@ channel = Channel.current()
     )
 )
 async def main(group: Group, member: Member):
-    if await sign(str(member.id)):
+    if await sign(member.id):
         i = random.randint(1, 10)
-        if i == 1:
-            gold_add = random.randint(9, 21)
-        else:
-            gold_add = random.randint(5, 12)
-        await add_gold(str(member.id), gold_add)
+        gold_add = random.randint(9, 21) if i == 1 else random.randint(5, 12)
+        await add_gold(member.id, gold_add)
         sign_text = f"今日签到成功！\n本次签到获得{COIN_NAME} {str(gold_add)} 个"
     else:
         sign_text = "今天你已经签到过了，不能贪心，凌晨4点以后再来吧！"
