@@ -48,13 +48,12 @@ def fill_pixel(
     pixel_x: int,
     pixel_y: int,
 ):
-    old_pixel = PlaceHistory.get_or_none(
+    if old_pixel := PlaceHistory.get_or_none(
         PlaceHistory.chunk_x == chunk_x,
         PlaceHistory.chunk_y == chunk_y,
         PlaceHistory.pixel_x == pixel_x,
         PlaceHistory.pixel_y == pixel_y,
-    )
-    if old_pixel:
+    ):
         old_color = old_pixel.new_color
     else:
         old_color = 1

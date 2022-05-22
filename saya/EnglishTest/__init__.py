@@ -70,15 +70,14 @@ async def group_learn(group: Group, member: Member):
             waiter_saying = waiter_message.asDisplay()
             if waiter_saying == "取消":
                 return False
-            else:
-                try:
-                    bookid = int(waiter_saying)
-                    if 1 <= bookid <= 15:
-                        return bookid
-                except Exception:
-                    await safeSendGroupMessage(
-                        group, MessageChain.create([Plain("请输入1-15以内的数字")])
-                    )
+            try:
+                bookid = int(waiter_saying)
+                if 1 <= bookid <= 15:
+                    return bookid
+            except Exception:
+                await safeSendGroupMessage(
+                    group, MessageChain.create([Plain("请输入1-15以内的数字")])
+                )
 
     @Waiter.create_using_function(
         listening_events=[GroupMessage], using_decorators=[Permission.require()]
@@ -107,9 +106,7 @@ async def group_learn(group: Group, member: Member):
         bookid = await asyncio.wait_for(inc.wait(confirm), timeout=30)
         if not bookid:
             del RUNNING[group.id]
-            return await safeSendGroupMessage(
-                group, MessageChain.create([Plain("已取消")])
-            )
+            return await safeSendGroupMessage(group, MessageChain.create([Plain("已取消")]))
     except asyncio.TimeoutError:
         del RUNNING[group.id]
         return await safeSendGroupMessage(group, MessageChain.create([Plain("等待超时")]))
@@ -169,9 +166,7 @@ async def group_learn(group: Group, member: Member):
                 elif process == 2:
                     await safeSendGroupMessage(
                         group,
-                        MessageChain.create(
-                            [Plain(f"提示2\n这个单词的首字母是 {word_data[0][0]}")]
-                        ),
+                        MessageChain.create([Plain(f"提示2\n这个单词的首字母是 {word_data[0][0]}")]),
                     )
                 elif process == 3:
                     half = int(word_len / 2)
@@ -204,15 +199,14 @@ async def friend_learn(app: Ariadne, friend: Friend):
             waiter_saying = waiter_message.asDisplay()
             if waiter_saying == "取消":
                 return False
-            else:
-                try:
-                    bookid = int(waiter_saying)
-                    if 1 <= bookid <= 15:
-                        return bookid
-                except Exception:
-                    await app.sendFriendMessage(
-                        friend, MessageChain.create([Plain("请输入1-15以内的数字")])
-                    )
+            try:
+                bookid = int(waiter_saying)
+                if 1 <= bookid <= 15:
+                    return bookid
+            except Exception:
+                await app.sendFriendMessage(
+                    friend, MessageChain.create([Plain("请输入1-15以内的数字")])
+                )
 
     @Waiter.create_using_function([FriendMessage])
     async def waiter(waiter_friend: Friend, waiter_message: MessageChain):
@@ -294,9 +288,7 @@ async def friend_learn(app: Ariadne, friend: Friend):
                 elif process == 2:
                     await app.sendFriendMessage(
                         friend,
-                        MessageChain.create(
-                            [Plain(f"提示2\n这个单词的首字母是 {word_data[0][0]}")]
-                        ),
+                        MessageChain.create([Plain(f"提示2\n这个单词的首字母是 {word_data[0][0]}")]),
                     )
                 elif process == 3:
                     half = int(word_len / 2)

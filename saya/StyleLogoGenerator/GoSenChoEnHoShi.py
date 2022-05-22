@@ -186,7 +186,7 @@ def genBaseImage(width=1500, height=500):
             (0, 0, width, height)
         ),  # Width: 8
     }
-    for k in result.keys():
+    for k in result:
         result[k].putalpha(255)
     return result
 
@@ -259,7 +259,7 @@ def genImage(
         "L", (upper_width + leftmargin, _round(height / 2) + upmargin), 0
     )
 
-    mask_img_upper = list()
+    mask_img_upper = []
     upper_data = [
         [(4, 4), (4, 4), (0, 0), (0, 0), (2, -3), (0, -3), (0, -3), (0, -3)],
         [22, 20, 16, 10, 6, 6, 3, 0],

@@ -25,10 +25,7 @@ async def safeSendGroupMessage(
         for element in message.__root__:
             if isinstance(element, At):
                 member = await app.getMember(target, element.target)
-                if member:
-                    name = member.name
-                else:
-                    name = str(element.target)
+                name = member.name if member else str(element.target)
                 msg.append(Plain(name))
                 continue
             msg.append(element)
@@ -36,24 +33,20 @@ async def safeSendGroupMessage(
 
     except RemoteException as e:
         if "GROUP_CHAT_LIMITED" in str(e):
-            if isinstance(target, Group):
-                group_id = target.id
-            else:
-                group_id = target
+            group_id = target.id if isinstance(target, Group) else target
             await app.sendFriendMessage(
                 yaml_data["Basic"]["Permission"]["Master"],
                 MessageChain.create(f"由于 {group_id} 群开启消息限制，正在退出"),
             )
+
             await app.quitGroup(target)
         elif "账号在对象所在聊天区域被封禁" in str(e):
-            if isinstance(target, Group):
-                group_id = target.id
-            else:
-                group_id = target
+            group_id = target.id if isinstance(target, Group) else target
             await app.sendFriendMessage(
                 yaml_data["Basic"]["Permission"]["Master"],
                 MessageChain.create(f"由于 {group_id} 群被封禁，正在退出"),
             )
+
             await app.quitGroup(target)
 
 

@@ -25,12 +25,10 @@ else:
 def encrypt(text):
     text = base64.b64encode(text.encode())
     crypto = rsa.encrypt(text, PUBLIC_PEM)
-    msg = base64.b64encode(crypto).decode()
-    return msg
+    return base64.b64encode(crypto).decode()
 
 
 def decrypt(text):
     crypto = base64.b64decode(text)
     text = rsa.decrypt(crypto, PRIVATE_PEM).decode()
-    password = base64.b64decode(text).decode()
-    return password
+    return base64.b64decode(text).decode()

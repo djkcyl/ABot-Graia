@@ -178,7 +178,7 @@ async def main(app: Ariadne, group: Group, member: Member, source: Source):
                     "owner": member.id,
                     "player": {},
                 }
-                if not await reduce_gold(str(member.id), 4):
+                if not await reduce_gold(member.id, 4):
                     GROUP_RUNING_LIST.remove(group.id)
                     del GROUP_GAME_PROCESS[group.id]
                     await safeSendGroupMessage(
@@ -219,8 +219,8 @@ async def main(app: Ariadne, group: Group, member: Member, source: Source):
                         if result:
                             owner = owner = str(GROUP_GAME_PROCESS[group.id]["owner"])
                             await add_gold(owner, 2)
-                            await add_gold(str(result[0].id), 1)
-                            await add_answer(str(result[0].id))
+                            await add_gold(result[0].id, 1)
+                            await add_answer(result[0].id)
                             GROUP_RUNING_LIST.remove(group.id)
                             del GROUP_GAME_PROCESS[group.id]
                             await safeSendGroupMessage(
@@ -355,7 +355,7 @@ async def remove_word(app: Ariadne, friend: Friend, anything: RegexResult):
 async def groupDataInit():
     for game_group in GROUP_RUNING_LIST:
         if game_group in GROUP_GAME_PROCESS:
-            await add_gold(str(GROUP_GAME_PROCESS[game_group]["owner"]), 4)
+            await add_gold(GROUP_GAME_PROCESS[game_group]["owner"], 4)
             await safeSendGroupMessage(
                 game_group,
                 MessageChain.create(

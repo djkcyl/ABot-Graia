@@ -1,4 +1,5 @@
 import httpx
+import contextlib
 from io import BytesIO
 from pathlib import Path
 
@@ -52,41 +53,38 @@ async def petpet_generator(message: MessageChain, group: Group):
 @channel.use(ListenerSchema(listening_events=[NudgeEvent]))
 async def get_nudge(app: Ariadne, nudge: NudgeEvent):
 
-    if nudge.group_id and nudge.supplicant != app.account:
+    if not nudge.group_id or nudge.supplicant == app.account:
+        return
+    if (
+        yaml_data["Saya"]["PetPet"]["Disabled"]
+        and not yaml_data["Saya"]["PetPet"]["CanNudge"]
+    ):
+        return
+    elif "PetPet" in group_data[str(nudge.group_id)]["DisabledFunc"]:
+        return
 
-        if (
-            yaml_data["Saya"]["PetPet"]["Disabled"]
-            and not yaml_data["Saya"]["PetPet"]["CanNudge"]
-        ):
-            return
-        elif "PetPet" in group_data[str(nudge.group_id)]["DisabledFunc"]:
-            return
+    Permission.manual(await app.getMember(nudge.group_id, nudge.supplicant))
+    await Interval.manual(nudge.group_id, 3)
 
-        Permission.manual(await app.getMember(nudge.group_id, nudge.supplicant))
-        await Interval.manual(nudge.group_id, 3)
+    if nudge.target == yaml_data["Basic"]["MAH"]["BotQQ"]:
+        with contextlib.suppress(Exception):
+            await app.sendNudge(nudge.supplicant, nudge.group_id)
+    else:
+        logger.info(
+            f"[{nudge.group_id}] 收到戳一戳事件 -> [{nudge.supplicant}] - [{nudge.target}]"
+        )
 
-        if nudge.target == yaml_data["Basic"]["MAH"]["BotQQ"]:
-            try:
-                await app.sendNudge(nudge.supplicant, nudge.group_id)
-            except Exception:
-                pass
+        await safeSendGroupMessage(
+            nudge.group_id,
+            MessageChain.create(
+                [Plain("收到 "), At(nudge.supplicant), Plain(" 的戳一戳，正在制图")]
+            ),
+        )
 
-        else:
-            logger.info(
-                f"[{nudge.group_id}] 收到戳一戳事件 -> [{nudge.supplicant}] - [{nudge.target}]"
-            )
-
-            await safeSendGroupMessage(
-                nudge.group_id,
-                MessageChain.create(
-                    [Plain("收到 "), At(nudge.supplicant), Plain(" 的戳一戳，正在制图")]
-                ),
-            )
-
-            await safeSendGroupMessage(
-                nudge.group_id,
-                MessageChain.create([Image(data_bytes=await petpet(nudge.target))]),
-            )
+        await safeSendGroupMessage(
+            nudge.group_id,
+            MessageChain.create([Image(data_bytes=await petpet(nudge.target))]),
+        )
 
 
 frame_spec = [
@@ -107,7 +105,7 @@ squish_factor = [
 
 squish_translation_factor = [0, 20, 34, 21, 0]
 
-frames = tuple([FRAMES_PATH.joinpath(f"frame{i}.png") for i in range(5)])
+frames = tuple(FRAMES_PATH.joinpath(f"frame{i}.png") for i in range(5))
 
 
 # 生成函数（非数学意味）

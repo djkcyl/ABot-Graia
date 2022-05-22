@@ -64,9 +64,7 @@ def draw_game(data):
     # 绘制游戏棋盘
     for i, player in enumerate(data["player"], 0):
         # 绘制草块
-        draw.rectangle(
-            (20, 20 + (50 * i), 480, 20 + (50 * (i + 1))), fill=grass_color[i]
-        )
+        draw.rectangle((20, 20 + (50 * i), 480, 20 + (50 * (i + 1))), fill=grass_color[i])
         # 绘制间隔线条
         for n in range(11):
             draw.line(
@@ -137,15 +135,15 @@ def run_game(data):
                 data["player"][player]["status"]["duration"] -= 1
                 basic_score *= 0.8
         else:
-            if (
-                data["player"][player]["status"]["effect"] == HorseStatus.Freeze
-                or data["player"][player]["status"]["effect"] == HorseStatus.Dizziness
-            ):
+            if data["player"][player]["status"]["effect"] in [
+                HorseStatus.Freeze,
+                HorseStatus.Dizziness,
+            ]:
                 basic_score = 0
-            elif (
-                data["player"][player]["status"]["effect"] == HorseStatus.Slowness
-                or data["player"][player]["status"]["effect"] == HorseStatus.SpeedUp
-            ):
+            elif data["player"][player]["status"]["effect"] in [
+                HorseStatus.Slowness,
+                HorseStatus.SpeedUp,
+            ]:
                 basic_score *= data["player"][player]["status"]["value"]
 
             if data["player"][player]["status"]["duration"] > 0:

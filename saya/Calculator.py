@@ -82,8 +82,7 @@ def rep_str(say: str):
 
 
 def arithmetic(expression="1+1"):
-    content = re.search(r"\(([-+*/]*\d+\.?\d*)+\)", expression)
-    if content:
+    if content := re.search(r"\(([-+*/]*\d+\.?\d*)+\)", expression):
         content = content.group()
         content = content[1:-1]
         replace_content = next_arithmetic(content)
@@ -91,15 +90,13 @@ def arithmetic(expression="1+1"):
             r"\(([-+*/]*\d+\.?\d*)+\)", replace_content, expression, count=1
         )
     else:
-        answer = next_arithmetic(expression)
-        return answer
+        return next_arithmetic(expression)
     return arithmetic(expression)
 
 
 def next_arithmetic(content):
     while True:
-        next_content_mul_div = re.search(r"\d+\.?\d*[*/][-+]?\d+\.?\d*", content)
-        if next_content_mul_div:
+        if next_content_mul_div := re.search(r"\d+\.?\d*[*/][-+]?\d+\.?\d*", content):
             next_content_mul_div = next_content_mul_div.group()
             mul_div_content = mul_div(next_content_mul_div)
             content = re.sub(
@@ -107,16 +104,13 @@ def next_arithmetic(content):
             )
             continue
         next_content_add_sub = re.search(r"-?\d+\.?\d*[-+][-+]?\d+\.?\d*", content)
-        if next_content_add_sub:
-            next_content_add_sub = next_content_add_sub.group()
-            add_sub_content = add_sub(next_content_add_sub)
-            add_sub_content = str(add_sub_content)
-            content = re.sub(
-                r"-?\d+\.?\d*[-+]-?\d+\.?\d*", str(add_sub_content), content, count=1
-            )
-            continue
-        else:
+        if not next_content_add_sub:
             break
+        next_content_add_sub = next_content_add_sub.group()
+        add_sub_content = add_sub(next_content_add_sub)
+        add_sub_content = str(add_sub_content)
+        content = re.sub(r"-?\d+\.?\d*[-+]-?\d+\.?\d*", add_sub_content, content, count=1)
+
     return content
 
 
@@ -126,28 +120,29 @@ def add_sub(content):
         content = float(content[0]) + float(content[1])
         return content
     elif "-" in content:
-        content = content.split("-")
-        if content[0] == "-" and content[2] == "-":
-            content = -float(content[1]) - float(content[-1])
-            return content
-        if content[0] == "-":
-            content = -float(content[1]) - float(content[-1])
-            return content
-        if content[1] == "-" and content[2] == "-":
-            content = -float(content[0]) + float(content[-1])
-            return content
-        if content[1] == "":
-            content = float(content[0]) - float(content[2])
-            return content
-        if content[0] == "" and content[2] != "":
-            content = -float(content[1]) - float(content[2])
-            return content
-        if content[0] == "" and content[2] == "":
-            content = -float(content[1]) + float(content[3])
-            return content
-        else:
-            content = float(content[0]) - float(content[1])
-            return content
+        return _reduce(content)
+
+
+def _reduce(content):
+    content = content.split("-")
+    if content[0] == "-" and content[2] == "-":
+        content = -float(content[1]) - float(content[-1])
+        return content
+    if content[0] == "-":
+        content = -float(content[1]) - float(content[-1])
+        return content
+    if content[1] == "-" and content[2] == "-":
+        content = -float(content[0]) + float(content[-1])
+        return content
+    if content[1] == "":
+        content = float(content[0]) - float(content[2])
+        return content
+    if content[0] == "" and content[2] != "":
+        content = -float(content[1]) - float(content[2])
+        return content
+    content = -float(content[1]) + float(content[3]) if content[0] == "" else float(content[0]) - float(content[1])
+
+    return content
 
 
 def mul_div(content):

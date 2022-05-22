@@ -121,7 +121,7 @@ async def azuretts(group: Group, member: Member, message: MessageChain, source: 
     elif saying[2] == "尴尬":
         style = "embarrassed"
 
-    if not await reduce_gold(str(member.id), 2):
+    if not await reduce_gold(member.id, 2):
         return await safeSendGroupMessage(
             group,
             MessageChain.create([Plain(f"你的{COIN_NAME}不足，无法请求语音")]),
@@ -157,8 +157,7 @@ def dict2xml(name: str, style: str, text: str):
             },
         }
     }
-    con = xmltodict.unparse(xml_json, encoding="utf-8", pretty=1)
-    return con
+    return xmltodict.unparse(xml_json, encoding="utf-8", pretty=1)
 
 
 def gettts(name, style, text, voicefile):

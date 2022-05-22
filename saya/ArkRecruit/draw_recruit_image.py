@@ -31,7 +31,7 @@ def draw(recruit_info):
             i += 1
             tag = " ".join(tags)
             text_list.append([f"\n \n{tag}\n", 1, rank])
-            if tag in ["高级资深干员", "资深干员"]:
+            if tag in {"高级资深干员", "资深干员"}:
                 text_list.append(["一堆干员任你选", 0, rank])
             else:
                 for op, rank in operators:
@@ -64,11 +64,10 @@ def draw(recruit_info):
                 (10, 10 + (h * i)),
                 f"{tag} ★" if len(operators) == 1 else tag,
                 (33, 33, 33),
-                # tag_color[rank],
                 font=font_bold,
             )
             i += 1
-            if tag in ["高级资深干员", "资深干员"]:
+            if tag in {"高级资深干员", "资深干员"}:
                 draw.text(
                     (10, 10 + (h * i)),
                     "一堆干员任你选",

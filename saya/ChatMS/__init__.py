@@ -2,6 +2,7 @@ import json
 import httpx
 import random
 import asyncio
+import contextlib
 
 from pathlib import Path
 from loguru import logger
@@ -33,16 +34,13 @@ async def update_data():
         "https://raw.fastgit.org/Kyomotoi/AnimeThesaurus/main/data.json",
         verify=False,
     ).json()
-    DATA_FILE.write_text(
-        json.dumps(root, indent=2, ensure_ascii=False), encoding="utf-8"
-    )
+    DATA_FILE.write_text(json.dumps(root, indent=2, ensure_ascii=False), encoding="utf-8")
     DATA = root
 
 
-if not yaml_data["Saya"]["ChatMS"]["Disabled"]:
-    if not DATA_FILE.exists():
-        logger.info("正在初始化词库")
-        asyncio.run(update_data())
+if not yaml_data["Saya"]["ChatMS"]["Disabled"] and not DATA_FILE.exists():
+    logger.info("正在初始化词库")
+    asyncio.run(update_data())
 
 
 @channel.use(SchedulerSchema(crontabify("0 0 * * *")))
@@ -62,17 +60,13 @@ async def updateDict():
     )
 )
 async def main(group: Group, member: Member, message: MessageChain):
-    if message.has(At):
-        if message.getFirst(At).target == yaml_data["Basic"]["MAH"]["BotQQ"]:
-            try:
-                saying = message.getFirst(Plain).text
-                for key, value in DATA.items():
-                    if key in saying:
-                        await Interval.manual(member.id)
-                        return await safeSendGroupMessage(
-                            group,
-                            MessageChain.create([Plain(random.choice(value))]),
-                        )
-
-            except IndexError:
-                pass
+    if message.has(At) and message.getFirst(At).target == yaml_data["Basic"]["MAH"]["BotQQ"]:
+        with contextlib.suppress(IndexError):
+            saying = message.getFirst(Plain).text
+            for key, value in DATA.items():
+                if key in saying:
+                    await Interval.manual(member.id)
+                    return await safeSendGroupMessage(
+                        group,
+                        MessageChain.create([Plain(random.choice(value))]),
+                    )

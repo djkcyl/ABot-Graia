@@ -119,35 +119,36 @@ async def add_talk_word(
 
 async def download(element: MultimediaElement, name, path, type):
 
-    if yaml_data["Basic"]["Archive"]["Enable"]:
-        if type == 2:
-            now_path = data_path.joinpath(path, name[1:4])
+    if not yaml_data["Basic"]["Archive"]["Enable"]:
+        return
+    if type == 2:
+        now_path = data_path.joinpath(path, name[1:4])
+    else:
+        now_time = datetime.datetime.now()
+        now_path = data_path.joinpath(
+            path, str(now_time.year), str(now_time.month), str(now_time.day)
+        )
+    now_path.mkdir(0o755, True, True)
+    if not await archive_exists(name, type):
+        for _ in range(5):
+            try:
+                r = await element.get_bytes()
+                break
+            except Exception as e:
+                logger.warning(f"{name} 下载失败：{str(e)}，正在重试")
+                await asyncio.sleep(1)
         else:
-            now_time = datetime.datetime.now()
-            now_path = data_path.joinpath(
-                path, str(now_time.year), str(now_time.month), str(now_time.day)
-            )
-        now_path.mkdir(0o755, True, True)
-        if not await archive_exists(name, type):
-            for _ in range(5):
-                try:
-                    r = await element.get_bytes()
-                    break
-                except Exception as e:
-                    logger.warning(f"{name} 下载失败：{str(e)}，正在重试")
-                    await asyncio.sleep(1)
-            else:
-                logger.warning(f"{name} 下载失败，已达到最大重试次数")
-                return
+            logger.warning(f"{name} 下载失败，已达到最大重试次数")
+            return
 
-            if type == 4:
-                try:
-                    now_path.joinpath(f"{name}.mp3").write_bytes(
-                        await silkcoder.async_encode(r, audio_format="mp3")
-                    )
-                except silkcoder.utils.CoderError:
-                    now_path.joinpath(f"{name}.silk").write_bytes(r)
-            else:
-                now_path.joinpath(name).write_bytes(r)
+        if type == 4:
+            try:
+                now_path.joinpath(f"{name}.mp3").write_bytes(
+                    await silkcoder.async_encode(r, audio_format="mp3")
+                )
+            except silkcoder.utils.CoderError:
+                now_path.joinpath(f"{name}.silk").write_bytes(r)
         else:
-            logger.info(f"已存在的文件 - {name}")
+            now_path.joinpath(name).write_bytes(r)
+    else:
+        logger.info(f"已存在的文件 - {name}")

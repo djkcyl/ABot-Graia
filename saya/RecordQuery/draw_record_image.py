@@ -1,3 +1,4 @@
+# sourcery skip: remove-unnecessary-cast
 import httpx
 
 from io import BytesIO
@@ -22,18 +23,10 @@ DATABASE.joinpath("weapons").mkdir(parents=True, exist_ok=True)
 FONT_PATH = Path("font")
 
 # 字体
-font_bold_46 = ImageFont.truetype(
-    str(FONT_PATH.joinpath("sarasa-mono-sc-bold.ttf")), 46
-)
-font_bold_40 = ImageFont.truetype(
-    str(FONT_PATH.joinpath("sarasa-mono-sc-bold.ttf")), 40
-)
-font_bold_32 = ImageFont.truetype(
-    str(FONT_PATH.joinpath("sarasa-mono-sc-bold.ttf")), 32
-)
-font_bold_30 = ImageFont.truetype(
-    str(FONT_PATH.joinpath("sarasa-mono-sc-bold.ttf")), 30
-)
+font_bold_46 = ImageFont.truetype(str(FONT_PATH.joinpath("sarasa-mono-sc-bold.ttf")), 46)
+font_bold_40 = ImageFont.truetype(str(FONT_PATH.joinpath("sarasa-mono-sc-bold.ttf")), 40)
+font_bold_32 = ImageFont.truetype(str(FONT_PATH.joinpath("sarasa-mono-sc-bold.ttf")), 32)
+font_bold_30 = ImageFont.truetype(str(FONT_PATH.joinpath("sarasa-mono-sc-bold.ttf")), 30)
 font_semibold_24 = ImageFont.truetype(
     str(FONT_PATH.joinpath("sarasa-mono-sc-semibold.ttf")), 24
 )
@@ -74,63 +67,54 @@ def circle_corner(img, radii):
     alpha = IMG.new("L", img.size, 255)
     alpha.paste(circle.crop((0, 0, radii, radii)), (0, 0))
     alpha.paste(circle.crop((radii, 0, radii * 2, radii)), (w - radii, 0))
-    alpha.paste(
-        circle.crop((radii, radii, radii * 2, radii * 2)), (w - radii, h - radii)
-    )
+    alpha.paste(circle.crop((radii, radii, radii * 2, radii * 2)), (w - radii, h - radii))
     alpha.paste(circle.crop((0, radii, radii, radii * 2)), (0, h - radii))
     img.putalpha(alpha)
     return img
 
 
 def division_zero(a, b):
-    if not a or not b:
-        return 0
-    else:
-        return a / b
+    return a / b if b else 0
 
 
 def inverted_image(image):
-    if image.mode == "RGBA":
-        r, g, b, a = image.split()
-        rgb_image = IMG.merge("RGB", (r, g, b))
-        inverted_image = ImageOps.invert(rgb_image)
-        r2, g2, b2 = inverted_image.split()
-        return IMG.merge("RGBA", (r2, g2, b2, a))
-    else:
+    if image.mode != "RGBA":
         return ImageOps.invert(image)
+    r, g, b, a = image.split()
+    rgb_image = IMG.merge("RGB", (r, g, b))
+    inverted_image = ImageOps.invert(rgb_image)
+    r2, g2, b2 = inverted_image.split()
+    return IMG.merge("RGBA", (r2, g2, b2, a))
 
 
 async def get_pic(type, name):
     PICPATH = DATABASE.joinpath(type, f"{name}.png")
     if PICPATH.exists():
         return IMG.open(BytesIO(PICPATH.read_bytes())).convert("RGBA")
-    else:
-        async with httpx.AsyncClient(timeout=10) as client:
-            for _ in range(3):
-                try:
-                    if type == "operators":
-                        r = await client.get(
-                            f"https://api.statsdb.net/r6/assets/operators/{name}/figure/small",
-                            timeout=10,
-                        )
-                    elif type == "weapons":
-                        r = await client.get(
-                            f"https://api.statsdb.net/r6/assets/weapons/{name}",
-                            timeout=10,
-                        )
-                    break
-                except httpx.HTTPError:
-                    continue
-        logger.info(f"图片下载完成：{type} - {name}")
-        PICPATH.write_bytes(r.content)
-        return IMG.open(BytesIO(r.content)).convert("RGBA")
+    async with httpx.AsyncClient(timeout=10) as client:
+        for _ in range(3):
+            try:
+                if type == "operators":
+                    r = await client.get(
+                        f"https://api.statsdb.net/r6/assets/operators/{name}/figure/small",
+                        timeout=10,
+                    )
+                elif type == "weapons":
+                    r = await client.get(
+                        f"https://api.statsdb.net/r6/assets/weapons/{name}",
+                        timeout=10,
+                    )
+                break
+            except httpx.HTTPError:
+                continue
+    logger.info(f"图片下载完成：{type} - {name}")
+    PICPATH.write_bytes(r.content)
+    return IMG.open(BytesIO(r.content)).convert("RGBA")
 
 
 async def draw_r6(nick_name: str) -> List[Union[Image, Plain]]:
 
-    async with httpx.AsyncClient(
-        timeout=10, auth=AUTH, follow_redirects=True
-    ) as client:
+    async with httpx.AsyncClient(timeout=10, auth=AUTH, follow_redirects=True) as client:
         resp = await client.get(f"https://api.statsdb.net/r6/pc/player/{nick_name}")
 
         if resp.status_code == 200:
@@ -151,11 +135,11 @@ async def draw_r6(nick_name: str) -> List[Union[Image, Plain]]:
     step_r = (bg_color_to[0] - bg_color_form[0]) / hight
     step_g = (bg_color_to[1] - bg_color_form[1]) / hight
     step_b = (bg_color_to[2] - bg_color_form[2]) / hight
-    for y in range(0, hight + 1):
+    for y in range(hight + 1):
         bg_r = round(bg_color_form[0] + step_r * y)
         bg_g = round(bg_color_form[1] + step_g * y)
         bg_b = round(bg_color_form[2] + step_b * y)
-        for x in range(0, hight):
+        for x in range(hight):
             draw.point((x, y), fill=(bg_r, bg_g, bg_b))
 
     # 用户基本信息
@@ -315,9 +299,7 @@ async def draw_r6(nick_name: str) -> List[Union[Image, Plain]]:
     draw.text((320, 705), best_kd["id"].upper(), "white", font_semibold_24)
     draw.text((572, 705), best_wl["id"].upper(), "white", font_semibold_24)
 
-    draw.text(
-        (65, 737), sec_to_minsec(most_played["timeplayed"]), "white", font_bold_32
-    )
+    draw.text((65, 737), sec_to_minsec(most_played["timeplayed"]), "white", font_bold_32)
     draw.text(
         (319, 737),
         str(

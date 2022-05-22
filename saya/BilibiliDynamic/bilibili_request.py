@@ -53,8 +53,7 @@ async def get_status_info_by_uids(uids):
                 return r.json()
         except httpx.HTTPError as e:
             logger.error(f"[BiliBili推送] API 访问失败，正在第 {retry + 1} 重试 {e}")
-    else:
-        logger.error("[BiliBili推送] API 访问连续失败，请检查")
+    logger.error("[BiliBili推送] API 访问连续失败，请检查")
 
 
 async def relation_modify(uid, act):
@@ -79,12 +78,10 @@ async def relation_modify(uid, act):
                 "ts": str(int(time.time())),
             }
             keys = sorted(data.keys())
-            data_sorted = {}
-            for key in keys:
-                data_sorted[key] = data[key]
+            data_sorted = {key: data[key] for key in keys}
             data = data_sorted
             sign = bilibili_client.calcSign(data)
-            data.update({"sign": sign})
+            data["sign"] = sign
             response = await bilibili_client.session.post(
                 "https://api.bilibili.com/x/relation/modify",
                 data=data,

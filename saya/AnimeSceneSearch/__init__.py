@@ -136,7 +136,7 @@ async def anime_search(
                     group, MessageChain.create([Plain("等待超时")]), quote=waite.messageId
                 )
 
-        if await reduce_gold(str(member.id), 4):
+        if await reduce_gold(member.id, 4):
             V_RUNING = True
             await safeSendGroupMessage(
                 group,
@@ -271,7 +271,7 @@ async def saucenao(group: Group, member: Member, img: ElementResult, source: Sou
                 return await safeSendGroupMessage(
                     group, MessageChain.create([Plain("等待超时")]), quote=waite.messageId
                 )
-        if await reduce_gold(str(member.id), 4):
+        if await reduce_gold(member.id, 4):
             I_RUNING = True
             await safeSendGroupMessage(
                 group, MessageChain.create([Plain("正在搜索，请稍后")]), quote=source.id

@@ -39,30 +39,29 @@ async def clean_group(app: Ariadne):
     i = 0
     for group in get_group_list:
         member_count = len(await app.getMemberList(group))
-        if member_count < 15:
-            if group.id not in group_list["white"]:
-                try:
-                    await safeSendGroupMessage(
-                        group,
-                        MessageChain.create(
-                            f'{yaml_data["Basic"]["BotName"]} 当前暂不加入群人数低于 15 的群，正在退出'
-                        ),
-                    )
-                    await app.quitGroup(group)
-                except Exception as e:
-                    await app.sendFriendMessage(
-                        yaml_data["Basic"]["Permission"]["Master"],
-                        MessageChain.create(f"群 {group.name}({group.id}) 退出失败\n{e}"),
-                    )
-                else:
-                    await app.sendFriendMessage(
-                        yaml_data["Basic"]["Permission"]["Master"],
-                        MessageChain.create(
-                            f"群 {group.name}({group.id}) 退出成功\n当前群人数 {member_count}"
-                        ),
-                    )
-                i += 1
-                await asyncio.sleep(0.3)
+        if member_count < 15 and group.id not in group_list["white"]:
+            try:
+                await safeSendGroupMessage(
+                    group,
+                    MessageChain.create(
+                        f'{yaml_data["Basic"]["BotName"]} 当前暂不加入群人数低于 15 的群，正在退出'
+                    ),
+                )
+                await app.quitGroup(group)
+            except Exception as e:
+                await app.sendFriendMessage(
+                    yaml_data["Basic"]["Permission"]["Master"],
+                    MessageChain.create(f"群 {group.name}({group.id}) 退出失败\n{e}"),
+                )
+            else:
+                await app.sendFriendMessage(
+                    yaml_data["Basic"]["Permission"]["Master"],
+                    MessageChain.create(
+                        f"群 {group.name}({group.id}) 退出成功\n当前群人数 {member_count}"
+                    ),
+                )
+            i += 1
+            await asyncio.sleep(0.3)
     if i != 0:
         await app.sendFriendMessage(
             yaml_data["Basic"]["Permission"]["Master"],

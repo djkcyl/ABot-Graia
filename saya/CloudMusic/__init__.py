@@ -308,7 +308,7 @@ async def sing(
                 r = await client.get(musicurl)
                 MUSIC_PATH.write_bytes(r.content)
 
-        if not await reduce_gold(str(member.id), 4):
+        if not await reduce_gold(member.id, 4):
             WAITING.remove(member.id)
             return await safeSendGroupMessage(
                 group,

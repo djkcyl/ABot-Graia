@@ -1,3 +1,4 @@
+# sourcery skip: avoid-builtin-shadow
 import time
 
 from peewee import IntegerField, SqliteDatabase, Model, CharField, BigIntegerField
@@ -33,39 +34,32 @@ async def add_talk(qq, group, type, msg, url=None):
     >>> 3 为闪照
     >>> 4 为语音
     """
-    p = UserTalk(qq=qq, group=group, type=type, url=url, msg=msg, time=int(time.time()))
+    p = UserTalk(
+        qq=str(qq), group=group, type=type, url=url, msg=msg, time=int(time.time())
+    )
     p.save()
 
 
 async def archive_exists(msg, type):
     msg_exists = UserTalk.select().where(UserTalk.msg == msg, UserTalk.type == type)
-    if msg_exists.exists():
-        return True
-    else:
-        return False
+    return bool(msg_exists.exists())
 
 
 async def get_user_talk(qq, group, time=0):
     talklist = UserTalk.select().where(
-        UserTalk.qq == qq,
+        UserTalk.qq == str(qq),
         UserTalk.group == group,
         UserTalk.type == 1,
         UserTalk.time > time,
     )
-    talk_list = []
-    for talk in talklist:
-        talk_list.append(talk.msg)
-    return talk_list
+    return [talk.msg for talk in talklist]
 
 
 async def get_group_talk(group, time=0):
     talklist = UserTalk.select().where(
         UserTalk.group == group, UserTalk.type == 1, UserTalk.time > time
     )
-    talk_list = []
-    for talk in talklist:
-        talk_list.append(talk.msg)
-    return talk_list
+    return [talk.msg for talk in talklist]
 
 
 async def get_all_message():
@@ -74,8 +68,7 @@ async def get_all_message():
 
 def get_last_time(hour=24):
     curr_time = int(time.time())
-    last_time = curr_time - curr_time % 3600 - hour * 3600
-    return last_time
+    return curr_time - curr_time % 3600 - hour * 3600
 
 
 async def get_message_analysis():
