@@ -124,7 +124,7 @@ async def anime_search(
                 group, MessageChain.create([Plain("请发送图片以继续，发送取消可终止搜番")])
             )
             try:
-                image_url = await asyncio.wait_for(inc.wait(waiter1), timeout=20)
+                image_url = await asyncio.wait_for(inc.wait(waiter1), timeout=60)
                 if not image_url:
                     WAITING.remove(member.id)
                     return await safeSendGroupMessage(
@@ -260,7 +260,7 @@ async def saucenao(group: Group, member: Member, img: ElementResult, source: Sou
                 group, MessageChain.create([Plain("请发送图片以继续，发送取消可终止搜图")])
             )
             try:
-                image_url = await asyncio.wait_for(inc.wait(waiter1), timeout=20)
+                image_url = await asyncio.wait_for(inc.wait(waiter1), timeout=60)
                 if not image_url:
                     WAITING.remove(member.id)
                     return await safeSendGroupMessage(

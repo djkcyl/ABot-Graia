@@ -19,7 +19,7 @@ async def tasks(app: Ariadne):
     sign_info = await all_sign_num()
     await reset_sign()
     total_rent = ladder_rent_collection()
-    cache, delete_cache = await delete_old_cache()
+    cache, delete_cache = delete_old_cache()
     await app.sendFriendMessage(
         yaml_data["Basic"]["Permission"]["Master"],
         MessageChain.create(
