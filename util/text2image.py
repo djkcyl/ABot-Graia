@@ -60,8 +60,10 @@ def delete_old_cache():
     r = 0
     for cache_file in cache_files:
         i += 1
-        if cache_file.stat().st_mtime < (
-            (datetime.now() - timedelta(days=14)).timestamp()
+        if (
+            cache_file.stat().st_mtime
+            < ((datetime.now() - timedelta(days=14)).timestamp())
+            and cache_file.is_file()
         ):
             cache_file.unlink()
             r += 1

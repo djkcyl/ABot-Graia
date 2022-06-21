@@ -20,6 +20,7 @@ from graia.ariadne.message.element import (
 )
 
 from util.control import Permission
+
 from saya.AdminConfig import groupInitData
 from database.db import add_talk as add_talk_db
 from util.sendMessage import safeSendGroupMessage
@@ -143,11 +144,14 @@ async def download(element: MultimediaElement, name, path, type):
 
         if type == 4:
             try:
-                now_path.joinpath(f"{name}.mp3").write_bytes(
-                    await silkcoder.async_encode(r, audio_format="mp3")
+                print(len(r))
+                now_path.joinpath(f"{name}.ogg").write_bytes(
+                    await silkcoder.async_decode(r, audio_format="ogg", rate=32000)
                 )
-            except silkcoder.utils.CoderError:
+                logger.info(f"语音 {name} 下载成功")
+            except Exception as e:
                 now_path.joinpath(f"{name}.silk").write_bytes(r)
+                logger.error(f"{name} 解码失败：{str(e)}")
         else:
             now_path.joinpath(name).write_bytes(r)
     else:

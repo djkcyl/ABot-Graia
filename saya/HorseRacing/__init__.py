@@ -12,7 +12,12 @@ from graia.broadcast.interrupt import InterruptControl
 from graia.ariadne.message.element import Plain, At, Image
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.lifecycle import ApplicationShutdowned
-from graia.ariadne.message.parser.twilight import Twilight, FullMatch
+from graia.ariadne.message.parser.twilight import (
+    Twilight,
+    FullMatch,
+    ArgResult,
+    ArgumentMatch,
+)
 
 from config import yaml_data, COIN_NAME
 from database.db import reduce_gold, add_gold
@@ -107,7 +112,15 @@ async def lottery(group: Group, member: Member):
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight([FullMatch("开始赛马")])],
+        inline_dispatchers=[
+            Twilight(
+                [
+                    FullMatch("开始赛马"),
+                    "plugin"
+                    @ ArgumentMatch("-p", "--prop", action="store_true", default=False),
+                ]
+            )
+        ],
         decorators=[
             Function.require("HorseRacing"),
             Permission.require(),
@@ -115,7 +128,7 @@ async def lottery(group: Group, member: Member):
         ],
     )
 )
-async def main(app: Ariadne, group: Group, member: Member):
+async def main(app: Ariadne, group: Group, member: Member, plugin: ArgResult):
     @Waiter.create_using_function(
         listening_events=[GroupMessage], using_decorators=[Permission.require()]
     )
@@ -218,6 +231,8 @@ async def main(app: Ariadne, group: Group, member: Member):
     async def waiter2(
         waiter2_group: Group, waiter2_member: Member, waiter2_message: MessageChain
     ):
+        if not plugin.result:
+            return
         if (
             waiter2_group.id != group.id
             or waiter2_member.id not in GROUP_GAME_PROCESS[group.id]["members"]
@@ -335,7 +350,11 @@ async def main(app: Ariadne, group: Group, member: Member):
             "last_message": None,
         }
         await safeSendGroupMessage(
-            group, MessageChain.create("赛马小游戏开启成功，正在等待其他群成员加入，发送“加入赛马”参与游戏")
+            group,
+            MessageChain.create(
+                "赛马小游戏开启成功，正在等待其他群成员加入，发送“加入赛马”参与游戏",
+                "，本次游戏将开启道具模式" if plugin.result else "",
+            ),
         )
     else:
         return await safeSendGroupMessage(

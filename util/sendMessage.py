@@ -32,7 +32,7 @@ async def safeSendGroupMessage(
         return await app.sendGroupMessage(target, MessageChain.create(msg), quote=quote)
 
     except RemoteException as e:
-        if "GROUP_CHAT_LIMITED" in str(e):
+        if "LIMITED" in str(e):
             group_id = target.id if isinstance(target, Group) else target
             await app.sendFriendMessage(
                 yaml_data["Basic"]["Permission"]["Master"],
@@ -40,7 +40,7 @@ async def safeSendGroupMessage(
             )
 
             await app.quitGroup(target)
-        elif "账号在对象所在聊天区域被封禁" in str(e):
+        elif "被禁言" in str(e):
             group_id = target.id if isinstance(target, Group) else target
             await app.sendFriendMessage(
                 yaml_data["Basic"]["Permission"]["Master"],

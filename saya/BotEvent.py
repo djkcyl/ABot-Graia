@@ -223,14 +223,29 @@ async def get_BotJoinGroup(app: Ariadne, joingroup: BotJoinGroupEvent):
         logger.info("已为该群初始化配置文件")
         save_config()
 
+    membernum = len(await app.getMemberList(joingroup.group))
+
+    inve = (
+        (await app.getMember(joingroup.inviter.group, joingroup.inviter))
+        if joingroup.inviter
+        else None
+    )
+    msg = str(
+        "收到加入群聊事件"
+        f"\n邀请人：{inve.name if inve else '<!!>'}（{inve.id if inve else '<!!>'}）"
+        f"\n群号：{joingroup.group.id}"
+        f"\n群名：{joingroup.group.name}"
+        f"\n群人数：{membernum}"
+    )
+
     if joingroup.group.id in group_list["black"]:
         await safeSendGroupMessage(
             joingroup.group.id,
-            MessageChain.create("该群已被拉黑，正在退出"),
+            MessageChain.create(msg, "\n该群已被拉黑，正在退出"),
         )
         await app.sendFriendMessage(
             yaml_data["Basic"]["Permission"]["Master"],
-            MessageChain.create("该群已被拉黑，正在退出"),
+            MessageChain.create(msg, "\n该群已被拉黑，正在退出"),
         )
         return await app.quitGroup(joingroup.group.id)
 
@@ -241,12 +256,13 @@ async def get_BotJoinGroup(app: Ariadne, joingroup: BotJoinGroupEvent):
         await safeSendGroupMessage(
             joingroup.group.id,
             MessageChain.create(
-                f"该群未在白名单中，正在退出，如有需要请联系 {yaml_data['Basic']['Permission']['Master']} 申请白名单"
+                msg,
+                f"\n该群未在白名单中，正在退出，如有需要请联系 {yaml_data['Basic']['Permission']['Master']} 申请白名单",
             ),
         )
         await app.sendFriendMessage(
             yaml_data["Basic"]["Permission"]["Master"],
-            MessageChain.create("该群未在白名单中，正在退出"),
+            MessageChain.create(msg, "\n该群未在白名单中，正在退出"),
         )
         return await app.quitGroup(joingroup.group.id)
 
@@ -254,26 +270,18 @@ async def get_BotJoinGroup(app: Ariadne, joingroup: BotJoinGroupEvent):
     if member_count < 15 and joingroup.group.id not in group_list["white"]:
         await safeSendGroupMessage(
             joingroup.group.id,
-            MessageChain.create(f"当前群人数过少 ({member_count}/15)，暂不加入"),
+            MessageChain.create(msg, f"\n当前群人数过少 ({member_count}/15)，暂不加入"),
         )
         await app.sendFriendMessage(
             yaml_data["Basic"]["Permission"]["Master"],
-            MessageChain.create(f"该群人数过少 ({member_count})，正在退出"),
+            MessageChain.create(msg, f"\n该群人数过少 ({member_count})，正在退出"),
         )
         return await app.quitGroup(joingroup.group.id)
 
     if yaml_data["Basic"]["Event"]["JoinGroup"]:
-        membernum = len(await app.getMemberList(joingroup.group))
         await app.sendFriendMessage(
             yaml_data["Basic"]["Permission"]["Master"],
-            MessageChain.create(
-                [
-                    Plain("收到加入群聊事件"),
-                    Plain(f"\n群号：{joingroup.group.id}"),
-                    Plain(f"\n群名：{joingroup.group.name}"),
-                    Plain(f"\n群人数：{membernum}"),
-                ]
-            ),
+            MessageChain.create(msg),
         )
     await safeSendGroupMessage(
         joingroup.group.id,

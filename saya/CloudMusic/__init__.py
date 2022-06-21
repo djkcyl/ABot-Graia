@@ -164,6 +164,7 @@ async def sing(
                 )
 
         notfound = 0
+        msg = ""
 
         times = str(int(time.time()))
         search = httpx.get(
@@ -305,7 +306,20 @@ async def sing(
                     MessageChain.create([Plain(f"该歌曲（{music_name}）由于版权问题无法点歌，请使用客户端播放")]),
                 )
             async with httpx.AsyncClient() as client:
-                r = await client.get(musicurl)
+                for _ in range(3):
+                    try:
+                        r = await client.get(musicurl)
+                        break
+                    except Exception as e:
+                        logger.error(f"缓存歌曲失败：{e}")
+                        await asyncio.sleep(1)
+                else:
+                    await safeSendGroupMessage(
+                        group,
+                        MessageChain.create([Plain(f"该歌曲（{music_name}）缓存失败，请稍后重试")]),
+                    )
+                    WAITING.remove(member.id)
+                    return
                 MUSIC_PATH.write_bytes(r.content)
 
         if not await reduce_gold(member.id, 4):

@@ -2,7 +2,6 @@ import asyncio
 from graia.saya import Channel
 from graia.ariadne.app import Ariadne
 from graia.scheduler.timers import crontabify
-from graia.ariadne.message.element import Plain
 from graia.ariadne.message.chain import MessageChain
 from graia.scheduler.saya.schema import SchedulerSchema
 
@@ -23,12 +22,10 @@ async def tasks(app: Ariadne):
     await app.sendFriendMessage(
         yaml_data["Basic"]["Permission"]["Master"],
         MessageChain.create(
-            [
-                Plain(f"签到重置成功，昨日共有 {str(sign_info[0])} / {str(sign_info[1])} 人完成了签到，"),
-                Plain(f"签到率为 {'{:.2%}'.format(sign_info[0]/sign_info[1])}\n"),
-                Plain(f"今日收取了 {total_rent} {COIN_NAME}\n"),
-                Plain(f"缓存清理 {delete_cache}/{cache} 个"),
-            ],
+            f"签到重置成功，昨日共有 {str(sign_info[0])} / {str(sign_info[1])} 人完成了签到，",
+            f"签到率为 {'{:.2%}'.format(sign_info[0]/sign_info[1])}\n",
+            f"今日收取了 {total_rent} {COIN_NAME}\n",
+            f"缓存清理 {delete_cache}/{cache} 个",
         ),
     )
 

@@ -263,6 +263,12 @@
       "key": "DingZhen",
       "can_disabled": true,
       "default_disabled": false
+    },
+    {
+      "name": "背成语",
+      "key": "IdiomTest",
+      "can_disabled": true,
+      "default_disabled": false
     }
   ],
   "configList": [
@@ -451,7 +457,7 @@
     "BiliBili订阅推送": {
       "instruction": "自动推送b站的动态及直播间更新",
       "usage": "发送指令：\n订阅 <uid>\n退订 <uid>\n本群订阅列表",
-      "options": "如果不知道uid怎么获得，请去百度！订阅和退订的指令仅有群管理及以上权限可用",
+      "options": "此功能已废弃，如需使用请添加 BBot 2119799445 \n如果不知道uid怎么获得，请去百度！订阅和退订的指令仅有群管理及以上权限可用",
       "example": "订阅 161775300"
     },
     "查看人设": {
@@ -522,7 +528,7 @@
     },
     "赛马": {
       "instruction": "赛马小游戏！是正经赛马，不是赛马娘！",
-      "usage": "发送指令：\n开始赛马\n查看赛马信息\n赛马抽奖",
+      "usage": "发送指令：\n开始赛马 [-p --prop 道具模式]\n查看赛马信息\n赛马抽奖",
       "options": "开启和加入均需要 5 个 $COIN_NAME，纯随机运行，每次抽奖需要消耗 2 个 $COIN_NAME",
       "example": "（这也需要示例吗？"
     },
@@ -537,6 +543,12 @@
       "usage": "发送指令：\n来张丁真",
       "options": "更多用法可参见匹配正则\n^(一眼|来[点张])[顶丁钉][真针]|[Dd]ing[！!]?$",
       "example": "一眼丁真"
+    },
+    "背成语": {
+      "instruction": "字面意思",
+      "usage": "发送指令：\n背成语",
+      "options": "发送背成语后，机器人将会发题，请根据题目作答，60 秒后未作答将视为失败，答题系统为全群共享，即“一人开启，全群皆可作答”，如果不想背了可发送取消来终止进程。",
+      "example": "（这也需要示例吗？"
     }
   }
 }

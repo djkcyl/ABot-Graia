@@ -12,8 +12,8 @@ from graia.ariadne.event.message import FriendMessage, GroupMessage
 from graia.ariadne.message.parser.twilight import FullMatch, Twilight
 
 from database.db import add_answer
-from util.control import Permission
 from util.text2image import create_image
+from util.control import Permission, Function
 from util.sendMessage import safeSendGroupMessage
 
 from .database.database import random_word
@@ -34,7 +34,7 @@ bookid = {
     "TOEFL_2": {"name": "TOEFL 词汇", "id": "7"},
     "ChuZhongluan_2": {"name": "中考必备词汇", "id": "8"},
     "GaoZhongluan_2": {"name": "高考必备词汇", "id": "9"},
-    "PEPXiaoXue3_1": {"name": "人教版小学英语-三年级上册（你真的确定要选这个吗", "id": "10"},
+    "PEPXiaoXue3_1": {"name": "人教版小学英语-三年级上册", "id": "10"},
     "PEPChuZhong7_1": {"name": "人教版初中英语-七年级上册", "id": "11"},
     "PEPGaoZhong": {"name": "人教版高中英语-必修", "id": "12"},
     "ChuZhong_2": {"name": "初中英语词汇", "id": "13"},
@@ -56,18 +56,20 @@ RUNNING = {}
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[Twilight([FullMatch("背单词")])],
-        decorators=[Permission.require()],
+        decorators=[Permission.require(), Function.require("EnglishTest")],
     )
 )
 async def group_learn(group: Group, member: Member):
     @Waiter.create_using_function(
-        listening_events=[GroupMessage], using_decorators=[Permission.require()]
+        listening_events=[GroupMessage],
+        using_decorators=[Permission.require()],
+        block_propagation=True,
     )
     async def confirm(
         waiter_group: Group, waiter_member: Member, waiter_message: MessageChain
     ):
         if all([waiter_group.id == group.id, waiter_member.id == member.id]):
-            waiter_saying = waiter_message.asDisplay()
+            waiter_saying = waiter_message.asDisplay().strip()
             if waiter_saying == "取消":
                 return False
             try:
@@ -80,13 +82,15 @@ async def group_learn(group: Group, member: Member):
                 )
 
     @Waiter.create_using_function(
-        listening_events=[GroupMessage], using_decorators=[Permission.require()]
+        listening_events=[GroupMessage],
+        using_decorators=[Permission.require()],
+        block_propagation=True,
     )
     async def waiter(
         waiter_group: Group, waiter_member: Member, waiter_message: MessageChain
     ):
         if waiter_group.id == group.id:
-            waiter_saying = waiter_message.asDisplay()
+            waiter_saying = waiter_message.asDisplay().strip()
             if waiter_saying == "取消":
                 return False
             elif waiter_saying == RUNNING[group.id]:
@@ -161,7 +165,9 @@ async def group_learn(group: Group, member: Member):
                 if process == 1:
                     await safeSendGroupMessage(
                         group,
-                        MessageChain.create([Plain(f"提示1\n这个单词由 {word_len} 个字母构成")]),
+                        MessageChain.create(
+                            f"提示1\n这个单词由 {word_len} 个字母构成{'，该词包含空格' if ' ' in word_data[0] else ''}"
+                        ),
                     )
                 elif process == 2:
                     await safeSendGroupMessage(

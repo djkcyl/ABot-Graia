@@ -23,8 +23,6 @@ from util.sendMessage import safeSendGroupMessage
 channel = Channel.current()
 
 
-BASE = Path(__file__).parent.joinpath("temp")
-BASE.mkdir(exist_ok=True)
 FRAMES_PATH = Path(__file__).parent.joinpath("PetPetFrames")
 
 
@@ -64,7 +62,7 @@ async def get_nudge(app: Ariadne, nudge: NudgeEvent):
         return
 
     Permission.manual(await app.getMember(nudge.group_id, nudge.supplicant))
-    await Interval.manual(nudge.group_id, 3)
+    await Interval.manual(nudge.group_id, 15)
 
     if nudge.target == yaml_data["Basic"]["MAH"]["BotQQ"]:
         with contextlib.suppress(Exception):

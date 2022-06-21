@@ -233,6 +233,9 @@ Saya: # saya 插件配置
 
   DingZhen: # 来张丁真
     Disabled: false
+
+  IdiomTest: # 背成语
+    Disabled: false
 Final: false
 # 配置完成后请调整为 true
 # 配置完成后请调整为 true
