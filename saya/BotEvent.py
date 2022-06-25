@@ -226,7 +226,7 @@ async def get_BotJoinGroup(app: Ariadne, joingroup: BotJoinGroupEvent):
     membernum = len(await app.getMemberList(joingroup.group))
 
     inve = (
-        (await app.getMember(joingroup.inviter.group, joingroup.inviter))
+        (await app.getMember(joingroup.inviter.group, joingroup.inviter.id))
         if joingroup.inviter
         else None
     )

@@ -195,7 +195,20 @@ async def sing(
                 num += 1
                 i += 1
 
-        search = httpx.get(f"{QQ_HOST}/getSearchByKey?key={musicname}").json()
+        for _ in range(3):
+            try:
+                async with httpx.AsyncClient() as client:
+                    resp = await client.get(f"{QQ_HOST}/getSearchByKey?key={musicname}")
+                    search = resp.json()
+                    break
+            except Exception:
+                logger.error("QQ Music API 连接出错，正在重试")
+                await asyncio.sleep(0.5)
+        else:
+            WAITING.remove(member.id)
+            return await safeSendGroupMessage(
+                group, MessageChain.create([Plain("QQ Music API 连接出错")])
+            )
         if search["response"]["data"]["song"]["curnum"] == 0:
             notfound += 1
         else:

@@ -18,6 +18,7 @@ ice_img = ice_img.resize((50, 50))
 horse_img = Image.open(str(BASE_PATH.joinpath("horse.png"))).resize((45, 45))
 horse1_img = Image.open(str(BASE_PATH.joinpath("horse1.png"))).resize((45, 45))
 horse2_img = Image.open(str(BASE_PATH.joinpath("horse2.png"))).resize((45, 45))
+horse3_img = Image.open(str(BASE_PATH.joinpath("horse3.png"))).resize((45, 45))
 
 
 def coloring(img: Image.Image, color):
@@ -36,8 +37,8 @@ def coloring(img: Image.Image, color):
 
 
 def draw_game(data):
-    color_horse_img = coloring(horse_img, (100, 100, 200))
-    # color_horse_img = horse1_img
+    # color_horse_img = coloring(horse_img, (100, 100, 200))
+    color_horse_img = horse3_img
     player_count = len(data["player"])
     arena_size = (500, player_count * 50)
     name_size = (player_count * 24) + ((player_count - 1) * 4)
@@ -84,11 +85,11 @@ def draw_game(data):
             color_horse_img
             if data["player"][player]["score"] < 100
             else (
-                coloring(horse_img, (255, 0, 0))
-                # horse2_img
+                # coloring(horse_img, (255, 0, 0))
+                horse3_img
                 if data["winer"] == player
-                else coloring(horse_img, (150, 40, 40))
-                # else color_horse_img
+                # else coloring(horse_img, (150, 40, 40))
+                else color_horse_img
             ),
             (int(22 + ((data["player"][player]["score"] * 4.14))), 22 + (50 * i)),
             color_horse_img,
