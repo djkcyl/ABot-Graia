@@ -10,7 +10,7 @@ class HorseStatus:
 
 
 props = {
-    # 效果名            描述          值 持续回合 概率
+    # 道具名            描述          值 持续回合 概率
     "香蕉皮": (HorseStatus.Dizziness, 0, 1, 7),
     "肥皂": (HorseStatus.Slowness, 0.5, 2, 10),
     "冰弹": (HorseStatus.Freeze, 0, 3, 2),

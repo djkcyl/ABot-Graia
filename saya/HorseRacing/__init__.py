@@ -16,8 +16,12 @@ from graia.ariadne.message.parser.twilight import (
     Twilight,
     FullMatch,
     ArgResult,
+    UnionMatch,
+    ParamMatch,
+    RegexResult,
     ArgumentMatch,
 )
+from loguru import logger
 
 from config import yaml_data, COIN_NAME
 from database.db import reduce_gold, add_gold
@@ -140,34 +144,35 @@ async def main(app: Ariadne, group: Group, member: Member, plugin: ArgResult):
         if waiter1_message.asDisplay() == "加入赛马":
             player_list = GROUP_GAME_PROCESS[group.id]["members"]
             player_count = len(player_list)
-            if waiter1_member.id in GROUP_GAME_PROCESS[group.id]["members"]:
-                await safeSendGroupMessage(
-                    group, MessageChain.create("你已经参与了本轮游戏，请不要重复加入")
-                )
-            elif await reduce_gold(waiter1_member.id, 5):
-                GROUP_GAME_PROCESS[group.id]["members"].append(waiter1_member.id)
-                player_list = GROUP_GAME_PROCESS[group.id]["members"]
-                player_count = len(player_list)
-                if 8 > player_count > 1:
-                    GROUP_GAME_PROCESS[group.id]["status"] = "pre_start"
-                    add_msg = "，发起者可发送“提前开始”来强制开始本场游戏"
+            if player_count <= 8:
+                if waiter1_member.id in GROUP_GAME_PROCESS[group.id]["members"]:
+                    await safeSendGroupMessage(
+                        group, MessageChain.create("你已经参与了本轮游戏，请不要重复加入")
+                    )
+                elif await reduce_gold(waiter1_member.id, 5):
+                    GROUP_GAME_PROCESS[group.id]["members"].append(waiter1_member.id)
+                    player_list = GROUP_GAME_PROCESS[group.id]["members"]
+                    player_count = len(player_list)
+                    if 8 > player_count > 1:
+                        GROUP_GAME_PROCESS[group.id]["status"] = "pre_start"
+                        add_msg = "，发起者可发送“提前开始”来强制开始本场游戏"
+                    else:
+                        GROUP_GAME_PROCESS[group.id]["status"] = "waiting"
+                        add_msg = ""
+                    await safeSendGroupMessage(
+                        group,
+                        MessageChain.create(
+                            At(waiter1_member.id),
+                            Plain(f" 你已成功加入本轮游戏，当前共有 {player_count} / 8 人参与{add_msg}"),
+                        ),
+                    )
+                    if player_count >= 8:
+                        GROUP_GAME_PROCESS[group.id]["status"] = "running"
+                        return True
                 else:
-                    GROUP_GAME_PROCESS[group.id]["status"] = "waiting"
-                    add_msg = ""
-                await safeSendGroupMessage(
-                    group,
-                    MessageChain.create(
-                        At(waiter1_member.id),
-                        Plain(f" 你已成功加入本轮游戏，当前共有 {player_count} / 8 人参与{add_msg}"),
-                    ),
-                )
-                if player_count >= 8:
-                    GROUP_GAME_PROCESS[group.id]["status"] = "running"
-                    return True
-            else:
-                await safeSendGroupMessage(
-                    group, MessageChain.create(f"你的{COIN_NAME}不足，无法参加游戏")
-                )
+                    await safeSendGroupMessage(
+                        group, MessageChain.create(f"你的{COIN_NAME}不足，无法参加游戏")
+                    )
         elif waiter1_message.asDisplay() == "退出赛马":
             player_list = GROUP_GAME_PROCESS[group.id]["members"]
             player_count = len(player_list)
@@ -399,6 +404,7 @@ async def main(app: Ariadne, group: Group, member: Member, plugin: ArgResult):
             for i, player in enumerate(player_list, 1)
         },
         "winer": None,
+        "cheat": False,
     }
 
     while True:
@@ -461,34 +467,44 @@ async def main(app: Ariadne, group: Group, member: Member, plugin: ArgResult):
             )
         ),
     )
-    player_count = len(GROUP_GAME_PROCESS[group.id]["data"]["player"])
-    gold_count = (player_count * 5) - player_count
-    await asyncio.sleep(1)
-    if not random.randint(0, 5):
-        del GROUP_GAME_PROCESS[group.id]["data"]["player"][
-            GROUP_GAME_PROCESS[group.id]["data"]["winer"]
-        ]
-        drop_player = random.choice(
-            list(GROUP_GAME_PROCESS[group.id]["data"]["player"].keys())
-        )
-        drop_prop = get_random_prop()
-        add_prop(drop_player, drop_prop)
-        drop_str = MessageChain.create(
-            "\n本次比赛有一个幸运玩家 ", At(drop_player), f" 获得了 {drop_prop}"
+    if GROUP_GAME_PROCESS[group.id]["data"]["cheat"]:
+        await safeSendGroupMessage(
+            group,
+            MessageChain.create(
+                "游戏结束，获胜者是：",
+                At(GROUP_GAME_PROCESS[group.id]["data"]["winer"]),
+                f" 已获得 {0} {COIN_NAME}",
+            ),
         )
     else:
-        drop_str = MessageChain.create("\n本次比赛没有幸运玩家")
-    await safeSendGroupMessage(
-        group,
-        MessageChain.create(
-            "游戏结束，获胜者是：",
-            At(GROUP_GAME_PROCESS[group.id]["data"]["winer"]),
-            f"已获得 {gold_count} {COIN_NAME}",
+        player_count = len(GROUP_GAME_PROCESS[group.id]["data"]["player"])
+        gold_count = (player_count * 5) - player_count
+        await asyncio.sleep(1)
+        if not random.randint(0, 5):
+            del GROUP_GAME_PROCESS[group.id]["data"]["player"][
+                GROUP_GAME_PROCESS[group.id]["data"]["winer"]
+            ]
+            drop_player = random.choice(
+                list(GROUP_GAME_PROCESS[group.id]["data"]["player"].keys())
+            )
+            drop_prop = get_random_prop()
+            add_prop(drop_player, drop_prop)
+            drop_str = MessageChain.create(
+                "\n本次比赛有一个幸运玩家 ", At(drop_player), f" 获得了 {drop_prop}"
+            )
+        else:
+            drop_str = MessageChain.create("\n本次比赛没有幸运玩家")
+        await safeSendGroupMessage(
+            group,
+            MessageChain.create(
+                "游戏结束，获胜者是：",
+                At(GROUP_GAME_PROCESS[group.id]["data"]["winer"]),
+                f" 已获得 {gold_count} {COIN_NAME}",
+            )
+            + drop_str,
         )
-        + drop_str,
-    )
-    add_wins(GROUP_GAME_PROCESS[group.id]["data"]["winer"])
-    await add_gold(GROUP_GAME_PROCESS[group.id]["data"]["winer"], gold_count)
+        add_wins(GROUP_GAME_PROCESS[group.id]["data"]["winer"])
+        await add_gold(GROUP_GAME_PROCESS[group.id]["data"]["winer"], gold_count)
     MEMBER_RUNING_LIST.remove(member.id)
     GROUP_RUNING_LIST.remove(group.id)
     del GROUP_GAME_PROCESS[group.id]
@@ -510,3 +526,134 @@ async def bot_restart():
                     ]
                 ),
             )
+
+
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[
+            Twilight(
+                [
+                    FullMatch("/horse cheat"),
+                    "cheat" @ UnionMatch("edit", "add", "上上下下左右左右BA"),
+                    "attribute"
+                    @ UnionMatch("name", "score", "effect", "value", optional=True),
+                    "value" @ ParamMatch(optional=True),
+                    "target" @ ParamMatch(optional=True),
+                ]
+            ),
+        ],
+        decorators=[
+            Function.require("HorseRacing"),
+            Permission.require(Permission.MASTER),
+            Interval.require(),
+        ],
+    )
+)
+async def horse_cheat(
+    member: Member,
+    group: Group,
+    cheat: RegexResult,
+    attribute: RegexResult,
+    value: RegexResult,
+    target: RegexResult,
+):
+    cheats = cheat.result.asDisplay()
+    if value.matched and target.matched:
+        attributes = attribute.result.asDisplay()
+        values = value.result.asDisplay()
+        targets = target.result.asDisplay()
+        if GROUP_GAME_PROCESS[group.id]["status"] == "running":
+            players = list(GROUP_GAME_PROCESS[group.id]["data"]["player"].keys())
+            logger.info(f"{group.id} {players}")
+            if cheats == "edit" and int(targets) <= len(players) and targets.isdigit():
+                player = players[int(targets) - 1]
+                logger.info(f"{group.id} {player}")
+                if attributes == "name":
+                    GROUP_GAME_PROCESS[group.id]["data"]["player"][player][
+                        "name"
+                    ] = values
+                elif attributes == "score" and values.isdigit():
+                    GROUP_GAME_PROCESS[group.id]["data"]["player"][player]["score"] = int(
+                        values
+                    )
+                elif attributes == "effect":
+                    GROUP_GAME_PROCESS[group.id]["data"]["player"][player]["status"][
+                        "effect"
+                    ] = values
+                    GROUP_GAME_PROCESS[group.id]["data"]["player"][player]["status"][
+                        "duration"
+                    ] = 60
+                elif attributes == "value" and values.isdigit():
+                    GROUP_GAME_PROCESS[group.id]["data"]["player"][player]["status"][
+                        "value"
+                    ] = int(values)
+                else:
+                    return await safeSendGroupMessage(
+                        group, MessageChain.create("command error")
+                    )
+                return await safeSendGroupMessage(group, MessageChain.create("ok"))
+
+    elif cheats == "ezgame":
+        if GROUP_GAME_PROCESS[group.id]["status"] == "running":
+            players = list(GROUP_GAME_PROCESS[group.id]["data"]["player"].keys())
+            logger.info(f"{group.id} {players}")
+            if member.id in players:
+                GROUP_GAME_PROCESS[group.id]["data"]["player"][member.id]["status"][
+                    "effect"
+                ] = "加速"
+                GROUP_GAME_PROCESS[group.id]["data"]["player"][member.id]["status"][
+                    "duration"
+                ] = 60
+                GROUP_GAME_PROCESS[group.id]["data"]["player"][member.id]["status"][
+                    "value"
+                ] = 5
+                return await safeSendGroupMessage(
+                    group, MessageChain.create("eeeeeeeez!")
+                )
+
+    await safeSendGroupMessage(group, MessageChain.create("command error"))
+
+
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[
+            Twilight([FullMatch("上上下下左右左右BA")]),
+        ],
+        decorators=[
+            Function.require("HorseRacing"),
+            Permission.require(),
+            Interval.require(),
+        ],
+    )
+)
+async def ezgame(member: Member, group: Group):
+    if group.id not in GROUP_RUNING_LIST:
+        return
+    if GROUP_GAME_PROCESS[group.id]["status"] != "running":
+        return
+    if GROUP_GAME_PROCESS[group.id]["data"]["cheat"]:
+        return
+    if await reduce_gold(
+        member.id, len(GROUP_GAME_PROCESS[group.id]["data"]["player"]) * 7
+    ):
+        players = list(GROUP_GAME_PROCESS[group.id]["data"]["player"].keys())
+        logger.info(f"{group.id} {players}")
+        if member.id in players:
+            GROUP_GAME_PROCESS[group.id]["data"]["player"][member.id]["status"][
+                "effect"
+            ] = "加速"
+            GROUP_GAME_PROCESS[group.id]["data"]["player"][member.id]["status"][
+                "duration"
+            ] = 60
+            GROUP_GAME_PROCESS[group.id]["data"]["player"][member.id]["status"][
+                "value"
+            ] = 3
+            GROUP_GAME_PROCESS[group.id]["data"]["cheat"] = True
+            await safeSendGroupMessage(group, MessageChain.create("eeeeeeeez game!"))
+            for player in players:
+                if player != member.id:
+                    await add_gold(player, 5)
+    else:
+        await safeSendGroupMessage(group, MessageChain.create("you can`t do this"))
