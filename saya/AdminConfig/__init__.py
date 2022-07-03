@@ -16,6 +16,7 @@ from graia.ariadne.message.parser.twilight import (
     FullMatch,
     RegexMatch,
     RegexResult,
+    ElementMatch,
     WildcardMatch,
     ArgumentMatch,
 )
@@ -131,7 +132,11 @@ async def funchelp(group: Group, func: RegexResult):
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight([RegexMatch(r"^[。\./]?help$|^帮助$|^菜单$")])],
+        inline_dispatchers=[
+            Twilight(
+                [ElementMatch(At, optional=True), RegexMatch(r"[。\\./]?(help|帮助|菜单)$")]
+            )
+        ],
         decorators=[Permission.require(), Interval.require(10)],
     )
 )

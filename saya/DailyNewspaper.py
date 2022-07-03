@@ -5,8 +5,8 @@ import asyncio
 
 from graia.saya import Channel
 from graia.ariadne.app import Ariadne
-from graia.ariadne.model import Friend
 from graia.scheduler.timers import crontabify
+from graia.ariadne.model import Friend, UploadMethod
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.event.message import FriendMessage
 from graia.ariadne.message.element import Image, Plain
@@ -77,6 +77,7 @@ async def send(app: Ariadne):
         yaml_data["Basic"]["Permission"]["Master"],
         MessageChain.create([Image(data_bytes=paperimg)]),
     )
+    paperimg = await app.uploadImage(paperimg, UploadMethod.Group)
     for group in groupList:
 
         if (
@@ -88,13 +89,13 @@ async def send(app: Ariadne):
         if "DailyNewspaper" in group_data[str(group.id)]["DisabledFunc"]:
             continue
         try:
-            await app.sendMessage(group, MessageChain.create(Image(data_bytes=paperimg)))
+            await app.sendMessage(group, MessageChain.create(f"日报 {group.id}", paperimg))
         except Exception as err:
             await app.sendFriendMessage(
                 yaml_data["Basic"]["Permission"]["Master"],
                 MessageChain.create([Plain(f"{group.id} 的日报发送失败\n{err}")]),
             )
-        await asyncio.sleep(random.randint(3, 6))
+        await asyncio.sleep(random.uniform(4, 6))
     allTime = time.time() - ts
     await app.sendFriendMessage(
         yaml_data["Basic"]["Permission"]["Master"],

@@ -4,8 +4,8 @@ from graia.ariadne import get_running
 from graia.ariadne.app import Ariadne
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.model import BotMessage, Group, Member, Friend
-from graia.ariadne.exception import UnknownTarget, RemoteException
 from graia.ariadne.message.element import At, Plain, Source, Element
+from graia.ariadne.exception import UnknownTarget, RemoteException, AccountMuted
 
 from config import yaml_data
 
@@ -31,6 +31,14 @@ async def safeSendGroupMessage(
             msg.append(element)
         return await app.sendGroupMessage(target, MessageChain.create(msg), quote=quote)
 
+    except AccountMuted:
+        group_id = target.id if isinstance(target, Group) else target
+        await app.sendFriendMessage(
+            yaml_data["Basic"]["Permission"]["Master"],
+            MessageChain.create(f"由于 Bot 在 {group_id} 群被封禁，正在退出"),
+        )
+        await app.quitGroup(target)
+
     except RemoteException as e:
         if "LIMITED" in str(e):
             group_id = target.id if isinstance(target, Group) else target
@@ -38,13 +46,12 @@ async def safeSendGroupMessage(
                 yaml_data["Basic"]["Permission"]["Master"],
                 MessageChain.create(f"由于 {group_id} 群开启消息限制，正在退出"),
             )
-
             await app.quitGroup(target)
         elif "被禁言" in str(e):
             group_id = target.id if isinstance(target, Group) else target
             await app.sendFriendMessage(
                 yaml_data["Basic"]["Permission"]["Master"],
-                MessageChain.create(f"由于 {group_id} 群被封禁，正在退出"),
+                MessageChain.create(f"由于 Bot 在 {group_id} 群被封禁，正在退出"),
             )
 
             await app.quitGroup(target)

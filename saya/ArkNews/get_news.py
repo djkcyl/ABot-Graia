@@ -162,9 +162,11 @@ class WeiboUser:
         # 获取静态图片列表
         pics_list = []
         pics = blog["pics"] if "pics" in blog else []
-        for pic in pics:
-            pic_url = pic["large"]["url"]
-            pics_list.append(pic_url)
+        async with httpx.AsyncClient() as session:
+            for pic in pics:
+                url = pic["large"]["url"]
+                res = await session.get(url)
+                pics_list.append(res.content)
 
         return WeiboContent(self.user_name, html_text, pics_list, detail_url)
 

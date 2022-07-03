@@ -8,6 +8,7 @@ from pathlib import Path
 from loguru import logger
 from graia.saya import Channel
 from graia.ariadne.app import Ariadne
+from graia.ariadne.model import UploadMethod
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import Image, Plain
 from graia.scheduler.saya.schema import SchedulerSchema
@@ -128,8 +129,13 @@ async def get_weibo_news(app: Ariadne):
         msg = [
             Plain(f"{result.user_name} 更新了新的微博 {new_id}\n"),
             Plain(f"{result.detail_url}\n"),
-            Image(data_bytes=await create_image(result.html_text, 72)),
-        ] + [Image(url=x) for x in result.pics_list]
+            await app.uploadImage(
+                await create_image(result.html_text, 72), UploadMethod.Group
+            ),
+        ] + [
+            await app.uploadImage(x, UploadMethod.Group)(x, UploadMethod.Group)
+            for x in result.pics_list
+        ]
 
         await app.sendFriendMessage(
             yaml_data["Basic"]["Permission"]["Master"], MessageChain.create(msg)
@@ -172,6 +178,7 @@ async def get_game_news(app: Ariadne):
     try:
         latest_list = await game.get_announce()
     except httpx.HTTPError:
+        logger.error("[明日方舟蹲饼] 获取游戏公告失败")
         return
     new_list = list(set(latest_list) - set(pushed))
 

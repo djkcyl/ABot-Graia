@@ -2,9 +2,13 @@ import asyncio
 from graia.saya import Channel
 from graia.ariadne.app import Ariadne
 from graia.scheduler.timers import crontabify
+from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
 from graia.scheduler.saya.schema import SchedulerSchema
+from graia.saya.builtins.broadcast.schema import ListenerSchema
+from graia.ariadne.message.parser.twilight import Twilight, FullMatch
 
+from util.control import Permission
 from util.text2image import delete_old_cache
 from util.sendMessage import safeSendGroupMessage
 from config import COIN_NAME, yaml_data, group_list
@@ -13,6 +17,13 @@ from database.db import all_sign_num, ladder_rent_collection, reset_sign
 channel = Channel.current()
 
 
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[Twilight([FullMatch("执行定时任务")])],
+        decorators=[Permission.require(Permission.MASTER)],
+    )
+)
 @channel.use(SchedulerSchema(crontabify("0 4 * * *")))
 async def tasks(app: Ariadne):
     sign_info = await all_sign_num()
