@@ -132,10 +132,7 @@ async def get_weibo_news(app: Ariadne):
             await app.uploadImage(
                 await create_image(result.html_text, 72), UploadMethod.Group
             ),
-        ] + [
-            await app.uploadImage(x, UploadMethod.Group)(x, UploadMethod.Group)
-            for x in result.pics_list
-        ]
+        ] + [await app.uploadImage(x, UploadMethod.Group) for x in result.pics_list]
 
         await app.sendFriendMessage(
             yaml_data["Basic"]["Permission"]["Master"], MessageChain.create(msg)
