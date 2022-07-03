@@ -176,6 +176,7 @@ async def get_game_news(app: Ariadne):
         latest_list = await game.get_announce()
     except httpx.HTTPError:
         logger.error("[明日方舟蹲饼] 获取游戏公告失败")
+        GAME_LOCK = False
         return
     new_list = list(set(latest_list) - set(pushed))
 
@@ -184,8 +185,10 @@ async def get_game_news(app: Ariadne):
         save_pushed_list()
         await asyncio.sleep(1)
         logger.info(f"[明日方舟蹲饼] 游戏公告初始化成功，当前共有 {len(latest_list)} 条公告")
+        GAME_LOCK = False
         return
     elif not new_list:
+        GAME_LOCK = False
         return
 
     pushed_list["game"] = latest_list

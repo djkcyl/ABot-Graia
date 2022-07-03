@@ -24,7 +24,7 @@ from graia.ariadne.event.mirai import (
     MemberLeaveEventQuit,
     NewFriendRequestEvent,
     MemberCardChangeEvent,
-    MemberHonorChangeEvent,
+    # MemberHonorChangeEvent,
     BotGroupPermissionChangeEvent,
     BotInvitedJoinGroupRequestEvent,
 )
@@ -513,17 +513,17 @@ async def getMemberLeaveEventQuit(events: MemberLeaveEventQuit):
         await safeSendGroupMessage(events.member.group, MessageChain.create(msg))
 
 
-@channel.use(ListenerSchema(listening_events=[MemberHonorChangeEvent]))
-async def get_MemberHonorChangeEvent(events: MemberHonorChangeEvent):
-    """
-    有人群荣誉变动
-    """
-    msg = [
-        At(events.member.id),
-        Plain(f" {'获得了' if events.action == 'achieve' else '失去了'} 群荣誉 {events.honor}！"),
-    ]
-    if group_data[str(events.member.group.id)]["EventBroadcast"]["Enabled"]:
-        await safeSendGroupMessage(events.member.group, MessageChain.create(msg))
+# @channel.use(ListenerSchema(listening_events=[MemberHonorChangeEvent]))
+# async def get_MemberHonorChangeEvent(events: MemberHonorChangeEvent):
+#     """
+#     有人群荣誉变动
+#     """
+#     msg = [
+#         At(events.member.id),
+#         Plain(f" {'获得了' if events.action == 'achieve' else '失去了'} 群荣誉 {events.honor}！"),
+#     ]
+#     if group_data[str(events.member.group.id)]["EventBroadcast"]["Enabled"]:
+#         await safeSendGroupMessage(events.member.group, MessageChain.create(msg))
 
 
 async def avater_blackandwhite(avatar: bytes) -> bytes:
