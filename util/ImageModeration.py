@@ -28,7 +28,7 @@ def image_moderation(img):
 
         req = models.ImageModerationRequest()
         params = (
-            {"BizType": "group_recall", "FileUrl": img}
+            {"FileUrl": img}
             if type(img) == str
             else {"BizType": "group_recall", "FileContent": bytes_to_base64(img)}
         )

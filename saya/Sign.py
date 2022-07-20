@@ -2,17 +2,16 @@ import time
 import random
 
 from graia.saya import Channel
-from graia.ariadne.app import Ariadne
+from graia.ariadne.model import Group, Member
 from graia.ariadne.message.element import At, Plain
 from graia.ariadne.message.chain import MessageChain
-from graia.ariadne.model import Friend, Group, Member
+from graia.ariadne.event.message import GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.event.message import FriendMessage, GroupMessage
 from graia.ariadne.message.parser.twilight import FullMatch, Twilight
 
 from config import COIN_NAME
+from database.db import add_gold, sign, get_info
 from util.sendMessage import safeSendGroupMessage
-from database.db import add_gold, all_sign_num, sign
 from util.control import Function, Interval, Permission
 
 channel = Channel.current()
@@ -27,10 +26,26 @@ channel = Channel.current()
 )
 async def main(group: Group, member: Member):
     if await sign(member.id):
-        i = random.randint(1, 10)
-        gold_add = random.randint(9, 21) if i == 1 else random.randint(5, 12)
+        user = await get_info(member.id)
+        if user[5] % 30 == 0:
+            continue_reward = random.randint(0, 60)
+            continue_text = f"额外获得 {continue_reward} {COIN_NAME}"
+        elif user[5] % 7 == 0:
+            continue_reward = random.randint(0, 15)
+            continue_text = f"额外获得 {continue_reward} {COIN_NAME}"
+        else:
+            continue_reward = 0
+            first_sign = f"首次签到赠送 60 {COIN_NAME}," if user[2] == 1 else ""
+            remaining_days = min(30 - (user[5] % 30), 7 - (user[5] % 7))
+            continue_text = f"{first_sign}继续签到 {remaining_days} 天将赠送额外 {COIN_NAME}"
+
+        gold_add = (
+            random.randint(9, 21) if random.randint(1, 10) == 1 else random.randint(5, 12)
+        ) + continue_reward
         await add_gold(member.id, gold_add)
-        sign_text = f"今日签到成功！\n本次签到获得{COIN_NAME} {gold_add} 个"
+        sign_text = (
+            f"今日签到成功！\n本次签到获得 {COIN_NAME} {gold_add} 个\n你已连续签到{user[5]}天，{continue_text}"
+        )
     else:
         sign_text = "今天你已经签到过了，不能贪心，凌晨4点以后再来吧！"
 
@@ -52,25 +67,5 @@ async def main(group: Group, member: Member):
         group,
         MessageChain.create(
             [Plain(f"{time_nick}，"), At(member.id), Plain(f"\n{sign_text}")]
-        ),
-    )
-
-
-@channel.use(
-    ListenerSchema(
-        listening_events=[FriendMessage],
-        inline_dispatchers=[Twilight([FullMatch("签到率查询")])],
-    )
-)
-async def inquire(app: Ariadne, friend: Friend):
-    Permission.manual(friend, Permission.MASTER)
-    sign_info = await all_sign_num()
-    await app.sendFriendMessage(
-        friend,
-        MessageChain.create(
-            [
-                Plain(f"共有 {str(sign_info[0])} / {str(sign_info[1])} 人完成了签到，"),
-                Plain(f"签到率为 {'{:.2%}'.format(sign_info[0]/sign_info[1])}"),
-            ]
         ),
     )

@@ -25,7 +25,7 @@ def text_moderation(text: str):
     client = tms_client.TmsClient(cred, "ap-shanghai", clientProfile)
 
     req = models.TextModerationRequest()
-    params = {"Content": text_base64, "BizType": "group_recall_text"}
+    params = {"Content": text_base64}
     req.from_json_string(json.dumps(params))
 
     resp = client.TextModeration(req)

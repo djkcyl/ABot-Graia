@@ -138,7 +138,7 @@ async def get_weibo_news(app: Ariadne):
             yaml_data["Basic"]["Permission"]["Master"], MessageChain.create(msg)
         )
         for group in group_list:
-            await app.sendMessage(group, MessageChain.create(msg))
+            await app.sendMessage(group, MessageChain.create([f"{group.id}\n"] + msg))
             await asyncio.sleep(random.uniform(2, 4))
 
         await app.sendFriendMessage(
@@ -192,7 +192,6 @@ async def get_game_news(app: Ariadne):
         return
 
     pushed_list["game"] = latest_list
-    save_pushed_list()
 
     group_list = (
         [await app.getGroup(yaml_data["Basic"]["Permission"]["DebugGroup"])]
@@ -214,7 +213,7 @@ async def get_game_news(app: Ariadne):
             yaml_data["Basic"]["Permission"]["Master"], MessageChain.create(msg)
         )
         for group in group_list:
-            await app.sendMessage(group, MessageChain.create(msg))
+            await app.sendMessage(group, MessageChain.create([f"{group.id}\n"] + msg))
             await asyncio.sleep(random.uniform(2, 4))
 
         await app.sendFriendMessage(
@@ -223,5 +222,6 @@ async def get_game_news(app: Ariadne):
         )
 
         await asyncio.sleep(3)
+    save_pushed_list()
 
     GAME_LOCK = False

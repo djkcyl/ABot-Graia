@@ -59,21 +59,21 @@ async def mcping(say):
     logger.debug(get_status["description"])
     if type(get_status["description"]) == str:
         sMotd = get_status["description"]
-        msg_send.append(Plain(f"描述：{sMotd}" + "\n"))
+        msg_send.append(Plain(f"描述：{sMotd}\n"))
         logger.debug(sMotd)
     elif get_status["description"].get("text", "") != "":
         sMotd = get_status["description"]["text"]
-        msg_send.append(Plain(f"描述：{sMotd}" + "\n"))
+        msg_send.append(Plain(f"描述：{sMotd}\n"))
         logger.debug(sMotd)
     elif "extra" in get_status["description"]:
         sMotd = ""
         for extra in get_status["description"]["extra"]:
             sMotd = sMotd + extra["text"]
-        msg_send.append(Plain(f"描述：{sMotd}" + "\n"))
+        msg_send.append(Plain(f"描述：{sMotd}\n"))
         logger.debug(sMotd)
     elif "translate" in get_status["description"]:
         sMotd = get_status["description"]["translate"]
-        msg_send.append(Plain(f"描述：{sMotd}" + "\n"))
+        msg_send.append(Plain(f"描述：{sMotd}\n"))
         logger.debug(sMotd)
 
     # 服务端版本判断

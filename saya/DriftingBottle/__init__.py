@@ -6,6 +6,7 @@ import numpy as np
 
 from io import BytesIO
 from pathlib import Path
+from loguru import logger
 from pyzbar import pyzbar
 from PIL import Image as IMG
 from graia.saya import Channel, Saya
@@ -32,7 +33,7 @@ from util.text2image import create_image
 from util.sendMessage import safeSendGroupMessage
 from util.TextModeration import text_moderation_async
 from util.ImageModeration import image_moderation_async
-from util.control import Function, Interval, Permission, RollQQ
+from util.control import Function, Interval, Permission
 from config import COIN_NAME, save_config, user_list, yaml_data
 
 from .db import (
@@ -70,6 +71,14 @@ IMAGE_PATH.mkdir(exist_ok=True)
                     @ ArgumentMatch(
                         "-p", "-P", "--pic", action="store_true", optional=True
                     ),
+                    "skip_review"
+                    @ ArgumentMatch(
+                        "-s",
+                        "--skip-review",
+                        action="store_true",
+                        optional=True,
+                        default=False,
+                    ),
                     FullMatch("\n", optional=True),
                     "anythings1" @ WildcardMatch(optional=True),
                 ],
@@ -88,6 +97,7 @@ async def throw_bottle_handler(
     source: Source,
     arg_pic: ArgResult,
     arg_reg_pic: RegexResult,
+    skip_review: ArgResult,
     anythings1: RegexResult,
 ):
     @Waiter.create_using_function(
@@ -106,7 +116,6 @@ async def throw_bottle_handler(
     text = None
     image_name = None
     image_url = None
-
     if saying.matched:
         message_chain = saying.result
         if message_chain.has(Plain):
@@ -122,21 +131,28 @@ async def throw_bottle_handler(
                         return await safeSendGroupMessage(
                             group, MessageChain.create("您？"), quote=source
                         )
-                moderation = await text_moderation_async(text)
-                if moderation["status"] == "error":
-                    return await safeSendGroupMessage(
-                        group,
-                        MessageChain.create("漂流瓶内容审核失败，请稍后重新丢漂流瓶！"),
-                        quote=source,
-                    )
-                elif not moderation["status"]:
-                    return await safeSendGroupMessage(
-                        group,
-                        MessageChain.create(
-                            f"你的漂流瓶内可能包含违规内容{moderation['message']}，请检查后重新丢漂流瓶！"
-                        ),
-                        quote=source,
-                    )
+                if (
+                    skip_review.result
+                    and member.id in yaml_data["Basic"]["Permission"]["Admin"]
+                ):
+                    logger.info("跳过审核")
+                else:
+                    logger.info("开始审核")
+                    moderation = await text_moderation_async(text)
+                    if moderation["status"] == "error":
+                        return await safeSendGroupMessage(
+                            group,
+                            MessageChain.create("漂流瓶内容审核失败，请稍后重新丢漂流瓶！"),
+                            quote=source,
+                        )
+                    elif not moderation["status"]:
+                        return await safeSendGroupMessage(
+                            group,
+                            MessageChain.create(
+                                f"你的漂流瓶内可能包含违规内容{moderation['message']}，请检查后重新丢漂流瓶！"
+                            ),
+                            quote=source,
+                        )
             elif len(text) > 400:
                 return await safeSendGroupMessage(
                     group,
@@ -176,14 +192,22 @@ async def throw_bottle_handler(
             )
 
     if image_url:
-        moderation = await image_moderation_async(image_url)
-        if not moderation["status"]:
-            return await safeSendGroupMessage(
-                group,
-                MessageChain.create(f"你的漂流瓶包含违规内容 {moderation['message']}，请检查后重新丢漂流瓶！"),
-            )
-        elif moderation["status"] == "error":
-            return await safeSendGroupMessage(group, MessageChain.create("图片审核失败，请稍后重试！"))
+        if skip_review.result and member.id in yaml_data["Basic"]["Permission"]["Admin"]:
+            logger.info("跳过审核")
+        else:
+            logger.info("开始审核")
+            moderation = await image_moderation_async(image_url)
+            if not moderation["status"]:
+                return await safeSendGroupMessage(
+                    group,
+                    MessageChain.create(
+                        f"你的漂流瓶包含违规内容 {moderation['message']}，请检查后重新丢漂流瓶！"
+                    ),
+                )
+            elif moderation["status"] == "error":
+                return await safeSendGroupMessage(
+                    group, MessageChain.create("图片审核失败，请稍后重试！")
+                )
         async with httpx.AsyncClient() as client:
             resp = await client.get(image_url)
             image_type = resp.headers["Content-Type"]
@@ -191,15 +215,22 @@ async def throw_bottle_handler(
             image_name = str(time.time()) + "." + image_type.split("/")[1]
             IMAGE_PATH.joinpath(image_name).write_bytes(image)
             if image:
-                if qrdecode(image):
-                    if member.id in user_list["black"]:
-                        pass
-                    else:
-                        user_list["black"].append(member.id)
-                        save_config()
-                    return await safeSendGroupMessage(
-                        group, MessageChain.create("漂流瓶不能携带二维码哦！你已被拉黑")
-                    )
+
+                if (
+                    skip_review.result
+                    and member.id in yaml_data["Basic"]["Permission"]["Admin"]
+                ):
+                    logger.info("跳过审核")
+                else:
+                    if qrdecode(image):
+                        if member.id in user_list["black"]:
+                            pass
+                        else:
+                            user_list["black"].append(member.id)
+                            save_config()
+                        return await safeSendGroupMessage(
+                            group, MessageChain.create("漂流瓶不能携带二维码哦！你已被拉黑")
+                        )
             else:
                 return await safeSendGroupMessage(
                     group, MessageChain.create("图片异常，请稍后重试！")
@@ -239,7 +270,7 @@ async def throw_bottle_handler(
         decorators=[
             Function.require("DriftingBottle"),
             Permission.require(),
-            RollQQ.require(),
+            # RollQQ.require(),
             Interval.require(30),
         ],
     )
@@ -263,7 +294,8 @@ async def pick_bottle_handler(group: Group, member: Member):
     times = bottle["fishing_times"]
     times_msg = f"本漂流瓶已经被捞了{str(times)}次" if times > 0 else "本漂流瓶还没有被捞到过"
     msg = [
-        Plain(f"你捡到了一个漂流瓶！\n瓶子编号为：{bottle['id']}\n{times_msg}\n{score_msg}\n" "漂流瓶内容为：\n")
+        At(member),
+        f" 你捡到了一个漂流瓶！\n瓶子编号为：{bottle['id']}\n{times_msg}\n{score_msg}\n" "漂流瓶内容为：\n",
     ]
     if bottle["text"] is not None:
         image = await create_image(bottle["text"])
@@ -457,7 +489,7 @@ async def bottle_score_handler(
                     return await safeSendGroupMessage(
                         group, MessageChain.create(At(member.id), " 请正确回复漂流瓶，并输入分数")
                     )
-                bottle_id = reg_search.group(1)
+                bottle_id = reg_search[1]
                 score = anythings.result.asDisplay()
             else:
                 bottle_id = saying[0]
@@ -550,7 +582,7 @@ async def bottle_discuss_handler(
                         group,
                         MessageChain.create(At(member.id), " 请正确回复漂流瓶，并输入评论内容"),
                     )
-                bottle_id = reg_search.group(1)
+                bottle_id = reg_search[1]
                 discuss = anythings.result.asDisplay()
             else:
                 bottle_id = saying[0]

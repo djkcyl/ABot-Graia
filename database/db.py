@@ -19,6 +19,8 @@ class BaseModel(Model):
 class User(BaseModel):
     qq = CharField()
     is_sign = IntegerField(default=0)
+    is_chat = IntegerField(default=0)
+    continue_sign = IntegerField(default=0)
     sign_num = IntegerField(default=0)
     english_answer = IntegerField(default=0)
     gold = IntegerField(default=0)
@@ -34,7 +36,7 @@ db.create_tables([User], safe=True)
 def init_user(qq):
     user = User.select().where(User.qq == qq)
     if not user.exists():
-        p = User(qq=str(qq), gold=60)
+        p = User(qq=str(qq))
         p.save()
         logger.info(f"已初始化{qq}")
 
@@ -44,7 +46,9 @@ async def sign(qq):
     user = User.get(qq=str(qq))
     if user.is_sign:
         return False
-    p = User.update(is_sign=1, sign_num=User.sign_num + 1).where(User.qq == qq)
+    p = User.update(
+        is_sign=1, sign_num=User.sign_num + 1, continue_sign=User.continue_sign + 1
+    ).where(User.qq == qq)
     p.execute()
     return True
 
@@ -52,7 +56,14 @@ async def sign(qq):
 async def get_info(qq):
     init_user(qq)
     user = User.get(qq=str(qq))
-    return [user.id, user.is_sign, user.sign_num, user.gold, user.talk_num]
+    return [
+        user.id,
+        user.is_sign,
+        user.sign_num,
+        user.gold,
+        user.talk_num,
+        user.continue_sign,
+    ]
 
 
 async def add_gold(qq, num: int):
@@ -88,19 +99,21 @@ async def trans_all_gold(from_qq, to_qq) -> int:
 
 async def add_talk(qq):
     init_user(qq)
-    User.update(talk_num=User.talk_num + 1).where(User.qq == str(qq)).execute()
+    User.update(talk_num=User.talk_num + 1, is_chat=1).where(User.qq == str(qq)).execute()
     return
 
 
 async def reset_sign():
+    User.update(continue_sign=0).where(User.is_sign == 0).execute()
     User.update(is_sign=0).where(User.is_sign == 1).execute()
     return
 
 
-async def all_sign_num():
+async def activity_count():
     all_num = User.select().count()
     sign_num = User.select().where(User.is_sign == 1).count()
-    return [sign_num, all_num]
+    chat_num = User.select().where(User.is_chat == 1).count()
+    return [all_num, sign_num, chat_num]
 
 
 async def give_all_gold(num: int):

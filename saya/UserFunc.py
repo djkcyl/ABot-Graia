@@ -1,9 +1,9 @@
 from loguru import logger
 from graia.saya import Channel
 from graia.ariadne.model import Group, Member
+from graia.ariadne.message.element import Image
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
-from graia.ariadne.message.element import Image, Plain
 from graia.scheduler.saya.schema import SchedulerSchema
 from graia.scheduler.timers import every_custom_minutes
 from graia.ariadne.event.lifecycle import ApplicationLaunched
@@ -29,9 +29,7 @@ RANK_LIST = None
     )
 )
 async def main(group: Group):
-    await safeSendGroupMessage(
-        group, MessageChain.create([Image(data_bytes=RANK_LIST)])
-    )
+    await safeSendGroupMessage(group, MessageChain.create(Image(data_bytes=RANK_LIST)))
 
 
 @channel.use(SchedulerSchema(every_custom_minutes(10)))
@@ -63,11 +61,10 @@ async def get_user_info(group: Group, member: Member):
     await safeSendGroupMessage(
         group,
         MessageChain.create(
-            [
-                Plain(f"UID：{user_info[0]}"),
-                Plain(f"\n你已累计签到 {user_info[2]} 天"),
-                Plain(f"\n当前共有 {user_info[3]} 个{COIN_NAME}"),
-                Plain(f"\n从有记录以来你共有 {user_info[4]} 次发言"),
-            ]
+            f"UID：{user_info[0]}\n",
+            f"你已累计签到 {user_info[2]} 天\n",
+            f"你已连续签到 {user_info[5]} 天\n",
+            f"当前共有 {user_info[3]} 个{COIN_NAME}\n",
+            f"从有记录以来你共有 {user_info[4]} 次发言",
         ),
     )

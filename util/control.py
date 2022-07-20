@@ -178,16 +178,16 @@ class Permission:
 
         def perm_check(event: GroupMessage):
             member_level = cls.get(event.sender)
-            if member_level == cls.MASTER:
-                pass
-            elif member_level < level:
+
+            if (
+                yaml_data["Basic"]["Permission"]["Debug"]
+                and event.sender.group.id
+                != yaml_data["Basic"]["Permission"]["DebugGroup"]
+            ):
                 raise ExecutionStop()
-            elif yaml_data["Basic"]["Permission"]["Debug"]:
-                if (
-                    event.sender.group.id
-                    != yaml_data["Basic"]["Permission"]["DebugGroup"]
-                ):
-                    raise ExecutionStop()
+            if member_level >= level:
+                return
+            raise ExecutionStop()
 
         return Depend(perm_check)
 
@@ -203,13 +203,14 @@ class Permission:
 
         member_level = cls.get(member_id)
 
-        if member_level == cls.MASTER:
-            pass
-        elif member_level < level:
+        if isinstance(member, Member) and (
+            yaml_data["Basic"]["Permission"]["Debug"]
+            and member.group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]
+        ):
             raise ExecutionStop()
-        elif yaml_data["Basic"]["Permission"]["Debug"]:
-            if member.group.id != yaml_data["Basic"]["Permission"]["DebugGroup"]:
-                raise ExecutionStop()
+        if member_level >= level:
+            return
+        raise ExecutionStop()
 
 
 class Interval:
