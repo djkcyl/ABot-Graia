@@ -39,9 +39,10 @@ async def main(group: Group, member: Member):
             remaining_days = min(30 - (user[5] % 30), 7 - (user[5] % 7))
             continue_text = f"{first_sign}继续签到 {remaining_days} 天将赠送额外 {COIN_NAME}"
 
+        first_sign_gold = 60 if user[2] == 1 else 0
         gold_add = (
             random.randint(9, 21) if random.randint(1, 10) == 1 else random.randint(5, 12)
-        ) + continue_reward
+        ) + continue_reward + first_sign_gold
         await add_gold(member.id, gold_add)
         sign_text = (
             f"今日签到成功！\n本次签到获得 {COIN_NAME} {gold_add} 个\n你已连续签到{user[5]}天，{continue_text}"
