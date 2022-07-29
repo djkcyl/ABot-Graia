@@ -98,3 +98,8 @@
 ## License
 
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fdjkcyl%2FABot-Graia.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fdjkcyl%2FABot-Graia?ref=badge_large)
+
+
+## Stargazers over time
+
+[![Stargazers over time](https://starchart.cc/djkcyl/ABot-Graia.svg)](https://starchart.cc/djkcyl/ABot-Graia)
