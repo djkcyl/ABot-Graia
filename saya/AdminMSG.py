@@ -3,7 +3,7 @@ import random
 import asyncio
 import contextlib
 
-from graia.saya import Channel
+from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.exception import UnknownTarget
 from graia.ariadne.message.chain import MessageChain
@@ -34,6 +34,7 @@ from config import (
 
 from .AdminConfig import funcList
 
+saya = Saya.current()
 channel = Channel.current()
 funcList = funcList
 
@@ -623,8 +624,20 @@ async def gset_open(group: Group, func: RegexResult):
                         group,
                         MessageChain.create([Plain(f"{sayfunc['name']} 已处于全局开启状态")]),
                     )
-                yaml_data["Saya"][sayfunc["key"]]["Disabled"] = False
-                save_config()
+
+                try:
+                    if sayfunc["key"] not in saya.channels: # 模块尚未加载
+                        with saya.module_context():
+                            saya.require(f"saya.{sayfunc['key']}")
+
+                    yaml_data["Saya"][sayfunc["key"]]["Disabled"] = False
+                    save_config()
+                except Exception as e:
+                    raise
+                    return await safeSendGroupMessage(
+                        group, MessageChain.create(f"{sayfunc['name']} 开启失败\n{e}")
+                    )
+
                 return await safeSendGroupMessage(
                     group, MessageChain.create([Plain(f"{sayfunc['name']} 已全局开启")])
                 )
