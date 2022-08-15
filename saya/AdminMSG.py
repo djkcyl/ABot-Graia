@@ -634,10 +634,6 @@ async def gset_open(group: Group, func: RegexResult):
                     save_config()
                 except Exception as e:
                     raise
-                    return await safeSendGroupMessage(
-                        group, MessageChain.create(f"{sayfunc['name']} 开启失败\n{e}")
-                    )
-
                 return await safeSendGroupMessage(
                     group, MessageChain.create([Plain(f"{sayfunc['name']} 已全局开启")])
                 )
