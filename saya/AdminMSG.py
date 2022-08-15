@@ -633,7 +633,6 @@ async def gset_open(group: Group, func: RegexResult):
                     yaml_data["Saya"][sayfunc["key"]]["Disabled"] = False
                     save_config()
                 except Exception as e:
-                    raise
                     return await safeSendGroupMessage(
                         group, MessageChain.create(f"{sayfunc['name']} 开启失败\n{e}")
                     )
