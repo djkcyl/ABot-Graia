@@ -72,10 +72,13 @@ with saya.module_context():
     for module in os.listdir("saya"):
         if module in ignore:
             continue
-        if os.path.isdir(module):
-            saya.require(f"saya.{module}")
-        else:
-            saya.require(f"saya.{module.split('.')[0]}")
+        module_name = module if os.path.isdir(module) else module.split('.')[0]
+        try:
+            if yaml_data['Saya'][module_name]['Disabled']:
+                continue
+        except KeyError:
+            pass
+        saya.require(f"saya.{module_name}")
     logger.info("saya加载完成")
 
 
