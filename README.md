@@ -1,11 +1,6 @@
-# 《中国开发者》
-![QQ图片20220805134629](https://user-images.githubusercontent.com/59153990/183010134-b8651e1c-f9e6-4767-9cb7-9e6b37b13a78.jpg)
-![QQ图片20220805134633](https://user-images.githubusercontent.com/59153990/183010138-8811ed94-cd5c-4ec5-92a0-ac2628ff61a0.jpg)
-
-
 <div align="center">
 
-# ABot for Ariadne
+# ABot for Ariadne（已停更）
 
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fdjkcyl%2FABot-Graia.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fdjkcyl%2FABot-Graia?ref=badge_shield)
 
