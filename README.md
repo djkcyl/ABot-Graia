@@ -1,6 +1,6 @@
 <div align="center">
 
-# ABot for Ariadne（已停更）
+# ABot for Ariadne（正在复活...）
 
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fdjkcyl%2FABot-Graia.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fdjkcyl%2FABot-Graia?ref=badge_shield)
 
