@@ -1,63 +1,66 @@
 [project]
-# PEP 621 project metadata
-# See https://www.python.org/dev/peps/pep-0621/
+name = "ABot-Graia"
+version = "3.0.0"
+description = ""
 authors = [
     {name = "djkcyl", email = "cyl@cyllive.cn"},
 ]
-requires-python = ">=3.9,<4.0"
 dependencies = [
-    "dnspython>=2.3.0",
-    "graiax-silkcoder>=0.3.6",
-    "httpx>=0.24.1",
-    "peewee>=3.16.2",
-    "psutil>=5.9.5",
-    "pyyaml>=6.0",
-    "pyzbar>=0.1.9",
-    "qrcode>=7.4.2",
-    "rsa>=4.9",
-    "tencentcloud-sdk-python>=3.0.921",
-    "wordcloud>=1.9.2",
-    "xmltodict>=0.13.0",
-    "graia-ariadne[graia]>=0.11.5",
-    "opencv-python>=4.7.0.72",
-    "pycryptodome>=3.18.0",
-    "prompt-toolkit>=3.0.38",
-    "toml>=0.10.2",
-    "pillow>=9.5.0",
-    "motor>=3.2.0",
-    "richuru>=0.1.1",
-    "beanie>=1.19.2",
-    "sentry-sdk>=1.26.0",
-    "graiax-playwright>=0.2.4",
-    "graiax-text2img-playwright>=0.4.1",
-    "hanlp>=2.1.0b50",
-    "cnocr>=2.2.2.3",
-    "jionlp @ git+https://github.com/dongrixinyu/JioNLP",
-    "miniopy-async>=1.15",
-    "python-dateutil>=2.8.2",
-    "pyecharts>=2.0.3",
+    "aiohttp[speedups]>=3.9.0",
+    "avilla-core>=1.0.0a15",
+    "avilla-elizabeth>=1.0.0a15",
+    "avilla-qqapi>=1.0.0a19",
+    "creart>=0.3.0",
+    "dnspython>=2.4.2",
+    "graia-amnesia>=0.8.2",
+    "graia-broadcast>=0.23.4",
+    "graia-saya>=0.0.19",
+    "graia-scheduler>=0.3.1",
+    "graiax-shortcut>=0.1.0",
+    "kayaku>=0.5.2",
+    "launart>=0.8.2",
 ]
-description = ""
-name = "abot-mahv2"
-version = "3.0.0"
+requires-python = ">=3.10"
+readme = "README.md"
+license = {text = "AGPL-3.0-only"}
 
 [build-system]
 requires = ["pdm-backend"]
 build-backend = "pdm.backend"
 
-[tool.ruff]
-line-length = 120
-[tool.pdm]
 [tool.pdm.dev-dependencies]
 dev = [
-    "black>=23.3.0",
-    "devtools>=0.11.0",
-    "flake8>=6.0.0",
-    "aio-mc-rcon>=3.2.0",
-    "ipython>=8.14.0",
-    "ruff>=0.0.277",
+    "black>=23.11.0",
+    "isort>=5.12.0",
+    "ruff>=0.1.6",
 ]
 
-[tool.pdm.build]
-includes = []
+[tool.black]
+line-length = 120
+target-version = ["py310"]
 
+[tool.isort]
+profile = "black"
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+select = [
+    # https://beta.ruff.rs/docs/rules
+    "E",  # pycodestyle
+    "F",  # pyflakes
+    "UP", # pyupgrade
+    "I",  # isort
+    # "D",  # pydocstyle
+    "ASYNC", # flake8-async
+]
+exclude = [
+    ".git",
+    ".venv",
+    "__pypackages__",
+    "dist",
+]
+ignore = ["F401"]
+
+[tool.ruff.pydocstyle]
+convention = "google"
