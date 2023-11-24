@@ -15,7 +15,7 @@ from graia.ariadne.message.parser.twilight import (
 
 from config import yaml_data
 from util.sendMessage import safeSendGroupMessage
-from util.control import Permission, Interval, Function
+from core.control import Permission, Interval, Function
 
 channel = Channel.current()
 

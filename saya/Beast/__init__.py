@@ -13,7 +13,7 @@ from graia.ariadne.message.parser.twilight import (
 
 from util.sendMessage import safeSendGroupMessage
 from util.TextModeration import text_moderation_async
-from util.control import Function, Interval, Permission, Rest
+from core.control import Function, Interval, Permission, Rest
 
 from .beast import decode, encode
 

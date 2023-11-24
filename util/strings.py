@@ -1,5 +1,6 @@
 import re
 import string
+import unicodedata
 
 
 def numf(num: int):
@@ -63,6 +64,7 @@ def get_cut_str(str, cut):
 def getCutStr(str, cut):
     si = 0
     i = 0
+    cutStr = ""
     for s in str:
         si += 2 if "\u4e00" <= s <= "\u9fff" else 1
         i += 1
@@ -73,3 +75,10 @@ def getCutStr(str, cut):
             cutStr = str
 
     return cutStr
+
+
+def get_str_width(str):
+    """
+    获取字符串的宽度，中文字符算两个字符，全角标点也算两个字符
+    """
+    return sum(2 if unicodedata.east_asian_width(s) in ["F", "W"] else 1 for s in str)

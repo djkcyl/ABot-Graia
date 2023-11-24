@@ -14,7 +14,7 @@ from graia.ariadne.message.element import Image, Plain, Voice, FlashImage
 
 from config import yaml_data
 from util.sendMessage import safeSendGroupMessage
-from util.control import Function, Interval, Permission
+from core.control import Function, Interval, Permission
 
 from .draw_bili_image import binfo_image_create
 
@@ -60,7 +60,7 @@ async def bilibili_main(
                 ),
             )
         except Exception as err:
-            await app.sendFriendMessage(
+            await app.send_friend_message(
                 yaml_data["Basic"]["Permission"]["Master"],
                 MessageChain.create([Plain(f"B站视频 {video_number} 解析失败\n{err}")]),
             )

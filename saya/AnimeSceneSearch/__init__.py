@@ -21,7 +21,7 @@ from graia.ariadne.message.parser.twilight import (
 from database.db import reduce_gold
 from config import COIN_NAME, yaml_data
 from util.sendMessage import safeSendGroupMessage
-from util.control import Function, Interval, Permission
+from core.control import Function, Interval, Permission
 
 from .draw import draw_tracemoe
 

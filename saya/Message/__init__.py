@@ -8,7 +8,7 @@ from graia.ariadne.message.element import Image, Plain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 from util.sendMessage import safeSendGroupMessage
-from util.control import Function, Interval, Permission
+from core.control import Function, Interval, Permission
 
 channel = Channel.current()
 

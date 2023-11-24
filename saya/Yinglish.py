@@ -17,7 +17,7 @@ from graia.ariadne.message.parser.twilight import (
 )
 
 from util.sendMessage import safeSendGroupMessage
-from util.control import Function, Interval, Permission, Rest
+from core.control import Function, Interval, Permission, Rest
 
 jieba.setLogLevel(20)
 

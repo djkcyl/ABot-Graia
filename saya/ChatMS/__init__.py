@@ -17,7 +17,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 from config import yaml_data
 from util.sendMessage import safeSendGroupMessage
-from util.control import Permission, Interval, Function
+from core.control import Permission, Interval, Function
 
 
 saya = Saya.current()

@@ -23,7 +23,7 @@ from graia.ariadne.message.parser.twilight import (
 from util.text2image import create_image
 from database.db import add_gold, give_all_gold
 from util.sendMessage import safeSendGroupMessage
-from util.control import Rest, Permission, bot_shutdown
+from core.control import Rest, Permission, bot_shutdown
 from config import (
     COIN_NAME,
     yaml_data,
@@ -67,11 +67,11 @@ async def all_recharge(app: Ariadne, friend: Friend, anything: RegexResult):
     if anything.matched:
         say = anything.result.asDisplay()
         await give_all_gold(int(say))
-        await app.sendFriendMessage(
+        await app.send_friend_message(
             friend, MessageChain.create(f"已向所有人充值 {say} 个{COIN_NAME}")
         )
     else:
-        await app.sendFriendMessage(friend, MessageChain.create("请输入充值数量"))
+        await app.send_friend_message(friend, MessageChain.create("请输入充值数量"))
 
 
 @channel.use(
@@ -88,14 +88,14 @@ async def echarge(app: Ariadne, friend: Friend, anything: RegexResult):
         saying = anything.result.asDisplay().split()
         if len(saying) == 2:
             await add_gold(saying[0], int(saying[1]))
-            await app.sendFriendMessage(
+            await app.send_friend_message(
                 friend,
                 MessageChain.create(f"已向 {saying[0]} 充值 {saying[1]} 个{COIN_NAME}"),
             )
         else:
-            await app.sendFriendMessage(friend, MessageChain.create("缺少充值对象或充值数量"))
+            await app.send_friend_message(friend, MessageChain.create("缺少充值对象或充值数量"))
     else:
-        await app.sendFriendMessage(friend, MessageChain.create("请输入充值对象和充值数量"))
+        await app.send_friend_message(friend, MessageChain.create("请输入充值对象和充值数量"))
 
 
 @channel.use(
@@ -148,7 +148,7 @@ async def Announcement(app: Ariadne, friend: Friend, anything: RegexResult):
             if yaml_data["Basic"]["Permission"]["Debug"]
             else await app.getGroupList()
         )
-        await app.sendFriendMessage(
+        await app.send_friend_message(
             friend,
             MessageChain.create(
                 [Plain(f"正在开始发送公告，共有{len(groupList)}个群"), Image(data_bytes=image)]
@@ -164,18 +164,18 @@ async def Announcement(app: Ariadne, friend: Friend, anything: RegexResult):
                         ),
                     )
                 except Exception as err:
-                    await app.sendFriendMessage(
+                    await app.send_friend_message(
                         yaml_data["Basic"]["Permission"]["Master"],
                         MessageChain.create([Plain(f"{group.id} 的公告发送失败\n{err}")]),
                     )
-                await asyncio.sleep(random.uniform(2, 4))
+                await asyncio.sleep(random.uniform(10, 15))
         tt = time.time()
         times = str(tt - ft)
-        await app.sendFriendMessage(
+        await app.send_friend_message(
             friend, MessageChain.create([Plain(f"群发已完成，耗时 {times} 秒")])
         )
     else:
-        await app.sendFriendMessage(friend, MessageChain.create("请输入公告内容"))
+        await app.send_friend_message(friend, MessageChain.create("请输入公告内容"))
 
 
 @channel.use(
@@ -194,15 +194,15 @@ async def add_white_group(app: Ariadne, friend: Friend, groupid: RegexResult):
         say = groupid.result.asDisplay()
         if say.isdigit():
             if int(say) in group_list["white"]:
-                await app.sendFriendMessage(friend, MessageChain.create("该群已在白名单中"))
+                await app.send_friend_message(friend, MessageChain.create("该群已在白名单中"))
             else:
                 group_list["white"].append(int(say))
                 save_config()
-                await app.sendFriendMessage(friend, MessageChain.create("成功将该群加入白名单"))
+                await app.send_friend_message(friend, MessageChain.create("成功将该群加入白名单"))
         else:
-            await app.sendFriendMessage(friend, MessageChain.create("群号仅可为数字"))
+            await app.send_friend_message(friend, MessageChain.create("群号仅可为数字"))
     else:
-        await app.sendFriendMessage(friend, MessageChain.create("未输入群号"))
+        await app.send_friend_message(friend, MessageChain.create("未输入群号"))
 
 
 @channel.use(
@@ -223,11 +223,11 @@ async def remove_white_group(app: Ariadne, friend: Friend, groupid: RegexResult)
             if int(say) not in group_list["white"]:
                 try:
                     await app.quitGroup(int(say))
-                    await app.sendFriendMessage(
+                    await app.send_friend_message(
                         friend, MessageChain.create("该群未在白名单中，但成功退出")
                     )
                 except Exception:
-                    await app.sendFriendMessage(
+                    await app.send_friend_message(
                         friend, MessageChain.create("该群未在白名单中，且退出失败")
                     )
             else:
@@ -239,11 +239,11 @@ async def remove_white_group(app: Ariadne, friend: Friend, groupid: RegexResult)
                     )
                     await asyncio.sleep(3)
                     await app.quitGroup(int(say))
-                await app.sendFriendMessage(friend, MessageChain.create("成功将该群移出白名单"))
+                await app.send_friend_message(friend, MessageChain.create("成功将该群移出白名单"))
         else:
-            await app.sendFriendMessage(friend, MessageChain.create("群号仅可为数字"))
+            await app.send_friend_message(friend, MessageChain.create("群号仅可为数字"))
     else:
-        await app.sendFriendMessage(friend, MessageChain.create("未输入群号"))
+        await app.send_friend_message(friend, MessageChain.create("未输入群号"))
 
 
 @channel.use(
@@ -262,28 +262,28 @@ async def fadd_black_user(app: Ariadne, friend: Friend, userid: RegexResult):
         say = userid.result.asDisplay()
         if say.isdigit():
             if int(say) in user_list["black"]:
-                await app.sendFriendMessage(
+                await app.send_friend_message(
                     friend, MessageChain.create([Plain("该用户已在黑名单中")])
                 )
             else:
                 user_list["black"].append(int(say))
                 save_config()
-                await app.sendFriendMessage(
+                await app.send_friend_message(
                     friend, MessageChain.create([Plain("成功将该用户加入黑名单")])
                 )
                 try:
                     await app.deleteFriend(int(say))
-                    await app.sendFriendMessage(
+                    await app.send_friend_message(
                         friend, MessageChain.create([Plain("已删除该好友")])
                     )
                 except Exception as e:
-                    await app.sendFriendMessage(
+                    await app.send_friend_message(
                         friend, MessageChain.create([Plain(f"删除好友失败 {type(e)}")])
                     )
         else:
-            await app.sendFriendMessage(friend, MessageChain.create("用户号仅可为数字"))
+            await app.send_friend_message(friend, MessageChain.create("用户号仅可为数字"))
     else:
-        await app.sendFriendMessage(friend, MessageChain.create("未输入qq号"))
+        await app.send_friend_message(friend, MessageChain.create("未输入qq号"))
 
 
 @channel.use(
@@ -302,15 +302,15 @@ async def fremove_block_user(app: Ariadne, friend: Friend, userid: RegexResult):
         say = userid.result.asDisplay()
         if say.isdigit():
             if int(say) not in user_list["black"]:
-                await app.sendFriendMessage(friend, MessageChain.create("该用户未在黑名单中"))
+                await app.send_friend_message(friend, MessageChain.create("该用户未在黑名单中"))
             else:
                 user_list["black"].remove(int(say))
                 save_config()
-                await app.sendFriendMessage(friend, MessageChain.create("成功将该用户移出白名单"))
+                await app.send_friend_message(friend, MessageChain.create("成功将该用户移出白名单"))
         else:
-            await app.sendFriendMessage(friend, MessageChain.create("用户号仅可为数字"))
+            await app.send_friend_message(friend, MessageChain.create("用户号仅可为数字"))
     else:
-        await app.sendFriendMessage(friend, MessageChain.create("未输入qq号"))
+        await app.send_friend_message(friend, MessageChain.create("未输入qq号"))
 
 
 @channel.use(
@@ -332,22 +332,22 @@ async def fadd_group_black(app: Ariadne, friend: Friend, groupid: RegexResult):
         say = groupid.result.asDisplay()
         if say.isdigit():
             if int(say) in group_list["black"]:
-                await app.sendFriendMessage(friend, MessageChain.create("该群已在黑名单中"))
+                await app.send_friend_message(friend, MessageChain.create("该群已在黑名单中"))
             else:
                 group_list["black"].append(int(say))
                 save_config()
-                await app.sendFriendMessage(friend, MessageChain.create("成功将该群加入黑名单"))
+                await app.send_friend_message(friend, MessageChain.create("成功将该群加入黑名单"))
                 try:
                     await app.quitGroup(int(say))
-                    await app.sendFriendMessage(friend, MessageChain.create("已退出该群"))
+                    await app.send_friend_message(friend, MessageChain.create("已退出该群"))
                 except Exception as e:
-                    await app.sendFriendMessage(
+                    await app.send_friend_message(
                         friend, MessageChain.create(f"退出群失败 {type(e)}")
                     )
         else:
-            await app.sendFriendMessage(friend, MessageChain.create("群号仅可为数字"))
+            await app.send_friend_message(friend, MessageChain.create("群号仅可为数字"))
     else:
-        await app.sendFriendMessage(friend, MessageChain.create("未输入群号"))
+        await app.send_friend_message(friend, MessageChain.create("未输入群号"))
 
 
 @channel.use(
@@ -364,15 +364,15 @@ async def fremove_group_black(app: Ariadne, friend: Friend, groupid: RegexResult
         say = groupid.result.asDisplay()
         if say.isdigit():
             if int(say) not in group_list["black"]:
-                await app.sendFriendMessage(friend, MessageChain.create("该群未在黑名单中"))
+                await app.send_friend_message(friend, MessageChain.create("该群未在黑名单中"))
             else:
                 group_list["black"].remove(int(say))
                 save_config()
-                await app.sendFriendMessage(friend, MessageChain.create("成功将该群移出黑名单"))
+                await app.send_friend_message(friend, MessageChain.create("成功将该群移出黑名单"))
         else:
-            await app.sendFriendMessage(friend, MessageChain.create("群号仅可为数字"))
+            await app.send_friend_message(friend, MessageChain.create("群号仅可为数字"))
     else:
-        await app.sendFriendMessage(friend, MessageChain.create("未输入群号"))
+        await app.send_friend_message(friend, MessageChain.create("未输入群号"))
 
 
 @channel.use(
@@ -445,7 +445,7 @@ async def gremove_block_user(group: Group, at: ElementResult):
 async def fset_work(app: Ariadne, friend: Friend):
     Permission.manual(friend, Permission.MASTER)
     Rest.set_sleep(1)
-    await app.sendFriendMessage(friend, MessageChain.create([Plain("已进入休息")]))
+    await app.send_friend_message(friend, MessageChain.create([Plain("已进入休息")]))
 
 
 @channel.use(
@@ -457,7 +457,7 @@ async def fset_work(app: Ariadne, friend: Friend):
 async def fset_rest(app: Ariadne, friend: Friend):
     Permission.manual(friend, Permission.MASTER)
     Rest.set_sleep(0)
-    await app.sendFriendMessage(friend, MessageChain.create([Plain("已开始工作")]))
+    await app.send_friend_message(friend, MessageChain.create([Plain("已开始工作")]))
 
 
 @channel.use(
@@ -493,7 +493,7 @@ async def gset_rest(group: Group):
 async def fpw_on(app: Ariadne, friend: Friend):
     Permission.manual(friend, Permission.MASTER)
     bot_shutdown(False)
-    await app.sendFriendMessage(friend, MessageChain.create([Plain("已开机")]))
+    await app.send_friend_message(friend, MessageChain.create([Plain("已开机")]))
 
 
 @channel.use(
@@ -505,7 +505,7 @@ async def fpw_on(app: Ariadne, friend: Friend):
 async def fpw_off(app: Ariadne, friend: Friend):
     Permission.manual(friend, Permission.MASTER)
     bot_shutdown(True)
-    await app.sendFriendMessage(friend, MessageChain.create([Plain("已关机")]))
+    await app.send_friend_message(friend, MessageChain.create([Plain("已关机")]))
 
 
 @channel.use(
@@ -551,14 +551,14 @@ async def group_card_fix(app: Ariadne, friend: Friend):
             )
             i += 1
         except Exception as e:
-            await app.sendFriendMessage(
+            await app.send_friend_message(
                 friend,
                 MessageChain.create(f"群 {group.name}（{group.id}）名片修改失败，请检查后重试\n{e}"),
             )
             await asyncio.sleep(1)
             break
         await asyncio.sleep(0.1)
-    await app.sendFriendMessage(friend, MessageChain.create([Plain(f"共完成 {i} 个群的名片修改。")]))
+    await app.send_friend_message(friend, MessageChain.create([Plain(f"共完成 {i} 个群的名片修改。")]))
 
 
 @channel.use(
@@ -656,7 +656,7 @@ async def gset_open(group: Group, func: RegexResult):
 async def quit_group(app: Ariadne, group: Group):
     await safeSendGroupMessage(group, MessageChain.create("正在退出群聊"))
     await app.quitGroup(group.id)
-    await app.sendFriendMessage(
+    await app.send_friend_message(
         yaml_data["Basic"]["Permission"]["Master"],
         MessageChain.create(f"主动退出群聊 {group.name}({group.id})"),
     )
@@ -693,7 +693,7 @@ async def user_agreement(app: Ariadne, friend: Friend):
         if yaml_data["Basic"]["Permission"]["Debug"]
         else await app.getGroupList()
     )
-    await app.sendFriendMessage(
+    await app.send_friend_message(
         friend,
         MessageChain.create(
             [Plain(f"正在开始发送公告，共有{len(groupList)}个群"), Image(data_bytes=image)]
@@ -709,8 +709,8 @@ async def user_agreement(app: Ariadne, friend: Friend):
                     ),
                 )
             except Exception as err:
-                await app.sendFriendMessage(
+                await app.send_friend_message(
                     yaml_data["Basic"]["Permission"]["Master"],
                     MessageChain.create([Plain(f"{group.id} 的公告发送失败\n{err}")]),
                 )
-            await asyncio.sleep(random.uniform(2, 4))
+            await asyncio.sleep(random.uniform(10, 15))

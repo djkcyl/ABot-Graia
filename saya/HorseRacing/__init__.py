@@ -26,7 +26,7 @@ from loguru import logger
 from config import yaml_data, COIN_NAME
 from database.db import reduce_gold, add_gold
 from util.sendMessage import safeSendGroupMessage
-from util.control import Permission, Interval, Function
+from core.control import Permission, Interval, Function
 
 from .gamedata import props, HorseStatus
 from .game import draw_game, throw_prop, run_game

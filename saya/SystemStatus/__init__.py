@@ -15,7 +15,7 @@ from graia.ariadne.event.lifecycle import ApplicationLaunched
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import Twilight, FullMatch
 
-from util.control import Permission
+from core.control import Permission
 from util.sendMessage import safeSendGroupMessage
 
 from .mapping import get_mapping

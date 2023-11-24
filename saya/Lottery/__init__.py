@@ -28,7 +28,7 @@ from graia.ariadne.message.parser.twilight import (
 from config import COIN_NAME, yaml_data
 from database.db import add_gold, reduce_gold
 from util.sendMessage import safeSendGroupMessage
-from util.control import Function, Interval, Permission
+from core.control import Function, Interval, Permission
 
 from .certification import decrypt
 from .lottery_image import qrdecode, qrgen
@@ -211,7 +211,7 @@ async def something_scheduled(app: Ariadne):
     with BASE.joinpath("data.json").open("w", encoding="UTF-8") as f:
         json.dump(LOTTERY, f, indent=2, ensure_ascii=False)
 
-    await app.sendFriendMessage(
+    await app.send_friend_message(
         yaml_data["Basic"]["Permission"]["Master"],
         MessageChain.create([Plain("本期奖券开奖完毕，中奖号码为\n"), Plain(str(winner))]),
     )
@@ -238,7 +238,7 @@ async def lo(app: Ariadne, friend: Friend):
     with BASE.joinpath("data.json").open("w", encoding="UTF-8") as f:
         json.dump(LOTTERY, f, indent=2, ensure_ascii=False)
 
-    await app.sendFriendMessage(
+    await app.send_friend_message(
         friend,
         MessageChain.create(f"本期奖券开奖完毕，中奖号码为\n{winner}"),
     )

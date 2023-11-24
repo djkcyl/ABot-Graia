@@ -1,0 +1,79 @@
+import random
+
+from datetime import datetime
+from zoneinfo import ZoneInfo
+from graia.saya import Channel
+from graia.ariadne.app import Ariadne
+from graia.ariadne.message.element import At
+from graia.ariadne.model import Member, Group
+from graia.ariadne.event.message import GroupMessage
+from graia.saya.builtins.broadcast.schema import ListenerSchema
+from graia.ariadne.message.parser.twilight import Twilight, FullMatch
+
+from core.preprocessor import MentionMe
+from core.function import build_metadata
+from core.model import AUserModel, FuncType
+from core.control import Function, Permission, Interval
+
+channel = Channel.current()
+channel.meta = build_metadata(
+    func_type=FuncType.user,
+    name="签到",
+    version="1.0",
+    description="用户签到，游戏币唯一的凭空来源",
+    usage=["发送指令：签到"],
+)
+
+
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[
+            Twilight([FullMatch("签到")], preprocessor=MentionMe()),
+        ],
+        decorators=[Function.require(), Permission.require(), Interval.require()],
+    )
+)
+async def main(app: Ariadne, member: Member, group: Group, auser: AUserModel):
+    if await auser.sign(group.id):
+        if auser.continue_sign % 30 == 0:
+            continue_reward = random.randint(0, 60)
+            continue_twxt = f"获得 {continue_reward} 游戏币"
+        elif auser.continue_sign % 7 == 0:
+            continue_reward = random.randint(0, 15)
+            continue_twxt = f"获得 {continue_reward} 游戏币"
+        else:
+            continue_reward = 0
+            frist_sign = "首次签到，赠送 60 游戏币" if auser.total_sign == 1 else ""
+            remaining_days = min(30 - auser.continue_sign % 30, 7 - auser.continue_sign % 7)
+            continue_twxt = f"{frist_sign}，继续签到 {remaining_days} 天可获得额外奖励"
+
+        frist_sign_gold = 60 if auser.total_sign == 1 else 0
+        gold_add = (
+            (random.randint(9, 21) if random.randint(1, 10) == 1 else random.randint(5, 12))
+            + continue_reward
+            + frist_sign_gold
+        )
+        await auser.add_coin(gold_add, group.id, "签到")
+        sign_text = f"签到成功，本次共获得 {gold_add} 游戏币，你已连续签到 {auser.continue_sign} 天，{continue_twxt}"
+    else:
+        is_sign = "4 点之后再来吧" if datetime.now(ZoneInfo("Asia/Shanghai")).hour < 4 else "明天再来吧"
+        sign_text = f"今天已经签过到了，{is_sign}"
+
+    await app.send_group_message(group, [f"{time_nick()}，", At(member), "，", sign_text])
+
+
+def time_nick():
+    now_localtime = datetime.now(ZoneInfo("Asia/Shanghai")).strftime("%H:%M:%S")
+    if "06:00:00" < now_localtime < "08:59:59":
+        return "早上好"
+    elif "09:00:00" < now_localtime < "11:59:59":
+        return "上午好"
+    elif "12:00:00" < now_localtime < "13:59:59":
+        return "中午好"
+    elif "14:00:00" < now_localtime < "17:59:59":
+        return "下午好"
+    elif "18:00:00" < now_localtime < "23:59:59":
+        return "晚上好"
+    else:
+        return "唔。。还没睡吗？早睡早起身体好喔！晚安❤"

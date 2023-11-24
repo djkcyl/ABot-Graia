@@ -14,7 +14,7 @@ from graia.ariadne.message.parser.twilight import (
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 from util.sendMessage import safeSendGroupMessage
-from util.control import Function, Interval, Permission, Rest
+from core.control import Function, Interval, Permission, Rest
 
 from .page_screenshot import get_hans_screenshot
 

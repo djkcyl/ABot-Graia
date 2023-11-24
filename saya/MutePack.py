@@ -11,8 +11,8 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import FullMatch, Twilight
 
 from config import yaml_data
-from util.TimeTool import calc_time_total
-from util.control import Function, Interval
+from util.time_tools import calc_time_total
+from core.control import Function, Interval
 from util.sendMessage import safeSendGroupMessage
 
 channel = Channel.current()

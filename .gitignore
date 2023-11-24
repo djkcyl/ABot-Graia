@@ -42,3 +42,5 @@ saya/Test.py
 saya/STGBot/__init__.py
 saya/ABotPlace/image/
 saya/BilibiliDynamic/login_cache.json
+func/fan/drift_bottle/image
+static/

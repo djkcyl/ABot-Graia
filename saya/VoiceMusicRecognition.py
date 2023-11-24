@@ -23,7 +23,7 @@ from database.db import reduce_gold
 from config import COIN_NAME, yaml_data
 from util.text2image import create_image
 from util.sendMessage import safeSendGroupMessage
-from util.control import Function, Interval, Permission
+from core.control import Function, Interval, Permission
 
 saya = Saya.current()
 channel = Channel.current()

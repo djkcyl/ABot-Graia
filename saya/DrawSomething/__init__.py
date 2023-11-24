@@ -24,7 +24,7 @@ from graia.ariadne.message.parser.twilight import (
 
 from config import COIN_NAME, yaml_data
 from util.sendMessage import safeSendGroupMessage
-from util.control import Function, Interval, Permission
+from core.control import Function, Interval, Permission
 from database.db import add_answer, add_gold, reduce_gold
 
 saya = Saya.current()
@@ -58,7 +58,7 @@ async def main(app: Ariadne, group: Group, member: Member, source: Source):
 
     # 判断私信是否可用
     try:
-        await app.sendFriendMessage(
+        await app.send_friend_message(
             member.id,
             MessageChain.create(f"本消息仅用于测试私信是否可用，无需回复\n{time.time()}"),
         )
@@ -203,7 +203,7 @@ async def main(app: Ariadne, group: Group, member: Member, source: Source):
                         quote=source.id,
                     )
                     await asyncio.sleep(1)
-                    await app.sendFriendMessage(
+                    await app.send_friend_message(
                         member.id,
                         MessageChain.create(
                             [
@@ -302,12 +302,12 @@ async def add_word(app: Ariadne, friend: Friend, anything: RegexResult):
                 WORD["word"] = word_list
                 with open("./saya/DrawSomething/word.json", "w") as f:
                     json.dump(WORD, f, indent=2, ensure_ascii=False)
-                await app.sendFriendMessage(
+                await app.send_friend_message(
                     friend,
                     MessageChain.create(f"成功添加你画我猜词库：{say}"),
                 )
             else:
-                await app.sendFriendMessage(
+                await app.send_friend_message(
                     friend,
                     MessageChain.create("词库内已存在该词"),
                 )
@@ -338,12 +338,12 @@ async def remove_word(app: Ariadne, friend: Friend, anything: RegexResult):
                 WORD["word"] = word_list
                 with open("./saya/DrawSomething/word.json", "w") as f:
                     json.dump(WORD, f, indent=2, ensure_ascii=False)
-                await app.sendFriendMessage(
+                await app.send_friend_message(
                     friend,
                     MessageChain.create(f"成功删除你画我猜词库：{say}"),
                 )
             else:
-                await app.sendFriendMessage(
+                await app.send_friend_message(
                     friend,
                     MessageChain.create(
                         "词库内未存在该词",

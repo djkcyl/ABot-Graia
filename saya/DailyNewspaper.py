@@ -14,7 +14,7 @@ from graia.scheduler.saya.schema import SchedulerSchema
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import FullMatch, Twilight
 
-from util.control import Permission
+from core.control import Permission
 from config import group_data, yaml_data
 
 channel = Channel.current()
@@ -50,7 +50,7 @@ async def send(app: Ariadne):
         else await app.getGroupList()
     )
     groupNum = len(groupList)
-    await app.sendFriendMessage(
+    await app.send_friend_message(
         yaml_data["Basic"]["Permission"]["Master"],
         MessageChain.create([Plain(f"正在开始发送每日日报，当前共有 {groupNum} 个群")]),
     )
@@ -63,17 +63,17 @@ async def send(app: Ariadne):
                 paperimg = r2.content
             break
         except Exception as err:
-            await app.sendFriendMessage(
+            await app.send_friend_message(
                 yaml_data["Basic"]["Permission"]["Master"],
                 MessageChain.create([Plain(f"第 {i + 1} 次日报加载失败\n{err}")]),
             )
             await asyncio.sleep(3)
     else:
-        return await app.sendFriendMessage(
+        return await app.send_friend_message(
             yaml_data["Basic"]["Permission"]["Master"],
             MessageChain.create([Plain("日报加载失败，请稍后手动重试")]),
         )
-    await app.sendFriendMessage(
+    await app.send_friend_message(
         yaml_data["Basic"]["Permission"]["Master"],
         MessageChain.create([Image(data_bytes=paperimg)]),
     )
@@ -91,13 +91,13 @@ async def send(app: Ariadne):
         try:
             await app.sendMessage(group, MessageChain.create(f"日报 {group.id}", paperimg))
         except Exception as err:
-            await app.sendFriendMessage(
+            await app.send_friend_message(
                 yaml_data["Basic"]["Permission"]["Master"],
                 MessageChain.create([Plain(f"{group.id} 的日报发送失败\n{err}")]),
             )
-        await asyncio.sleep(random.uniform(4, 6))
+        await asyncio.sleep(random.uniform(10, 15))
     allTime = time.time() - ts
-    await app.sendFriendMessage(
+    await app.send_friend_message(
         yaml_data["Basic"]["Permission"]["Master"],
         MessageChain.create(f"每日日报已发送完毕，共用时 {int(allTime)} 秒"),
     )

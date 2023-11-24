@@ -25,6 +25,7 @@ class User(BaseModel):
     english_answer = IntegerField(default=0)
     gold = IntegerField(default=0)
     talk_num = IntegerField(default=0)
+    rewarded_sign = IntegerField(default=0)
 
     class Meta:
         table_name = "user_info"
@@ -34,7 +35,7 @@ db.create_tables([User], safe=True)
 
 
 def init_user(qq):
-    user = User.select().where(User.qq == qq)
+    user = User.select().where(User.qq == str(qq))
     if not user.exists():
         p = User(qq=str(qq))
         p.save()
@@ -63,6 +64,7 @@ async def get_info(qq):
         user.gold,
         user.talk_num,
         user.continue_sign,
+        user.rewarded_sign,
     ]
 
 
@@ -295,3 +297,9 @@ def ladder_rent_collection():
 
 def set_all_user_gold(gold: int):
     User.update(gold=gold).execute()
+
+
+def add_rewarded_sign(qq, num):
+    user = User.get(User.qq == str(qq))
+    user.rewarded_sign += num
+    user.save()

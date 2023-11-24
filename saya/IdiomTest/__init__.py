@@ -12,7 +12,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import FullMatch, Twilight
 
 from database.db import add_answer
-from util.control import Permission, Function
+from core.control import Permission, Function
 from util.sendMessage import safeSendGroupMessage
 
 from .data import data

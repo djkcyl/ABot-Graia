@@ -9,7 +9,7 @@ from graia.ariadne.message.element import At, Face, Image, Plain
 
 from config import yaml_data
 from util.sendMessage import safeSendGroupMessage
-from util.control import Function, Permission, Rest
+from core.control import Function, Permission, Rest
 from util.TextModeration import text_moderation_async
 
 channel = Channel.current()

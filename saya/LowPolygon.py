@@ -28,7 +28,7 @@ from graia.ariadne.message.parser.twilight import (
 from config import COIN_NAME
 from database.db import reduce_gold
 from util.sendMessage import safeSendGroupMessage
-from util.control import Function, Interval, Permission, Rest
+from core.control import Function, Interval, Permission, Rest
 
 saya = Saya.current()
 channel = Channel.current()

@@ -20,7 +20,7 @@ from graia.ariadne.message.parser.twilight import (
 
 from util.ocr import OCR
 from util.sendMessage import safeSendGroupMessage
-from util.control import Function, Interval, Permission
+from core.control import Function, Interval, Permission
 
 from .data import recruit_data
 from .recruit_calc import calculate

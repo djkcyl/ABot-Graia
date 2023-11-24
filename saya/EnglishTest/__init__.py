@@ -13,7 +13,7 @@ from graia.ariadne.message.parser.twilight import FullMatch, Twilight
 
 from database.db import add_answer
 from util.text2image import create_image
-from util.control import Permission, Function
+from core.control import Permission, Function
 from util.sendMessage import safeSendGroupMessage
 
 from .database.database import random_word
@@ -210,7 +210,7 @@ async def friend_learn(app: Ariadne, friend: Friend):
                 if 1 <= bookid <= 15:
                     return bookid
             except Exception:
-                await app.sendFriendMessage(
+                await app.send_friend_message(
                     friend, MessageChain.create([Plain("请输入1-15以内的数字")])
                 )
 
@@ -227,7 +227,7 @@ async def friend_learn(app: Ariadne, friend: Friend):
 
     RUNNING[friend.id] = None
     bookid_image = await create_image("\n".join(booklist))
-    await app.sendFriendMessage(
+    await app.send_friend_message(
         friend,
         MessageChain.create([Plain("请输入你想要选择的词库ID"), Image(data_bytes=bookid_image)]),
     )
@@ -236,14 +236,14 @@ async def friend_learn(app: Ariadne, friend: Friend):
         bookid = await asyncio.wait_for(inc.wait(confirm), timeout=30)
         if not bookid:
             del RUNNING[friend.id]
-            return await app.sendFriendMessage(
+            return await app.send_friend_message(
                 friend, MessageChain.create([Plain("已取消")])
             )
     except asyncio.TimeoutError:
         del RUNNING[friend.id]
-        return await app.sendFriendMessage(friend, MessageChain.create([Plain("等待超时")]))
+        return await app.send_friend_message(friend, MessageChain.create([Plain("等待超时")]))
 
-    await app.sendFriendMessage(
+    await app.send_friend_message(
         friend, MessageChain.create([Plain("已开启本次答题，可随时发送“取消”以终止进程")])
     )
 
@@ -263,7 +263,7 @@ async def friend_learn(app: Ariadne, friend: Friend):
             except IndexError:
                 break
             tran_num += 1
-        await app.sendFriendMessage(
+        await app.send_friend_message(
             friend, MessageChain.create([Plain("本回合题目：\n"), Plain("\n".join(wordinfo))])
         )
         for process in Process:
@@ -271,7 +271,7 @@ async def friend_learn(app: Ariadne, friend: Friend):
                 answer_qq = await asyncio.wait_for(inc.wait(waiter), timeout=15)
                 if answer_qq:
                     await add_answer(str(answer_qq))
-                    await app.sendFriendMessage(
+                    await app.send_friend_message(
                         friend,
                         MessageChain.create(
                             [Plain("恭喜你"), Plain(f"回答正确 {word_data[0]}")]
@@ -281,24 +281,24 @@ async def friend_learn(app: Ariadne, friend: Friend):
                     break
                 else:
                     del RUNNING[friend.id]
-                    return await app.sendFriendMessage(
+                    return await app.send_friend_message(
                         friend, MessageChain.create([Plain("已结束本次答题")])
                     )
 
             except asyncio.TimeoutError:
                 if process == 1:
-                    await app.sendFriendMessage(
+                    await app.send_friend_message(
                         friend,
                         MessageChain.create([Plain(f"提示1\n这个单词由 {word_len} 个字母构成")]),
                     )
                 elif process == 2:
-                    await app.sendFriendMessage(
+                    await app.send_friend_message(
                         friend,
                         MessageChain.create([Plain(f"提示2\n这个单词的首字母是 {word_data[0][0]}")]),
                     )
                 elif process == 3:
                     half = int(word_len / 2)
-                    await app.sendFriendMessage(
+                    await app.send_friend_message(
                         friend,
                         MessageChain.create(
                             [Plain(f"提示3\n这个单词的前半部分为\n{word_data[0][:half]}")]
@@ -306,7 +306,7 @@ async def friend_learn(app: Ariadne, friend: Friend):
                     )
                 elif process == 4:
                     del RUNNING[friend.id]
-                    return await app.sendFriendMessage(
+                    return await app.send_friend_message(
                         friend,
                         MessageChain.create(
                             [Plain(f"本次答案为：{word_data[0]}\n答题已结束，请重新开启")]

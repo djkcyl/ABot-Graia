@@ -20,7 +20,7 @@ from azure.cognitiveservices.speech import (
 from database.db import reduce_gold
 from config import COIN_NAME, yaml_data
 from util.sendMessage import safeSendGroupMessage
-from util.control import Function, Interval, Permission
+from core.control import Function, Interval, Permission
 
 channel = Channel.current()
 
@@ -31,9 +31,7 @@ BASEPATH.mkdir(exist_ok=True)
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[
-            Twilight([FullMatch("/tts"), WildcardMatch(optional=True)])
-        ],
+        inline_dispatchers=[Twilight([FullMatch("/tts"), WildcardMatch(optional=True)])],
         decorators=[
             Function.require("AzureTTS"),
             Permission.require(),
@@ -120,6 +118,8 @@ async def azuretts(group: Group, member: Member, message: MessageChain, source: 
         style = "depressed"
     elif saying[2] == "尴尬":
         style = "embarrassed"
+    else:
+        raise ValueError("感情不存在")
 
     if not await reduce_gold(member.id, 2):
         return await safeSendGroupMessage(
@@ -138,9 +138,7 @@ async def azuretts(group: Group, member: Member, message: MessageChain, source: 
         )
         voicefile.unlink()
     else:
-        await safeSendGroupMessage(
-            group, MessageChain.create([Plain("文字过长，仅支持600字以内")])
-        )
+        await safeSendGroupMessage(group, MessageChain.create([Plain("文字过长，仅支持600字以内")]))
 
 
 def dict2xml(name: str, style: str, text: str):

@@ -16,7 +16,7 @@ from graia.ariadne.message.parser.twilight import RegexMatch, Twilight
 
 from database.db import add_answer
 from util.sendMessage import safeSendGroupMessage
-from util.control import Function, Interval, Permission
+from core.control import Function, Interval, Permission
 
 from .data import get_voice, update_data
 

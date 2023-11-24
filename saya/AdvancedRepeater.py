@@ -15,7 +15,7 @@ from graia.ariadne.message.parser.twilight import (
     ElementResult,
 )
 
-from util.control import Permission
+from core.control import Permission
 from util.sendMessage import safeSendGroupMessage
 
 channel = Channel.current()

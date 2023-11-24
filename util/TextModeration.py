@@ -1,6 +1,7 @@
 import json
 import base64
 import asyncio
+from loguru import logger
 
 from tencentcloud.common import credential
 from tencentcloud.tms.v20201229 import tms_client, models
@@ -35,9 +36,11 @@ def text_moderation(text: str):
 async def text_moderation_async(text: str) -> dict:
     try:
         resp = await asyncio.to_thread(text_moderation, text)
+        logger.info(resp)
         if resp["Suggestion"] != "Pass":
             return {"status": False, "message": resp["Label"]}
         else:
             return {"status": True, "message": None}
     except Exception as e:
+        logger.error(e)
         return {"status": "error", "message": e}

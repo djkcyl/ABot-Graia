@@ -29,7 +29,7 @@ from graia.ariadne.event.mirai import (
     BotInvitedJoinGroupRequestEvent,
 )
 
-from util.control import Rest
+from core.control import Rest
 
 from database.db import init_user
 from util.text2image import create_image
@@ -61,7 +61,7 @@ async def groupDataInit(app: Ariadne):
     if not master:
         logger.error(f"当前未添加主人好友（{yaml_data['Basic']['Permission']['Master']}），请手动添加")
         exit()
-    await app.sendFriendMessage(
+    await app.send_friend_message(
         yaml_data["Basic"]["Permission"]["Master"],
         MessageChain.create(
             [
@@ -93,14 +93,14 @@ async def groupDataInit(app: Ariadne):
                 f"，当前为 Debug 模式，将仅接受 {debug_msg} 群以及 {master.nickname}（{master.id}） 的消息"
             )
         )
-    await app.sendFriendMessage(
+    await app.send_friend_message(
         yaml_data["Basic"]["Permission"]["Master"], MessageChain.create(msg)
     )
 
     now_localtime = time.strftime("%H:%M:%S", time.localtime())
     if "00:00:00" < now_localtime < "07:30:00":
         Rest.set_sleep(1)
-        await app.sendFriendMessage(
+        await app.send_friend_message(
             yaml_data["Basic"]["Permission"]["Master"],
             MessageChain.create([Plain("当前为休息时间，已进入休息状态")]),
         )
@@ -108,7 +108,7 @@ async def groupDataInit(app: Ariadne):
 
 @channel.use(ListenerSchema(listening_events=[ApplicationShutdowned]))
 async def stopEvents(app: Ariadne):
-    await app.sendFriendMessage(
+    await app.send_friend_message(
         yaml_data["Basic"]["Permission"]["Master"], MessageChain.create([Plain("正在关闭")])
     )
 
@@ -124,7 +124,7 @@ async def get_BotNewFriend(app: Ariadne, events: NewFriendRequestEvent):
         groupname = groupname.name if groupname else "未知"
     if yaml_data["Basic"]["Event"]["NewFriend"]:
         for qq in yaml_data["Basic"]["Permission"]["Admin"]:
-            await app.sendFriendMessage(
+            await app.send_friend_message(
                 qq,
                 MessageChain.create(
                     [
@@ -148,7 +148,7 @@ async def accept(app: Ariadne, invite: BotInvitedJoinGroupRequestEvent):
     被邀请入群
     """
     if invite.sourceGroup in group_list["black"]:
-        await app.sendFriendMessage(
+        await app.send_friend_message(
             yaml_data["Basic"]["Permission"]["Master"],
             MessageChain.create(
                 [
@@ -162,7 +162,7 @@ async def accept(app: Ariadne, invite: BotInvitedJoinGroupRequestEvent):
         )
         await invite.reject("该群已被拉黑")
     else:
-        await app.sendFriendMessage(
+        await app.send_friend_message(
             invite.supplicant,
             MessageChain.create(
                 Image(
@@ -187,7 +187,7 @@ async def accept(app: Ariadne, invite: BotInvitedJoinGroupRequestEvent):
                 )
             ),
         )
-        await app.sendFriendMessage(
+        await app.send_friend_message(
             yaml_data["Basic"]["Permission"]["Master"],
             MessageChain.create(
                 [
@@ -201,13 +201,13 @@ async def accept(app: Ariadne, invite: BotInvitedJoinGroupRequestEvent):
 
         if yaml_data["Basic"]["Permission"]["DefaultAcceptInvite"]:
             await invite.accept()
-            await app.sendFriendMessage(
+            await app.send_friend_message(
                 yaml_data["Basic"]["Permission"]["Master"],
                 MessageChain.create([Plain("已同意申请")]),
             )
         else:
             await invite.reject("由于主人未开启群自动审核，已自动拒绝")
-            await app.sendFriendMessage(
+            await app.send_friend_message(
                 yaml_data["Basic"]["Permission"]["Master"],
                 MessageChain.create([Plain("已拒绝申请")]),
             )
@@ -243,7 +243,7 @@ async def get_BotJoinGroup(app: Ariadne, joingroup: BotJoinGroupEvent):
             joingroup.group.id,
             MessageChain.create(msg, "\n该群已被拉黑，正在退出"),
         )
-        await app.sendFriendMessage(
+        await app.send_friend_message(
             yaml_data["Basic"]["Permission"]["Master"],
             MessageChain.create(msg, "\n该群已被拉黑，正在退出"),
         )
@@ -260,7 +260,7 @@ async def get_BotJoinGroup(app: Ariadne, joingroup: BotJoinGroupEvent):
                 f"\n该群未在白名单中，正在退出，如有需要请联系 {yaml_data['Basic']['Permission']['Master']} 申请白名单",
             ),
         )
-        await app.sendFriendMessage(
+        await app.send_friend_message(
             yaml_data["Basic"]["Permission"]["Master"],
             MessageChain.create(msg, "\n该群未在白名单中，正在退出"),
         )
@@ -272,14 +272,14 @@ async def get_BotJoinGroup(app: Ariadne, joingroup: BotJoinGroupEvent):
             joingroup.group.id,
             MessageChain.create(f"\n当前群人数过少 ({member_count}/15)，暂不加入"),
         )
-        await app.sendFriendMessage(
+        await app.send_friend_message(
             yaml_data["Basic"]["Permission"]["Master"],
             MessageChain.create(msg, f"\n该群人数过少 ({member_count})，正在退出"),
         )
         return await app.quitGroup(joingroup.group.id)
 
     if yaml_data["Basic"]["Event"]["JoinGroup"]:
-        await app.sendFriendMessage(
+        await app.send_friend_message(
             yaml_data["Basic"]["Permission"]["Master"],
             MessageChain.create(msg),
         )
@@ -336,7 +336,7 @@ async def get_BotKickGroup(app: Ariadne, kickgroup: BotLeaveEventKick):
 
     if yaml_data["Basic"]["Event"]["KickGroup"]:
         for qq in yaml_data["Basic"]["Permission"]["Admin"]:
-            await app.sendFriendMessage(
+            await app.send_friend_message(
                 qq,
                 MessageChain.create(
                     "收到被踢出群聊事件"
@@ -358,7 +358,7 @@ async def get_BotLeaveEventActive(app: Ariadne, events: BotLeaveEventActive):
 
     if yaml_data["Basic"]["Event"]["LeaveGroup"]:
         for qq in yaml_data["Basic"]["Permission"]["Admin"]:
-            await app.sendFriendMessage(
+            await app.send_friend_message(
                 qq,
                 MessageChain.create(
                     "收到主动退出群聊事件"
@@ -378,7 +378,7 @@ async def get_BotPermissionChange(
     """
     if yaml_data["Basic"]["Event"]["PermissionChange"]:
         for qq in yaml_data["Basic"]["Permission"]["Admin"]:
-            await app.sendFriendMessage(
+            await app.send_friend_message(
                 qq,
                 MessageChain.create(
                     [
@@ -406,7 +406,7 @@ async def get_BotMuteGroup(app: Ariadne, group: Group, mute: BotMuteEvent):
 
     if yaml_data["Basic"]["Event"]["Mute"]:
         for qq in yaml_data["Basic"]["Permission"]["Admin"]:
-            await app.sendFriendMessage(
+            await app.send_friend_message(
                 qq,
                 MessageChain.create(
                     [
@@ -429,7 +429,7 @@ async def get_BotCardChange(app: Ariadne, events: MemberCardChangeEvent):
     if events.member.id == yaml_data["Basic"]["MAH"]["BotQQ"]:
         if events.current != yaml_data["Basic"]["BotName"]:
             for qq in yaml_data["Basic"]["Permission"]["Admin"]:
-                await app.sendFriendMessage(
+                await app.send_friend_message(
                     qq,
                     MessageChain.create(
                         [

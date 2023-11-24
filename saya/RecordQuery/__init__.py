@@ -20,7 +20,7 @@ from graia.ariadne.message.parser.twilight import (
 )
 
 from util.sendMessage import safeSendGroupMessage
-from util.control import Function, Interval, Permission
+from core.control import Function, Interval, Permission
 
 from .draw_record_image import AUTH, DATABASE, draw_r6
 

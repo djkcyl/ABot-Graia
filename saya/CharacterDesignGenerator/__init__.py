@@ -12,7 +12,7 @@ from graia.ariadne.message.parser.twilight import FullMatch, Twilight
 
 from util.text2image import create_image
 from util.sendMessage import safeSendGroupMessage
-from util.control import Function, Interval, Permission, Rest
+from core.control import Function, Interval, Permission, Rest
 
 channel = Channel.current()
 

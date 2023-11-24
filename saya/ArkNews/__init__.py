@@ -16,9 +16,10 @@ from graia.scheduler.timers import every_custom_seconds
 from graia.ariadne.event.lifecycle import ApplicationLaunched
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 
-from util.TimeTool import TimeRecorder
+from util.time_tools import TimeRecorder
 from config import group_data, yaml_data
 from util.text2image import create_image
+from util.sendMessage import safeSendGroupMessage
 
 from .get_news import Game, WeiboUser
 
@@ -26,9 +27,9 @@ channel = Channel.current()
 game = Game()
 
 HOME = Path(__file__).parent
-WEIBO_LOCK = False
-GAME_LOCK = False
+LOCK = False
 PUSHED_LIST_FILE = HOME.joinpath("pushed_list.json")
+PUSHED_GROUP_FILE = HOME.joinpath("pushed_group.json")
 if PUSHED_LIST_FILE.exists():
     with PUSHED_LIST_FILE.open("r") as f:
         pushed_list = json.load(f)
@@ -37,10 +38,23 @@ else:
         pushed_list = {"weibo": {}, "game": None, "last_time": int(time.time())}
         json.dump(pushed_list, f, indent=2)
 
+if PUSHED_GROUP_FILE.exists():
+    with PUSHED_GROUP_FILE.open("r") as f:
+        pushed_group = json.load(f)
+else:
+    with PUSHED_GROUP_FILE.open("w") as f:
+        pushed_group = {"group": {}}
+        json.dump(pushed_group, f, indent=2)
+
 
 def save_pushed_list():
     with PUSHED_LIST_FILE.open("w") as f:
         json.dump(pushed_list, f, indent=2)
+
+
+def save_pushed_group():
+    with PUSHED_GROUP_FILE.open("w") as f:
+        json.dump(pushed_group, f, indent=2)
 
 
 def last_time():
@@ -64,16 +78,16 @@ def last_time():
 @channel.use(ListenerSchema(listening_events=[ApplicationLaunched]))
 async def get_weibo_news(app: Ariadne):
 
-    global WEIBO_LOCK
+    global LOCK
 
     # 总开关
     if yaml_data["Saya"]["ArkNews"]["Disabled"]:
         return
 
-    if WEIBO_LOCK or last_time():
+    if LOCK or last_time():
         return
     else:
-        WEIBO_LOCK = True
+        LOCK = True
 
     # 遍历需要推送的微博 id 表
     for weibo_id in yaml_data["Saya"]["ArkNews"]["WeiboUserList"]:
@@ -103,7 +117,7 @@ async def get_weibo_news(app: Ariadne):
         # 获取最新微博正文内容
         result = await weibo.get_weibo_content(0)
         if not result:
-            await app.sendFriendMessage(
+            await app.send_friend_message(
                 yaml_data["Basic"]["Permission"]["Master"],
                 MessageChain.create(f"微博推送失败，USER：{weibo_id}，ID：{new_id}，终止本次流程"),
             )
@@ -134,14 +148,22 @@ async def get_weibo_news(app: Ariadne):
             ),
         ] + [await app.uploadImage(x, UploadMethod.Group) for x in result.pics_list]
 
-        await app.sendFriendMessage(
+        await app.send_friend_message(
             yaml_data["Basic"]["Permission"]["Master"], MessageChain.create(msg)
         )
+        pushed_group["group"][new_id] = pushed_group["group"].get(new_id, [])
         for group in group_list:
-            await app.sendMessage(group, MessageChain.create([f"{group.id}\n"] + msg))
+            if group.id in pushed_group["group"][new_id]:
+                logger.info(f"[明日方舟蹲饼] {group.id} 已推送过该微博")
+                continue
+            await safeSendGroupMessage(
+                group, MessageChain.create([f"{group.id}\n"] + msg)
+            )
             await asyncio.sleep(random.uniform(2, 4))
+            pushed_group["group"][new_id].append(group.id)
+            save_pushed_group()
 
-        await app.sendFriendMessage(
+        await app.send_friend_message(
             yaml_data["Basic"]["Permission"]["Master"],
             MessageChain.create(
                 f"{result.user_name} 的微博 {new_id} 推送结束，耗时{time_rec.total()}"
@@ -154,29 +176,12 @@ async def get_weibo_news(app: Ariadne):
 
         await asyncio.sleep(5)
 
-    WEIBO_LOCK = False
-
-
-@channel.use(SchedulerSchema(every_custom_seconds(30)))
-@channel.use(ListenerSchema(listening_events=[ApplicationLaunched]))
-async def get_game_news(app: Ariadne):
-
-    global GAME_LOCK
-
-    if yaml_data["Saya"]["ArkNews"]["Disabled"]:
-        return
-
-    if GAME_LOCK or last_time():
-        return
-    else:
-        GAME_LOCK = True
-
     pushed = pushed_list["game"] or []
     try:
         latest_list = await game.get_announce()
     except httpx.HTTPError:
         logger.error("[明日方舟蹲饼] 获取游戏公告失败")
-        GAME_LOCK = False
+        LOCK = False
         return
     new_list = list(set(latest_list) - set(pushed))
 
@@ -185,10 +190,10 @@ async def get_game_news(app: Ariadne):
         save_pushed_list()
         await asyncio.sleep(1)
         logger.info(f"[明日方舟蹲饼] 游戏公告初始化成功，当前共有 {len(latest_list)} 条公告")
-        GAME_LOCK = False
+        LOCK = False
         return
     elif not new_list:
-        GAME_LOCK = False
+        LOCK = False
         return
 
     pushed_list["game"] = latest_list
@@ -209,14 +214,19 @@ async def get_game_news(app: Ariadne):
         image = await game.get_screenshot(announce)
         msg = [Plain("明日方舟更新了新的游戏公告\n"), Image(data_bytes=image)]
 
-        await app.sendFriendMessage(
+        await app.send_friend_message(
             yaml_data["Basic"]["Permission"]["Master"], MessageChain.create(msg)
         )
+        pushed_group["game"][announce] = pushed_group["game"].get(announce, [])
         for group in group_list:
-            await app.sendMessage(group, MessageChain.create([f"{group.id}\n"] + msg))
+            if group.id in pushed_group["game"][announce]:
+                logger.info(f"[明日方舟蹲饼] {group.id} 已推送过该公告")
+                continue
+            await safeSendGroupMessage(group, MessageChain.create(msg))
             await asyncio.sleep(random.uniform(2, 4))
-
-        await app.sendFriendMessage(
+            pushed_group["game"][announce].append(group.id)
+            save_pushed_group()
+        await app.send_friend_message(
             yaml_data["Basic"]["Permission"]["Master"],
             MessageChain.create([Plain(f"游戏公告推送结束，耗时{time_rec.total()}")]),
         )
@@ -224,4 +234,4 @@ async def get_game_news(app: Ariadne):
         await asyncio.sleep(3)
     save_pushed_list()
 
-    GAME_LOCK = False
+    LOCK = False

@@ -17,7 +17,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import FullMatch, Twilight, WildcardMatch
 
 from config import group_data, yaml_data
-from util.control import Function, Interval, Permission, Rest
+from core.control import Function, Interval, Permission, Rest
 from util.sendMessage import safeSendGroupMessage
 
 channel = Channel.current()
@@ -55,7 +55,7 @@ async def get_nudge(app: Ariadne, nudge: NudgeEvent):
         return
     if (
         yaml_data["Saya"]["PetPet"]["Disabled"]
-        and not yaml_data["Saya"]["PetPet"]["CanNudge"]
+        or not yaml_data["Saya"]["PetPet"]["CanNudge"]
     ):
         return
     elif "PetPet" in group_data[str(nudge.group_id)]["DisabledFunc"]:
