@@ -3,6 +3,8 @@ from asyncio import AbstractEventLoop
 from pathlib import Path
 
 import kayaku
+from arclet.alconna.avilla import AlconnaAvillaAdapter
+from arclet.alconna.graia import AlconnaBehaviour, AlconnaGraiaService
 from avilla.core.application import Avilla
 from avilla.elizabeth.protocol import ElizabethConfig, ElizabethProtocol
 from avilla.qqapi.protocol import QQAPIConfig, QQAPIProtocol
@@ -28,9 +30,10 @@ loop = it(AbstractEventLoop)
 bcc = it(Broadcast)
 saya = it(Saya)
 launart = it(Launart)
+it(AlconnaBehaviour)
 
 with saya.module_context():
-    for dir in Path('func').iterdir():
+    for dir in Path("func").iterdir():
         for module in pkgutil.iter_modules([str(dir)]):
             saya.require(f"{dir.parent}.{dir.name}.{module.name}")
 
@@ -44,6 +47,7 @@ launart.add_component(SchedulerService(it(GraiaScheduler)))
 launart.add_component(AiohttpClientService())
 launart.add_component(MongoDBService(config.database_uri))
 # launart.add_component(PlaywrightService())
+launart.add_component(AlconnaGraiaService(AlconnaAvillaAdapter, enable_cache=False, global_remove_tome=True))
 
 avilla = Avilla(broadcast=bcc, launch_manager=launart, record_send=config.logChat)
 
@@ -74,7 +78,7 @@ if config.protocol.QQAPI.enabled:
     )
 
 # 用这种方法重定向 logging 的 Logger 到 loguru 会丢失部分日志（未解决）
-patch_logger(loop, level='DEBUG' if config.debug else 'INFO')
+patch_logger(loop, level="DEBUG" if config.debug else "INFO")
 del config
 avilla.launch()
 

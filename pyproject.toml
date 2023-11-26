@@ -23,6 +23,7 @@ dependencies = [
     "kayaku>=0.5.2",
     "launart>=0.8.2",
     "motor>=3.3.2",
+    "arclet-alconna-avilla>=0.17.0",
 ]
 requires-python = ">=3.10"
 readme = "README.md"
