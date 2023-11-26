@@ -13,6 +13,7 @@ from graiax.playwright.service import PlaywrightService
 from launart import Launart
 
 from services.database import MongoDBService
+from utils.logger_patcher import patch as patch_logger
 
 # ruff: noqa: E402
 # import 需要 kayaku 的包前需要先初始化 kayaku
@@ -68,8 +69,9 @@ if config.protocol.QQAPI.enabled:
         )
     )
 
+# 用这种方法重定向 logging 的 Logger 到 loguru 会丢失部分日志（未解决）
+patch_logger(loop, level='DEBUG' if config.debug else 'INFO')
 del config
-
 avilla.launch()
 
 # 可选的：退出时保存所有配置
