@@ -4,7 +4,7 @@ from typing import cast
 
 from loguru import logger
 
-from utils.db_model import BanLog, GroupData
+from utils.db_model import AUser, BanLog, CoinLog, GroupData, SignLog
 
 
 class FuncType(str, Enum):
@@ -29,6 +29,133 @@ class FuncItem:
     default_enable: bool
     hidden: bool
     maintain: bool
+
+
+class AUserModel(AUser):
+    @classmethod
+    async def init(cls, user: AUser | str | int):
+        if isinstance(user, str | int):
+            user_id = str(user)
+        elif not isinstance(user, AUser):
+            raise TypeError(f"无法识别的用户类型：{type(user)}")
+        else:
+            user_id = user.qid
+
+        if isinstance(user, AUser):
+            return user
+        user_ = await AUser.find_one(AUser.qid == user_id)
+        if user_ is None:
+            last_userid = await AUser.find_one(sort=[("_id", -1)])
+            uid = int(last_userid.uid) + 1 if last_userid else 1
+            await AUser.insert(AUser(uid=uid, qid=user_id))
+            user_ = await AUser.find_one(AUser.qid == user_id)
+            logger.info(f"[Core.db] 已初始化用户：{user_id}")
+            return cast(AUser, user_)
+        return cast(AUser, user_)
+
+    async def ban(self, reason: str, source: str):
+        if self.banned:
+            return False
+        self.banned = True
+        await AUser.save(self)
+        await BanLog.insert(
+            BanLog(
+                target_id=self.qid,
+                target_type="user",
+                action="ban",
+                ban_reason=reason,
+                ban_source=source,
+            )
+        )
+        return True
+
+    async def unban(self, reason: str, source: str):
+        if not self.banned:
+            return False
+        self.banned = False
+        await AUser.save(self)
+        await BanLog.insert(
+            BanLog(
+                target_id=self.qid,
+                target_type="user",
+                action="unban",
+                ban_reason=reason,
+                ban_source=source,
+            )
+        )
+        return True
+
+    async def sign(self, group_id: str | int):
+        if self.is_sign:
+            return False
+        self.is_sign = True
+        self.total_sign += 1
+        self.continue_sign += 1
+        await AUser.save(self)
+        await SignLog.insert(SignLog(qid=self.qid, group_id=str(group_id)))
+        return True
+
+    async def add_coin(
+        self,
+        num: int,
+        group_id: str | int | None = None,
+        source: str = "未知",
+        detail: str = "",
+    ):
+        self.coin += num
+        await AUser.save(self)
+        await CoinLog.insert(
+            CoinLog(
+                qid=self.qid,
+                group_id=str(group_id),
+                coin=num,
+                source=source,
+                detail=detail,
+            )
+        )
+
+    async def reduce_coin(
+        self,
+        num: int,
+        force: bool = False,
+        group_id: str | int | None = None,
+        source: str = "未知",
+        detail: str = "",
+    ):
+        if self.coin < num:
+            if not force:
+                return False
+            now_coin = self.coin
+            self.coin = 0
+            await AUser.save(self)
+            await CoinLog.insert(
+                CoinLog(
+                    qid=self.qid,
+                    group_id=str(group_id),
+                    coin=-now_coin,
+                    source=source,
+                    detail=detail,
+                )
+            )
+            return now_coin
+        else:
+            self.coin -= num
+            await AUser.save(self)
+            await CoinLog.insert(
+                CoinLog(
+                    qid=self.qid,
+                    group_id=str(group_id),
+                    coin=-num,
+                    source=source,
+                    detail=detail,
+                )
+            )
+            return True
+
+    async def add_talk(self):
+        self.totle_talk += 1
+        self.is_chat = True
+        await AUser.save(self)
 
 
 class AGroupModel(GroupData):
