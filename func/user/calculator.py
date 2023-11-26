@@ -22,9 +22,9 @@ from utils.saya import FuncType, build_metadata
 channel = Channel.current()
 channel.meta = build_metadata(
     func_type=FuncType.user,
-    name='计算器',
-    version='0.0.1',
-    description='',
+    name="计算器",
+    version="0.0.1",
+    description="",
 )
 
 

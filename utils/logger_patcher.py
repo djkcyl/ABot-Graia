@@ -94,7 +94,7 @@ def loguru_exc_callback_async(loop, context: dict):
     logger.opt(exception=exc_info).error("\n".join(log_lines))
 
 
-def patch(loop: "AbstractEventLoop", level: str = 'INFO'):
+def patch(loop: "AbstractEventLoop", level: str = "INFO"):
     """用这种方法重定向 logging 的 Logger 到 loguru 会丢失部分日志（未解决）"""
     logging.basicConfig(handlers=[loguru_handler], level=0, force=True)
 

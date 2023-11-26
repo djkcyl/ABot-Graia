@@ -14,7 +14,7 @@ class MongoDBService(Service):
 
     client: "AgnosticDatabase"
 
-    def __init__(self, uri='mongodb://localhost:27017') -> None:
+    def __init__(self, uri="mongodb://localhost:27017") -> None:
         super().__init__()
         self.uri = uri
 
