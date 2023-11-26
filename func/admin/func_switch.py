@@ -15,6 +15,7 @@ from graia.amnesia.message.chain import MessageChain
 from graia.saya import Channel, Saya
 from graiax.shortcut import decorate, dispatch, listen
 
+from utils.message.parse.twilight.preprocessor import MentionMe
 from utils.saya import build_metadata
 from utils.saya.model import AGroupModel, FuncItem, FuncType
 
@@ -43,14 +44,11 @@ saya = Saya.current()
 @listen(MessageReceived)
 @dispatch(
     Twilight(
-        # 官方api的公域状态下，频道触发bot必带上at，QQ群虽然带上at，但bot收不到这个at且前面可能会有个空格
-        # 私域状态则能收到所有消息
-        # 不确定这么写会不会出事
-        RegexMatch('[ ]', optional=True).param(SpacePolicy.NOSPACE),
-        "action" @ RegexMatch(r"[./]?(开启|关闭)"),
+        "action" @ RegexMatch(r"/(开启|关闭)").param(SpacePolicy.NOSPACE),
         FullMatch("功能"),
         "arg_all" @ ArgumentMatch("-a", "--all", action="store_true"),
         "arg_func_ids" @ WildcardMatch(),
+        preprocessor=MentionMe(),
     ),
 )
 async def main(

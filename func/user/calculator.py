@@ -16,6 +16,7 @@ from graia.amnesia.message.chain import MessageChain
 from graia.saya import Channel
 from graiax.shortcut import dispatch, listen
 
+from utils.message.parse.twilight.preprocessor import MentionMe
 from utils.saya import FuncType, build_metadata
 
 channel = Channel.current()
@@ -30,12 +31,9 @@ channel.meta = build_metadata(
 @listen(MessageReceived)
 @dispatch(
     Twilight(
-        # 官方api的公域状态下，频道触发bot必带上at，QQ群虽然带上at，但bot收不到这个at且前面可能会有个空格
-        # 私域状态则能收到所有消息
-        # 不确定这么写会不会出事
-        RegexMatch('[ ]', optional=True).param(SpacePolicy.NOSPACE),
         FullMatch("/计算器"),
         "formula" @ WildcardMatch(optional=True),
+        preprocessor=MentionMe(),
     )
 )
 async def calculator_main(ctx: Context, msg: Message, formula: RegexResult):

@@ -5,7 +5,7 @@
 groups = ["default", "dev"]
 strategy = ["cross_platform"]
 lock_version = "4.4"
-content_hash = "sha256:6b10b1113c43c048f3004165582eecb46c56ed3ce18d8bd34b2a7a231bc12f12"
+content_hash = "sha256:bf59a14836d25dce93773a02aa49327e01cc64c22ba0a58c5d8f18485fb71b6a"
 
 [[package]]
 name = "aiodns"
@@ -187,7 +187,7 @@ files = [
 
 [[package]]
 name = "avilla-core"
-version = "1.0.0a15"
+version = "1.0.0a17"
 requires_python = ">=3.9"
 summary = ""
 dependencies = [
@@ -198,36 +198,36 @@ dependencies = [
     "loguru>=0.6.0",
 ]
 files = [
-    {file = "avilla_core-1.0.0a15-py3-none-any.whl", hash = "sha256:26dfe3c5568f4990f3b424be4f86a7dbf4b4552bf3e8db1eab2aac7dcfb25d2f"},
-    {file = "avilla_core-1.0.0a15.tar.gz", hash = "sha256:dbc8385c8777d016812837b30611e739f4fc02ac8bfa8249c16028ea5d65cbe3"},
+    {file = "avilla_core-1.0.0a17-py3-none-any.whl", hash = "sha256:f30ed5e7cf65e74e38dd7d8e3b50ddee0388e39089a500a8cafd2ac1da53a094"},
+    {file = "avilla_core-1.0.0a17.tar.gz", hash = "sha256:18cb97716e45c191cd474f977b356fc9ee4fd381bcd215637b72d3bad1f4ccd2"},
 ]
 
 [[package]]
 name = "avilla-elizabeth"
-version = "1.0.0a15"
+version = "1.0.0a16"
 requires_python = ">=3.9"
 summary = ""
 dependencies = [
     "aiohttp>=3.8.1",
-    "avilla-core>=1.0.0a14",
+    "avilla-core>=1.0.0a16",
     "avilla-standard-qq>=1.0.0a7",
 ]
 files = [
-    {file = "avilla_elizabeth-1.0.0a15-py3-none-any.whl", hash = "sha256:a0522bf26fa93ba57617bff9c2ccdbc50dba941367f5ca60f557822c1e8396af"},
-    {file = "avilla_elizabeth-1.0.0a15.tar.gz", hash = "sha256:317e135a3c671dd005a2ac049b2e5110e32deba203a356d9d5bd486d930a1733"},
+    {file = "avilla_elizabeth-1.0.0a16-py3-none-any.whl", hash = "sha256:0a37ca51bf18da5b3be67faf5011855f9fd839225580a6ec3696a4bf29c13cca"},
+    {file = "avilla_elizabeth-1.0.0a16.tar.gz", hash = "sha256:66ea0bc9a3870b5f8fff16d978e8c522ad92459c71c89c814cb554ea4e3ef47d"},
 ]
 
 [[package]]
 name = "avilla-qqapi"
-version = "1.0.0a19"
+version = "1.0.0a21"
 requires_python = ">=3.9"
 summary = ""
 dependencies = [
     "aiohttp>=3.8.1",
 ]
 files = [
-    {file = "avilla_qqapi-1.0.0a19-py3-none-any.whl", hash = "sha256:cb4474d9e69731252f74c82d70fbb63c1f5197e90c91ee95be09d76adeb025eb"},
-    {file = "avilla_qqapi-1.0.0a19.tar.gz", hash = "sha256:b413b049b722eb14a0d70b532a50bbce2797092330ab0065dddd9d573d77da32"},
+    {file = "avilla_qqapi-1.0.0a21-py3-none-any.whl", hash = "sha256:e1a0bb2c42a4e96c364eb3697bfb88bacad7c3943c889eb05027784c429e44aa"},
+    {file = "avilla_qqapi-1.0.0a21.tar.gz", hash = "sha256:ae551594da9bcbdd32d00acc3c41acc3a0022d31667c01e4d9a0c28d4738ec16"},
 ]
 
 [[package]]

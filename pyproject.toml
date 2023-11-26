@@ -7,9 +7,9 @@ authors = [
 ]
 dependencies = [
     "aiohttp[speedups]>=3.9.0",
-    "avilla-core>=1.0.0a15",
-    "avilla-elizabeth>=1.0.0a15",
-    "avilla-qqapi>=1.0.0a19",
+    "avilla-core>=1.0.0a17",
+    "avilla-elizabeth>=1.0.0a16",
+    "avilla-qqapi>=1.0.0a21",
     "avilla-twilight>=0.2.0",
     "beanie>=1.23.6",
     "creart>=0.3.0",

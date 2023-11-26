@@ -1,11 +1,10 @@
-from avilla.core import Context, Message, MessageReceived
+from avilla.core import MessageReceived
 from avilla.core.elements import Notice, Text
 from avilla.standard.core.profile.metadata import Nick
+from avilla.twilight.base import ChainDecorator
 from graia.amnesia.message import Element
 from graia.amnesia.message.chain import MessageChain
 from graia.broadcast.interfaces.dispatcher import DispatcherInterface
-
-from .base import ChainDecorator
 
 
 class MentionMe(ChainDecorator):
@@ -29,6 +28,6 @@ class MentionMe(ChainDecorator):
         first: Element = chain[0]
         if isinstance(name, str) and isinstance(first, Text) and str(first).startswith(name):
             return chain.removeprefix(name).removeprefix(" ")
-        if isinstance(first, Notice) and first.target == ctx.self.last_value:
+        if isinstance(first, Notice) and first.target.last_value == ctx.self.last_value:
             return MessageChain(chain.content[1:]).removeprefix(" ")
         return chain
