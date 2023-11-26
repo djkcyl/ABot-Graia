@@ -1,68 +1,63 @@
-import re
 import asyncio
+import re
 
-from graia.saya import Channel
-from graia.ariadne.model import Group
-from graia.ariadne.message.element import Source
-from graia.ariadne.event.message import GroupMessage
-from graia.ariadne.message.chain import MessageChain
-from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.twilight import (
-    Twilight,
+from avilla.core import Context, Message, MessageReceived
+from avilla.core.elements import Notice, Text
+from avilla.twilight.twilight import (
+    ElementMatch,
     FullMatch,
+    RegexMatch,
     RegexResult,
+    SpacePolicy,
+    Twilight,
     WildcardMatch,
 )
+from graia.amnesia.message.chain import MessageChain
+from graia.saya import Channel
+from graiax.shortcut import dispatch, listen
 
-from util.sendMessage import safeSendGroupMessage
-from core_bak.control import Permission, Interval, Function
+from utils.saya import FuncType, build_metadata
 
 channel = Channel.current()
+channel.meta = build_metadata(
+    func_type=FuncType.user,
+    name='计算器',
+    version='0.0.1',
+    description='',
+)
 
 
-@channel.use(
-    ListenerSchema(
-        listening_events=[GroupMessage],
-        inline_dispatchers=[
-            Twilight(
-                [
-                    FullMatch("计算器"),
-                    "formula" @ WildcardMatch(optional=True),
-                ]
-            )
-        ],
-        decorators=[
-            Function.require("Calculator"),
-            Permission.require(),
-            Interval.require(),
-        ],
+@listen(MessageReceived)
+@dispatch(
+    Twilight(
+        # 官方api的公域状态下，频道触发bot必带上at，QQ群虽然带上at，但bot收不到这个at且前面可能会有个空格
+        # 私域状态则能收到所有消息
+        # 不确定这么写会不会出事
+        RegexMatch('[ ]', optional=True).param(SpacePolicy.NOSPACE),
+        FullMatch("/计算器"),
+        "formula" @ WildcardMatch(optional=True),
     )
 )
-async def calculator_main(group: Group, formula: RegexResult, source: Source):
-    if formula.matched:
-        expression = rep_str(formula.result.asDisplay())
-        if len(expression) > 800:
-            return await safeSendGroupMessage(
-                group, MessageChain.create("字符数过多"), quote=source.id
-            )
-        try:
-            answer = await asyncio.wait_for(
-                asyncio.to_thread(arithmetic, expression), timeout=15
-            )
-        except ZeroDivisionError:
-            return await safeSendGroupMessage(
-                group, MessageChain.create("0 不可作为除数"), quote=source.id
-            )
-        except asyncio.TimeoutError:
-            return await safeSendGroupMessage(
-                group, MessageChain.create("计算超时"), quote=source.id
-            )
-        except Exception:
-            return await safeSendGroupMessage(
-                group, MessageChain.create("出现未知错误，终止计算"), quote=source.id
-            )
+async def calculator_main(ctx: Context, msg: Message, formula: RegexResult):
+    if formula.matched is None:
+        return
+    expression = rep_str(str(formula.result))
+    if len(expression) > 800:
+        await ctx.scene.send_message(MessageChain([Text("字符数过多")]), reply=msg)
+        return
+    try:
+        answer = await asyncio.wait_for(asyncio.to_thread(arithmetic, expression), timeout=15)
+    except ZeroDivisionError:
+        await ctx.scene.send_message(MessageChain([Text("0 不可作为除数")]), reply=msg)
+        return
+    except asyncio.TimeoutError:
+        await ctx.scene.send_message(MessageChain([Text("计算超时")]), reply=msg)
+        return
+    except Exception:
+        await ctx.scene.send_message(MessageChain([Text("出现未知错误，终止计算")]), reply=msg)
+        return
 
-        await safeSendGroupMessage(group, MessageChain.create(answer), quote=source.id)
+    await ctx.scene.send_message(MessageChain([Text(answer)]), reply=msg)
 
 
 def rep_str(say: str):
@@ -86,9 +81,7 @@ def arithmetic(expression="1+1"):
         content = content.group()
         content = content[1:-1]
         replace_content = next_arithmetic(content)
-        expression = re.sub(
-            r"\(([-+*/]*\d+\.?\d*)+\)", replace_content, expression, count=1
-        )
+        expression = re.sub(r"\(([-+*/]*\d+\.?\d*)+\)", replace_content, expression, count=1)
     else:
         return next_arithmetic(expression)
     return arithmetic(expression)
@@ -99,9 +92,7 @@ def next_arithmetic(content):
         if next_content_mul_div := re.search(r"\d+\.?\d*[*/][-+]?\d+\.?\d*", content):
             next_content_mul_div = next_content_mul_div.group()
             mul_div_content = mul_div(next_content_mul_div)
-            content = re.sub(
-                r"\d+\.?\d*[*/][-+]?\d+\.?\d*", str(mul_div_content), content, count=1
-            )
+            content = re.sub(r"\d+\.?\d*[*/][-+]?\d+\.?\d*", str(mul_div_content), content, count=1)
             continue
         next_content_add_sub = re.search(r"-?\d+\.?\d*[-+][-+]?\d+\.?\d*", content)
         if not next_content_add_sub:

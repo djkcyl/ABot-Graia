@@ -5,7 +5,7 @@
 groups = ["default", "dev"]
 strategy = ["cross_platform"]
 lock_version = "4.4"
-content_hash = "sha256:220b1a2ed34b5a9a543d338fd97d224866cbbb2f71c65a82a33dc86ae58bbc6b"
+content_hash = "sha256:6b10b1113c43c048f3004165582eecb46c56ed3ce18d8bd34b2a7a231bc12f12"
 
 [[package]]
 name = "aiodns"
@@ -238,6 +238,16 @@ summary = ""
 files = [
     {file = "avilla_standard_qq-1.0.0a9-py3-none-any.whl", hash = "sha256:c69937119761c9947cb685be1962d4317b0430d40f63de4d5cad4475d936b88c"},
     {file = "avilla_standard_qq-1.0.0a9.tar.gz", hash = "sha256:4afbb8e165533cfc021aef8c4f4179aea4b607976a51baa636bbbb407aa61962"},
+]
+
+[[package]]
+name = "avilla-twilight"
+version = "0.2.0"
+requires_python = ">=3.9"
+summary = "Twilight Message Parser for Avilla"
+files = [
+    {file = "avilla_twilight-0.2.0-py3-none-any.whl", hash = "sha256:af78bdc796282377de5917cb04c8a8e499a6716141fdc802f9abe5a5adbf7083"},
+    {file = "avilla_twilight-0.2.0.tar.gz", hash = "sha256:5cd879403d61e0ead458434c64011fa9ef229df1ed698692ee5049b5af47748b"},
 ]
 
 [[package]]

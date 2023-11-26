@@ -28,8 +28,9 @@ saya = creart.create(Saya)
 launart = creart.create(Launart)
 
 with saya.module_context():
-    for module in pkgutil.iter_modules(["saya"]):
-        saya.require(f"saya.{module.name}")
+    for dir in Path('func').iterdir():
+        for module in pkgutil.iter_modules([str(dir)]):
+            saya.require(f"{dir.parent}.{dir.name}.{module.name}")
 
 # import 完各种包之后在启动 kayaku
 kayaku.bootstrap()
