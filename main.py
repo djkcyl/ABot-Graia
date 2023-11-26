@@ -2,13 +2,15 @@ import pkgutil
 from asyncio import AbstractEventLoop
 from pathlib import Path
 
-import creart
 import kayaku
 from avilla.core.application import Avilla
 from avilla.elizabeth.protocol import ElizabethConfig, ElizabethProtocol
 from avilla.qqapi.protocol import QQAPIConfig, QQAPIProtocol
+from creart import it
 from graia.broadcast import Broadcast
 from graia.saya import Saya
+from graia.scheduler import GraiaScheduler
+from graia.scheduler.service import SchedulerService
 from graiax.playwright.service import PlaywrightService
 from launart import Launart
 
@@ -22,10 +24,10 @@ kayaku.initialize({"{**}": "./config/{**}"})
 from utils.aiohttp_service import AiohttpClientService
 from utils.config import BasicConfig
 
-loop = creart.create(AbstractEventLoop)
-bcc = creart.create(Broadcast)
-saya = creart.create(Saya)
-launart = creart.create(Launart)
+loop = it(AbstractEventLoop)
+bcc = it(Broadcast)
+saya = it(Saya)
+launart = it(Launart)
 
 with saya.module_context():
     for dir in Path('func').iterdir():
@@ -38,6 +40,7 @@ kayaku.bootstrap()
 config = kayaku.create(BasicConfig)
 
 # Avilla 默认添加 MemcacheService
+launart.add_component(SchedulerService(it(GraiaScheduler)))
 launart.add_component(AiohttpClientService())
 launart.add_component(MongoDBService(config.database_uri))
 # launart.add_component(PlaywrightService())
