@@ -6,10 +6,13 @@ import creart
 import kayaku
 from avilla.core.application import Avilla
 from avilla.elizabeth.protocol import ElizabethConfig, ElizabethProtocol
-from avilla.qqapi.protocol import Intents, QQAPIConfig, QQAPIProtocol
+from avilla.qqapi.protocol import QQAPIConfig, QQAPIProtocol
 from graia.broadcast import Broadcast
 from graia.saya import Saya
+from graiax.playwright.service import PlaywrightService
 from launart import Launart
+
+from services.database import MongoDBService
 
 # ruff: noqa: E402
 # import 需要 kayaku 的包前需要先初始化 kayaku
@@ -22,19 +25,22 @@ loop = creart.create(AbstractEventLoop)
 bcc = creart.create(Broadcast)
 saya = creart.create(Saya)
 launart = creart.create(Launart)
-avilla = Avilla(broadcast=bcc, launch_manager=launart, message_cache_size=0)
 
 with saya.module_context():
     for module in pkgutil.iter_modules(["saya"]):
         saya.require(f"saya.{module.name}")
 
-# Avilla 默认添加 MemcacheService
-launart.add_component(AiohttpClientService())
-
 # import 完各种包之后在启动 kayaku
 kayaku.bootstrap()
 
 config = kayaku.create(BasicConfig)
+
+# Avilla 默认添加 MemcacheService
+launart.add_component(AiohttpClientService())
+launart.add_component(MongoDBService(config.database_uri))
+# launart.add_component(PlaywrightService())
+
+avilla = Avilla(broadcast=bcc, launch_manager=launart, record_send=config.logChat)
 
 if config.protocol.miraiApiHttp.enabled:
     avilla.apply_protocols(
@@ -61,6 +67,8 @@ if config.protocol.QQAPI.enabled:
             )
         )
     )
+
+del config
 
 avilla.launch()
 

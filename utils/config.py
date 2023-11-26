@@ -45,3 +45,5 @@ class BasicConfig:
     debug: bool = False
     """是否启用调试模式"""
     protocol: Protocol = field(default_factory=Protocol)
+    database_uri: str = "mongodb://localhost:27017"
+    """MongoDB数据库uri"""

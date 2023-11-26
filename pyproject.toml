@@ -10,15 +10,18 @@ dependencies = [
     "avilla-core>=1.0.0a15",
     "avilla-elizabeth>=1.0.0a15",
     "avilla-qqapi>=1.0.0a19",
+    "beanie>=1.23.6",
     "creart>=0.3.0",
     "dnspython>=2.4.2",
     "graia-amnesia>=0.8.2",
     "graia-broadcast>=0.23.4",
     "graia-saya>=0.0.19",
     "graia-scheduler>=0.3.1",
+    "graiax-playwright>=0.3.1",
     "graiax-shortcut>=0.1.0",
     "kayaku>=0.5.2",
     "launart>=0.8.2",
+    "motor>=3.3.2",
 ]
 requires-python = ">=3.10"
 readme = "README.md"
