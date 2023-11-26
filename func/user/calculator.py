@@ -2,7 +2,7 @@ import asyncio
 import re
 
 from avilla.core import Context, Message, MessageReceived
-from avilla.core.elements import Notice, Text
+from avilla.core.elements import Text
 from avilla.twilight.twilight import (
     ElementMatch,
     FullMatch,
