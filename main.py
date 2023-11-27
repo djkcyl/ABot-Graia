@@ -1,57 +1,87 @@
-import os
-
-from creart import it
+import pkgutil
+from asyncio import AbstractEventLoop
 from pathlib import Path
+
+import kayaku
+from arclet.alconna.avilla import AlconnaAvillaAdapter
+from arclet.alconna.graia import AlconnaBehaviour, AlconnaGraiaService
+from avilla.core.application import Avilla
+from avilla.elizabeth.protocol import ElizabethConfig, ElizabethProtocol
+from avilla.qqapi.protocol import QQAPIConfig, QQAPIProtocol
+from creart import it
+from graia.broadcast import Broadcast
 from graia.saya import Saya
-from graia.ariadne.app import Ariadne
 from graia.scheduler import GraiaScheduler
+from graia.scheduler.service import SchedulerService
 from graiax.playwright.service import PlaywrightService
-from graia.amnesia.builtins.memcache import MemcacheService
-from graia.ariadne.entry import config, HttpClientConfig, WebsocketClientConfig
+from launart import Launart
 
-from core.logger import logger
-from core.s3file import WeedFSService
-from core.data_file import get_data_path
+from services.database import MongoDBService
+from utils.logger_patcher import patch as patch_logger
 
-os.environ["PLAYWRIGHT_BROWSERS_PATH"] = get_data_path("browser", "bin").as_posix()
+# ruff: noqa: E402
+# import 需要 kayaku 的包前需要先初始化 kayaku
+kayaku.initialize({"{**}": "./config/{**}"})
 
-logger.info("ABot is starting...")
+from utils.aiohttp_service import AiohttpClientService
+from utils.config import BasicConfig
 
-
-host = "http://127.0.0.1:8066"
-app_config = config(
-    123456789,
-    "token",
-    HttpClientConfig(host),
-    WebsocketClientConfig(host),
-)
-app = Ariadne(app_config)
-app.config(install_log=True, inject_bypass_listener=True)
-app.launch_manager.add_service(
-    PlaywrightService(
-        # user_data_dir=get_data_path("browser", "data"),
-        # device_scale_factor=1.25,
-        # user_agent=(
-        #     "Mozilla/5.0 (Linux; Android 10; RMX1911) AppleWebKit/537.36 "
-        #     "(KHTML, like Gecko) Chrome/100.0.4896.127 Mobile Safari/537.36"
-        # ),
-    )
-)
-app.launch_manager.add_service(MemcacheService())
-app.launch_manager.add_service(WeedFSService())
-app.create(GraiaScheduler)
-
+loop = it(AbstractEventLoop)
+bcc = it(Broadcast)
 saya = it(Saya)
+launart = it(Launart)
+it(AlconnaBehaviour)
 
 with saya.module_context():
-    ignore = ["__init__.py", "__pycache__"]
-    for module in Path("func").glob("**/__init__.py"):
-        if module in ignore:
-            continue
-        module_name = ".".join(module.parent.parts)
-        saya.require(module_name)
-    logger.info("Saya 加载完成")
+    for dir in Path("func").iterdir():
+        for module in pkgutil.iter_modules([str(dir)]):
+            saya.require(f"{dir.parent}.{dir.name}.{module.name}")
 
+# import 完各种包之后在启动 kayaku
+kayaku.bootstrap()
 
-if __name__ == "__main__":
-    app.launch_blocking()
+config = kayaku.create(BasicConfig)
+
+# Avilla 默认添加 MemcacheService
+launart.add_component(SchedulerService(it(GraiaScheduler)))
+launart.add_component(AiohttpClientService())
+launart.add_component(MongoDBService(config.database_uri))
+# launart.add_component(PlaywrightService())
+launart.add_component(AlconnaGraiaService(AlconnaAvillaAdapter, enable_cache=False, global_remove_tome=True))
+
+avilla = Avilla(broadcast=bcc, launch_manager=launart, record_send=config.logChat)
+
+if config.protocol.miraiApiHttp.enabled:
+    avilla.apply_protocols(
+        ElizabethProtocol().configure(
+            ElizabethConfig(
+                config.protocol.miraiApiHttp.qq,
+                config.protocol.miraiApiHttp.host,
+                config.protocol.miraiApiHttp.port,
+                config.protocol.miraiApiHttp.access_token,
+            )
+        )
+    )
+
+if config.protocol.QQAPI.enabled:
+    avilla.apply_protocols(
+        QQAPIProtocol().configure(
+            QQAPIConfig(
+                config.protocol.QQAPI.id,
+                config.protocol.QQAPI.token,
+                config.protocol.QQAPI.secret,
+                config.protocol.QQAPI.shard,
+                config.protocol.QQAPI.intent,
+                config.protocol.QQAPI.is_sandbox,
+            )
+        )
+    )
+
+# 用这种方法重定向 logging 的 Logger 到 loguru 会丢失部分日志（未解决）
+patch_logger(loop, level="DEBUG" if config.debug else "INFO")
+del config
+avilla.launch()
+
+# 可选的：退出时保存所有配置
+# （会导致运行时手动更改的配置文件会被还原）
+kayaku.save_all()
