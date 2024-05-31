@@ -2,6 +2,7 @@ import json
 import base64
 import asyncio
 from typing import Union
+from loguru import logger
 from tencentcloud.common import credential
 from tencentcloud.common.profile.client_profile import ClientProfile
 from tencentcloud.common.profile.http_profile import HttpProfile
@@ -44,11 +45,13 @@ def image_moderation(img):
 async def image_moderation_async(img: Union[str, bytes]) -> dict:
     try:
         resp = await asyncio.to_thread(image_moderation, img)
+        logger.info(resp)
         if resp["Suggestion"] != "Pass":
             return {"status": False, "message": resp["Label"]}
         else:
             return {"status": True, "message": None}
     except Exception as e:
+        logger.error(e)
         return {"status": "error", "message": e}
 
 

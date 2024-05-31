@@ -14,34 +14,33 @@ from .statusping import StatusPing
 
 async def mcping(say):
     # 获取 ping 信息
-    host = say.split(":")[0]
-    try:
-        port = say.split(":")[1]
-        get_status = StatusPing(host=host, port=int(port)).get_status()
-    except Exception:
-        try:
-            srv_records = dns.resolver.query(f"_minecraft._tcp.{host}", "SRV")
-            srvInfo = {}
-            for srv in srv_records:
-                srvInfo["host"] = str(srv.target).rstrip(".")
-                srvInfo["port"] = srv.port
-            get_status = StatusPing(
-                host=srvInfo["host"], port=int(srvInfo["port"])
-            ).get_status()
-        except Exception:
-            get_status = StatusPing(host=host).get_status()
-
-    get_status = json.dumps(get_status)
-    get_status = re.sub(r"\\u00a7.", "", get_status)
-    get_status = json.loads(get_status)
-    logger.debug(get_status)
-
     msg_send = []
-    # 服务器信息解析
-    # 判断是否报错
-    if get_status == "error":
-        msg_send = [Plain("服务器信息获取失败")]
+    try:
+        host = say.split(":")[0]
+        try:
+            port = say.split(":")[1]
+            get_status = StatusPing(host=host, port=int(port)).get_status()
+        except Exception:
+            try:
+                srv_records = dns.resolver.query(f"_minecraft._tcp.{host}", "SRV")
+                srvInfo = {}
+                for srv in srv_records:
+                    srvInfo["host"] = str(srv.target).rstrip(".")
+                    srvInfo["port"] = srv.port
+                get_status = StatusPing(
+                    host=srvInfo["host"], port=int(srvInfo["port"])
+                ).get_status()
+            except Exception:
+                get_status = StatusPing(host=host).get_status()
+
+        get_status = json.dumps(get_status)
+        get_status = re.sub(r"\\u00a7.", "", get_status)
+        get_status = json.loads(get_status)
+    except Exception as e:
+        logger.exception(e)
+        msg_send = [f"服务器信息获取失败\n{e}"]
         return msg_send
+    logger.debug(get_status)
 
     # 图标
     if "favicon" in get_status:

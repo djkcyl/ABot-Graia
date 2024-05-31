@@ -1,6 +1,6 @@
 import asyncio
 import numpy as np
-import paddleocr.paddleocr as pocr
+import paddleocr as pocr
 
 from PIL import Image
 from io import BytesIO
@@ -14,9 +14,7 @@ from .TimeTool import TimeRecorder
 paddleocr_file = Path(pocr.__file__).read_text()
 if "# print(params)" not in paddleocr_file:
     logger.warning("paddleocr.paddleocr.__file__ fixed")
-    Path(pocr.__file__).write_text(
-        paddleocr_file.replace("print(params)", "# print(params)")
-    )
+    Path(pocr.__file__).write_text(paddleocr_file.replace("print(params)", "# print(params)"))
 
 ocr_core = pocr.PaddleOCR(lang="ch", show_log=False, use_mp=True)
 
@@ -26,19 +24,14 @@ class OCR:
         self.image_data = image_data
 
     async def ocr(self, detail=False):
-
         if isinstance(self.image_data, Image.Image):
-            img: np.ndarray = self.image_data.convert("RGB").__array__()
+            img: np.ndarray = np.array(self.image_data.convert("RGB"), np.float32)
         elif isinstance(self.image_data, np.ndarray):
             img = self.image_data
-        elif isinstance(self.image_data, (Path, str)):
-            img = Image.open(self.image_data).convert("RGB").__array__()
         elif isinstance(self.image_data, bytes):
-            img = Image.open(BytesIO(self.image_data)).convert("RGB").__array__()
+            img = np.array(Image.open(BytesIO(self.image_data)).convert("RGB"), np.float32)
         else:
-            raise TypeError(
-                "image_data must be bytes, Image.Image, np.ndarray, Path, or str"
-            )
+            raise TypeError("image_data must be bytes, Image.Image, np.ndarray")
 
         time = TimeRecorder()
         result = await asyncio.to_thread(ocr_core.ocr, img, cls=False)

@@ -204,12 +204,6 @@ Saya: # saya 插件配置
   Reminder: # 定时提醒
     Disabled: false
 
-  Real-ESRGAN: # AI图片超分，请谨慎开启，此功能将严重消耗您服务器的性能
-    Disabled: false
-    MaxSize: 16000000 # 最大像素量
-    Review: true # 腾讯云安全审核
-    UpdateCos: false # 开启后将会上传结果至腾讯云COS内，需自行开通COS功能并创建存储桶
-
   ArkRecruit: # 明日方舟公招识别
     Disabled: false
 

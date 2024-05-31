@@ -115,7 +115,10 @@ async def get_pic(type, name):
 async def draw_r6(nick_name: str) -> List[Union[Image, Plain]]:
 
     async with httpx.AsyncClient(timeout=10, auth=AUTH, follow_redirects=True) as client:
-        resp = await client.get(f"https://api.statsdb.net/r6/pc/player/{nick_name}")
+        try:
+            resp = await client.get(f"https://api.statsdb.net/r6/pc/player/{nick_name}")
+        except httpx.HTTPError:
+            return [Plain("查询失败，请稍后再试")]
 
         if resp.status_code == 200:
             data = resp.json()

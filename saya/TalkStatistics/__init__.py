@@ -59,9 +59,7 @@ async def get_image(group: Group):
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage], priority=-16))
-async def add_talk_word(
-    app: Ariadne, group: Group, member: Member, message: MessageChain
-):
+async def add_talk_word(app: Ariadne, group: Group, member: Member, message: MessageChain):
 
     if str(group.id) not in group_data:
         group_data[str(group.id)] = groupInitData
@@ -145,8 +143,8 @@ async def download(element: MultimediaElement, name, path, type):
         if type == 4:
             try:
                 print(len(r))
-                now_path.joinpath(f"{name}.ogg").write_bytes(
-                    await silkcoder.async_decode(r, audio_format="ogg", rate=32000)
+                await silkcoder.async_decode(
+                    r, now_path.joinpath(f"{name}.ogg"), audio_format="ogg", rate=32000
                 )
                 logger.info(f"语音 {name} 下载成功")
             except Exception as e:

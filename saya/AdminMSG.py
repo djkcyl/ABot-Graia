@@ -168,7 +168,7 @@ async def Announcement(app: Ariadne, friend: Friend, anything: RegexResult):
                         yaml_data["Basic"]["Permission"]["Master"],
                         MessageChain.create([Plain(f"{group.id} 的公告发送失败\n{err}")]),
                     )
-                await asyncio.sleep(random.uniform(2, 4))
+                await asyncio.sleep(random.uniform(10, 15))
         tt = time.time()
         times = str(tt - ft)
         await app.sendFriendMessage(
@@ -713,4 +713,4 @@ async def user_agreement(app: Ariadne, friend: Friend):
                     yaml_data["Basic"]["Permission"]["Master"],
                     MessageChain.create([Plain(f"{group.id} 的公告发送失败\n{err}")]),
                 )
-            await asyncio.sleep(random.uniform(2, 4))
+            await asyncio.sleep(random.uniform(10, 15))

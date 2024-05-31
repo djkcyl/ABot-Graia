@@ -3,13 +3,14 @@ import random
 
 from graia.saya import Channel
 from graia.ariadne.model import Group, Member
-from graia.ariadne.message.element import At, Plain
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.event.message import GroupMessage
+from graia.ariadne.message.element import At, Plain, Image
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import FullMatch, Twilight
 
 from config import COIN_NAME
+from util.text2image import create_image
 from database.db import add_gold, sign, get_info
 from util.sendMessage import safeSendGroupMessage
 from util.control import Function, Interval, Permission
@@ -41,8 +42,10 @@ async def main(group: Group, member: Member):
 
         first_sign_gold = 60 if user[2] == 1 else 0
         gold_add = (
-            random.randint(9, 21) if random.randint(1, 10) == 1 else random.randint(5, 12)
-        ) + continue_reward + first_sign_gold
+            (random.randint(9, 21) if random.randint(1, 10) == 1 else random.randint(5, 12))
+            + continue_reward
+            + first_sign_gold
+        )
         await add_gold(member.id, gold_add)
         sign_text = (
             f"今日签到成功！\n本次签到获得 {COIN_NAME} {gold_add} 个\n你已连续签到{user[5]}天，{continue_text}"
@@ -64,9 +67,18 @@ async def main(group: Group, member: Member):
     else:
         time_nick = "唔。。还没睡吗？要做一个乖孩子，早睡早起身体好喔！晚安❤"
 
+    sign_text += (
+        "\n \nABot 新业务：明日方舟云挂机（日常代肝），发送 “方舟挂机帮助” 可查看挂机帮助菜单。"
+        "老用户可凭已有游戏币和历史总签到天数兑换挂机时长，具体兑换规则请查看挂机业务帮助菜单"
+    )
+
     await safeSendGroupMessage(
         group,
         MessageChain.create(
-            [Plain(f"{time_nick}，"), At(member.id), Plain(f"\n{sign_text}")]
+            [
+                Plain(f"{time_nick}，"),
+                At(member.id),
+                Image(data_bytes=await create_image(sign_text, 30)),
+            ]
         ),
     )

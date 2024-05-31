@@ -25,6 +25,7 @@ class User(BaseModel):
     english_answer = IntegerField(default=0)
     gold = IntegerField(default=0)
     talk_num = IntegerField(default=0)
+    rewarded_sign = IntegerField(default=0)
 
     class Meta:
         table_name = "user_info"
@@ -34,7 +35,7 @@ db.create_tables([User], safe=True)
 
 
 def init_user(qq):
-    user = User.select().where(User.qq == qq)
+    user = User.select().where(User.qq == str(qq))
     if not user.exists():
         p = User(qq=str(qq))
         p.save()
@@ -63,6 +64,7 @@ async def get_info(qq):
         user.gold,
         user.talk_num,
         user.continue_sign,
+        user.rewarded_sign,
     ]
 
 
@@ -154,15 +156,16 @@ async def get_ranking():
         user_id = user_info.id
         user_qq = user_info.qq
 
-        async with httpx.AsyncClient(timeout=10) as client:
-            r = await client.get(
-                f"https://r.qzone.qq.com/fcg-bin/cgi_get_portrait.fcg?uins={user_qq}"
-            )
-            r.encoding = "GBK"
-            qqdata = r.text
+        # async with httpx.AsyncClient(timeout=10) as client:
+        #     r = await client.get(
+        #         f"https://r.qzone.qq.com/fcg-bin/cgi_get_portrait.fcg?uins={user_qq}"
+        #     )
+        #     r.encoding = "GBK"
+        #     qqdata = r.text
 
-        qqdata = json.loads(qqdata[17:-1])
-        user_nick = qqdata[user_qq][-2]
+        # qqdata = json.loads(qqdata[17:-1])
+        # user_nick = qqdata[user_qq][-2]
+        user_nick = "未知"
 
         # user_nick = getCutStr(qqnick, 20)
         user_gold = user_info.gold
@@ -201,18 +204,19 @@ async def get_ranking():
         user_id = user_info.id
         user_qq = user_info.qq
 
-        async with httpx.AsyncClient(timeout=10) as client:
-            r = await client.get(
-                f"https://r.qzone.qq.com/fcg-bin/cgi_get_portrait.fcg?uins={user_qq}"
-            )
-            r.encoding = "GBK"
-            if r.status_code == 404:
-                continue
-            qqdata = r.text
+        # async with httpx.AsyncClient(timeout=10) as client:
+        #     r = await client.get(
+        #         f"https://r.qzone.qq.com/fcg-bin/cgi_get_portrait.fcg?uins={user_qq}"
+        #     )
+        #     r.encoding = "GBK"
+        #     if r.status_code == 404:
+        #         continue
+        #     qqdata = r.text
 
-        qqdata = json.loads(qqdata[17:-1])
+        # qqdata = json.loads(qqdata[17:-1])
 
-        user_nick = qqdata[user_qq][-2]
+        # user_nick = qqdata[user_qq][-2]
+        user_nick = "未知"
 
         # user_nick = getCutStr(qqnick, 20)
         user_gold = user_info.gold
@@ -250,15 +254,16 @@ async def get_ranking():
     for user_info in user_list[:15]:
         user_id = user_info.id
         user_qq = user_info.qq
-        async with httpx.AsyncClient(timeout=10) as client:
-            r = await client.get(
-                f"https://r.qzone.qq.com/fcg-bin/cgi_get_portrait.fcg?uins={user_qq}"
-            )
-            r.encoding = "GBK"
-            qqdata = r.text
+        # async with httpx.AsyncClient(timeout=10) as client:
+        #     r = await client.get(
+        #         f"https://r.qzone.qq.com/fcg-bin/cgi_get_portrait.fcg?uins={user_qq}"
+        #     )
+        #     r.encoding = "GBK"
+        #     qqdata = r.text
 
-        qqdata = json.loads(qqdata[17:-1])
-        user_nick = qqdata[user_qq][-2]
+        # qqdata = json.loads(qqdata[17:-1])
+        # user_nick = qqdata[user_qq][-2]
+        user_nick = "未知"
 
         # user_nick = getCutStr(qqnick, 20)
         user_gold = user_info.gold
@@ -295,3 +300,9 @@ def ladder_rent_collection():
 
 def set_all_user_gold(gold: int):
     User.update(gold=gold).execute()
+
+
+def add_rewarded_sign(qq, num):
+    user = User.get(User.qq == str(qq))
+    user.rewarded_sign += num
+    user.save()

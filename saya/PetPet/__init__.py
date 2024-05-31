@@ -55,7 +55,7 @@ async def get_nudge(app: Ariadne, nudge: NudgeEvent):
         return
     if (
         yaml_data["Saya"]["PetPet"]["Disabled"]
-        and not yaml_data["Saya"]["PetPet"]["CanNudge"]
+        or not yaml_data["Saya"]["PetPet"]["CanNudge"]
     ):
         return
     elif "PetPet" in group_data[str(nudge.group_id)]["DisabledFunc"]:

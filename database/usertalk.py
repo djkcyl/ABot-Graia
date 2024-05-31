@@ -34,9 +34,7 @@ async def add_talk(qq, group, type, msg, url=None):
     >>> 3 为闪照
     >>> 4 为语音
     """
-    p = UserTalk(
-        qq=str(qq), group=group, type=type, url=url, msg=msg, time=int(time.time())
-    )
+    p = UserTalk(qq=str(qq), group=group, type=type, url=url, msg=msg, time=int(time.time()))
     p.save()
 
 

@@ -13,10 +13,7 @@ class StatusPing:
     def _unpack_varint(self, sock):
         data = 0
         for i in range(5):
-            try:
-                ordinal = sock.recv(1)
-            except Exception:
-                return "error"
+            ordinal = sock.recv(1)
             if len(ordinal) == 0:
                 break
 
@@ -81,11 +78,8 @@ class StatusPing:
 
     def get_status(self):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as connection:
-            try:
-                connection.settimeout(self._timeout)
-                connection.connect((self._host, self._port))
-            except Exception:
-                return "error"
+            connection.settimeout(self._timeout)
+            connection.connect((self._host, self._port))
             self._send_data(connection, b"\x00\x00", self._host, self._port, b"\x01")
             self._send_data(connection, b"\x00")
 
@@ -94,10 +88,7 @@ class StatusPing:
             self._send_data(connection, b"\x01", time.time() * 1000)
             unix = self._read_fully(connection)
 
-        try:
-            response = json.loads(data.decode("utf8"))
-            response["ping"] = int(time.time() * 1000) - struct.unpack("Q", unix)[0]
-        except Exception:
-            return "error"
+        response = json.loads(data.decode("utf8"))
+        response["ping"] = int(time.time() * 1000) - struct.unpack("Q", unix)[0]
 
         return response

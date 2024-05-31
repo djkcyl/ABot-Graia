@@ -66,10 +66,12 @@ class Rest:
     用于控制睡眠的类，不应被实例化
     """
 
-    def set_sleep(self):
+    @staticmethod
+    def set_sleep(sleep):
         global SLEEP
-        SLEEP = self
+        SLEEP = sleep
 
+    @staticmethod
     def rest_control(zzzz: bool = True):
         async def sleep(event: GroupMessage):
             if (
@@ -96,7 +98,7 @@ class Function:
     """
     用于功能管理的类，不应该被实例化
     """
-
+    @staticmethod
     def require(funcname: str) -> Depend:
         def func_check(member: Member):
             if member.id == yaml_data["Basic"]["Permission"]["Master"]:

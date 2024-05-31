@@ -51,12 +51,12 @@ if not yaml_data["Saya"]["CloudMusic"]["Disabled"]:
             "无法连接网易云音乐后端，请检查是否完成搭建并成功启动 https://github.com/Binaryify/NeteaseCloudMusicApi"
         )
         exit(1)
-    try:
-        httpx.get(QQ_HOST)
-        logger.info("QQ音乐登录成功")
-    except httpx.ConnectError:
-        logger.error("无法连接QQ音乐后端，请检查是否完成搭建并成功启动 https://github.com/Rain120/qq-music-api")
-        exit(1)
+    # try:
+    #     httpx.get(QQ_HOST)
+    #     logger.info("QQ音乐登录成功")
+    # except httpx.ConnectError:
+    #     logger.error("无法连接QQ音乐后端，请检查是否完成搭建并成功启动 https://github.com/Rain120/qq-music-api")
+    #     exit(1)
 
 WAITING = []
 
@@ -195,40 +195,40 @@ async def sing(
                 num += 1
                 i += 1
 
-        for _ in range(3):
-            try:
-                async with httpx.AsyncClient() as client:
-                    resp = await client.get(f"{QQ_HOST}/getSearchByKey?key={musicname}")
-                    search = resp.json()
-                    break
-            except Exception:
-                logger.error("QQ Music API 连接出错，正在重试")
-                await asyncio.sleep(0.5)
-        else:
-            WAITING.remove(member.id)
-            return await safeSendGroupMessage(
-                group, MessageChain.create([Plain("QQ Music API 连接出错")])
-            )
-        if search["response"]["data"]["song"]["curnum"] == 0:
-            notfound += 1
-        else:
-            musiclist = search["response"]["data"]["song"]["list"]
-            num = 1
-            msg += "\n===============================\n为你在QQ音乐找到以下歌曲！\n==============================="
-            for music in musiclist:
-                if num > 10:
-                    break
-                music_id = music["songmid"]
-                music_name = music["songname"]
-                music_ar = []
-                for ar in music["singer"]:
-                    music_ar.append(ar["name"])
-                music_ar = "/".join(music_ar)
-                num_str = " " + str(i) if i < 10 else str(i)
-                msg += f"\n{num_str}    ===>    {music_name} - {music_ar}"
-                musicIdList.append([2, music_id])
-                num += 1
-                i += 1
+        # for _ in range(3):
+        #     try:
+        #         async with httpx.AsyncClient() as client:
+        #             resp = await client.get(f"{QQ_HOST}/getSearchByKey?key={musicname}")
+        #             search = resp.json()
+        #             break
+        #     except Exception:
+        #         logger.error("QQ Music API 连接出错，正在重试")
+        #         await asyncio.sleep(0.5)
+        # else:
+        #     WAITING.remove(member.id)
+        #     return await safeSendGroupMessage(
+        #         group, MessageChain.create([Plain("QQ Music API 连接出错")])
+        #     )
+        # if search["response"]["data"]["song"]["curnum"] == 0:
+        #     notfound += 1
+        # else:
+        #     musiclist = search["response"]["data"]["song"]["list"]
+        #     num = 1
+        #     msg += "\n===============================\n为你在QQ音乐找到以下歌曲！\n==============================="
+        #     for music in musiclist:
+        #         if num > 10:
+        #             break
+        #         music_id = music["songmid"]
+        #         music_name = music["songname"]
+        #         music_ar = []
+        #         for ar in music["singer"]:
+        #             music_ar.append(ar["name"])
+        #         music_ar = "/".join(music_ar)
+        #         num_str = " " + str(i) if i < 10 else str(i)
+        #         msg += f"\n{num_str}    ===>    {music_name} - {music_ar}"
+        #         musicIdList.append([2, music_id])
+        #         num += 1
+        #         i += 1
 
         if notfound == 2:
             WAITING.remove(member.id)

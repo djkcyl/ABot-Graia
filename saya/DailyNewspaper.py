@@ -95,7 +95,7 @@ async def send(app: Ariadne):
                 yaml_data["Basic"]["Permission"]["Master"],
                 MessageChain.create([Plain(f"{group.id} 的日报发送失败\n{err}")]),
             )
-        await asyncio.sleep(random.uniform(4, 6))
+        await asyncio.sleep(random.uniform(10, 15))
     allTime = time.time() - ts
     await app.sendFriendMessage(
         yaml_data["Basic"]["Permission"]["Master"],

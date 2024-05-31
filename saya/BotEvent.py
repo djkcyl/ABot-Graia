@@ -54,13 +54,14 @@ async def groupDataInit(app: Ariadne):
     """
     Graia 成功启动
     """
-    groupList = await app.getGroupList()
-    groupNum = len(groupList)
     init_user(yaml_data["Basic"]["Permission"]["Master"])
     master = await app.getFriend(yaml_data["Basic"]["Permission"]["Master"])
     if not master:
-        logger.error(f"当前未添加主人好友（{yaml_data['Basic']['Permission']['Master']}），请手动添加")
+        logger.error(f"当前 {app.account} 未添加主人好友（{yaml_data['Basic']['Permission']['Master']}），请手动添加")
         exit()
+    groupList = await app.getGroupList()
+    groupNum = len(groupList)
+    logger.info(f"当前 {yaml_data['Basic']['BotName']} 共加入了 {groupNum} 个群")
     await app.sendFriendMessage(
         yaml_data["Basic"]["Permission"]["Master"],
         MessageChain.create(
